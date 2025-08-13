@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @State private var showVideoPropertyList = false
     @State private var selectedVideoURL: URL?
-    @StateObject private var videoPlayerManager = VideoPlayerManager()
+    @ObservedObject var videoPlayerManager: VideoPlayerManager
     
     var body: some View {
         ZStack {
@@ -155,5 +155,5 @@ struct QuickActionCard: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(videoPlayerManager: VideoPlayerManager())
 }

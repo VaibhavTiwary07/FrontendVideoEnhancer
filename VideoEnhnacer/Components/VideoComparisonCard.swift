@@ -5,7 +5,7 @@ struct VideoComparisonCard: View {
     let subtitle: String
     let normalVideo: String
     let enhancedVideo: String
-    let videoPlayerManager: VideoPlayerManager
+    @ObservedObject var videoPlayerManager: VideoPlayerManager
     let action: () -> Void
     @State private var isPressed = false
     

@@ -4,7 +4,7 @@ import AVFoundation
 struct VideoComparisonSlider: View {
     let normalVideoName: String
     let enhancedVideoName: String
-    let videoPlayerManager: VideoPlayerManager
+    @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var sliderValue: Double = 0.5
     
     private var videoKey: String {

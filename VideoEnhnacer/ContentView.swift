@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var videoPlayerManager = VideoPlayerManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
     
@@ -22,11 +23,11 @@ struct ContentView: View {
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomeView()
+                        HomeView(videoPlayerManager: videoPlayerManager)
                     case 1:
                         MyCreationsView()
                     default:
-                        HomeView()
+                        HomeView(videoPlayerManager: videoPlayerManager)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
