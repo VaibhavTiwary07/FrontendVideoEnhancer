@@ -3,7 +3,8 @@ import SwiftUI
 struct HomeView: View {
     @State private var showVideoPropertyList = false
     @State private var selectedVideoURL: URL?
-    @StateObject private var videoPlayerManager = VideoPlayerManager()
+    @ObservedObject var videoPlayerManager: VideoPlayerManager
+    @State private var isHomeViewActive = false
     
     var body: some View {
         ZStack {
@@ -26,74 +27,82 @@ struct HomeView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     
-                    // Video Enhancements
+                    // Top Carousel Section
+                    PageControlImageCarousel()
+                    
+                    // Enhancement Cards Section
                     VStack(spacing: 16) {
-                        Text("Video Enhancements")
+                        Text("Enhancement Options")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.primaryText)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
                         
-                        VStack(spacing: 12) {
-                            VideoComparisonCard(
+                        VStack(spacing: 16) {
+                            ImageComparisonCard(
+                                icon: "arrow.up.square",
                                 title: "AI Upscale",
-                                subtitle: "See the difference in real-time",
-                                normalVideo: "normal",
-                                enhancedVideo: "enhanced",
-                                videoPlayerManager: videoPlayerManager
+                                subtitle: "Enhance image resolution",
+                                gradientType: .redPink
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "face.smiling",
                                 title: "Face & Object Enhancer",
-                                subtitle: "Improve facial features and objects"
+                                subtitle: "Improve facial features",
+                                gradientType: .yellowGray
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "waveform.path",
                                 title: "AI Denoise",
-                                subtitle: "Remove grain and noise"
+                                subtitle: "Remove grain and noise",
+                                gradientType: .purpleGray
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "paintpalette.fill",
                                 title: "AI Color",
-                                subtitle: "Color correction and enhancement"
+                                subtitle: "Color correction",
+                                gradientType: .cyanGray
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "wand.and.stars",
                                 title: "AI Auto Enhancement",
-                                subtitle: "One-click smart improvements"
+                                subtitle: "One-click improvements",
+                                gradientType: .pinkGray
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "gyroscope",
                                 title: "Stabilizer",
-                                subtitle: "Reduce camera shake"
+                                subtitle: "Reduce camera shake",
+                                gradientType: .gray
                             ) {
                                 showVideoPropertyList = true
                             }
                             
-                            QuickActionCard(
+                            ImageComparisonCard(
                                 icon: "timer.circle.fill",
                                 title: "Frame Interpolation",
-                                subtitle: "Smooth motion and increase frame rate"
+                                subtitle: "Smooth motion",
+                                gradientType: .redPink
                             ) {
                                 showVideoPropertyList = true
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
                     
                     Spacer(minLength: 100)
                 }
@@ -115,45 +124,16 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
+        .onAppear {
+            isHomeViewActive = true
+        }
+        .onDisappear {
+            isHomeViewActive = false
+        }
     }
 }
 
-struct QuickActionCard: View {
-    let icon: String
-    let title: String
-    let subtitle: String
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 32, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(width: 60, height: 60)
-                    .background(
-                        Circle()
-                            .primaryGradient()
-                    )
-                
-                VStack(spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primaryText)
-                    
-                    Text(subtitle)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.secondaryText)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .neomorphicCard()
-    }
-}
 
 #Preview {
-    HomeView()
+    HomeView(videoPlayerManager: VideoPlayerManager())
 }

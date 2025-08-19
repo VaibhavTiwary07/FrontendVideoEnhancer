@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var videoPlayerManager = VideoPlayerManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
+    @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
         ZStack {
@@ -22,11 +24,11 @@ struct ContentView: View {
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomeView()
+                        HomeView(videoPlayerManager: videoPlayerManager)
                     case 1:
                         MyCreationsView()
                     default:
-                        HomeView()
+                        HomeView(videoPlayerManager: videoPlayerManager)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -64,6 +66,16 @@ struct ContentView: View {
         }
         .background(Color.appBackground)
         .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0), value: isSidebarExpanded)
+        .onChange(of: scenePhase) { newPhase in
+            switch newPhase {
+            case .background:
+                videoPlayerManager.pauseAllPlayers()
+            case .active:
+                videoPlayerManager.resumeActiveViewPlayers()
+            default:
+                break
+            }
+        }
     }
 }
 

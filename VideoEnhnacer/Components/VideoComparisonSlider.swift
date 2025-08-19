@@ -1,14 +1,20 @@
 import SwiftUI
 import AVFoundation
+import UIKit
 
 struct VideoComparisonSlider: View {
     let normalVideoName: String
     let enhancedVideoName: String
-    let videoPlayerManager: VideoPlayerManager
+    @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var sliderValue: Double = 0.5
+    @State private var isViewVisible: Bool = false
     
     private var videoKey: String {
         "\(normalVideoName)-\(enhancedVideoName)"
+    }
+    
+    private var playerState: VideoPlayerManager.PlayerState {
+        videoPlayerManager.getPlayerState(forKey: videoKey)
     }
     
     var body: some View {
@@ -24,67 +30,43 @@ struct VideoComparisonSlider: View {
                     // Video Players Container
                     ZStack {
                         // Enhanced Video (Background)
-                        if let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
-                            VideoPlayerView(player: enhancedPlayer)
-                                .frame(height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } else {
-                            Rectangle()
-                                .fill(LinearGradient(
-                                    colors: [
-                                        Color(red: 0.988, green: 0.753, blue: 0.424).opacity(0.3),
-                                        Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .frame(height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    Text("Enhanced")
-                                        .font(.caption)
-                                        .foregroundColor(.secondaryText)
-                                )
+                        Group {
+                            if playerState == .ready,
+                               let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
+                                VideoPlayerView(player: enhancedPlayer)
+                                    .frame(height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } else {
+                                videoPlaceholder(title: "Enhanced", isLoading: playerState == .loading)
+                            }
                         }
                         
                         // Normal Video (Overlay with mask)
-                        if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
-                            VideoPlayerView(player: normalPlayer)
-                                .frame(height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .mask(
-                                    HStack(spacing: 0) {
-                                        Rectangle()
-                                            .frame(width: geometry.size.width * sliderValue)
-                                        
-                                        Color.clear
-                                    }
-                                )
-                        } else {
-                            Rectangle()
-                                .fill(LinearGradient(
-                                    colors: [
-                                        Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
-                                        Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .frame(height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    Text("Normal")
-                                        .font(.caption)
-                                        .foregroundColor(.secondaryText)
-                                )
-                                .mask(
-                                    HStack(spacing: 0) {
-                                        Rectangle()
-                                            .frame(width: geometry.size.width * sliderValue)
-                                        
-                                        Color.clear
-                                    }
-                                )
+                        Group {
+                            if playerState == .ready,
+                               let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+                                VideoPlayerView(player: normalPlayer)
+                                    .frame(height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .mask(
+                                        HStack(spacing: 0) {
+                                            Rectangle()
+                                                .frame(width: geometry.size.width * sliderValue)
+                                            
+                                            Color.clear
+                                        }
+                                    )
+                            } else {
+                                videoPlaceholder(title: "Normal", isLoading: playerState == .loading)
+                                    .mask(
+                                        HStack(spacing: 0) {
+                                            Rectangle()
+                                                .frame(width: geometry.size.width * sliderValue)
+                                            
+                                            Color.clear
+                                        }
+                                    )
+                            }
                         }
                         
                         // Divider Line
@@ -173,13 +155,52 @@ struct VideoComparisonSlider: View {
             }
         }
         .onAppear {
+            isViewVisible = true
             videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
         }
         .onDisappear {
-            videoPlayerManager.pausePlayers(forKey: videoKey)
+            isViewVisible = false
+            videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
+        }
+        .onChange(of: playerState) { state in
+            // Handle state changes if needed for animations
         }
     }
     
+    @ViewBuilder
+    private func videoPlaceholder(title: String, isLoading: Bool) -> some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
+                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            ))
+            .frame(height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                ZStack {
+                    if isLoading {
+                        VStack(spacing: 8) {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                                .tint(Color.primaryText.opacity(0.6))
+                            
+                            Text("Loading...")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.secondaryText)
+                        }
+                    } else {
+                        Text(title)
+                            .font(.caption)
+                            .foregroundColor(.secondaryText)
+                    }
+                }
+            )
+    }
 }
 
 struct VideoPlayerView: UIViewRepresentable {
