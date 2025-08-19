@@ -63,7 +63,7 @@ struct ImageComparisonCard: View {
                 // Content overlay
                 HStack(spacing: 0) {
                     // Left side - Icon and text over gradient
-                    VStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 12) {
                         // Icon with background
                         Image(systemName: icon)
                             .font(.system(size: 24, weight: .medium))
@@ -77,28 +77,27 @@ struct ImageComparisonCard: View {
                             )
                         
                         // Title and subtitle
-                        VStack(spacing: 4) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(title)
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
+                                .multilineTextAlignment(.leading)
 
                             Text(subtitle)
                                 .font(.system(size: 10, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
-                                .multilineTextAlignment(.center)
+                                .multilineTextAlignment(.leading)
                                 .lineLimit(2)
                         }
                     }
-                    .frame(maxWidth: .infinity)
                     .padding(.leading, 16)
                 
                     Spacer()
                     
                     // Right side - Image comparison overlay
                     ImageComparisonSlider(
-                        beforeImageName: "test.png",
-                        afterImageName: "testEnhanced.png",
+                        beforeImageName: "test",
+                        afterImageName: "testEnhanced",
                         sliderValue: $sliderValue
                     )
                     .frame(width: 120, height: 120)

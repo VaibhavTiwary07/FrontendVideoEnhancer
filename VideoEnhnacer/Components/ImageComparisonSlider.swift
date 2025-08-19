@@ -34,6 +34,26 @@ struct ImageComparisonSlider: View {
                     .position(x: geometry.size.width * sliderValue,
                               y: geometry.size.height * 0.5)
 
+                // Before/After labels
+                HStack {
+                    Text("Before")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.7))
+                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                        .padding(.leading, 8)
+                        .padding(.bottom, 4)
+                    
+                    Spacer()
+                    
+                    Text("After")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.7))
+                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                        .padding(.trailing, 8)
+                        .padding(.bottom, 4)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+
                 Rectangle()
                     .fill(Color.clear)
                     .contentShape(Rectangle())

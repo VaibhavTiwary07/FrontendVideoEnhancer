@@ -7,7 +7,7 @@ struct AppGradients {
         colors: [
             Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91),      // Strong red start
             Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3),     // Muted coral
-            Color(red: 255/255, green: 200/255, blue: 180/255).opacity(0.15),   // Very light
+            /*Color(red: 255/255, green: 200/255, blue: 180/255).opacity(0.15),*/   // Very light
             Color(red: 255/255, green: 245/255, blue: 245/255).opacity(0.0)     // Transparent end
         ],
         startPoint: .leading,
