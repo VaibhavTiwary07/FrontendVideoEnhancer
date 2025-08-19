@@ -10,6 +10,11 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var isPressed = false
     @State private var animationTimer: Timer?
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
+    }
     
     var body: some View {
         Button(action: action) {
@@ -63,32 +68,36 @@ struct ImageComparisonCard: View {
                 // Content overlay
                 HStack(spacing: 0) {
                     // Left side - Icon and text over gradient
-                    VStack(alignment: .leading, spacing: 12) {
-                        // Icon with background
-                        Image(systemName: icon)
-                            .font(.system(size: 24, weight: .medium))
-                            .foregroundColor(.white)
-                            .frame(width: 48, height: 48)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.15))
-                                    .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                                    .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                            )
-                        
-                        // Title and subtitle
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(title)
-                                .font(.system(size: 14, weight: .bold))
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .center, spacing: 12) {
+                            // Icon with background
+                            Image(systemName: icon)
+                                .font(.system(size: isIPad ? 32 : 24, weight: .medium))
                                 .foregroundColor(.white)
-                                .multilineTextAlignment(.leading)
+                                .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
+                                .background(
+                                    Circle()
+                                        .fill(Color.black.opacity(0.15))
+                                        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                                        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+                                )
+                            
+                            // Title and subtitle
+                            VStack(alignment: .center, spacing: 4) {
+                                Text(title)
+                                    .font(.system(size: isIPad ? 18 : 14, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
 
-                            Text(subtitle)
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.white.opacity(0.7))
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(2)
+                                Text(subtitle)
+                                    .font(.system(size: isIPad ? 14 : 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
                         }
+                        Spacer()
                     }
                     .padding(.leading, 16)
                 
