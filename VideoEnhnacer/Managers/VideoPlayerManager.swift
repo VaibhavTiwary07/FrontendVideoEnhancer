@@ -5,32 +5,108 @@ class VideoPlayerManager: ObservableObject {
     private var playerPairs: [String: (normal: AVPlayer, enhanced: AVPlayer)] = [:]
     private var loopObservers: [String: [NSObjectProtocol]] = [:]
     private var loadedKeys: Set<String> = []
+    private var loadingKeys: Set<String> = []
+    private var activeViewKeys: Set<String> = []
+    
+    // Published states for UI updates
+    @Published private var playerStates: [String: PlayerState] = [:]
+    
+    enum PlayerState: Equatable {
+        case loading
+        case ready
+        case error(String)
+        case paused
+    }
+    
+    func getPlayerState(forKey key: String) -> PlayerState {
+        return playerStates[key] ?? .loading
+    }
     
     func setupVideoPlayers(forKey key: String, normalVideoName: String, enhancedVideoName: String) {
-        guard !loadedKeys.contains(key) else { return }
-        loadedKeys.insert(key)
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
         
-        var normalPlayer: AVPlayer?
-        var enhancedPlayer: AVPlayer?
+        loadingKeys.insert(key)
+        playerStates[key] = .loading
         
-        // Setup normal video player
-        if let normalURL = Bundle.main.url(forResource: normalVideoName, withExtension: "mp4") {
-            normalPlayer = AVPlayer(url: normalURL)
-            normalPlayer?.isMuted = true
-            normalPlayer?.play()
+        // Perform video loading on background queue
+        Task {
+            do {
+                let players = try await loadVideoPlayersAsync(normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+                
+                await MainActor.run {
+                    self.playerPairs[key] = players
+                    self.loadedKeys.insert(key)
+                    self.loadingKeys.remove(key)
+                    self.playerStates[key] = .ready
+                    self.syncPlayers(forKey: key)
+                    
+                    // Auto-play if view is active
+                    if self.activeViewKeys.contains(key) {
+                        self.resumePlayers(forKey: key)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.loadingKeys.remove(key)
+                    self.playerStates[key] = .error(error.localizedDescription)
+                }
+            }
         }
-        
-        // Setup enhanced video player
-        if let enhancedURL = Bundle.main.url(forResource: enhancedVideoName, withExtension: "mp4") {
-            enhancedPlayer = AVPlayer(url: enhancedURL)
-            enhancedPlayer?.isMuted = true
-            enhancedPlayer?.play()
+    }
+    
+    private func loadVideoPlayersAsync(normalVideoName: String, enhancedVideoName: String) async throws -> (normal: AVPlayer, enhanced: AVPlayer) {
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                guard let normalURL = Bundle.main.url(forResource: normalVideoName, withExtension: "mp4"),
+                      let enhancedURL = Bundle.main.url(forResource: enhancedVideoName, withExtension: "mp4") else {
+                    continuation.resume(throwing: VideoLoadError.fileNotFound)
+                    return
+                }
+                
+                let normalPlayer = AVPlayer(url: normalURL)
+                let enhancedPlayer = AVPlayer(url: enhancedURL)
+                
+                normalPlayer.isMuted = true
+                enhancedPlayer.isMuted = true
+                
+                // Preload the videos
+                let group = DispatchGroup()
+                var loadError: Error?
+                
+                [normalPlayer, enhancedPlayer].forEach { player in
+                    group.enter()
+                    player.currentItem?.asset.loadValuesAsynchronously(forKeys: ["playable"]) {
+                        defer { group.leave() }
+                        var error: NSError?
+                        let status = player.currentItem?.asset.statusOfValue(forKey: "playable", error: &error)
+                        if status == .failed {
+                            loadError = error ?? VideoLoadError.loadFailed
+                        }
+                    }
+                }
+                
+                group.notify(queue: .main) {
+                    if let error = loadError {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: (normal: normalPlayer, enhanced: enhancedPlayer))
+                    }
+                }
+            }
         }
+    }
+    
+    enum VideoLoadError: LocalizedError {
+        case fileNotFound
+        case loadFailed
         
-        // Store players if both were created successfully
-        if let normal = normalPlayer, let enhanced = enhancedPlayer {
-            playerPairs[key] = (normal: normal, enhanced: enhanced)
-            syncPlayers(forKey: key)
+        var errorDescription: String? {
+            switch self {
+            case .fileNotFound:
+                return "Video file not found"
+            case .loadFailed:
+                return "Failed to load video"
+            }
         }
     }
     
@@ -84,31 +160,75 @@ class VideoPlayerManager: ObservableObject {
         }
     }
     
+    func setViewActive(forKey key: String, isActive: Bool) {
+        if isActive {
+            activeViewKeys.insert(key)
+            if playerStates[key] == .ready {
+                resumePlayers(forKey: key)
+            }
+        } else {
+            activeViewKeys.remove(key)
+            pausePlayers(forKey: key)
+        }
+    }
+    
     func pausePlayers(forKey key: String) {
         playerPairs[key]?.normal.pause()
         playerPairs[key]?.enhanced.pause()
+        if playerStates[key] == .ready {
+            playerStates[key] = .paused
+        }
     }
     
     func resumePlayers(forKey key: String) {
+        guard playerStates[key] == .ready || playerStates[key] == .paused else { return }
         playerPairs[key]?.normal.play()
         playerPairs[key]?.enhanced.play()
+        playerStates[key] = .ready
     }
     
     func pauseAllPlayers() {
-        for (_, playerPair) in playerPairs {
-            playerPair.normal.pause()
-            playerPair.enhanced.pause()
+        for key in playerPairs.keys {
+            pausePlayers(forKey: key)
+        }
+        activeViewKeys.removeAll()
+    }
+    
+    func resumeActiveViewPlayers() {
+        for key in activeViewKeys {
+            if playerStates[key] == .ready || playerStates[key] == .paused {
+                resumePlayers(forKey: key)
+            }
         }
     }
     
-    func resumeAllPlayers() {
-        for (_, playerPair) in playerPairs {
-            playerPair.normal.play()
-            playerPair.enhanced.play()
-        }
+    init() {
+        // Listen for app lifecycle events
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func appDidEnterBackground() {
+        pauseAllPlayers()
+    }
+    
+    @objc private func appWillEnterForeground() {
+        resumeActiveViewPlayers()
     }
     
     deinit {
+        NotificationCenter.default.removeObserver(self)
         for key in loopObservers.keys {
             cleanupObservers(forKey: key)
         }
