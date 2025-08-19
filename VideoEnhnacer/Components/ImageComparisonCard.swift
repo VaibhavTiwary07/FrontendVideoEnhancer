@@ -47,20 +47,15 @@ struct ImageComparisonCard: View {
                         )
                     }
 
-                    // Subtle trailing fade beginning before comparison slider
-                    GeometryReader { geometry in
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.6), Color.clear],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .mask(
-                            Rectangle()
-                                .frame(width: geometry.size.width * 0.45)
-                                .offset(x: geometry.size.width * 0.55)
-                        )
-                    }
+                    // Simple fade leading into the comparison slider
+                    LinearGradient(
+                        colors: [.clear, Color.white.opacity(0.6)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 60)
+                    .offset(x: -120)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .frame(height: 120)
                 .clipShape(RoundedRectangle(cornerRadius: 22))
