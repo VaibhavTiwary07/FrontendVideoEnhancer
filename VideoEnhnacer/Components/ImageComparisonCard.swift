@@ -17,13 +17,28 @@ struct ImageComparisonCard: View {
                 // Single left-to-right gradient background with SF Symbol
                 ZStack {
                     gradientType.base
-                    
+
                     // Large background SF Symbol
                     GeometryReader { geometry in
                         Image(systemName: getBackgroundSymbol())
                             .font(.system(size: 120, weight: .ultraLight))
                             .foregroundColor(.black.opacity(0.03))
                             .position(x: geometry.size.width * 0.8, y: geometry.size.height * 0.5)
+                    }
+
+                    // Subtle trailing fade to blend into comparison slider
+                    GeometryReader { geometry in
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.0), Color.white.opacity(0.4)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .mask(
+                            Rectangle()
+                                .frame(width: geometry.size.width * 0.25)
+                                .offset(x: geometry.size.width * 0.75)
+                        )
                     }
                 }
                 .frame(height: 120)
