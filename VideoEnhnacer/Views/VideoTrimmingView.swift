@@ -230,7 +230,7 @@ struct PresetButtonStyle: ButtonStyle {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         VideoTrimmingView(
             videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
             enhancementType: "AI Upscale",
