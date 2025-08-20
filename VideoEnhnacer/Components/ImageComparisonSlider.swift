@@ -23,6 +23,8 @@ final class RevealImageView: UIImageView {
     }
 
     var pctChanged: ((CGFloat) -> Void)?
+    var onInteractionStart: (() -> Void)?
+    var onInteractionEnd: (() -> Void)?
 
     private let leftImageLayer = CALayer()
     private let maskLayer = CALayer()
@@ -53,6 +55,10 @@ final class RevealImageView: UIImageView {
         isUserInteractionEnabled = true
     }
 
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         leftImageLayer.frame = bounds
@@ -77,11 +83,20 @@ final class RevealImageView: UIImageView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onInteractionStart?()
         handle(touches)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         handle(touches)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onInteractionEnd?()
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        onInteractionEnd?()
     }
 
     private func handle(_ touches: Set<UITouch>) {
@@ -95,11 +110,15 @@ struct ImageComparisonSlider: UIViewRepresentable {
     let beforeImageName: String
     let afterImageName: String
     @Binding var sliderValue: Double
+    let onInteractionStart: (() -> Void)?
+    let onInteractionEnd: (() -> Void)?
 
-    init(beforeImageName: String = "test", afterImageName: String = "testEnhanced", sliderValue: Binding<Double>) {
+    init(beforeImageName: String = "test", afterImageName: String = "testEnhanced", sliderValue: Binding<Double>, onInteractionStart: (() -> Void)? = nil, onInteractionEnd: (() -> Void)? = nil) {
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
         self._sliderValue = sliderValue
+        self.onInteractionStart = onInteractionStart
+        self.onInteractionEnd = onInteractionEnd
     }
 
     func makeUIView(context: Context) -> RevealImageView {
@@ -110,6 +129,8 @@ struct ImageComparisonSlider: UIViewRepresentable {
         view.pctChanged = { pct in
             context.coordinator.update(value: Double(pct))
         }
+        view.onInteractionStart = onInteractionStart
+        view.onInteractionEnd = onInteractionEnd
         view.layer.cornerRadius = 12
         return view
     }

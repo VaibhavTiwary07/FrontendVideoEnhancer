@@ -10,6 +10,8 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var isPressed = false
     @State private var animationTimer: Timer?
+    @State private var resumeTimer: Timer?
+    @State private var isUserInteracting = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -55,7 +57,7 @@ struct ImageComparisonCard: View {
                         // Left side - Precisely centered text content
                         textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
                         
-                        Spacer()
+//                        Spacer()
                         
                         // Right side - Image comparison slider with proper containment
                         sliderView(containerHeight: geometry.size.height)
@@ -84,6 +86,13 @@ struct ImageComparisonCard: View {
                 }
         )
         .padding(.horizontal, 20)
+        .onAppear {
+            startAutoSlide()
+        }
+        .onDisappear {
+            stopAutoSlide()
+            stopResumeTimer()
+        }
     }
     
     // MARK: - Modern Layout Calculation Methods
@@ -132,21 +141,28 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
-        let sliderHeight = min(90, containerHeight - 20) // Ensure 10px padding
+       
         
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
-            sliderValue: $sliderValue
+            sliderValue: $sliderValue,
+            onInteractionStart: {
+                isUserInteracting = true
+                stopAutoSlide()
+            },
+            onInteractionEnd: {
+                scheduleAutoSlideResume()
+            }
         )
-        .frame(width: 100, height: sliderHeight)
+
         .background(
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color.white.opacity(0.95))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         )
-        .padding(.trailing, 16)
+       
     }
     
     private func getBackgroundSymbol() -> String {
@@ -167,40 +183,77 @@ struct ImageComparisonCard: View {
         case .redPink:
             return [
                 .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
-                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.4),
-                .init(color: Color(red: 255/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+
+                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7),
+
             ]
         case .gray:
             return [
                 .init(color: Color(red: 100/255, green: 100/255, blue: 100/255).opacity(0.7), location: 0.0),
-                .init(color: Color(red: 160/255, green: 160/255, blue: 160/255).opacity(0.4), location: 0.3),
-                .init(color: Color(red: 245/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+                .init(color: Color(red: 160/255, green: 160/255, blue: 160/255).opacity(0.4), location: 0.5),
+                .init(color: Color(red: 245/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.65)
             ]
         case .yellowGray:
             return [
                 .init(color: Color(red: 255/255, green: 170/255, blue: 0/255).opacity(0.8), location: 0.0),
-                .init(color: Color(red: 255/255, green: 200/255, blue: 80/255).opacity(0.4), location: 0.3),
-                .init(color: Color(red: 255/255, green: 250/255, blue: 240/255).opacity(0.0), location: 0.6)
+                .init(color: Color(red: 255/255, green: 200/255, blue: 80/255).opacity(0.4), location: 0.5),
+//                .init(color: Color(red: 255/255, green: 250/255, blue: 240/255).opacity(0.0), location: 0.6)
             ]
         case .purpleGray:
             return [
                 .init(color: Color(red: 120/255, green: 80/255, blue: 200/255).opacity(0.6), location: 0.0),
-                .init(color: Color(red: 160/255, green: 130/255, blue: 220/255).opacity(0.35), location: 0.3),
-                .init(color: Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0), location: 0.6)
+                .init(color: Color(red: 160/255, green: 130/255, blue: 220/255).opacity(0.35), location: 0.6),
+//                .init(color: Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0), location: 0.6)
             ]
         case .cyanGray:
             return [
                 .init(color: Color(red: 0/255, green: 132/255, blue: 255/255).opacity(0.45), location: 0.0),
                 .init(color: Color(red: 46/255, green: 154/255, blue: 255/255).opacity(0.45), location: 0.3),
-                .init(color: Color(red: 207/255, green: 232/255, blue: 255/255).opacity(0.0), location: 0.6)
+                .init(color: Color(red: 207/255, green: 232/255, blue: 255/255).opacity(0.0), location: 0.7)
             ]
         case .pinkGray:
             return [
                 .init(color: Color(red: 220/255, green: 100/255, blue: 150/255).opacity(0.7), location: 0.0),
-                .init(color: Color(red: 240/255, green: 150/255, blue: 180/255).opacity(0.35), location: 0.3),
-                .init(color: Color(red: 255/255, green: 245/255, blue: 250/255).opacity(0.0), location: 0.6)
+                .init(color: Color(red: 240/255, green: 150/255, blue: 180/255).opacity(0.35), location: 0.6),
+//                .init(color: Color(red: 255/255, green: 245/255, blue: 250/255).opacity(0.0), location: 0.6)
             ]
         }
+    }
+    
+    // MARK: - Auto Slide Methods
+    
+    private func startAutoSlide() {
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 4.5, repeats: true) { _ in
+            guard !isUserInteracting else { return }
+            
+            withAnimation(.easeInOut(duration: 1.5)) {
+                if sliderValue <= 0.1 {
+                    sliderValue = 1.0
+                } else if sliderValue >= 0.9 {
+                    sliderValue = 0.0
+                } else {
+                    sliderValue = sliderValue < 0.5 ? 1.0 : 0.0
+                }
+            }
+        }
+    }
+    
+    private func stopAutoSlide() {
+        animationTimer?.invalidate()
+        animationTimer = nil
+    }
+    
+    private func scheduleAutoSlideResume() {
+        stopResumeTimer()
+        resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+            isUserInteracting = false
+            startAutoSlide()
+        }
+    }
+    
+    private func stopResumeTimer() {
+        resumeTimer?.invalidate()
+        resumeTimer = nil
     }
 }
 

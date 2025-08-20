@@ -6,8 +6,11 @@ struct VideoComparisonSlider: View {
     let normalVideoName: String
     let enhancedVideoName: String
     @ObservedObject var videoPlayerManager: VideoPlayerManager
-    @State private var sliderValue: Double = 0.5
+    @State private var sliderValue: Double = 0.3
     @State private var isViewVisible: Bool = false
+    @State private var isUserInteracting: Bool = false
+    @State private var autoSlideTimer: Timer?
+    @State private var resumeTimer: Timer?
     
     private var videoKey: String {
         "\(normalVideoName)-\(enhancedVideoName)"
@@ -29,15 +32,16 @@ struct VideoComparisonSlider: View {
                 VStack(spacing: 12) {
                     // Video Players Container
                     ZStack {
+                        let videoHeight = geometry.size.height - 90 // Account for labels, slider, and padding
                         // Enhanced Video (Background)
                         Group {
                             if playerState == .ready,
                                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
                                 VideoPlayerView(player: enhancedPlayer)
-                                    .frame(height: 100)
+                                    .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             } else {
-                                videoPlaceholder(title: "Enhanced", isLoading: playerState == .loading)
+                                videoPlaceholder(title: "Enhanced", isLoading: playerState == .loading, height: videoHeight)
                             }
                         }
                         
@@ -46,7 +50,7 @@ struct VideoComparisonSlider: View {
                             if playerState == .ready,
                                let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
                                 VideoPlayerView(player: normalPlayer)
-                                    .frame(height: 100)
+                                    .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .mask(
                                         HStack(spacing: 0) {
@@ -57,7 +61,7 @@ struct VideoComparisonSlider: View {
                                         }
                                     )
                             } else {
-                                videoPlaceholder(title: "Normal", isLoading: playerState == .loading)
+                                videoPlaceholder(title: "Normal", isLoading: playerState == .loading, height: videoHeight)
                                     .mask(
                                         HStack(spacing: 0) {
                                             Rectangle()
@@ -72,11 +76,11 @@ struct VideoComparisonSlider: View {
                         // Divider Line
                         Rectangle()
                             .fill(Color.white)
-                            .frame(width: 2, height: 100)
+                            .frame(width: 2, height: videoHeight)
                             .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 0)
                             .position(
                                 x: geometry.size.width * sliderValue,
-                                y: 50
+                                y: videoHeight / 2
                             )
                     }
                     
@@ -104,10 +108,9 @@ struct VideoComparisonSlider: View {
                                 RoundedRectangle(cornerRadius: 2)
                                     .fill(
                                         LinearGradient(
-                                            colors: [
-                                                Color(red: 1.0, green: 0.47, blue: 0.47),
-                                                Color(red: 1.0, green: 0.596, blue: 0.329),
-                                                Color(red: 0.988, green: 0.753, blue: 0.424)
+                                            stops: [
+                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
                                             ],
                                             startPoint: .leading,
                                             endPoint: .trailing
@@ -126,9 +129,9 @@ struct VideoComparisonSlider: View {
                                 Circle()
                                     .fill(
                                         LinearGradient(
-                                            colors: [
-                                                Color(red: 1.0, green: 0.596, blue: 0.329),
-                                                Color(red: 0.988, green: 0.753, blue: 0.424)
+                                            stops: [
+                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
                                             ],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
@@ -144,42 +147,84 @@ struct VideoComparisonSlider: View {
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in
+                                        isUserInteracting = true
+                                        stopAutoSlide()
                                         let newValue = min(max(value.location.x / geometry.size.width, 0), 1)
                                         sliderValue = newValue
+                                    }
+                                    .onEnded { _ in
+                                        scheduleAutoSlideResume()
                                     }
                             )
                     }
                     .frame(height: 20)
                 }
-                .padding(12)
+                .padding(8)
             }
         }
         .onAppear {
             isViewVisible = true
             videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+            startAutoSlide()
         }
         .onDisappear {
             isViewVisible = false
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
+            stopAutoSlide()
+            stopResumeTimer()
         }
         .onChange(of: playerState) { state in
             // Handle state changes if needed for animations
         }
     }
     
+    private func startAutoSlide() {
+        autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { _ in
+            guard !isUserInteracting else { return }
+            
+            withAnimation(.easeInOut(duration: 1.5)) {
+                if sliderValue == 0.3 {
+                    sliderValue = 1.0
+                } else if sliderValue == 1.0 {
+                    sliderValue = 0.0
+                } else {
+                    sliderValue = 0.3
+                }
+            }
+        }
+    }
+    
+    private func stopAutoSlide() {
+        autoSlideTimer?.invalidate()
+        autoSlideTimer = nil
+    }
+    
+    private func scheduleAutoSlideResume() {
+        stopResumeTimer()
+        resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+            isUserInteracting = false
+            startAutoSlide()
+        }
+    }
+    
+    private func stopResumeTimer() {
+        resumeTimer?.invalidate()
+        resumeTimer = nil
+    }
+    
     @ViewBuilder
-    private func videoPlaceholder(title: String, isLoading: Bool) -> some View {
+    private func videoPlaceholder(title: String, isLoading: Bool, height: CGFloat) -> some View {
         Rectangle()
             .fill(LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
-                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                stops: [
+                    .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.27), location: 0.0),
+                    .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.09), location: 0.7)
                 ],
                 startPoint: .leading,
                 endPoint: .trailing
             ))
-            .frame(height: 100)
+            .frame(height: height)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 ZStack {
