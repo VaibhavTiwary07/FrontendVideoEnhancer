@@ -75,12 +75,14 @@ class VideoPlayerManager: ObservableObject {
                 
                 [normalPlayer, enhancedPlayer].forEach { player in
                     group.enter()
-                    player.currentItem?.asset.loadValuesAsynchronously(forKeys: ["playable"]) {
+                    Task {
                         defer { group.leave() }
-                        var error: NSError?
-                        let status = player.currentItem?.asset.statusOfValue(forKey: "playable", error: &error)
-                        if status == .failed {
-                            loadError = error ?? VideoLoadError.loadFailed
+                        do {
+                            if let asset = await player.currentItem?.asset {
+                                _ = try await asset.load(.isPlayable)
+                            }
+                        } catch {
+                            loadError = error
                         }
                     }
                 }
