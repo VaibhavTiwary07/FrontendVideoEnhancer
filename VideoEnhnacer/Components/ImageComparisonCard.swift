@@ -23,7 +23,7 @@ struct ImageComparisonCard: View {
                 ZStack {
                     // Gradient background with gentle fade near the image slider
                     LinearGradient(
-                        gradient: Gradient(stops: gradientType.base.gradient.stops + [
+                        gradient: Gradient(stops: getGradientStops(for: gradientType) + [
                             .init(color: Color.white.opacity(0.6), location: 0.7),
                             .init(color: .clear, location: 0.9)
                         ]),
@@ -170,6 +170,47 @@ struct ImageComparisonCard: View {
         case "gyroscope": return "gyroscope"
         case "timer.circle.fill": return "timer.circle.fill"
         default: return "circle.fill"
+        }
+    }
+    
+    private func getGradientStops(for gradientType: GradientType) -> [Gradient.Stop] {
+        switch gradientType {
+        case .redPink:
+            return [
+                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.4),
+                .init(color: Color(red: 255/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+            ]
+        case .gray:
+            return [
+                .init(color: Color(red: 100/255, green: 100/255, blue: 100/255).opacity(0.7), location: 0.0),
+                .init(color: Color(red: 160/255, green: 160/255, blue: 160/255).opacity(0.4), location: 0.3),
+                .init(color: Color(red: 245/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+            ]
+        case .yellowGray:
+            return [
+                .init(color: Color(red: 255/255, green: 170/255, blue: 0/255).opacity(0.8), location: 0.0),
+                .init(color: Color(red: 255/255, green: 200/255, blue: 80/255).opacity(0.4), location: 0.3),
+                .init(color: Color(red: 255/255, green: 250/255, blue: 240/255).opacity(0.0), location: 0.6)
+            ]
+        case .purpleGray:
+            return [
+                .init(color: Color(red: 120/255, green: 80/255, blue: 200/255).opacity(0.6), location: 0.0),
+                .init(color: Color(red: 160/255, green: 130/255, blue: 220/255).opacity(0.35), location: 0.3),
+                .init(color: Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0), location: 0.6)
+            ]
+        case .cyanGray:
+            return [
+                .init(color: Color(red: 0/255, green: 132/255, blue: 255/255).opacity(0.45), location: 0.0),
+                .init(color: Color(red: 46/255, green: 154/255, blue: 255/255).opacity(0.45), location: 0.3),
+                .init(color: Color(red: 207/255, green: 232/255, blue: 255/255).opacity(0.0), location: 0.6)
+            ]
+        case .pinkGray:
+            return [
+                .init(color: Color(red: 220/255, green: 100/255, blue: 150/255).opacity(0.7), location: 0.0),
+                .init(color: Color(red: 240/255, green: 150/255, blue: 180/255).opacity(0.35), location: 0.3),
+                .init(color: Color(red: 255/255, green: 245/255, blue: 250/255).opacity(0.0), location: 0.6)
+            ]
         }
     }
 }
