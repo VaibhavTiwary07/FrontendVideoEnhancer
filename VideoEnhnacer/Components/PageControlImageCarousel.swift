@@ -5,26 +5,19 @@ struct PageControlImageCarousel: View {
     @State private var sliderValues: [Double] = [0.5, 0.5, 0.5]
     @State private var animationTimers: [Timer?] = [nil, nil, nil]
     
-    let imageData = [
-        ("AI Upscale", "Enhance image resolution"),
-        ("AI Denoise", "Remove noise and grain"),
-        ("Color Enhancement", "Improve color quality")
-    ]
     
     var body: some View {
-        VStack(spacing: 16) {
+        ZStack(alignment: .bottom) {
             TabView(selection: $currentPage) {
                 ForEach(0..<3, id: \.self) { index in
                     CarouselCard(
-                        title: imageData[index].0,
-                        subtitle: imageData[index].1,
                         sliderValue: $sliderValues[index]
                     )
                     .tag(index)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(height: 180)
+            .frame(height: 280)
             .onChange(of: currentPage) { newPage in
                 startAutoSliding(for: newPage)
             }
@@ -35,7 +28,7 @@ struct PageControlImageCarousel: View {
                 stopAllAnimations()
             }
             
-            // Custom Page Control
+            // Custom Page Control positioned at bottom
             HStack(spacing: 8) {
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
@@ -48,15 +41,21 @@ struct PageControlImageCarousel: View {
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ) :
-                            LinearGradient(colors: [Color.gray.opacity(0.3)], startPoint: .leading, endPoint: .trailing)
+                            LinearGradient(colors: [Color.gray.opacity(0.4)], startPoint: .leading, endPoint: .trailing)
                         )
                         .frame(width: index == currentPage ? 12 : 8, height: index == currentPage ? 12 : 8)
                         .animation(.easeInOut(duration: 0.3), value: currentPage)
                 }
             }
-            .padding(.bottom, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            )
+            .padding(.bottom, 20)
         }
-        .padding(.horizontal, 20)
     }
     
     private func startAutoSliding(for page: Int) {
@@ -82,37 +81,22 @@ struct PageControlImageCarousel: View {
 }
 
 struct CarouselCard: View {
-    let title: String
-    let subtitle: String
     @Binding var sliderValue: Double
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.primaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Text(subtitle)
-                .font(.system(size: 14, weight: .regular))
-                .foregroundColor(.secondaryText)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Before/After Comparison with real images
-            ImageComparisonSlider(
-                beforeImageName: "test",
-                afterImageName: "testEnhanced",
-                sliderValue: $sliderValue
-            )
-            .frame(height: 80)
-            .cornerRadius(12)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.cardBackground)
-                .neomorphicStyle(cornerRadius: 16, shadowRadius: 8)
+        ImageComparisonSlider(
+            beforeImageName: "test",
+            afterImageName: "testEnhanced",
+            sliderValue: $sliderValue,
+            touchEnabled: false
         )
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.cardBackground)
+                .neomorphicStyle(cornerRadius: 24, shadowRadius: 8)
+        )
+        .cornerRadius(24)
+        .padding(.horizontal, 20)
     }
 }
 

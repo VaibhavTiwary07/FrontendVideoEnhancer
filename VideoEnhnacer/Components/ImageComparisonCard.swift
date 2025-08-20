@@ -10,21 +10,56 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var isPressed = false
     @State private var animationTimer: Timer?
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
+    }
     
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Single left-to-right gradient background with SF Symbol
+                // Single left-to-right gradient background with masked SF symbols
                 ZStack {
-                    gradientType.base
-                    
-                    // Large background SF Symbol
+                    // Gradient background with gentle fade near the image slider
+                    LinearGradient(
+                        gradient: Gradient(stops: gradientType.base.gradient.stops + [
+                            .init(color: Color.white.opacity(0.6), location: 0.7),
+                            .init(color: .clear, location: 0.9)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+
+                    // Background SF Symbols with gradient mask
                     GeometryReader { geometry in
-                        Image(systemName: getBackgroundSymbol())
-                            .font(.system(size: 120, weight: .ultraLight))
-                            .foregroundColor(.black.opacity(0.03))
-                            .position(x: geometry.size.width * 0.8, y: geometry.size.height * 0.5)
+                        ZStack {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 60, weight: .ultraLight))
+                                .position(x: geometry.size.width * 0.25,
+                                          y: geometry.size.height * 0.3)
+
+                            Image(systemName: getBackgroundSymbol())
+                                .font(.system(size: 100, weight: .ultraLight))
+                                .position(x: geometry.size.width * 0.6,
+                                          y: geometry.size.height * 0.7)
+
+                            Image(systemName: "circle.grid.2x2.fill")
+                                .font(.system(size: 80, weight: .ultraLight))
+                                .position(x: geometry.size.width * 0.85,
+                                          y: geometry.size.height * 0.4)
+                        }
+                        .foregroundColor(.white.opacity(0.06))
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .mask(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.9), Color.white.opacity(0.2)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                     }
+
                 }
                 .frame(height: 120)
                 .clipShape(RoundedRectangle(cornerRadius: 22))
@@ -32,79 +67,55 @@ struct ImageComparisonCard: View {
                 // Content overlay
                 HStack(spacing: 0) {
                     // Left side - Icon and text over gradient
-                    VStack(spacing: 12) {
-                        // Icon with background
-                        Image(systemName: icon)
-                            .font(.system(size: 24, weight: .medium))
-                            .foregroundColor(.white)
-                            .frame(width: 48, height: 48)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.15))
-                                    .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                                    .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                            )
-                        
-                        // Title and subtitle
-                        VStack(spacing: 4) {
-                            Text(title)
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .center, spacing: 12) {
+                            // Icon with background
+                            Image(systemName: icon)
+                                .font(.system(size: isIPad ? 32 : 24, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
+                                .background(
+                                    Circle()
+                                        .fill(Color.black.opacity(0.15))
+                                        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                                        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+                                )
                             
-                            Text(subtitle)
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.black.opacity(0.7))
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
+                            // Title and subtitle
+                            VStack(alignment: .center, spacing: 4) {
+                                Text(title)
+                                    .font(.system(size: isIPad ? 18 : 14, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+
+                                Text(subtitle)
+                                    .font(.system(size: isIPad ? 14 : 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
                         }
+                        Spacer()
                     }
-                    .frame(maxWidth: .infinity)
                     .padding(.leading, 16)
                 
                     Spacer()
                     
                     // Right side - Image comparison overlay
-                    VStack(spacing: 8) {
-                        ImageComparisonSlider(
-                            beforeImageName: "test.png",
-                            afterImageName: "testEnhanced.png",
-                            sliderValue: $sliderValue
-                        )
-                        .frame(height: 96)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18)
-                                .fill(Color.white.opacity(0.95))
-                                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
-                                .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
-                        )
-                        
-                        // Enhancement indicator
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(Color.white.opacity(0.4))
-                                .frame(width: 4, height: 4)
-                            
-                            Rectangle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color.white.opacity(0.9), Color.white.opacity(0.7)],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: max(8, 40 * sliderValue), height: 2)
-                                .clipShape(Capsule())
-                            
-                            Circle()
-                                .fill(Color.white.opacity(0.4))
-                                .frame(width: 4, height: 4)
-                        }
-                        .frame(height: 12)
-                    }
-                    .frame(width: 120)
+                    ImageComparisonSlider(
+                        beforeImageName: "test",
+                        afterImageName: "testEnhanced",
+                        sliderValue: $sliderValue
+                    )
+                    .frame(width: 120, height: 120)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(Color.white.opacity(0.95))
+                            .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+                            .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
+                    )
                     .padding(.trailing, 16)
-                    .padding(.vertical, 8)
                 }
             }
         }
