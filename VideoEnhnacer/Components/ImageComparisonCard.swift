@@ -10,6 +10,8 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var isPressed = false
     @State private var animationTimer: Timer?
+    @State private var resumeTimer: Timer?
+    @State private var isUserInteracting = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -84,6 +86,13 @@ struct ImageComparisonCard: View {
                 }
         )
         .padding(.horizontal, 20)
+        .onAppear {
+            startAutoSlide()
+        }
+        .onDisappear {
+            stopAutoSlide()
+            stopResumeTimer()
+        }
     }
     
     // MARK: - Modern Layout Calculation Methods
@@ -137,7 +146,14 @@ struct ImageComparisonCard: View {
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
-            sliderValue: $sliderValue
+            sliderValue: $sliderValue,
+            onInteractionStart: {
+                isUserInteracting = true
+                stopAutoSlide()
+            },
+            onInteractionEnd: {
+                scheduleAutoSlideResume()
+            }
         )
 
         .background(
@@ -202,6 +218,42 @@ struct ImageComparisonCard: View {
 //                .init(color: Color(red: 255/255, green: 245/255, blue: 250/255).opacity(0.0), location: 0.6)
             ]
         }
+    }
+    
+    // MARK: - Auto Slide Methods
+    
+    private func startAutoSlide() {
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 4.5, repeats: true) { _ in
+            guard !isUserInteracting else { return }
+            
+            withAnimation(.easeInOut(duration: 1.5)) {
+                if sliderValue <= 0.1 {
+                    sliderValue = 1.0
+                } else if sliderValue >= 0.9 {
+                    sliderValue = 0.0
+                } else {
+                    sliderValue = sliderValue < 0.5 ? 1.0 : 0.0
+                }
+            }
+        }
+    }
+    
+    private func stopAutoSlide() {
+        animationTimer?.invalidate()
+        animationTimer = nil
+    }
+    
+    private func scheduleAutoSlideResume() {
+        stopResumeTimer()
+        resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+            isUserInteracting = false
+            startAutoSlide()
+        }
+    }
+    
+    private func stopResumeTimer() {
+        resumeTimer?.invalidate()
+        resumeTimer = nil
     }
 }
 
