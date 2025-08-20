@@ -103,7 +103,7 @@ struct ImageComparisonSlider: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> RevealImageView {
-        let view = RevealImageView()
+        let view = RevealImageView(frame: .zero)
         view.leftImage = UIImage(named: beforeImageName)
         view.rightImage = UIImage(named: afterImageName)
         view.pct = CGFloat(sliderValue)
