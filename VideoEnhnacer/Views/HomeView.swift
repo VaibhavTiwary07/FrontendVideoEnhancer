@@ -5,10 +5,10 @@ struct HomeView: View {
     @State private var selectedVideoURL: URL?
     @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var isHomeViewActive = false
-    @State private var showVideoPicker = false
     @State private var selectedEnhancement: Enhancement?
-    
-    struct Enhancement {
+
+    struct Enhancement: Identifiable {
+        let id = UUID()
         let type: String
         let icon: String
         let gradientType: GradientType
@@ -57,7 +57,6 @@ struct HomeView: View {
                                             icon: "arrow.up.square",
                                             gradientType: .redPink
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -71,7 +70,6 @@ struct HomeView: View {
                                             icon: "face.smiling",
                                             gradientType: .yellowGray
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -85,7 +83,6 @@ struct HomeView: View {
                                             icon: "waveform.path",
                                             gradientType: .purpleGray
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -99,7 +96,6 @@ struct HomeView: View {
                                             icon: "paintpalette.fill",
                                             gradientType: .cyanGray
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -113,7 +109,6 @@ struct HomeView: View {
                                             icon: "wand.and.stars",
                                             gradientType: .pinkGray
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -127,7 +122,6 @@ struct HomeView: View {
                                             icon: "gyroscope",
                                             gradientType: .gray
                                         )
-                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -141,7 +135,6 @@ struct HomeView: View {
                                             icon: "timer.circle.fill",
                                             gradientType: .redPink
                                         )
-                                        showVideoPicker = true
                                     }
                                 }
                                 .padding(.bottom, 100)
@@ -172,14 +165,12 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
-        .fullScreenCover(isPresented: $showVideoPicker) {
-            if let enhancement = selectedEnhancement {
-                VideoPickerView(
-                    enhancementType: enhancement.type,
-                    enhancementIcon: enhancement.icon,
-                    gradientType: enhancement.gradientType
-                )
-            }
+        .fullScreenCover(item: $selectedEnhancement) { enhancement in
+            VideoPickerView(
+                enhancementType: enhancement.type,
+                enhancementIcon: enhancement.icon,
+                gradientType: enhancement.gradientType
+            )
         }
         .onAppear {
             isHomeViewActive = true

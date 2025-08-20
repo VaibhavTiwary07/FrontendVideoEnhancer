@@ -92,7 +92,7 @@ struct TabBarItem: View {
         if isTapped {
             return .white
         } else if isSelected {
-            return Color(red: 1.0, green: 0.596, blue: 0.329)
+            return Color(red: 1.0, green: 0.596, blue: 0.329) // Orange from primary theme
         } else {
             return .secondaryText
         }
@@ -112,30 +112,10 @@ struct TabBarItem: View {
     private var backgroundFill: some View {
         if isTapped {
             RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 1.0, green: 0.47, blue: 0.47),
-                            Color(red: 1.0, green: 0.596, blue: 0.329),
-                            Color(red: 0.988, green: 0.753, blue: 0.424)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(LinearGradient.primaryTheme)
         } else if isSelected {
             RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.1),
-                            Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.1),
-                            Color(red: 0.988, green: 0.753, blue: 0.424).opacity(0.1)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(LinearGradient.primaryTheme.opacity(0.1))
         } else {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.clear)

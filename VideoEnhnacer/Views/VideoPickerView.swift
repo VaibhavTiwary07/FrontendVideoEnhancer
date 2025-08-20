@@ -14,7 +14,7 @@ struct VideoPickerView: View {
     @State private var showingPermissionAlert = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
@@ -44,10 +44,10 @@ struct VideoPickerView: View {
                                 .cornerRadius(16)
                                 .padding(.horizontal, 20)
                             
-                            Button("Continue to Trimming") {
+                            Button("Continue to Video Trimming") {
                                 navigateToTrimming = true
                             }
-                            .buttonStyle(GradientButtonStyle(gradientType: gradientType))
+                            .buttonStyle(GradientButtonStyle())
                             .padding(.horizontal, 20)
                             
                         } else {
@@ -57,7 +57,7 @@ struct VideoPickerView: View {
                                 Button("Select Video from Library") {
                                     showingVideoPicker = true
                                 }
-                                .buttonStyle(GradientButtonStyle(gradientType: gradientType))
+                                .buttonStyle(GradientButtonStyle())
                                 .padding(.horizontal, 20)
                                 
                                 if permissionManager.hasLimitedAccess {
@@ -88,7 +88,7 @@ struct VideoPickerView: View {
                                             await permissionManager.requestPhotoLibraryPermission()
                                         }
                                     }
-                                    .buttonStyle(GradientButtonStyle(gradientType: gradientType))
+                                    .buttonStyle(GradientButtonStyle())
                                     .disabled(permissionManager.isCheckingPermissions)
                                 }
                                 .padding(.horizontal, 20)
@@ -117,7 +117,7 @@ struct VideoPickerView: View {
                                         Button("Open Settings") {
                                             permissionManager.openAppSettings()
                                         }
-                                        .buttonStyle(GradientButtonStyle(gradientType: gradientType))
+                                        .buttonStyle(GradientButtonStyle())
                                     }
                                 }
                                 .padding(.horizontal, 20)
@@ -137,6 +137,12 @@ struct VideoPickerView: View {
                     }
                     .foregroundColor(.white)
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Text("Step 1 of 3")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
             }
         }
         .photosPicker(isPresented: $showingVideoPicker, selection: Binding<PhotosPickerItem?>(
@@ -150,7 +156,7 @@ struct VideoPickerView: View {
         .onAppear {
             permissionManager.checkCurrentStatus()
         }
-        .navigationDestination(isPresented: $navigateToTrimming) {
+        .fullScreenCover(isPresented: $navigateToTrimming) {
             if let videoURL = selectedVideoURL {
                 VideoTrimmingView(
                     videoURL: videoURL,
@@ -195,7 +201,6 @@ struct VideoTransferable: Transferable {
 
 // Custom button style for gradient buttons
 struct GradientButtonStyle: ButtonStyle {
-    let gradientType: GradientType
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -205,7 +210,7 @@ struct GradientButtonStyle: ButtonStyle {
             .frame(height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(gradientType.base)
+                    .fill(LinearGradient.primaryTheme)
                     .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

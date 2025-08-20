@@ -18,21 +18,18 @@ struct ImageComparisonCard: View {
     
     var body: some View {
         Button(action: action) {
-            ZStack {
-                // Single left-to-right gradient background with masked SF symbols
+            GeometryReader { geometry in
                 ZStack {
-                    // Gradient background with gentle fade near the image slider
-                    LinearGradient(
-                        gradient: Gradient(stops: getGradientStops(for: gradientType) + [
-                            .init(color: Color.white.opacity(0.6), location: 0.7),
-                            .init(color: .clear, location: 0.9)
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
+                    // Static gradient background without moving effect
+                    ZStack {
+                        // Static gradient background
+                        LinearGradient(
+                            gradient: Gradient(stops: getGradientStops(for: gradientType)),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
 
-                    // Background SF Symbols with gradient mask
-                    GeometryReader { geometry in
+                        // Background SF Symbols (static)
                         ZStack {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 60, weight: .ultraLight))
@@ -50,72 +47,20 @@ struct ImageComparisonCard: View {
                                           y: geometry.size.height * 0.4)
                         }
                         .foregroundColor(.white.opacity(0.06))
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .mask(
-                            LinearGradient(
-                                colors: [Color.white.opacity(0.9), Color.white.opacity(0.2)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
                     }
-
-                }
-                .frame(height: 120)
-                .clipShape(RoundedRectangle(cornerRadius: 22))
-                
-                // Content overlay
-                HStack(spacing: 0) {
-                    // Left side - Icon and text over gradient
-                    HStack {
-                        Spacer()
-                        VStack(alignment: .center, spacing: 12) {
-                            // Icon with background
-                            Image(systemName: icon)
-                                .font(.system(size: isIPad ? 32 : 24, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
-                                .background(
-                                    Circle()
-                                        .fill(Color.black.opacity(0.15))
-                                        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                                        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                                )
-                            
-                            // Title and subtitle
-                            VStack(alignment: .center, spacing: 4) {
-                                Text(title)
-                                    .font(.system(size: isIPad ? 18 : 14, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .multilineTextAlignment(.center)
-
-                                Text(subtitle)
-                                    .font(.system(size: isIPad ? 14 : 10, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .multilineTextAlignment(.center)
-                                    .lineLimit(2)
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(.leading, 16)
-                
-                    Spacer()
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
                     
-                    // Right side - Image comparison overlay
-                    ImageComparisonSlider(
-                        beforeImageName: "test",
-                        afterImageName: "testEnhanced",
-                        sliderValue: $sliderValue
-                    )
-                    .frame(width: 120, height: 120)
-                    .background(
-                        RoundedRectangle(cornerRadius: 18)
-                            .fill(Color.white.opacity(0.95))
-                            .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
-                            .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
-                    )
-                    .padding(.trailing, 16)
+                    // Content overlay with precise positioning
+                    HStack(spacing: 0) {
+                        // Left side - Precisely centered text content
+                        textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
+                        
+                        Spacer()
+                        
+                        // Right side - Image comparison slider with proper containment
+                        sliderView(containerHeight: geometry.size.height)
+                    }
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                 }
             }
         }
@@ -126,6 +71,7 @@ struct ImageComparisonCard: View {
                 .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
                 .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
         )
+        .frame(minHeight: 110, maxHeight: 130)
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .animation(.easeInOut(duration: 0.1), value: isPressed)
         .simultaneousGesture(
@@ -137,27 +83,70 @@ struct ImageComparisonCard: View {
                     isPressed = false
                 }
         )
-        .onAppear {
-            startAnimations()
-        }
-        .onDisappear {
-            stopAnimations()
-        }
         .padding(.horizontal, 20)
     }
     
-    private func startAnimations() {
-        // Auto-sliding animation for demo
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 2.0)) {
-                sliderValue = sliderValue < 0.3 ? 0.8 : 0.2
-            }
-        }
+    // MARK: - Modern Layout Calculation Methods
+    
+    private func textAreaWidth(totalWidth: CGFloat) -> CGFloat {
+        let sliderAreaWidth: CGFloat = 116 + 16 // slider width + trailing padding
+        let leadingPadding: CGFloat = 16
+        return totalWidth - sliderAreaWidth - leadingPadding
     }
     
-    private func stopAnimations() {
-        animationTimer?.invalidate()
-        animationTimer = nil
+    @ViewBuilder
+    private func textContentView(availableWidth: CGFloat) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 12) {
+                // Icon with background
+                Image(systemName: icon)
+                    .font(.system(size: isIPad ? 32 : 24, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
+                    .background(
+                        Circle()
+                            .fill(Color.black.opacity(0.15))
+                            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+                    )
+                
+                // Title and subtitle with left alignment
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.system(size: isIPad ? 18 : 14, weight: .bold))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+
+                    Text(subtitle)
+                        .font(.system(size: isIPad ? 14 : 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.7))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                }
+            }
+            Spacer()
+        }
+        .frame(width: availableWidth)
+        .padding(.leading, 16)
+    }
+    
+    @ViewBuilder
+    private func sliderView(containerHeight: CGFloat) -> some View {
+        let sliderHeight = min(90, containerHeight - 20) // Ensure 10px padding
+        
+        ImageComparisonSlider(
+            beforeImageName: "test",
+            afterImageName: "testEnhanced",
+            sliderValue: $sliderValue
+        )
+        .frame(width: 100, height: sliderHeight)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+        )
+        .padding(.trailing, 16)
     }
     
     private func getBackgroundSymbol() -> String {
