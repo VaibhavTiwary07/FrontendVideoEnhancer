@@ -15,6 +15,11 @@ struct VideoTrimmingView: View {
     @State private var videoDuration: Double = 0
     @State private var selectedDuration: TimePreset = .thirtySeconds
     @State private var isProcessing = false
+    @State private var processingProgress: Double = 0.0
+    @State private var processedVideoURL: URL?
+    @State private var showingResults = false
+    @State private var processingError: String?
+    @State private var showingError = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -106,8 +111,7 @@ struct VideoTrimmingView: View {
                                 updateTrimForPreset(preset)
                             }
                             .buttonStyle(PresetButtonStyle(
-                                isSelected: selectedDuration == preset,
-                                gradientType: gradientType
+                                isSelected: selectedDuration == preset
                             ))
                         }
                         
@@ -131,9 +135,17 @@ struct VideoTrimmingView: View {
                     }) {
                         HStack(spacing: 12) {
                             if isProcessing {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.8)
+                                VStack(spacing: 8) {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.8)
+                                    
+                                    if processingProgress > 0 {
+                                        Text("\(Int(processingProgress * 100))%")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                }
                             } else {
                                 Image(systemName: enhancementIcon)
                                     .font(.system(size: 20, weight: .medium))
@@ -143,7 +155,7 @@ struct VideoTrimmingView: View {
                                 .font(.system(size: 18, weight: .semibold))
                         }
                     }
-                    .buttonStyle(GradientButtonStyle(gradientType: gradientType))
+                    .buttonStyle(GradientButtonStyle())
                     .disabled(isProcessing)
                     .padding(.horizontal, 20)
                 }
@@ -153,10 +165,27 @@ struct VideoTrimmingView: View {
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button("Back") {
-                    dismiss()
+                Menu {
+                    Button("Back to Video Selection") {
+                        dismiss()
+                    }
+                    
+                    Button("Back to Home") {
+                        dismissToHome()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.white)
                 }
-                .foregroundColor(.white)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Text("Step 2 of 3")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
             }
         }
         .onAppear {
@@ -164,6 +193,22 @@ struct VideoTrimmingView: View {
         }
         .onDisappear {
             playerManager.cleanup()
+        }
+        .fullScreenCover(isPresented: $showingResults) {
+            if let processedURL = processedVideoURL {
+                VideoResultsView(
+                    originalVideoURL: videoURL,
+                    processedVideoURL: processedURL,
+                    enhancementType: enhancementType,
+                    enhancementIcon: enhancementIcon,
+                    gradientType: gradientType
+                )
+            }
+        }
+        .alert("Processing Error", isPresented: $showingError) {
+            Button("OK") { }
+        } message: {
+            Text(processingError ?? "Unknown error occurred")
         }
     }
     
@@ -200,12 +245,114 @@ struct VideoTrimmingView: View {
     
     private func processVideo() {
         isProcessing = true
+        processingProgress = 0.0
         
-        // Simulate processing time
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            isProcessing = false
-            // Navigate to results or show completion
-            dismiss()
+        Task {
+            do {
+                let trimmedURL = try await trimVideo(
+                    sourceURL: videoURL,
+                    startTime: trimStartTime,
+                    endTime: trimEndTime
+                )
+                
+                await MainActor.run {
+                    processedVideoURL = trimmedURL
+                    isProcessing = false
+                    showingResults = true
+                }
+            } catch {
+                await MainActor.run {
+                    isProcessing = false
+                    processingError = error.localizedDescription
+                    showingError = true
+                }
+            }
+        }
+    }
+    
+    private func trimVideo(sourceURL: URL, startTime: Double, endTime: Double) async throws -> URL {
+        let asset = AVURLAsset(url: sourceURL)
+        
+        // Create output URL
+        let outputURL = createOutputURL()
+        
+        // Remove any existing file at output URL
+        try? FileManager.default.removeItem(at: outputURL)
+        
+        // Create export session
+        guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
+            throw VideoProcessingError.exportSessionCreationFailed
+        }
+        
+        exportSession.outputURL = outputURL
+        exportSession.outputFileType = .mp4
+        
+        // Set time range for trimming
+        let start = CMTime(seconds: startTime, preferredTimescale: 600)
+        let end = CMTime(seconds: endTime, preferredTimescale: 600)
+        let timeRange = CMTimeRange(start: start, end: end)
+        exportSession.timeRange = timeRange
+        
+        // Create progress tracking
+        let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            Task { @MainActor in
+                self.processingProgress = Double(exportSession.progress)
+            }
+        }
+        
+        // Export the video
+        await exportSession.export()
+        
+        // Stop progress timer
+        progressTimer.invalidate()
+        
+        // Check export status
+        switch exportSession.status {
+        case .completed:
+            await MainActor.run {
+                processingProgress = 1.0
+            }
+            return outputURL
+        case .failed:
+            throw VideoProcessingError.exportFailed(exportSession.error?.localizedDescription ?? "Unknown error")
+        case .cancelled:
+            throw VideoProcessingError.exportCancelled
+        default:
+            throw VideoProcessingError.exportFailed("Export incomplete")
+        }
+    }
+    
+    private func createOutputURL() -> URL {
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let outputFileName = "trimmed_video_\(UUID().uuidString).mp4"
+        return documentsPath.appendingPathComponent(outputFileName)
+    }
+    
+    private func dismissToHome() {
+        // Dismiss all modal views to get back to home
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            if let presentingVC = window.rootViewController?.presentedViewController {
+                // Dismiss all presented view controllers
+                presentingVC.dismiss(animated: true)
+            }
+        }
+    }
+}
+
+enum VideoProcessingError: LocalizedError {
+    case exportSessionCreationFailed
+    case exportFailed(String)
+    case exportCancelled
+    
+    var errorDescription: String? {
+        switch self {
+        case .exportSessionCreationFailed:
+            return "Failed to create video export session"
+        case .exportFailed(let message):
+            return "Video export failed: \(message)"
+        case .exportCancelled:
+            return "Video export was cancelled"
         }
     }
 }
@@ -213,7 +360,6 @@ struct VideoTrimmingView: View {
 // Custom button style for preset buttons
 struct PresetButtonStyle: ButtonStyle {
     let isSelected: Bool
-    let gradientType: GradientType
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -222,7 +368,7 @@ struct PresetButtonStyle: ButtonStyle {
             .frame(width: 80, height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? AnyShapeStyle(gradientType.base) : AnyShapeStyle(Color.white.opacity(0.1)))
+                    .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.1)))
                     .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

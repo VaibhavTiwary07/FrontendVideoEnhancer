@@ -88,19 +88,12 @@ struct SidebarMenuItem: View {
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(isPressed ? 
-                          LinearGradient(
-                            colors: [
-                                Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.7),
-                                Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.7)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                          ) : 
-                          LinearGradient(
+                          AnyShapeStyle(LinearGradient.primaryTheme.opacity(0.7)) : 
+                          AnyShapeStyle(LinearGradient(
                             colors: [Color.clear],
                             startPoint: .leading,
                             endPoint: .trailing
-                          )
+                          ))
                     )
             )
             .scaleEffect(isPressed ? 0.95 : 1.0)
@@ -126,19 +119,12 @@ struct NeomorphicHamburgerStyle: ButtonStyle {
             .background(
                 Circle()
                     .fill(configuration.isPressed ? 
-                          LinearGradient(
-                            colors: [
-                                Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.2),
-                                Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.2)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                          ) : 
-                          LinearGradient(
+                          AnyShapeStyle(LinearGradient.primaryTheme.opacity(0.2)) : 
+                          AnyShapeStyle(LinearGradient(
                             colors: [Color.cardBackground],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
-                          )
+                          ))
                     )
                     .overlay(
                         Circle()

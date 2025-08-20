@@ -2,6 +2,34 @@ import SwiftUI
 
 struct AppGradients {
     
+    // MARK: - Primary Theme (Coral to Orange)
+    static let primaryTheme = LinearGradient(
+        colors: [
+            Color(red: 1.0, green: 0.47, blue: 0.47),    // #FF7878 - Coral
+            Color(red: 1.0, green: 0.596, blue: 0.329)   // #FF9854 - Orange
+        ],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
+    static let primaryThemeLight = LinearGradient(
+        colors: [
+            Color(red: 1.0, green: 0.7, blue: 0.7),      // Lighter coral
+            Color(red: 1.0, green: 0.75, blue: 0.5)      // Lighter orange
+        ],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
+    static let primaryThemeDark = LinearGradient(
+        colors: [
+            Color(red: 0.9, green: 0.35, blue: 0.35),    // Darker coral
+            Color(red: 0.9, green: 0.45, blue: 0.2)      // Darker orange
+        ],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
     // MARK: - Red Pink Variants
     static let redPink = LinearGradient(
         colors: [
@@ -197,6 +225,11 @@ struct AppGradients {
 
 // MARK: - Extension for easy access
 extension LinearGradient {
+    // Primary theme
+    static var primaryTheme: LinearGradient { AppGradients.primaryTheme }
+    static var primaryThemeLight: LinearGradient { AppGradients.primaryThemeLight }
+    static var primaryThemeDark: LinearGradient { AppGradients.primaryThemeDark }
+    
     // Base gradients
     static var redPink: LinearGradient { AppGradients.redPink }
     static var gray: LinearGradient { AppGradients.gray }

@@ -47,17 +47,7 @@ struct NeomorphicButtonStyle: ButtonStyle {
                 Group {
                     if configuration.isPressed {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.8),
-                                        Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.8),
-                                        Color(red: 0.988, green: 0.753, blue: 0.424).opacity(0.8)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                            .fill(LinearGradient.primaryTheme.opacity(0.8))
                             .neomorphicPressed()
                     } else {
                         RoundedRectangle(cornerRadius: 16)

@@ -4,31 +4,11 @@ extension View {
     
     // MARK: - Gradient Styles
     func primaryGradient() -> some View {
-        self.background(
-            LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.47, blue: 0.47),
-                    Color(red: 1.0, green: 0.596, blue: 0.329),
-                    Color(red: 0.988, green: 0.753, blue: 0.424)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
+        self.background(LinearGradient.primaryTheme)
     }
     
     func subtlePrimaryGradient(opacity: Double = 0.1) -> some View {
-        self.background(
-            LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(opacity),
-                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(opacity),
-                    Color(red: 0.988, green: 0.753, blue: 0.424).opacity(opacity)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
+        self.background(LinearGradient.primaryTheme.opacity(opacity))
     }
     
     // MARK: - Neomorphic Effects
