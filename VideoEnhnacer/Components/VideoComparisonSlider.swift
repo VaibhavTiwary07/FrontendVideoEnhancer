@@ -108,10 +108,9 @@ struct VideoComparisonSlider: View {
                                 RoundedRectangle(cornerRadius: 2)
                                     .fill(
                                         LinearGradient(
-                                            colors: [
-                                                Color(red: 1.0, green: 0.47, blue: 0.47),
-                                                Color(red: 1.0, green: 0.596, blue: 0.329),
-                                                Color(red: 0.988, green: 0.753, blue: 0.424)
+                                            stops: [
+                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
                                             ],
                                             startPoint: .leading,
                                             endPoint: .trailing
@@ -130,9 +129,9 @@ struct VideoComparisonSlider: View {
                                 Circle()
                                     .fill(
                                         LinearGradient(
-                                            colors: [
-                                                Color(red: 1.0, green: 0.596, blue: 0.329),
-                                                Color(red: 0.988, green: 0.753, blue: 0.424)
+                                            stops: [
+                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
                                             ],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
@@ -218,9 +217,9 @@ struct VideoComparisonSlider: View {
     private func videoPlaceholder(title: String, isLoading: Bool, height: CGFloat) -> some View {
         Rectangle()
             .fill(LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
-                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                stops: [
+                    .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.27), location: 0.0),
+                    .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.09), location: 0.7)
                 ],
                 startPoint: .leading,
                 endPoint: .trailing
