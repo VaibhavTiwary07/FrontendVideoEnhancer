@@ -274,7 +274,7 @@ struct VideoTrimmingView: View {
         let asset = AVURLAsset(url: sourceURL)
         
         // Create output URL
-        let outputURL = createOutputURL()
+        let outputURL = try createOutputURL()
         
         // Remove any existing file at output URL
         try? FileManager.default.removeItem(at: outputURL)
@@ -322,8 +322,12 @@ struct VideoTrimmingView: View {
         }
     }
     
-    private func createOutputURL() -> URL {
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    private func createOutputURL() throws -> URL {
+        guard let documentsPath = FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)
+            .first else {
+            throw VideoProcessingError.exportSessionCreationFailed
+        }
         let outputFileName = "trimmed_video_\(UUID().uuidString).mp4"
         return documentsPath.appendingPathComponent(outputFileName)
     }
