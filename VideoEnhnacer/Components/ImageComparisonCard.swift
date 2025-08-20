@@ -21,7 +21,15 @@ struct ImageComparisonCard: View {
             ZStack {
                 // Single left-to-right gradient background with masked SF symbols
                 ZStack {
-                    gradientType.base
+                    // Gradient background with gentle fade near the image slider
+                    LinearGradient(
+                        gradient: Gradient(stops: gradientType.base.gradient.stops + [
+                            .init(color: Color.white.opacity(0.6), location: 0.7),
+                            .init(color: .clear, location: 0.9)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
 
                     // Background SF Symbols with gradient mask
                     GeometryReader { geometry in
@@ -52,15 +60,6 @@ struct ImageComparisonCard: View {
                         )
                     }
 
-                    // Simple fade leading into the comparison slider
-                    LinearGradient(
-                        colors: [.clear, Color.white.opacity(0.6)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: 60)
-                    .offset(x: -120)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .frame(height: 120)
                 .clipShape(RoundedRectangle(cornerRadius: 22))
