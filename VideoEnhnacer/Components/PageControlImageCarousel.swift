@@ -87,7 +87,8 @@ struct CarouselCard: View {
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
-            sliderValue: $sliderValue
+            sliderValue: $sliderValue,
+            touchEnabled: false
         )
         .background(
             RoundedRectangle(cornerRadius: 24)

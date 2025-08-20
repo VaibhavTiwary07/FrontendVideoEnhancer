@@ -4,11 +4,13 @@ struct ImageComparisonSlider: View {
     let beforeImageName: String
     let afterImageName: String
     @Binding var sliderValue: Double
+    let touchEnabled: Bool
 
-    init(beforeImageName: String = "test.png", afterImageName: String = "testEnhanced.png", sliderValue: Binding<Double>) {
+    init(beforeImageName: String = "test.png", afterImageName: String = "testEnhanced.png", sliderValue: Binding<Double>, touchEnabled: Bool = true) {
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
         self._sliderValue = sliderValue
+        self.touchEnabled = touchEnabled
     }
     
     var body: some View {
@@ -54,16 +56,18 @@ struct ImageComparisonSlider: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
 
-                Rectangle()
-                    .fill(Color.clear)
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                let newValue = max(0, min(1, value.location.x / geometry.size.width))
-                                sliderValue = newValue
-                            }
-                    )
+                if touchEnabled {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let newValue = max(0, min(1, value.location.x / geometry.size.width))
+                                    sliderValue = newValue
+                                }
+                        )
+                }
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))

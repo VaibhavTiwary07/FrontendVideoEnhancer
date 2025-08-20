@@ -5,6 +5,14 @@ struct HomeView: View {
     @State private var selectedVideoURL: URL?
     @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var isHomeViewActive = false
+    @State private var showVideoPicker = false
+    @State private var selectedEnhancement: Enhancement?
+    
+    struct Enhancement {
+        let type: String
+        let icon: String
+        let gradientType: GradientType
+    }
     
     var body: some View {
         ZStack {
@@ -18,15 +26,15 @@ struct HomeView: View {
                         PageControlImageCarousel()
                         
                         // Spacing for overlap
-                        Spacer()
-                            .frame(height: 50)
+//                        Spacer()
+//                            .frame(height: 50)
                     }
                     
                     // Enhancement Cards Section (Overlapping)
                     VStack(spacing: 0) {
                         // Push enhancement section down to overlap carousel
                         Spacer()
-                            .frame(height: 240)
+                            .frame(height: 250)
                         
                         VStack(spacing: 16) {
                             VStack(spacing: 16) {
@@ -44,7 +52,12 @@ struct HomeView: View {
                                         subtitle: "Enhance image resolution",
                                         gradientType: .redPink
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "AI Upscale",
+                                            icon: "arrow.up.square",
+                                            gradientType: .redPink
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -53,7 +66,12 @@ struct HomeView: View {
                                         subtitle: "Improve facial features",
                                         gradientType: .yellowGray
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "Face & Object Enhancer",
+                                            icon: "face.smiling",
+                                            gradientType: .yellowGray
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -62,7 +80,12 @@ struct HomeView: View {
                                         subtitle: "Remove grain and noise",
                                         gradientType: .purpleGray
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "AI Denoise",
+                                            icon: "waveform.path",
+                                            gradientType: .purpleGray
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -71,7 +94,12 @@ struct HomeView: View {
                                         subtitle: "Color correction",
                                         gradientType: .cyanGray
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "AI Color",
+                                            icon: "paintpalette.fill",
+                                            gradientType: .cyanGray
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -80,7 +108,12 @@ struct HomeView: View {
                                         subtitle: "One-click improvements",
                                         gradientType: .pinkGray
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "AI Auto Enhancement",
+                                            icon: "wand.and.stars",
+                                            gradientType: .pinkGray
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -89,7 +122,12 @@ struct HomeView: View {
                                         subtitle: "Reduce camera shake",
                                         gradientType: .gray
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "Stabilizer",
+                                            icon: "gyroscope",
+                                            gradientType: .gray
+                                        )
+                                        showVideoPicker = true
                                     }
                                     
                                     ImageComparisonCard(
@@ -98,7 +136,12 @@ struct HomeView: View {
                                         subtitle: "Smooth motion",
                                         gradientType: .redPink
                                     ) {
-                                        showVideoPropertyList = true
+                                        selectedEnhancement = Enhancement(
+                                            type: "Frame Interpolation",
+                                            icon: "timer.circle.fill",
+                                            gradientType: .redPink
+                                        )
+                                        showVideoPicker = true
                                     }
                                 }
                                 .padding(.bottom, 100)
@@ -128,6 +171,15 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
+        }
+        .fullScreenCover(isPresented: $showVideoPicker) {
+            if let enhancement = selectedEnhancement {
+                VideoPickerView(
+                    enhancementType: enhancement.type,
+                    enhancementIcon: enhancement.icon,
+                    gradientType: enhancement.gradientType
+                )
+            }
         }
         .onAppear {
             isHomeViewActive = true
