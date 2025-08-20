@@ -53,6 +53,10 @@ final class RevealImageView: UIImageView {
         isUserInteractionEnabled = true
     }
 
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         leftImageLayer.frame = bounds
