@@ -55,7 +55,7 @@ struct ImageComparisonCard: View {
                         // Left side - Precisely centered text content
                         textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
                         
-                        Spacer()
+//                        Spacer()
                         
                         // Right side - Image comparison slider with proper containment
                         sliderView(containerHeight: geometry.size.height)
@@ -132,21 +132,21 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
-        let sliderHeight = min(90, containerHeight - 20) // Ensure 10px padding
+       
         
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
             sliderValue: $sliderValue
         )
-        .frame(width: 100, height: sliderHeight)
+
         .background(
             RoundedRectangle(cornerRadius: 18)
                 .fill(Color.white.opacity(0.95))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         )
-        .padding(.trailing, 16)
+       
     }
     
     private func getBackgroundSymbol() -> String {
@@ -167,14 +167,15 @@ struct ImageComparisonCard: View {
         case .redPink:
             return [
                 .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
-                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.4),
-                .init(color: Color(red: 255/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+
+                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7),
+
             ]
         case .gray:
             return [
                 .init(color: Color(red: 100/255, green: 100/255, blue: 100/255).opacity(0.7), location: 0.0),
                 .init(color: Color(red: 160/255, green: 160/255, blue: 160/255).opacity(0.4), location: 0.3),
-                .init(color: Color(red: 245/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
+//                .init(color: Color(red: 245/255, green: 245/255, blue: 245/255).opacity(0.0), location: 0.6)
             ]
         case .yellowGray:
             return [
@@ -186,7 +187,7 @@ struct ImageComparisonCard: View {
             return [
                 .init(color: Color(red: 120/255, green: 80/255, blue: 200/255).opacity(0.6), location: 0.0),
                 .init(color: Color(red: 160/255, green: 130/255, blue: 220/255).opacity(0.35), location: 0.3),
-                .init(color: Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0), location: 0.6)
+//                .init(color: Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0), location: 0.6)
             ]
         case .cyanGray:
             return [
