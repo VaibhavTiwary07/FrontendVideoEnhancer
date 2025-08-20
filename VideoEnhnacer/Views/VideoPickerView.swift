@@ -14,7 +14,7 @@ struct VideoPickerView: View {
     @State private var showingPermissionAlert = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
