@@ -96,7 +96,7 @@ struct ImageComparisonSlider: UIViewRepresentable {
     let afterImageName: String
     @Binding var sliderValue: Double
 
-    init(beforeImageName: String = "test.png", afterImageName: String = "testEnhanced.png", sliderValue: Binding<Double>) {
+    init(beforeImageName: String = "test", afterImageName: String = "testEnhanced", sliderValue: Binding<Double>) {
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
         self._sliderValue = sliderValue
@@ -144,8 +144,8 @@ struct ImageComparisonSlider: UIViewRepresentable {
 #Preview {
     VStack(spacing: 20) {
         ImageComparisonSlider(
-            beforeImageName: "test.png",
-            afterImageName: "testEnhanced.png",
+            beforeImageName: "test",
+            afterImageName: "testEnhanced",
             sliderValue: .constant(0.5)
         )
         .frame(height: 100)
