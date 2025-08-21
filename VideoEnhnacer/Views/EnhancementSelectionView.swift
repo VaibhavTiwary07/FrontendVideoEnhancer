@@ -22,6 +22,23 @@ struct EnhancementSelectionView: View {
         horizontalSizeClass == .regular
     }
     
+    private var dynamicSubtitle: String {
+        switch enhancementType {
+        case "AI Upscale":
+            return "Select upscaler level that best fits your video"
+        case "AI Denoise":
+            return "Select denoise level that best fits your video"
+        case "AI Auto Enhancement":
+            return "Select auto enhancement level that best fits your video"
+        case "Stabilizer":
+            return "Select stabilization level that best fits your video"
+        case "Frame Interpolation":
+            return "Select interpolation level that best fits your video"
+        default:
+            return "Select the level that best fits your video"
+        }
+    }
+    
     private var enhancementOptions: [EnhancementOption] {
         switch enhancementType {
         case "AI Upscale":
@@ -33,21 +50,21 @@ struct EnhancementSelectionView: View {
             ]
         case "AI Denoise":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "1.square.fill"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "2.square.fill", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "3.square.fill")
             ]
         case "AI Auto Enhancement":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "1.square.fill"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "2.square.fill", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "3.square.fill")
             ]
         case "Stabilizer":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "1.square.fill"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.square.fill", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.square.fill")
             ]
         case "Frame Interpolation":
             return [
@@ -87,35 +104,25 @@ struct EnhancementSelectionView: View {
                         VStack(spacing: 24) {
                             SectionHeader(
                                 title: "Choose Enhancement Level",
-                                subtitle: "Select the level that best fits your video and processing preferences"
+                                subtitle: dynamicSubtitle
                             )
                             .padding(.horizontal, 20)
                             .padding(.top, 40)
                             
-                            // Magnetic selection grid
-                            MagneticSelectionGrid(
-                                options: enhancementOptions,
-                                selectedOption: $selectionState.selectedOption,
-                                onSelectionChange: { option in
-                                    selectionState.updateSelection(option)
+                            // Enhancement options grid
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
+                                ForEach(enhancementOptions, id: \.id) { option in
+                                    OptionCard(
+                                        option: option,
+                                        isSelected: selectionState.selectedOption == option.id,
+                                        onTap: {
+                                            selectionState.updateSelection(option.id)
+                                        }
+                                    )
                                 }
-                            )
-                            .frame(minHeight: CGFloat(enhancementOptions.count) * 120 + CGFloat(enhancementOptions.count - 1) * 20)
-                            
-                            // Intelligent performance indicator
-                            if !selectionState.selectedOption.isEmpty {
-                                IntelligentPerformanceIndicator(
-                                    enhancementType: enhancementType,
-                                    selectedOption: selectionState.selectedOption,
-                                    videoURL: videoURL
-                                )
-                                .padding(.horizontal, 20)
-                                .padding(.top, 20)
-                                .transition(.asymmetric(
-                                    insertion: .scale(scale: 0.9).combined(with: .opacity).combined(with: .move(edge: .top)),
-                                    removal: .scale(scale: 0.9).combined(with: .opacity).combined(with: .move(edge: .top))
-                                ))
                             }
+                            .padding(.horizontal, 20)
+                            
                             
                             // Process button
                             ProcessButton(
@@ -254,7 +261,7 @@ struct EnhancementSelectionView: View {
         processingProgress = 0.0
         
         // Simulate processing with progress updates
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+        let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             processingProgress += 0.02
             
             if processingProgress >= 1.0 {
@@ -347,12 +354,12 @@ struct ProcessButton: View {
                     VStack(spacing: 8) {
                         ZStack {
                             Circle()
-                                .stroke(Color.accentWarm.opacity(0.3), lineWidth: 3)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 3)
                                 .frame(width: 24, height: 24)
                             
                             Circle()
                                 .trim(from: 0, to: processingProgress)
-                                .stroke(Color.accentWarm, lineWidth: 3)
+                                .stroke(Color.white, lineWidth: 3)
                                 .frame(width: 24, height: 24)
                                 .rotationEffect(.degrees(-90))
                                 .animation(.easeInOut, value: processingProgress)
@@ -361,23 +368,24 @@ struct ProcessButton: View {
                         if processingProgress > 0 {
                             Text("\(Int(processingProgress * 100))%")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.accentWarm)
+                                .foregroundColor(.white)
                         }
                     }
                 } else {
                     Image(systemName: enhancementIcon)
                         .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isProcessing ? "Processing Video..." : "Process with \(enhancementType)")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.accentWarm)
+                        .foregroundColor(.white)
                     
                     if !isProcessing && !selectedOption.isEmpty {
                         Text("Using \(selectedOption.capitalized) setting")
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.accentWarm.opacity(0.8))
+                            .foregroundColor(.white.opacity(0.8))
                     }
                 }
                 
@@ -387,13 +395,18 @@ struct ProcessButton: View {
             .padding(.vertical, 18)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.cardSoft)
+                    .fill(LinearGradient.primaryTheme)
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.accentWarm.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(
+                        color: Color.black.opacity(0.15),
+                        radius: isProcessing ? 4 : 6,
+                        x: 0,
+                        y: isProcessing ? 2 : 3
                     )
             )
-            .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
             .scaleEffect(isProcessing ? 0.98 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isProcessing)
         }
@@ -417,6 +430,84 @@ class EnhancementSelectionState: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.isAnalyzing = false
         }
+    }
+}
+
+// MARK: - Option Card Component
+
+struct OptionCard: View {
+    let option: EnhancementOption
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: {
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            onTap()
+        }) {
+            VStack(spacing: 16) {
+                // Icon with square background
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isSelected ? Color.white.opacity(0.2) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.1))
+                        .frame(width: 48, height: 48)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isSelected ? Color.white.opacity(0.4) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3), lineWidth: isSelected ? 2 : 1)
+                        )
+                    
+                    Image(systemName: option.icon)
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundColor(isSelected ? .white : Color(red: 1.0, green: 0.596, blue: 0.329))
+                }
+                
+                // Text content
+                VStack(spacing: 4) {
+                    HStack {
+                        Text(option.title)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(isSelected ? .white : Color.accentWarm)
+                        
+                        if option.isRecommended {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(isSelected ? .white.opacity(0.8) : Color(red: 1.0, green: 0.596, blue: 0.329))
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        Text(option.description)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7))
+                            .multilineTextAlignment(.leading)
+                        
+                        Spacer()
+                    }
+                }
+            }
+            .padding(20)
+            .frame(height: 120)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.gray.opacity(0.1), lineWidth: 1)
+                    )
+                    .shadow(
+                        color: Color.black.opacity(isSelected ? 0.12 : 0.06),
+                        radius: isSelected ? 6 : 3,
+                        x: 0,
+                        y: isSelected ? 3 : 2
+                    )
+            )
+            .scaleEffect(isSelected ? 1.02 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

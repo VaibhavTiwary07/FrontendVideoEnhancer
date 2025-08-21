@@ -75,6 +75,15 @@ struct VideoResultsView: View {
                         .foregroundColor(.white)
                 }
             }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                FavoriteButton(
+                    videoURL: processedVideoURL,
+                    enhancementType: enhancementType,
+                    enhancementIcon: enhancementIcon,
+                    title: "\(enhancementType) Enhanced Video"
+                )
+            }
         }
         .alert("Save Error", isPresented: $showingError) {
             Button("OK") { }
@@ -211,42 +220,73 @@ struct ActionButtonsSection: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            HStack(spacing: 16) {
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
-                    saveToPhotoLibrary()
-                }) {
-                    HStack(spacing: 10) {
-                        if isSaving {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(0.8)
-                        } else {
-                            Image(systemName: "square.and.arrow.down.fill")
-                                .font(.system(size: 18, weight: .medium))
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        saveToPhotoLibrary()
+                    }) {
+                        VStack(spacing: 6) {
+                            if isSaving {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.9)
+                            } else {
+                                Image(systemName: "square.and.arrow.down.fill")
+                                    .font(.system(size: 20, weight: .medium))
+                            }
+                            
+                            Text(isSaving ? "Saving..." : "Save")
+                                .font(.system(size: 14, weight: .semibold))
                         }
-                        
-                        Text(isSaving ? "Saving..." : "Save")
-                            .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 72)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(LinearGradient.primaryTheme)
+                                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                        )
                     }
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                }
-                .buttonStyle(GradientButtonStyle())
-                .disabled(isSaving)
-                
-                ShareLink(item: processedVideoURL) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "square.and.arrow.up.fill")
-                            .font(.system(size: 18, weight: .medium))
-                        
-                        Text("Share")
-                            .font(.system(size: 16, weight: .semibold))
+                    .disabled(isSaving)
+                    
+                    ShareLink(item: processedVideoURL) {
+                        VStack(spacing: 6) {
+                            Image(systemName: "square.and.arrow.up.fill")
+                                .font(.system(size: 20, weight: .medium))
+                            
+                            Text("Share")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 72)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.15))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                                .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+                        )
                     }
-                    .foregroundColor(.white)
+                    
+                    VStack(spacing: 6) {
+                        FavoriteButton(
+                            videoURL: processedVideoURL,
+                            enhancementType: "Enhanced Video",
+                            title: "Enhanced Video"
+                        )
+                        .scaleEffect(1.1)
+                        
+                        Text("Favorite")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .frame(height: 72)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.white.opacity(0.15))
@@ -254,8 +294,8 @@ struct ActionButtonsSection: View {
                                 RoundedRectangle(cornerRadius: 16)
                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
                             )
+                            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
                     )
-                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
                 }
             }
             .padding(.horizontal, 20)

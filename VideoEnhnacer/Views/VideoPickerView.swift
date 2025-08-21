@@ -95,10 +95,10 @@ struct VideoPickerView: View {
                                     Text("Continue to Video Trimming")
                                         .font(.system(size: 18, weight: .semibold))
                                 }
-                                .foregroundColor(.accentWarm)
+                                .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                             }
-                            .buttonStyle(GradientButtonStyle())
+                            .buttonStyle(FloatingActionButtonStyle())
                             .padding(.horizontal, 20)
                             
                         } else {
@@ -147,10 +147,10 @@ struct VideoPickerView: View {
                                             Text("Select Video from Library")
                                                 .font(.system(size: 18, weight: .semibold))
                                         }
-                                        .foregroundColor(.accentWarm)
+                                        .foregroundColor(.white)
                                         .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                                     }
-                                    .buttonStyle(GradientButtonStyle())
+                                    .buttonStyle(FloatingActionButtonStyle())
                                     .padding(.horizontal, 20)
                                     
                                     if permissionManager.hasLimitedAccess {
@@ -319,6 +319,31 @@ struct GradientButtonStyle: ButtonStyle {
                     .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             )
             .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// FloatingActionButton style matching the existing FAB component
+struct FloatingActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(LinearGradient.primaryTheme)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(
+                        color: Color.black.opacity(0.15),
+                        radius: configuration.isPressed ? 4 : 6,
+                        x: 0,
+                        y: configuration.isPressed ? 2 : 3
+                    )
+            )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
