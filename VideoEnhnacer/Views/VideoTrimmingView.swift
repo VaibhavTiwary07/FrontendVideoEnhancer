@@ -14,12 +14,7 @@ struct VideoTrimmingView: View {
     @State private var trimEndTime: Double = 30
     @State private var videoDuration: Double = 0
     @State private var selectedDuration: TimePreset = .thirtySeconds
-    @State private var isProcessing = false
-    @State private var processingProgress: Double = 0.0
-    @State private var processedVideoURL: URL?
-    @State private var showingResults = false
-    @State private var processingError: String?
-    @State private var showingError = false
+    @State private var navigateToEnhancement = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -46,7 +41,7 @@ struct VideoTrimmingView: View {
     
     var body: some View {
         ZStack {
-            Color.black
+            Color.primarySoft
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -59,7 +54,7 @@ struct VideoTrimmingView: View {
                                 .cornerRadius(20)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                                 )
                                 .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
                                 .padding(.horizontal, 20)
@@ -68,11 +63,11 @@ struct VideoTrimmingView: View {
                                 }
                         } else {
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white.opacity(0.1))
+                                .fill(Color.accentWarm.opacity(0.1))
                                 .frame(height: isIPad ? 400 : 320)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                                 )
                                 .padding(.horizontal, 20)
                                 .overlay(
@@ -105,7 +100,7 @@ struct VideoTrimmingView: View {
                                         Text("Change")
                                             .font(.system(size: 14, weight: .semibold))
                                     }
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.accentWarm)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
                                     .background(
@@ -113,7 +108,7 @@ struct VideoTrimmingView: View {
                                             .fill(Color.black.opacity(0.6))
                                             .overlay(
                                                 Capsule()
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                                    .stroke(Color.accentWarm.opacity(0.3), lineWidth: 1)
                                             )
                                     )
                                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
@@ -141,7 +136,7 @@ struct VideoTrimmingView: View {
                             
                             Text(formatDuration(trimEndTime - trimStartTime))
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                         
@@ -160,7 +155,7 @@ struct VideoTrimmingView: View {
                             
                             Text(formatDuration(videoDuration))
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
@@ -168,10 +163,10 @@ struct VideoTrimmingView: View {
                     .padding(.vertical, 20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.accentWarm.opacity(0.1))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                             )
                     )
                     .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
@@ -215,35 +210,19 @@ struct VideoTrimmingView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
-                        processVideo()
+                        navigateToEnhancement = true
                     }) {
                         HStack(spacing: 12) {
-                            if isProcessing {
-                                VStack(spacing: 8) {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        .scaleEffect(0.8)
-                                    
-                                    if processingProgress > 0 {
-                                        Text("\(Int(processingProgress * 100))%")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(.white)
-                                            .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                                    }
-                                }
-                            } else {
-                                Image(systemName: enhancementIcon)
-                                    .font(.system(size: 20, weight: .medium))
-                            }
+                            Image(systemName: enhancementIcon)
+                                .font(.system(size: 20, weight: .medium))
                             
-                            Text(isProcessing ? "Processing..." : "Process with \(enhancementType)")
+                            Text("Continue to \(enhancementType)")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         }
                     }
                     .buttonStyle(GradientButtonStyle())
-                    .disabled(isProcessing)
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 40)
@@ -275,12 +254,12 @@ struct VideoTrimmingView: View {
                         Text("Back")
                             .font(.system(size: 17, weight: .medium))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.accentWarm)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 6)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.accentWarm.opacity(0.1))
                     )
                 }
             }
@@ -294,18 +273,18 @@ struct VideoTrimmingView: View {
                             ForEach(1...3, id: \.self) { step in
                                 HStack(spacing: 4) {
                                     Circle()
-                                        .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                        .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
                                         .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
                                         .overlay(
                                             Circle()
-                                                .stroke(Color.white, lineWidth: step == 2 ? 2 : 1)
+                                                .stroke(Color.accentWarm, lineWidth: step == 2 ? 2 : 1)
                                                 .opacity(step == 2 ? 1 : 0.5)
                                         )
                                     
                                     // Connecting line (except for last step)
                                     if step < 3 {
                                         Rectangle()
-                                            .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                            .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
                                             .frame(width: 12, height: 2)
                                             .cornerRadius(1)
                                     }
@@ -315,7 +294,7 @@ struct VideoTrimmingView: View {
                         
                         Text("Step 2 of 3")
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white)
+                            .foregroundColor(.accentWarm)
                     }
                     
                     // Close button
@@ -326,11 +305,11 @@ struct VideoTrimmingView: View {
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
+                            .foregroundColor(.accentWarm)
                             .frame(width: 32, height: 32)
                             .background(
                                 Circle()
-                                    .fill(Color.white.opacity(0.15))
+                                    .fill(Color.accentWarm.opacity(0.15))
                                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                             )
                     }
@@ -344,21 +323,13 @@ struct VideoTrimmingView: View {
         .onDisappear {
             playerManager.cleanup()
         }
-        .fullScreenCover(isPresented: $showingResults) {
-            if let processedURL = processedVideoURL {
-                VideoResultsView(
-                    originalVideoURL: videoURL,
-                    processedVideoURL: processedURL,
-                    enhancementType: enhancementType,
-                    enhancementIcon: enhancementIcon,
-                    gradientType: gradientType
-                )
-            }
-        }
-        .alert("Processing Error", isPresented: $showingError) {
-            Button("OK") { }
-        } message: {
-            Text(processingError ?? "Unknown error occurred")
+        .navigationDestination(isPresented: $navigateToEnhancement) {
+            EnhancementSelectionView(
+                videoURL: videoURL,
+                enhancementType: enhancementType,
+                enhancementIcon: enhancementIcon,
+                gradientType: gradientType
+            )
         }
     }
     
@@ -393,98 +364,6 @@ struct VideoTrimmingView: View {
         }
     }
     
-    private func processVideo() {
-        isProcessing = true
-        processingProgress = 0.0
-        
-        Task {
-            do {
-                let trimmedURL = try await trimVideo(
-                    sourceURL: videoURL,
-                    startTime: trimStartTime,
-                    endTime: trimEndTime
-                )
-                
-                await MainActor.run {
-                    processedVideoURL = trimmedURL
-                    isProcessing = false
-                    showingResults = true
-                }
-            } catch {
-                await MainActor.run {
-                    isProcessing = false
-                    processingError = error.localizedDescription
-                    showingError = true
-                }
-            }
-        }
-    }
-    
-    private func trimVideo(sourceURL: URL, startTime: Double, endTime: Double) async throws -> URL {
-        let asset = AVURLAsset(url: sourceURL)
-        
-        // Create output URL
-        let outputURL = try createOutputURL()
-        
-        // Remove any existing file at output URL
-        try? FileManager.default.removeItem(at: outputURL)
-        
-        // Create export session
-        guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
-            throw VideoProcessingError.exportSessionCreationFailed
-        }
-        
-        exportSession.outputURL = outputURL
-        exportSession.outputFileType = .mp4
-        
-        // Set time range for trimming
-        let start = CMTime(seconds: startTime, preferredTimescale: 600)
-        let end = CMTime(seconds: endTime, preferredTimescale: 600)
-        let timeRange = CMTimeRange(start: start, end: end)
-        exportSession.timeRange = timeRange
-        
-        // Create progress tracking
-        let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            Task { @MainActor in
-                self.processingProgress = Double(exportSession.progress)
-            }
-        }
-        
-        // Export the video
-        if #available(iOS 18.0, *) {
-            try await exportSession.export(to: outputURL, as: .mp4)
-        } else {
-            await exportSession.export()
-        }
-        
-        // Stop progress timer
-        progressTimer.invalidate()
-        
-        // Check export status
-        switch exportSession.status {
-        case .completed:
-            await MainActor.run {
-                processingProgress = 1.0
-            }
-            return outputURL
-        case .failed:
-            throw VideoProcessingError.exportFailed(exportSession.error?.localizedDescription ?? "Unknown error")
-        case .cancelled:
-            throw VideoProcessingError.exportCancelled
-        default:
-            throw VideoProcessingError.exportFailed("Export incomplete")
-        }
-    }
-    
-    private func createOutputURL() throws -> URL {
-        guard let documentsPath = FileManager.default
-            .urls(for: .documentDirectory, in: .userDomainMask)
-            .first else {
-            throw VideoProcessingError.exportSessionCreationFailed
-        }
-        let outputFileName = "trimmed_video_\(UUID().uuidString).mp4"
-        return documentsPath.appendingPathComponent(outputFileName)
-    }
     
     private func dismissToHome() {
         // Dismiss all modal views to get back to home
@@ -508,22 +387,6 @@ struct VideoTrimmingView: View {
     }
 }
 
-enum VideoProcessingError: LocalizedError {
-    case exportSessionCreationFailed
-    case exportFailed(String)
-    case exportCancelled
-    
-    var errorDescription: String? {
-        switch self {
-        case .exportSessionCreationFailed:
-            return "Failed to create video export session"
-        case .exportFailed(let message):
-            return "Video export failed: \(message)"
-        case .exportCancelled:
-            return "Video export was cancelled"
-        }
-    }
-}
 
 // Custom button style for preset buttons
 struct PresetButtonStyle: ButtonStyle {
@@ -537,7 +400,7 @@ struct PresetButtonStyle: ButtonStyle {
             .frame(width: 80, height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.15)))
+                    .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                     .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             )

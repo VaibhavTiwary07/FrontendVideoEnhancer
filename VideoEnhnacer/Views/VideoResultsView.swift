@@ -32,7 +32,7 @@ struct VideoResultsView: View {
             
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    HeaderSection(
+                    ResultsHeaderSection(
                         enhancementType: enhancementType,
                         saveSuccess: saveSuccess
                     )
@@ -119,7 +119,7 @@ struct VideoResultsView: View {
     }
 }
 
-struct HeaderSection: View {
+struct ResultsHeaderSection: View {
     let enhancementType: String
     let saveSuccess: Bool
     

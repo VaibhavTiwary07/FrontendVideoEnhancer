@@ -16,32 +16,36 @@ struct VideoPickerView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black
+                Color.primarySoft
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     // Enhanced Header
                     VStack(spacing: 20) {
-                        // Icon with gradient background
+                        // Icon with modern styling
                         ZStack {
                             Circle()
-                                .fill(gradientType.base)
+                                .fill(Color.cardSoft)
                                 .frame(width: 100, height: 100)
-                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
+                                )
+                                .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 6)
                             
                             Image(systemName: enhancementIcon)
                                 .font(.system(size: 40, weight: .medium))
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                         }
                         
                         VStack(spacing: 8) {
                             Text("Select Video for")
                                 .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.accentWarm.opacity(0.8))
                             
                             Text(enhancementType)
                                 .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                         }
                         
@@ -49,7 +53,7 @@ struct VideoPickerView: View {
                         HStack(spacing: 8) {
                             ForEach(1...4, id: \.self) { step in
                                 Circle()
-                                    .fill(step == 1 ? Color.white : Color.white.opacity(0.3))
+                                    .fill(step == 1 ? Color.accentWarm : Color.accentWarm.opacity(0.3))
                                     .frame(width: step == 1 ? 10 : 8, height: step == 1 ? 10 : 8)
                             }
                         }
@@ -69,7 +73,7 @@ struct VideoPickerView: View {
                                     .cornerRadius(20)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                            .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                                     )
                                     .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
                                     .padding(.horizontal, 20)
@@ -91,7 +95,7 @@ struct VideoPickerView: View {
                                     Text("Continue to Video Trimming")
                                         .font(.system(size: 18, weight: .semibold))
                                 }
-                                .foregroundColor(.white)
+                                .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                             }
                             .buttonStyle(GradientButtonStyle())
@@ -106,16 +110,16 @@ struct VideoPickerView: View {
                                     VStack(spacing: 20) {
                                         Image(systemName: "photo.on.rectangle")
                                             .font(.system(size: 50, weight: .light))
-                                            .foregroundColor(.white.opacity(0.8))
+                                            .foregroundColor(.accentWarm.opacity(0.8))
                                         
                                         VStack(spacing: 8) {
                                             Text("Choose Your Video")
                                                 .font(.system(size: 22, weight: .bold))
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.accentWarm)
                                             
                                             Text("Select a video from your library to enhance")
                                                 .font(.system(size: 16, weight: .medium))
-                                                .foregroundColor(.white.opacity(0.7))
+                                                .foregroundColor(.accentWarm.opacity(0.7))
                                                 .multilineTextAlignment(.center)
                                         }
                                     }
@@ -123,10 +127,10 @@ struct VideoPickerView: View {
                                     .padding(.horizontal, 30)
                                     .background(
                                         RoundedRectangle(cornerRadius: 24)
-                                            .fill(Color.white.opacity(0.1))
+                                            .fill(Color.cardSoft)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 24)
-                                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                                    .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                                             )
                                     )
                                     .padding(.horizontal, 20)
@@ -143,7 +147,7 @@ struct VideoPickerView: View {
                                             Text("Select Video from Library")
                                                 .font(.system(size: 18, weight: .semibold))
                                         }
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.accentWarm)
                                         .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                                     }
                                     .buttonStyle(GradientButtonStyle())
@@ -156,7 +160,7 @@ struct VideoPickerView: View {
                                             
                                             Text("Limited photo library access")
                                                 .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(.white.opacity(0.8))
+                                                .foregroundColor(.accentWarm.opacity(0.8))
                                         }
                                         .padding(.horizontal, 20)
                                     }
@@ -169,11 +173,11 @@ struct VideoPickerView: View {
                                         Text("Photo Library Access")
                                             .font(.title2)
                                             .fontWeight(.semibold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.accentWarm)
                                         
                                         Text("To enhance your videos, we need access to your photo library to select videos.")
                                             .font(.body)
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(.accentWarm.opacity(0.7))
                                             .multilineTextAlignment(.center)
                                             .padding(.horizontal, 20)
                                     }
@@ -199,11 +203,11 @@ struct VideoPickerView: View {
                                         Text("Photo Library Access Required")
                                             .font(.title2)
                                             .fontWeight(.semibold)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.accentWarm)
                                         
                                         Text(permissionManager.permissionStatusMessage)
                                             .font(.body)
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(.accentWarm.opacity(0.7))
                                             .multilineTextAlignment(.center)
                                             .padding(.horizontal, 20)
                                     }
@@ -230,13 +234,13 @@ struct VideoPickerView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.accentWarm)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Text("Step 1 of 3")
+                    Text("Step 1 of 4")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.accentWarm.opacity(0.7))
                 }
             }
         }
@@ -294,20 +298,25 @@ struct VideoTransferable: Transferable {
     }
 }
 
-// Custom button style for gradient buttons
+// Custom button style for modern buttons
 struct GradientButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 18, weight: .semibold))
-            .foregroundColor(.white)
+            .foregroundColor(.accentWarm)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(LinearGradient.primaryTheme)
+                    .fill(Color.cardSoft)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.accentWarm.opacity(0.3), lineWidth: 1)
+                    )
                     .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             )
+            .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
