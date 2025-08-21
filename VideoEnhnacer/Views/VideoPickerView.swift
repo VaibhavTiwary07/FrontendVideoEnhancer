@@ -19,52 +19,147 @@ struct VideoPickerView: View {
                 Color.black
                     .ignoresSafeArea()
                 
-                VStack(spacing: 40) {
-                    // Header
-                    VStack(spacing: 16) {
-                        Image(systemName: enhancementIcon)
-                            .font(.system(size: 60, weight: .medium))
-                            .foregroundStyle(gradientType.base)
+                VStack(spacing: 0) {
+                    // Enhanced Header
+                    VStack(spacing: 20) {
+                        // Icon with gradient background
+                        ZStack {
+                            Circle()
+                                .fill(gradientType.base)
+                                .frame(width: 100, height: 100)
+                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                            
+                            Image(systemName: enhancementIcon)
+                                .font(.system(size: 40, weight: .medium))
+                                .foregroundColor(.white)
+                        }
                         
-                        Text("Select Video for \(enhancementType)")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
+                        VStack(spacing: 8) {
+                            Text("Select Video for")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.white.opacity(0.8))
+                            
+                            Text(enhancementType)
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                        }
+                        
+                        // Step indicator
+                        HStack(spacing: 8) {
+                            ForEach(1...4, id: \.self) { step in
+                                Circle()
+                                    .fill(step == 1 ? Color.white : Color.white.opacity(0.3))
+                                    .frame(width: step == 1 ? 10 : 8, height: step == 1 ? 10 : 8)
+                            }
+                        }
+                        .padding(.top, 10)
                     }
-                    .padding(.top, 60)
+                    .padding(.top, 40)
                     
                     Spacer()
                     
-                    // Video selection area
+                    // Enhanced Video selection area
                     VStack(spacing: 30) {
                         if let videoURL = selectedVideoURL {
-                            // Video preview
-                            VideoPreviewView(videoURL: videoURL)
-                                .frame(height: 200)
-                                .cornerRadius(16)
-                                .padding(.horizontal, 20)
+                            // Enhanced Video preview with info
+                            VStack(spacing: 20) {
+                                VideoPreviewView(videoURL: videoURL)
+                                    .frame(height: 220)
+                                    .cornerRadius(20)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                                    .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+                                    .padding(.horizontal, 20)
+                                
+                                // Video info card
+                                VideoInfoCard(videoURL: videoURL)
+                                    .padding(.horizontal, 20)
+                            }
                             
-                            Button("Continue to Video Trimming") {
+                            Button(action: {
+                                let impact = UIImpactFeedbackGenerator(style: .medium)
+                                impact.impactOccurred()
                                 navigateToTrimming = true
+                            }) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "scissors")
+                                        .font(.system(size: 18, weight: .medium))
+                                    
+                                    Text("Continue to Video Trimming")
+                                        .font(.system(size: 18, weight: .semibold))
+                                }
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                             }
                             .buttonStyle(GradientButtonStyle())
                             .padding(.horizontal, 20)
                             
                         } else {
-                            // Permission and video selection UI
+                            // Enhanced video selection UI
                             if permissionManager.canAccessPhotoLibrary {
-                                // Has permission - show video picker
-                                Button("Select Video from Library") {
-                                    showingVideoPicker = true
-                                }
-                                .buttonStyle(GradientButtonStyle())
-                                .padding(.horizontal, 20)
-                                
-                                if permissionManager.hasLimitedAccess {
-                                    Text("Limited photo library access")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                        .padding(.top, 8)
+                                // Has permission - show enhanced video picker options
+                                VStack(spacing: 24) {
+                                    // Video selection card
+                                    VStack(spacing: 20) {
+                                        Image(systemName: "photo.on.rectangle")
+                                            .font(.system(size: 50, weight: .light))
+                                            .foregroundColor(.white.opacity(0.8))
+                                        
+                                        VStack(spacing: 8) {
+                                            Text("Choose Your Video")
+                                                .font(.system(size: 22, weight: .bold))
+                                                .foregroundColor(.white)
+                                            
+                                            Text("Select a video from your library to enhance")
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.7))
+                                                .multilineTextAlignment(.center)
+                                        }
+                                    }
+                                    .padding(.vertical, 40)
+                                    .padding(.horizontal, 30)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 24)
+                                            .fill(Color.white.opacity(0.1))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 24)
+                                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                            )
+                                    )
+                                    .padding(.horizontal, 20)
+                                    
+                                    Button(action: {
+                                        let impact = UIImpactFeedbackGenerator(style: .light)
+                                        impact.impactOccurred()
+                                        showingVideoPicker = true
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            Image(systemName: "video.circle.fill")
+                                                .font(.system(size: 20, weight: .medium))
+                                            
+                                            Text("Select Video from Library")
+                                                .font(.system(size: 18, weight: .semibold))
+                                        }
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                                    }
+                                    .buttonStyle(GradientButtonStyle())
+                                    .padding(.horizontal, 20)
+                                    
+                                    if permissionManager.hasLimitedAccess {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "info.circle")
+                                                .foregroundColor(.orange.opacity(0.8))
+                                            
+                                            Text("Limited photo library access")
+                                                .font(.system(size: 14, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                        .padding(.horizontal, 20)
+                                    }
                                 }
                                 
                             } else if permissionManager.needsPermissionRequest {

@@ -50,53 +50,131 @@ struct VideoTrimmingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Video Preview Section
+                // Enhanced Video Preview Section
                 VStack(spacing: 16) {
-                    if let player = playerManager.player {
-                        VideoPlayer(player: player)
-                            .frame(height: isIPad ? 400 : 280)
-                            .cornerRadius(16)
-                            .padding(.horizontal, 20)
-                            .onAppear {
-                                player.play()
+                    ZStack {
+                        if let player = playerManager.player {
+                            VideoPlayer(player: player)
+                                .frame(height: isIPad ? 400 : 320)
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                                .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+                                .padding(.horizontal, 20)
+                                .onAppear {
+                                    player.play()
+                                }
+                        } else {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white.opacity(0.1))
+                                .frame(height: isIPad ? 400 : 320)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                                .padding(.horizontal, 20)
+                                .overlay(
+                                    VStack(spacing: 12) {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(1.2)
+                                        
+                                        Text("Loading Video...")
+                                            .font(.system(size: 16, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                )
+                        }
+                        
+                        // Change Video Button
+                        VStack {
+                            HStack {
+                                Spacer()
+                                
+                                Button(action: {
+                                    let impact = UIImpactFeedbackGenerator(style: .light)
+                                    impact.impactOccurred()
+                                    dismiss()
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "arrow.triangle.2.circlepath")
+                                            .font(.system(size: 14, weight: .medium))
+                                        
+                                        Text("Change")
+                                            .font(.system(size: 14, weight: .semibold))
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color.black.opacity(0.6))
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                    )
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                                }
                             }
-                    } else {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: isIPad ? 400 : 280)
-                            .padding(.horizontal, 20)
-                            .overlay(
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            )
+                            .padding(.trailing, 32)
+                            .padding(.top, 16)
+                            
+                            Spacer()
+                        }
                     }
                     
-                    // Video info
+                    // Enhanced Video info card
                     HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Selected Duration")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white.opacity(0.8))
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "scissors")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                                
+                                Text("Selected Duration")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                             
-                            Text("\(Int(trimEndTime - trimStartTime))s")
-                                .font(.system(size: 20, weight: .bold))
+                            Text(formatDuration(trimEndTime - trimStartTime))
+                                .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                         
                         Spacer()
                         
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text("Total Duration")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white.opacity(0.8))
+                        VStack(alignment: .trailing, spacing: 6) {
+                            HStack(spacing: 6) {
+                                Text("Total Duration")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                                
+                                Image(systemName: "clock")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                             
-                            Text("\(Int(videoDuration))s")
-                                .font(.system(size: 20, weight: .bold))
+                            Text(formatDuration(videoDuration))
+                                .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
                     .padding(.horizontal, 20)
                 }
                 .padding(.top, 20)
@@ -416,6 +494,16 @@ struct VideoTrimmingView: View {
                 // Dismiss all presented view controllers
                 presentingVC.dismiss(animated: true)
             }
+        }
+    }
+    
+    private func formatDuration(_ seconds: Double) -> String {
+        if seconds < 60 {
+            return String(format: "%.0fs", seconds)
+        } else {
+            let minutes = Int(seconds) / 60
+            let remainingSeconds = Int(seconds) % 60
+            return String(format: "%d:%02d", minutes, remainingSeconds)
         }
     }
 }
