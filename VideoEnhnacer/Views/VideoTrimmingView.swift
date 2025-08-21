@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import AVKit
+import UIKit
 
 struct VideoTrimmingView: View {
     let videoURL: URL
@@ -15,6 +16,7 @@ struct VideoTrimmingView: View {
     @State private var videoDuration: Double = 0
     @State private var selectedDuration: TimePreset = .thirtySeconds
     @State private var navigateToEnhancement = false
+    @State private var thumbnails: [UIImage] = []
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -201,7 +203,8 @@ struct VideoTrimmingView: View {
                         startTime: $trimStartTime,
                         endTime: $trimEndTime,
                         duration: videoDuration,
-                        gradientType: gradientType
+                        gradientType: gradientType,
+                        thumbnails: thumbnails
                     )
                     .frame(height: 60)
                     .padding(.horizontal, 20)
@@ -331,26 +334,66 @@ struct VideoTrimmingView: View {
                 gradientType: gradientType
             )
         }
+        .onChange(of: trimStartTime) { newValue in
+            if let player = playerManager.player {
+                player.pause()
+                let time = CMTime(seconds: newValue, preferredTimescale: 600)
+                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+            }
+        }
+        .onChange(of: trimEndTime) { newValue in
+            if let player = playerManager.player {
+                player.pause()
+                let time = CMTime(seconds: newValue, preferredTimescale: 600)
+                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+            }
+        }
     }
     
     private func setupVideo() {
         playerManager.setupPlayer(with: videoURL)
-        
+
         // Get video duration
         let asset = AVURLAsset(url: videoURL)
         Task {
             do {
                 let duration = try await asset.load(.duration)
                 let durationSeconds = CMTimeGetSeconds(duration)
-                
+                let images = await generateThumbnails(for: asset, duration: durationSeconds)
+
                 await MainActor.run {
                     self.videoDuration = durationSeconds
                     self.trimEndTime = min(30, durationSeconds) // Default to 30s or video length
+                    self.thumbnails = images
                 }
             } catch {
                 print("Error loading video duration: \(error)")
             }
         }
+    }
+
+    private func generateThumbnails(for asset: AVAsset, duration: Double, count: Int = 10) async -> [UIImage] {
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+
+        var times: [NSValue] = []
+        let increment = duration / Double(count)
+        for i in 0..<count {
+            let time = CMTime(seconds: Double(i) * increment, preferredTimescale: 600)
+            times.append(NSValue(time: time))
+        }
+
+        var images: [UIImage] = []
+        for time in times {
+            do {
+                let cgImage = try generator.copyCGImage(at: time.timeValue, actualTime: nil)
+                images.append(UIImage(cgImage: cgImage))
+            } catch {
+                print("Thumbnail generation error: \(error)")
+            }
+        }
+
+        return images
     }
     
     private func updateTrimForPreset(_ preset: TimePreset) {
