@@ -256,13 +256,15 @@ struct VideoPickerView: View {
             permissionManager.checkCurrentStatus()
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
-            if let videoURL = selectedVideoURL {
-                VideoTrimmingView(
-                    videoURL: videoURL,
-                    enhancementType: enhancementType,
-                    enhancementIcon: enhancementIcon,
-                    gradientType: gradientType
-                )
+            NavigationStack {
+                if let videoURL = selectedVideoURL {
+                    VideoTrimmingView(
+                        videoURL: videoURL,
+                        enhancementType: enhancementType,
+                        enhancementIcon: enhancementIcon,
+                        gradientType: gradientType
+                    )
+                }
             }
         }
     }
