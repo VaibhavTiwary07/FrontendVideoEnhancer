@@ -3,6 +3,7 @@ import SwiftUI
 struct EnhancementOptionSelector: View {
     let enhancementType: String
     @State private var selectedOption: String = ""
+    @State private var isProcessing = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -47,9 +48,10 @@ struct EnhancementOptionSelector: View {
     }
     
     var body: some View {
-        VStack(spacing: 24) {
-            // Header
-            VStack(spacing: 12) {
+        ZStack {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 12) {
                 Text("Choose \(enhancementType) Level")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
@@ -85,7 +87,12 @@ struct EnhancementOptionSelector: View {
             Button(action: {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
                 impact.impactOccurred()
-                // Navigate to processing screen
+                isProcessing = true
+                // Simulate processing completion
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    isProcessing = false
+                    // Navigate to processing screen
+                }
             }) {
                 HStack(spacing: 12) {
                     Image(systemName: "wand.and.stars")
@@ -103,12 +110,22 @@ struct EnhancementOptionSelector: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 40)
         }
-        .onAppear {
-            // Select recommended option by default
-            if let recommended = options.first(where: { $0.isRecommended }) {
-                selectedOption = recommended.id
-            } else if let first = options.first {
-                selectedOption = first.id
+            .onAppear {
+                // Select recommended option by default
+                if let recommended = options.first(where: { $0.isRecommended }) {
+                    selectedOption = recommended.id
+                } else if let first = options.first {
+                    selectedOption = first.id
+                }
+            }
+
+            if isProcessing {
+                Color.black.opacity(0.8)
+                    .ignoresSafeArea()
+
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+                    .scaleEffect(1.5)
             }
         }
     }
