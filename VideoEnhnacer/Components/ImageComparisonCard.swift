@@ -9,9 +9,6 @@ struct ImageComparisonCard: View {
     
     @State private var sliderValue: Double = 0.5
     @State private var isPressed = false
-    @State private var animationTimer: Timer?
-    @State private var resumeTimer: Timer?
-    @State private var isUserInteracting = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -87,11 +84,10 @@ struct ImageComparisonCard: View {
         )
         .padding(.horizontal, 20)
         .onAppear {
-            startAutoSlide()
+            // Auto-slide handled by slider itself
         }
         .onDisappear {
-            stopAutoSlide()
-            stopResumeTimer()
+            // Auto-slide handled by slider itself
         }
     }
     
@@ -141,28 +137,13 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
-       
-        
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
-            sliderValue: $sliderValue,
-            onInteractionStart: {
-                isUserInteracting = true
-                stopAutoSlide()
-            },
-            onInteractionEnd: {
-                scheduleAutoSlideResume()
-            }
+            sliderValue: $sliderValue
         )
-
-        .background(
-            RoundedRectangle(cornerRadius: 18)
-                .fill(Color.white.opacity(0.95))
-                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-        )
-       
+        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .frame(width: 116)
     }
     
     private func getBackgroundSymbol() -> String {
@@ -220,41 +201,7 @@ struct ImageComparisonCard: View {
         }
     }
     
-    // MARK: - Auto Slide Methods
-    
-    private func startAutoSlide() {
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 4.5, repeats: true) { _ in
-            guard !isUserInteracting else { return }
-            
-            withAnimation(.easeInOut(duration: 1.5)) {
-                if sliderValue <= 0.1 {
-                    sliderValue = 1.0
-                } else if sliderValue >= 0.9 {
-                    sliderValue = 0.0
-                } else {
-                    sliderValue = sliderValue < 0.5 ? 1.0 : 0.0
-                }
-            }
-        }
-    }
-    
-    private func stopAutoSlide() {
-        animationTimer?.invalidate()
-        animationTimer = nil
-    }
-    
-    private func scheduleAutoSlideResume() {
-        stopResumeTimer()
-        resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-            isUserInteracting = false
-            startAutoSlide()
-        }
-    }
-    
-    private func stopResumeTimer() {
-        resumeTimer?.invalidate()
-        resumeTimer = nil
-    }
+    // Auto-slide methods removed - handled by ImageComparisonSlider
 }
 
 #Preview {

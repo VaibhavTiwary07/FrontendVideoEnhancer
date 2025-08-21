@@ -14,33 +14,33 @@ struct EnhancementOptionSelector: View {
         switch enhancementType {
         case "AI Upscale":
             return [
-                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "3.square.fill"),
-                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "4.square.fill"),
-                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.fill")
+                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
+                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
+                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
             ]
         case "AI Denoise":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "waveform.path"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "sparkles", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "slider.horizontal.3")
             ]
         case "AI Auto Enhancement":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
             ]
         case "Stabilizer":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.circle.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "level"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "gyroscope", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "arrow.triangle.2.circlepath")
             ]
         case "AI Frame Interpolation":
             return [
-                EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "waveform.path", isRecommended: true),
-                EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "waveform.path.ecg")
+                EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "play.rectangle.fill", isRecommended: true),
+                EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "forward.frame.fill")
             ]
         default:
             return []
