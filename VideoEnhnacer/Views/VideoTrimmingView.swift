@@ -15,6 +15,8 @@ struct VideoTrimmingView: View {
     @State private var videoDuration: Double = 0
     @State private var selectedDuration: TimePreset = .thirtySeconds
     @State private var navigateToEnhancement = false
+    @State private var trimmedVideoURL: URL?
+    @State private var isExporting = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -197,11 +199,10 @@ struct VideoTrimmingView: View {
                     .padding(.horizontal, 20)
                     
                     // Video Trimming Slider
-                    VideoTrimmingSlider(
+                    PryntTrimmerRepresentable(
                         startTime: $trimStartTime,
                         endTime: $trimEndTime,
-                        duration: videoDuration,
-                        gradientType: gradientType
+                        asset: AVAsset(url: videoURL)
                     )
                     .frame(height: 60)
                     .padding(.horizontal, 20)
@@ -210,13 +211,29 @@ struct VideoTrimmingView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
-                        navigateToEnhancement = true
+                        isExporting = true
+                        VideoTrimmerManager().exportSegment(
+                            sourceURL: videoURL,
+                            startTime: trimStartTime,
+                            endTime: trimEndTime
+                        ) { result in
+                            DispatchQueue.main.async {
+                                isExporting = false
+                                switch result {
+                                case .success(let url):
+                                    trimmedVideoURL = url
+                                    navigateToEnhancement = true
+                                case .failure(let error):
+                                    print("Export failed: \(error)")
+                                }
+                            }
+                        }
                     }) {
                         HStack(spacing: 12) {
                             Image(systemName: enhancementIcon)
                                 .font(.system(size: 20, weight: .medium))
-                            
-                            Text("Continue to \(enhancementType)")
+
+                            Text(isExporting ? "Exporting..." : "Continue to \(enhancementType)")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
@@ -224,6 +241,7 @@ struct VideoTrimmingView: View {
                     }
                     .buttonStyle(GradientButtonStyle())
                     .padding(.horizontal, 20)
+                    .disabled(isExporting)
                 }
                 .padding(.bottom, 40)
             }
@@ -323,18 +341,24 @@ struct VideoTrimmingView: View {
         .onDisappear {
             playerManager.cleanup()
         }
+        .onChange(of: trimStartTime) { newValue in
+            playerManager.updateTrimRange(start: newValue, end: trimEndTime)
+        }
+        .onChange(of: trimEndTime) { newValue in
+            playerManager.updateTrimRange(start: trimStartTime, end: newValue)
+        }
         .navigationDestination(isPresented: $navigateToEnhancement) {
             EnhancementSelectionView(
-                videoURL: videoURL,
+                videoURL: trimmedVideoURL ?? videoURL,
                 enhancementType: enhancementType,
                 enhancementIcon: enhancementIcon,
                 gradientType: gradientType
             )
         }
     }
-    
+
     private func setupVideo() {
-        playerManager.setupPlayer(with: videoURL)
+        playerManager.setupPlayer(with: videoURL, startTime: trimStartTime, endTime: trimEndTime)
         
         // Get video duration
         let asset = AVURLAsset(url: videoURL)
@@ -361,6 +385,7 @@ struct VideoTrimmingView: View {
         if let player = playerManager.player {
             let startTime = CMTime(seconds: trimStartTime, preferredTimescale: 600)
             player.seek(to: startTime)
+            playerManager.updateTrimRange(start: trimStartTime, end: trimEndTime)
         }
     }
     

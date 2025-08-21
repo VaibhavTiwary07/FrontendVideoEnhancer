@@ -37,20 +37,44 @@ struct VideoPreviewView: View {
 class VideoPreviewManager: ObservableObject {
     @Published var player: AVPlayer?
     private var timeObserver: Any?
-    
-    func setupPlayer(with url: URL) {
-        let playerItem = AVPlayerItem(url: url)
+    private var startTime: Double = 0
+    private var endTime: Double = 0
+
+    func setupPlayer(with url: URL, startTime: Double = 0, endTime: Double? = nil) {
+        let asset = AVAsset(url: url)
+        let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
-        
-        // Set up looping
-        NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: playerItem,
-            queue: .main
-        ) { [weak self] _ in
-            self?.player?.seek(to: CMTime.zero)
-            self?.player?.play()
+
+        self.startTime = startTime
+        self.endTime = endTime ?? asset.duration.seconds
+
+        addTimeObserver()
+        seekToStart()
+    }
+
+    func updateTrimRange(start: Double, end: Double) {
+        startTime = start
+        endTime = end
+    }
+
+    private func addTimeObserver() {
+        if let timeObserver = timeObserver {
+            player?.removeTimeObserver(timeObserver)
         }
+        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
+        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            guard let self = self else { return }
+            let current = CMTimeGetSeconds(time)
+            if current >= self.endTime {
+                self.seekToStart()
+            }
+        }
+    }
+
+    private func seekToStart() {
+        let start = CMTime(seconds: startTime, preferredTimescale: 600)
+        player?.seek(to: start)
+        player?.play()
     }
     
     func cleanup() {
@@ -61,8 +85,6 @@ class VideoPreviewManager: ObservableObject {
             player?.removeTimeObserver(timeObserver)
             self.timeObserver = nil
         }
-        
-        NotificationCenter.default.removeObserver(self)
     }
     
     deinit {
