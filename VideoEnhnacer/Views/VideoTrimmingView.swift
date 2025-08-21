@@ -203,6 +203,7 @@ struct VideoTrimmingView: View {
                         startTime: $trimStartTime,
                         endTime: $trimEndTime,
                         duration: videoDuration,
+                        presetDuration: selectedDuration.duration,
                         gradientType: gradientType,
                         thumbnails: thumbnails
                     )
@@ -335,18 +336,15 @@ struct VideoTrimmingView: View {
             )
         }
         .onChange(of: trimStartTime) { newValue in
+            playerManager.updateTrim(start: newValue, end: trimEndTime)
             if let player = playerManager.player {
-                player.pause()
                 let time = CMTime(seconds: newValue, preferredTimescale: 600)
                 player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                player.play()
             }
         }
         .onChange(of: trimEndTime) { newValue in
-            if let player = playerManager.player {
-                player.pause()
-                let time = CMTime(seconds: newValue, preferredTimescale: 600)
-                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
-            }
+            playerManager.updateTrim(start: trimStartTime, end: newValue)
         }
     }
     
@@ -363,8 +361,9 @@ struct VideoTrimmingView: View {
 
                 await MainActor.run {
                     self.videoDuration = durationSeconds
-                    self.trimEndTime = min(30, durationSeconds) // Default to 30s or video length
+                    self.trimEndTime = min(selectedDuration.duration, durationSeconds)
                     self.thumbnails = images
+                    self.playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
                 }
             } catch {
                 print("Error loading video duration: \(error)")
@@ -397,13 +396,14 @@ struct VideoTrimmingView: View {
     }
     
     private func updateTrimForPreset(_ preset: TimePreset) {
-        let maxEnd = min(trimStartTime + preset.duration, videoDuration)
-        trimEndTime = maxEnd
-        
-        // Update player to show the trimmed section
+        if trimStartTime > max(0, videoDuration - preset.duration) {
+            trimStartTime = max(0, videoDuration - preset.duration)
+        }
+        trimEndTime = min(trimStartTime + preset.duration, videoDuration)
+        playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
         if let player = playerManager.player {
-            let startTime = CMTime(seconds: trimStartTime, preferredTimescale: 600)
-            player.seek(to: startTime)
+            let start = CMTime(seconds: trimStartTime, preferredTimescale: 600)
+            player.seek(to: start)
         }
     }
     

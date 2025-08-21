@@ -3,6 +3,7 @@ import SwiftUI
 struct EnhancementOptionSelector: View {
     let enhancementType: String
     @State private var selectedOption: String = ""
+    @State private var isProcessing = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -47,7 +48,8 @@ struct EnhancementOptionSelector: View {
     }
     
     var body: some View {
-        VStack(spacing: 24) {
+        ZStack {
+            VStack(spacing: 24) {
             // Header
             VStack(spacing: 12) {
                 Text("Choose \(enhancementType) Level")
@@ -85,12 +87,15 @@ struct EnhancementOptionSelector: View {
             Button(action: {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
                 impact.impactOccurred()
-                // Navigate to processing screen
+                isProcessing = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    isProcessing = false
+                }
             }) {
                 HStack(spacing: 12) {
                     Image(systemName: "wand.and.stars")
                         .font(.system(size: 18, weight: .medium))
-                    
+
                     Text("Process Video")
                         .font(.system(size: 18, weight: .semibold))
                 }
@@ -102,6 +107,17 @@ struct EnhancementOptionSelector: View {
             .opacity(selectedOption.isEmpty ? 0.6 : 1.0)
             .padding(.horizontal, 20)
             .padding(.bottom, 40)
+            }
+        }
+        if isProcessing {
+            Color.black.opacity(0.8)
+                .ignoresSafeArea()
+                .zIndex(1)
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .orange))
+                .scaleEffect(1.5)
+                .zIndex(2)
+        }
         }
         .onAppear {
             // Select recommended option by default

@@ -110,7 +110,7 @@ struct EnhancementSelectionView: View {
                             .padding(.top, 40)
                             
                             // Enhancement options grid
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 16)], spacing: 20) {
                                 ForEach(enhancementOptions, id: \.id) { option in
                                     OptionCard(
                                         option: option,
@@ -253,6 +253,12 @@ struct EnhancementSelectionView: View {
             Button("OK") { }
         } message: {
             Text(processingError ?? "Unknown error occurred")
+        }
+        .onChange(of: showingResults) { newValue in
+            if !newValue {
+                isProcessing = false
+                processingProgress = 0.0
+            }
         }
     }
     
@@ -439,72 +445,34 @@ struct OptionCard: View {
     let option: EnhancementOption
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .medium)
             impact.impactOccurred()
             onTap()
         }) {
-            VStack(spacing: 16) {
-                // Icon with square background
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? Color.white.opacity(0.2) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.1))
-                        .frame(width: 48, height: 48)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(isSelected ? Color.white.opacity(0.4) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3), lineWidth: isSelected ? 2 : 1)
-                        )
-                    
-                    Image(systemName: option.icon)
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundColor(isSelected ? .white : Color(red: 1.0, green: 0.596, blue: 0.329))
-                }
-                
-                // Text content
-                VStack(spacing: 4) {
-                    HStack {
-                        Text(option.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(isSelected ? .white : Color.accentWarm)
-                        
-                        if option.isRecommended {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(isSelected ? .white.opacity(0.8) : Color(red: 1.0, green: 0.596, blue: 0.329))
-                        }
-                        
-                        Spacer()
-                    }
-                    
-                    HStack {
-                        Text(option.description)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7))
-                            .multilineTextAlignment(.leading)
-                        
-                        Spacer()
-                    }
-                }
+            VStack(spacing: 6) {
+                Image(systemName: option.icon)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(isSelected ? .white : Color.accentWarm)
+
+                Text(option.title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : Color.accentWarm)
+                    .multilineTextAlignment(.center)
             }
-            .padding(20)
-            .frame(height: 120)
+            .frame(width: 80, height: 80)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? LinearGradient.primaryTheme : Color.cardSoft)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.gray.opacity(0.1), lineWidth: 1)
-                    )
-                    .shadow(
-                        color: Color.black.opacity(isSelected ? 0.12 : 0.06),
-                        radius: isSelected ? 6 : 3,
-                        x: 0,
-                        y: isSelected ? 3 : 2
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3), lineWidth: 1)
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
+            .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
+            .scaleEffect(isSelected ? 1.05 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
