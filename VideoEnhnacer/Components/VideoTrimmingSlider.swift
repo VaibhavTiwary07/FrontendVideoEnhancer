@@ -1,11 +1,13 @@
 import SwiftUI
 import AVFoundation
+import UIKit
 
 struct VideoTrimmingSlider: View {
     @Binding var startTime: Double
     @Binding var endTime: Double
     let duration: Double
     let gradientType: GradientType
+    let thumbnails: [UIImage]
     
     @State private var isDraggingStart = false
     @State private var isDraggingEnd = false
@@ -26,40 +28,30 @@ struct VideoTrimmingSlider: View {
             let windowWidth = max(handleWidth, endPosition - startPosition)
             
             ZStack(alignment: .leading) {
-                // Background track with Apple-style rounded design
+                // Background track with actual video thumbnails
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.black.opacity(0.3))
                     .frame(height: trackHeight)
+                    .overlay(
+                        GeometryReader { geo in
+                            HStack(spacing: 0) {
+                                ForEach(Array(thumbnails.enumerated()), id: \.offset) { _, image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: geo.size.width / CGFloat(max(thumbnails.count, 1)), height: trackHeight)
+                                        .clipped()
+                                }
+                            }
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                    )
                     .overlay(
                         // Subtle inner shadow for depth
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .stroke(Color.white.opacity(0.1), lineWidth: 1)
                     )
-                
-                // Video thumbnail track (placeholder for actual thumbnails)
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.15),
-                                Color.white.opacity(0.05)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(height: trackHeight)
-                    .overlay(
-                        // Grid pattern for video preview
-                        VStack(spacing: 1) {
-                            ForEach(0..<3, id: \.self) { _ in
-                                Rectangle()
-                                    .fill(Color.white.opacity(0.05))
-                                    .frame(height: 1)
-                            }
-                        }
-                    )
-                
+
                 // Selection window with smooth gradient
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(
@@ -303,7 +295,8 @@ struct VideoTrimmingSlider: View {
             startTime: .constant(10),
             endTime: .constant(40),
             duration: 120,
-            gradientType: .redPink
+            gradientType: .redPink,
+            thumbnails: []
         )
         .frame(height: 80)
         .padding()
@@ -312,7 +305,8 @@ struct VideoTrimmingSlider: View {
             startTime: .constant(0),
             endTime: .constant(30),
             duration: 60,
-            gradientType: .purpleGray
+            gradientType: .purpleGray,
+            thumbnails: []
         )
         .frame(height: 80)
         .padding()
