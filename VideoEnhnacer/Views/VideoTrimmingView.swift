@@ -203,6 +203,7 @@ struct VideoTrimmingView: View {
                         startTime: $trimStartTime,
                         endTime: $trimEndTime,
                         duration: videoDuration,
+                        presetDuration: selectedDuration.duration,
                         gradientType: gradientType,
                         thumbnails: thumbnails
                     )
@@ -335,13 +336,7 @@ struct VideoTrimmingView: View {
             )
         }
         .onChange(of: trimStartTime) { newValue in
-            if let player = playerManager.player {
-                player.pause()
-                let time = CMTime(seconds: newValue, preferredTimescale: 600)
-                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
-            }
-        }
-        .onChange(of: trimEndTime) { newValue in
+            trimEndTime = min(newValue + selectedDuration.duration, videoDuration)
             if let player = playerManager.player {
                 player.pause()
                 let time = CMTime(seconds: newValue, preferredTimescale: 600)
@@ -397,10 +392,9 @@ struct VideoTrimmingView: View {
     }
     
     private func updateTrimForPreset(_ preset: TimePreset) {
-        let maxEnd = min(trimStartTime + preset.duration, videoDuration)
-        trimEndTime = maxEnd
-        
-        // Update player to show the trimmed section
+        trimStartTime = min(trimStartTime, max(0, videoDuration - preset.duration))
+        trimEndTime = min(trimStartTime + preset.duration, videoDuration)
+
         if let player = playerManager.player {
             let startTime = CMTime(seconds: trimStartTime, preferredTimescale: 600)
             player.seek(to: startTime)
