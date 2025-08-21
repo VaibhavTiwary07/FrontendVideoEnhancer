@@ -76,11 +76,12 @@ struct VideoTrimmingView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Selected Duration")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white.opacity(0.8))
                             
                             Text("\(Int(trimEndTime - trimStartTime))s")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                         
                         Spacer()
@@ -88,11 +89,12 @@ struct VideoTrimmingView: View {
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("Total Duration")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.gray)
+                                .foregroundColor(.white.opacity(0.8))
                             
                             Text("\(Int(videoDuration))s")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -107,6 +109,8 @@ struct VideoTrimmingView: View {
                     HStack(spacing: 16) {
                         ForEach(TimePreset.allCases, id: \.title) { preset in
                             Button(preset.title) {
+                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                impact.impactOccurred()
                                 selectedDuration = preset
                                 updateTrimForPreset(preset)
                             }
@@ -131,6 +135,8 @@ struct VideoTrimmingView: View {
                     
                     // Process Button
                     Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
                         processVideo()
                     }) {
                         HStack(spacing: 12) {
@@ -143,7 +149,8 @@ struct VideoTrimmingView: View {
                                     if processingProgress > 0 {
                                         Text("\(Int(processingProgress * 100))%")
                                             .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(.white.opacity(0.8))
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                                     }
                                 }
                             } else {
@@ -153,6 +160,8 @@ struct VideoTrimmingView: View {
                             
                             Text(isProcessing ? "Processing..." : "Process with \(enhancementType)")
                                 .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         }
                     }
                     .buttonStyle(GradientButtonStyle())
@@ -163,29 +172,92 @@ struct VideoTrimmingView: View {
             }
         }
         .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Menu {
-                    Button("Back to Video Selection") {
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    // Swipe to dismiss - right swipe from left edge
+                    if value.startLocation.x < 50 && value.translation.width > 100 {
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
                         dismiss()
                     }
-                    
-                    Button("Back to Home") {
-                        dismissToHome()
-                    }
-                } label: {
-                    HStack(spacing: 4) {
+                }
+        )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    // Add haptic feedback
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    dismiss()
+                }) {
+                    HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .medium))
                         Text("Back")
+                            .font(.system(size: 17, weight: .medium))
                     }
                     .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.white.opacity(0.1))
+                    )
                 }
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                Text("Step 2 of 3")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                HStack(spacing: 16) {
+                    // Enhanced step indicator
+                    VStack(spacing: 4) {
+                        // Progress dots with connecting lines
+                        HStack(spacing: 8) {
+                            ForEach(1...3, id: \.self) { step in
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: step == 2 ? 2 : 1)
+                                                .opacity(step == 2 ? 1 : 0.5)
+                                        )
+                                    
+                                    // Connecting line (except for last step)
+                                    if step < 3 {
+                                        Rectangle()
+                                            .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                            .frame(width: 12, height: 2)
+                                            .cornerRadius(1)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Text("Step 2 of 3")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                    
+                    // Close button
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(width: 32, height: 32)
+                            .background(
+                                Circle()
+                                    .fill(Color.white.opacity(0.15))
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
         }
         .onAppear {
@@ -301,7 +373,11 @@ struct VideoTrimmingView: View {
         }
         
         // Export the video
-        await exportSession.export()
+        if #available(iOS 18.0, *) {
+            try await exportSession.export(to: outputURL, as: .mp4)
+        } else {
+            await exportSession.export()
+        }
         
         // Stop progress timer
         progressTimer.invalidate()
@@ -368,11 +444,13 @@ struct PresetButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .semibold))
-            .foregroundColor(isSelected ? .white : .gray)
+            .foregroundColor(isSelected ? .white : .white.opacity(0.8))
+            .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             .frame(width: 80, height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.1)))
+                    .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.15)))
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                     .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

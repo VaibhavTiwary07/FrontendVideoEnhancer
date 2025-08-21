@@ -27,7 +27,7 @@ final class RevealImageView: UIImageView {
     var onInteractionEnd: (() -> Void)?
 
     private let leftImageLayer = CALayer()
-    private let maskLayer = CALayer()
+    private let maskLayer = CAGradientLayer()
     private let lineView = UIView()
 
     override init(frame: CGRect) {
@@ -44,12 +44,21 @@ final class RevealImageView: UIImageView {
         contentMode = .scaleAspectFill
         clipsToBounds = true
 
-        maskLayer.backgroundColor = UIColor.black.cgColor
+        // Setup gradient mask for smooth opacity transition
+        maskLayer.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
+        maskLayer.startPoint = CGPoint(x: 0, y: 0)
+        maskLayer.endPoint = CGPoint(x: 1, y: 0)
+        maskLayer.locations = [0.0, 1.0]
+        
         leftImageLayer.mask = maskLayer
         leftImageLayer.contentsGravity = .resizeAspectFill
         layer.addSublayer(leftImageLayer)
 
         lineView.backgroundColor = .white
+        lineView.layer.shadowColor = UIColor.black.cgColor
+        lineView.layer.shadowOffset = CGSize(width: 1, height: 0)
+        lineView.layer.shadowOpacity = 0.3
+        lineView.layer.shadowRadius = 2
         addSubview(lineView)
 
         isUserInteractionEnabled = true
@@ -71,12 +80,27 @@ final class RevealImageView: UIImageView {
                                 width: 2,
                                 height: bounds.height)
 
-        var r = bounds
-        r.size.width = bounds.width * pct
-
+        // Update gradient mask for variable opacity effect
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        maskLayer.frame = r
+        maskLayer.frame = bounds
+        
+        // Create smooth gradient transition based on slider position
+        let fadeWidth: CGFloat = 0.15 // 15% fade zone for smooth blending
+        let solidEnd = max(0, pct - fadeWidth)
+        let fadeEnd = pct
+        
+        if fadeEnd <= 0 {
+            // Completely transparent
+            maskLayer.locations = [0.0, 0.0]
+        } else if solidEnd <= 0 {
+            // Only fade zone visible
+            maskLayer.locations = [0.0, NSNumber(value: fadeEnd)]
+        } else {
+            // Both solid and fade zones
+            maskLayer.locations = [NSNumber(value: solidEnd), NSNumber(value: fadeEnd)]
+        }
+        
         CATransaction.commit()
 
         pctChanged?(pct)
