@@ -1,7 +1,4 @@
 import SwiftUI
-import AVFoundation
-import AVKit
-import PhotosUI
 
 struct VideoResultsView: View {
     let originalVideoURL: URL
@@ -11,19 +8,7 @@ struct VideoResultsView: View {
     let gradientType: GradientType
     
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var permissionManager = PermissionManager()
-    @State private var showingOriginal = false
-    @State private var isSaving = false
-    @State private var saveError: String?
-    @State private var showingError = false
     @State private var saveSuccess = false
-    @State private var showingSuccess = false
-    @State private var showingBackOptions = false
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
-    private var isIPad: Bool {
-        horizontalSizeClass == .regular
-    }
     
     var body: some View {
         ZStack {
@@ -38,24 +23,12 @@ struct VideoResultsView: View {
                     )
                     .padding(.top, 40)
                 
-                    VideoComparisonSection(
+                    VideoComparisonView(
                         originalVideoURL: originalVideoURL,
                         processedVideoURL: processedVideoURL,
-                        enhancementType: enhancementType,
-                        showingOriginal: $showingOriginal,
-                        isIPad: isIPad
+                        saveSuccess: $saveSuccess
                     )
                     .padding(.top, 30)
-                    
-                    Spacer(minLength: 40)
-                    
-                    ActionButtonsSection(
-                        processedVideoURL: processedVideoURL,
-                        isSaving: isSaving,
-                        saveToPhotoLibrary: saveToPhotoLibrary,
-                        dismissToHome: dismissToHome
-                    )
-                    .padding(.bottom, 40)
                 }
             }
         }
@@ -73,37 +46,6 @@ struct VideoResultsView: View {
                 } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.white)
-                }
-            }
-        }
-        .alert("Save Error", isPresented: $showingError) {
-            Button("OK") { }
-        } message: {
-            Text(saveError ?? "Unknown error occurred")
-        }
-        .alert("Saved Successfully", isPresented: $showingSuccess) {
-            Button("OK") {
-                saveSuccess = true
-            }
-        } message: {
-            Text("Video has been saved to your photo library")
-        }
-    }
-    
-    private func saveToPhotoLibrary() {
-        isSaving = true
-        
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: processedVideoURL)
-        }) { success, error in
-            DispatchQueue.main.async {
-                isSaving = false
-                
-                if success {
-                    showingSuccess = true
-                } else {
-                    saveError = error?.localizedDescription ?? "Failed to save video"
-                    showingError = true
                 }
             }
         }
@@ -163,45 +105,6 @@ struct ResultsHeaderSection: View {
     }
 }
 
-struct VideoComparisonSection: View {
-    let originalVideoURL: URL
-    let processedVideoURL: URL
-    let enhancementType: String
-    @Binding var showingOriginal: Bool
-    let isIPad: Bool
-    
-    var body: some View {
-        LazyVStack(spacing: 24) {
-            ToggleButtons(showingOriginal: $showingOriginal)
-            
-            VideoPreviewView(videoURL: showingOriginal ? originalVideoURL : processedVideoURL)
-                .frame(height: isIPad ? 400 : 320)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
-                .padding(.horizontal, 20)
-                .animation(.smooth(duration: 0.4), value: showingOriginal)
-            
-            HStack(spacing: 16) {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(showingOriginal ? LinearGradient(colors: [Color.gray], startPoint: .leading, endPoint: .trailing) : LinearGradient.primaryTheme)
-                        .frame(width: 8, height: 8)
-                    
-                    Text(showingOriginal ? "Original Video" : "Enhanced with \(enhancementType)")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                
-                Spacer()
-            }
-            .padding(.horizontal, 20)
-        }
-    }
-}
 
 struct ActionButtonsSection: View {
     let processedVideoURL: URL
@@ -286,37 +189,6 @@ struct ActionButtonsSection: View {
             }
             .padding(.horizontal, 20)
         }
-    }
-}
-
-struct ToggleButtons: View {
-    @Binding var showingOriginal: Bool
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            Button("Original") {
-                let impact = UIImpactFeedbackGenerator(style: .light)
-                impact.impactOccurred()
-                showingOriginal = true
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(showingOriginal ? Color.orange : Color.clear)
-            .foregroundColor(.white)
-            
-            Button("Enhanced") {
-                let impact = UIImpactFeedbackGenerator(style: .light)
-                impact.impactOccurred()
-                showingOriginal = false
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(!showingOriginal ? Color.orange : Color.clear)
-            .foregroundColor(.white)
-        }
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(12)
-        .padding(.horizontal, 20)
     }
 }
 
