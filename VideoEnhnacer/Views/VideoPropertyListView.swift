@@ -5,7 +5,7 @@ struct VideoPropertyListView: View {
     @State private var selectedProperty: VideoProperty?
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()

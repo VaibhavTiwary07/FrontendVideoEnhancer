@@ -70,4 +70,11 @@ extension Color {
     static let secondaryText = Color(red: 0.42, green: 0.42, blue: 0.42)
     static let appBackground = Color(red: 0.996, green: 0.996, blue: 0.973)
     static let cardBackground = Color.white
+    
+    // Soft Warm Color System for Video Enhancement Screens
+    static let primarySoft = Color(red: 0.165, green: 0.157, blue: 0.153)    // #2A2827 - Warm dark gray
+    static let interfaceSoft = Color(red: 0.212, green: 0.204, blue: 0.196)  // #363432 - Warm medium gray
+    static let cardSoft = Color(red: 0.259, green: 0.251, blue: 0.243)       // #42403E - Warm elevated gray
+    static let overlaySoft = Color(red: 0.306, green: 0.294, blue: 0.286)    // #4E4B49 - Warm modal gray
+    static let accentWarm = Color(red: 0.996, green: 0.996, blue: 0.973)     // #FEFEF8 - Matches home background
 }
