@@ -7,7 +7,7 @@ struct EnhancementSelectionView: View {
     let enhancementIcon: String
     let gradientType: GradientType
     
-    @StateObject private var selectionState = EnhancementSelectionState()
+    @State private var selectedOption: String = ""
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var scrollOffset: CGFloat = 0
@@ -22,42 +22,7 @@ struct EnhancementSelectionView: View {
         horizontalSizeClass == .regular
     }
     
-    private var enhancementOptions: [EnhancementOption] {
-        switch enhancementType {
-        case "AI Upscale":
-            return [
-                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "3.square.fill"),
-                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "4.square.fill"),
-                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.fill")
-            ]
-        case "AI Denoise":
-            return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "3.circle.fill")
-            ]
-        case "AI Auto Enhancement":
-            return [
-                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "3.circle.fill")
-            ]
-        case "Stabilizer":
-            return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "1.circle.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.circle.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.circle.fill")
-            ]
-        case "Frame Interpolation":
-            return [
-                EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "waveform.path", isRecommended: true),
-                EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "waveform.path.ecg")
-            ]
-        default:
-            return []
-        }
-    }
+    // Enhancement options are provided by EnhancementOptionSelector
     
     var body: some View {
         ZStack {
@@ -92,21 +57,17 @@ struct EnhancementSelectionView: View {
                             .padding(.horizontal, 20)
                             .padding(.top, 40)
                             
-                            // Magnetic selection grid
-                            MagneticSelectionGrid(
-                                options: enhancementOptions,
-                                selectedOption: $selectionState.selectedOption,
-                                onSelectionChange: { option in
-                                    selectionState.updateSelection(option)
-                                }
+                            // Centralized enhancement option selector
+                            EnhancementOptionSelector(
+                                enhancementType: enhancementType,
+                                selectedOption: $selectedOption
                             )
-                            .frame(minHeight: CGFloat(enhancementOptions.count) * 120 + CGFloat(enhancementOptions.count - 1) * 20)
                             
                             // Intelligent performance indicator
-                            if !selectionState.selectedOption.isEmpty {
+                            if !selectedOption.isEmpty {
                                 IntelligentPerformanceIndicator(
                                     enhancementType: enhancementType,
-                                    selectedOption: selectionState.selectedOption,
+                                    selectedOption: selectedOption,
                                     videoURL: videoURL
                                 )
                                 .padding(.horizontal, 20)
@@ -123,7 +84,7 @@ struct EnhancementSelectionView: View {
                                 processingProgress: processingProgress,
                                 enhancementType: enhancementType,
                                 enhancementIcon: enhancementIcon,
-                                selectedOption: selectionState.selectedOption,
+                                selectedOption: selectedOption,
                                 onProcess: {
                                     processVideo()
                                 }
@@ -221,14 +182,6 @@ struct EnhancementSelectionView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
-            }
-        }
-        .onAppear {
-            // Set default selection to recommended option
-            if let recommended = enhancementOptions.first(where: { $0.isRecommended }) {
-                selectionState.selectedOption = recommended.id
-            } else if let first = enhancementOptions.first {
-                selectionState.selectedOption = first.id
             }
         }
         .fullScreenCover(isPresented: $showingResults) {
@@ -400,23 +353,6 @@ struct ProcessButton: View {
         .buttonStyle(PlainButtonStyle())
         .disabled(isProcessing || selectedOption.isEmpty)
         .opacity((isProcessing || selectedOption.isEmpty) ? 0.7 : 1.0)
-    }
-}
-
-// MARK: - State Management
-
-class EnhancementSelectionState: ObservableObject {
-    @Published var selectedOption: String = ""
-    @Published var isAnalyzing: Bool = false
-    
-    func updateSelection(_ option: String) {
-        selectedOption = option
-        
-        // Simulate analysis
-        isAnalyzing = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.isAnalyzing = false
-        }
     }
 }
 
