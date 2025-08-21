@@ -2,13 +2,13 @@ import SwiftUI
 
 struct EnhancementOptionSelector: View {
     let enhancementType: String
-    @State private var selectedOption: String = ""
+    @Binding var selectedOption: String
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     private var isIPad: Bool {
         horizontalSizeClass == .regular
     }
-    
+
     private var options: [EnhancementOption] {
         switch enhancementType {
         case "AI Upscale":
@@ -36,7 +36,7 @@ struct EnhancementOptionSelector: View {
                 EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.circle.fill", isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.circle.fill")
             ]
-        case "AI Frame Interpolation":
+        case "Frame Interpolation":
             return [
                 EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "waveform.path", isRecommended: true),
                 EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "waveform.path.ecg")
@@ -45,70 +45,28 @@ struct EnhancementOptionSelector: View {
             return []
         }
     }
-    
+
     var body: some View {
-        VStack(spacing: 24) {
-            // Header
-            VStack(spacing: 12) {
-                Text("Choose \(enhancementType) Level")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                
-                Text("Select the enhancement level that best fits your video")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-            }
-            .padding(.top, 20)
-            
-            // Options Grid
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
-                ForEach(options, id: \.id) { option in
-                    OptionCard(
-                        option: option,
-                        isSelected: selectedOption == option.id,
-                        onTap: {
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
-                            selectedOption = option.id
-                        }
-                    )
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
+            ForEach(options, id: \.id) { option in
+                OptionCard(
+                    option: option,
+                    isSelected: selectedOption == option.id
+                ) {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    selectedOption = option.id
                 }
             }
-            .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            // Continue Button
-            Button(action: {
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
-                // Navigate to processing screen
-            }) {
-                HStack(spacing: 12) {
-                    Image(systemName: "wand.and.stars")
-                        .font(.system(size: 18, weight: .medium))
-                    
-                    Text("Process Video")
-                        .font(.system(size: 18, weight: .semibold))
-                }
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-            }
-            .buttonStyle(GradientButtonStyle())
-            .disabled(selectedOption.isEmpty)
-            .opacity(selectedOption.isEmpty ? 0.6 : 1.0)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 40)
         }
+        .padding(.horizontal, 20)
         .onAppear {
-            // Select recommended option by default
-            if let recommended = options.first(where: { $0.isRecommended }) {
-                selectedOption = recommended.id
-            } else if let first = options.first {
-                selectedOption = first.id
+            if selectedOption.isEmpty {
+                if let recommended = options.first(where: { $0.isRecommended }) {
+                    selectedOption = recommended.id
+                } else if let first = options.first {
+                    selectedOption = first.id
+                }
             }
         }
     }
@@ -118,69 +76,63 @@ struct OptionCard: View {
     let option: EnhancementOption
     let isSelected: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                // Icon
                 ZStack {
                     Circle()
-                        .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
-                        .frame(width: 50, height: 50)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-                    
+                        .fill(isSelected ? Color.accentWarm.opacity(0.2) : Color.accentWarm.opacity(0.1))
+                        .frame(width: 54, height: 54)
+                        .overlay(
+                            Circle()
+                                .stroke(isSelected ? Color.accentWarm.opacity(0.6) : Color.accentWarm.opacity(0.3), lineWidth: isSelected ? 2 : 1)
+                        )
+
                     Image(systemName: option.icon)
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.white)
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(.accentWarm)
                 }
-                
-                // Content
+
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         Text(option.title)
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                        
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.accentWarm)
+
                         if option.isRecommended {
-                            Text("RECOMMENDED")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(LinearGradient.primaryTheme)
-                                )
+                            Text("●")
+                                .font(.system(size: 8))
+                                .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
                         }
-                        
+
                         Spacer()
                     }
-                    
+
                     Text(option.description)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(Color.accentWarm.opacity(0.7))
                         .multilineTextAlignment(.leading)
                 }
-                
+
                 Spacer()
-                
-                // Selection indicator
+
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 20, weight: .medium))
-                    .foregroundColor(isSelected ? .white : .white.opacity(0.4))
+                    .foregroundColor(isSelected ? .accentWarm : Color.accentWarm.opacity(0.4))
             }
             .padding(20)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(isSelected ? 0.15 : 0.08))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.cardSoft)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing), lineWidth: isSelected ? 2 : 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(isSelected ? Color.accentWarm.opacity(0.4) : Color.accentWarm.opacity(0.1), lineWidth: isSelected ? 2 : 1)
                     )
+                    .shadow(color: Color.primarySoft.opacity(0.4), radius: isSelected ? 12 : 6, x: 0, y: isSelected ? 6 : 3)
             )
-            .shadow(color: .black.opacity(isSelected ? 0.3 : 0.1), radius: isSelected ? 8 : 4, x: 0, y: isSelected ? 4 : 2)
             .scaleEffect(isSelected ? 1.02 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+            .animation(.interactiveSpring(response: 0.3, dampingFraction: 0.8), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -192,7 +144,7 @@ struct EnhancementOption {
     let description: String
     let icon: String
     let isRecommended: Bool
-    
+
     init(id: String, title: String, description: String, icon: String, isRecommended: Bool = false) {
         self.id = id
         self.title = title
@@ -203,10 +155,5 @@ struct EnhancementOption {
 }
 
 #Preview {
-    ZStack {
-        Color.black
-            .ignoresSafeArea()
-        
-        EnhancementOptionSelector(enhancementType: "AI Upscale")
-    }
+    EnhancementOptionSelector(enhancementType: "AI Upscale", selectedOption: .constant("2x"))
 }
