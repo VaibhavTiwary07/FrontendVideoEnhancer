@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct SidebarView: View {
+    @State private var showingFavorites = false
+    @State private var showingSettings = false
+    @State private var showingProjects = false
+    @State private var showingHelp = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -21,28 +25,36 @@ struct SidebarView: View {
                     icon: "gear",
                     title: "Settings"
                 ) {
-                    print("Settings tapped")
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    showingSettings = true
                 }
                 
                 SidebarMenuItem(
                     icon: "folder",
                     title: "Projects"
                 ) {
-                    print("Projects tapped")
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    showingProjects = true
                 }
                 
                 SidebarMenuItem(
                     icon: "heart",
                     title: "Favorites"
                 ) {
-                    print("Favorites tapped")
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    showingFavorites = true
                 }
                 
                 SidebarMenuItem(
                     icon: "questionmark.circle",
                     title: "Help"
                 ) {
-                    print("Help tapped")
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    showingHelp = true
                 }
             }
             .padding(.horizontal, 12)
@@ -60,6 +72,18 @@ struct SidebarView: View {
                     y: 0
                 )
         )
+        .fullScreenCover(isPresented: $showingFavorites) {
+            FavoritesView()
+        }
+        .fullScreenCover(isPresented: $showingSettings) {
+            SettingsView()
+        }
+        .fullScreenCover(isPresented: $showingProjects) {
+            ProjectsView()
+        }
+        .fullScreenCover(isPresented: $showingHelp) {
+            HelpView()
+        }
     }
 }
 

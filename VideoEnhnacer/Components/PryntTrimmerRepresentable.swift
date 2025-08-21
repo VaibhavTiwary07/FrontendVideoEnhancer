@@ -10,7 +10,7 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> TrimmerView {
         let trimmer = TrimmerView()
         trimmer.asset = asset
-        trimmer.delegate = context.coordinator
+        trimmer.delegate = context.coordinator as! any TrimmerViewDelegate
         return trimmer
     }
 
@@ -34,7 +34,14 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
 
         func syncTimes(from trimmer: TrimmerView) {
             parent.startTime = trimmer.startTime ?? .zero
-            parent.endTime = trimmer.endTime ?? parent.asset.duration
+            Task { @MainActor in
+                do {
+                    let duration = try await parent.asset.load(.duration)
+                    parent.endTime = trimmer.endTime ?? duration
+                } catch {
+                    print("Error loading asset duration: \(error)")
+                }
+            }
         }
     }
 }

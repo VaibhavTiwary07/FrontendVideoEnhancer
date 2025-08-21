@@ -100,18 +100,18 @@ struct VideoTrimmingView: View {
                                         Text("Change")
                                             .font(.system(size: 14, weight: .semibold))
                                     }
-                                    .foregroundColor(.accentWarm)
+                                    .foregroundColor(.white)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
                                     .background(
                                         Capsule()
-                                            .fill(Color.black.opacity(0.6))
+                                            .fill(LinearGradient.primaryTheme.opacity(0.9))
                                             .overlay(
                                                 Capsule()
-                                                    .stroke(Color.accentWarm.opacity(0.3), lineWidth: 1)
+                                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                             )
                                     )
-                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                                    .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
                                 }
                             }
                             .padding(.trailing, 32)
@@ -218,11 +218,11 @@ struct VideoTrimmingView: View {
                             
                             Text("Continue to \(enhancementType)")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.accentWarm)
+                                .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         }
                     }
-                    .buttonStyle(GradientButtonStyle())
+                    .buttonStyle(FloatingActionButtonStyle())
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 40)
@@ -407,6 +407,7 @@ struct PresetButtonStyle: ButtonStyle {
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
+
 
 #Preview {
     NavigationView {
