@@ -492,7 +492,11 @@ struct OptionCard: View {
             .frame(height: 120)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
+                    .fill(
+                        isSelected
+                        ? AnyShapeStyle(LinearGradient.primaryTheme)
+                        : AnyShapeStyle(Color.cardSoft)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(isSelected ? Color.white.opacity(0.2) : Color.gray.opacity(0.1), lineWidth: 1)
