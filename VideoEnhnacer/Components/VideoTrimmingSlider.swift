@@ -26,10 +26,6 @@ struct VideoTrimmingSlider: View {
             let windowWidth = min(maxWindowWidth, trackWidth - startPosition)
             let endPosition = startPosition + windowWidth
 
-            DispatchQueue.main.async {
-                endTime = min(startTime + presetDuration, duration)
-            }
-
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.black.opacity(0.3))
@@ -157,11 +153,14 @@ struct VideoTrimmingSlider: View {
             }
         }
         .frame(height: trackHeight + 30)
-        .onChange(of: presetDuration) { _ in
+        .onChange(of: presetDuration) { _, _ in
             endTime = min(startTime + presetDuration, duration)
             if startTime > duration - presetDuration {
                 startTime = max(0, duration - presetDuration)
             }
+        }
+        .onChange(of: startTime) { _, _ in
+            endTime = min(startTime + presetDuration, duration)
         }
     }
 

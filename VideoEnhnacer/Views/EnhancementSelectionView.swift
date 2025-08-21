@@ -254,7 +254,7 @@ struct EnhancementSelectionView: View {
         } message: {
             Text(processingError ?? "Unknown error occurred")
         }
-        .onChange(of: showingResults) { newValue in
+        .onChange(of: showingResults) { _, newValue in
             if !newValue {
                 isProcessing = false
                 processingProgress = 0.0
@@ -465,7 +465,7 @@ struct OptionCard: View {
             .frame(width: 80, height: 80)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? LinearGradient.primaryTheme : Color.cardSoft)
+                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3), lineWidth: 1)
