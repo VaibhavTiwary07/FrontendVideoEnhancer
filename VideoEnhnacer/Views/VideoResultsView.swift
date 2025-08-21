@@ -56,7 +56,7 @@ struct VideoResultsView: View {
             .frame(height: 300)
             .padding()
 
-            HStack(spacing: 20) {
+            HStack(spacing: 12) {
                 modeButton(title: "Original", mode: .original)
                 modeButton(title: "Compare", mode: .compare)
                 modeButton(title: "Output", mode: .output)
@@ -75,14 +75,49 @@ struct VideoResultsView: View {
     }
 
     private func modeButton(title: String, mode: ViewMode) -> some View {
-        Button(title) { self.mode = mode }
-            .foregroundColor(self.mode == mode ? .accentWarm : .white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+        Button(action: {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            self.mode = mode
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: symbolForMode(mode))
+                    .font(.system(size: 16, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+            .foregroundColor(self.mode == mode ? .white : .white.opacity(0.7))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(self.mode == mode ? Color.accentWarm.opacity(0.2) : Color.clear)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(self.mode == mode ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(self.mode == mode ? Color.white.opacity(0.2) : Color.white.opacity(0.3), lineWidth: 1)
+                    )
             )
+            .shadow(
+                color: self.mode == mode ? Color.black.opacity(0.2) : Color.clear,
+                radius: self.mode == mode ? 4 : 0,
+                x: 0,
+                y: self.mode == mode ? 2 : 0
+            )
+            .scaleEffect(self.mode == mode ? 1.02 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: self.mode == mode)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func symbolForMode(_ mode: ViewMode) -> String {
+        switch mode {
+        case .original:
+            return "video.fill"
+        case .compare:
+            return "slider.horizontal.below.rectangle"
+        case .output:
+            return "wand.and.stars"
+        }
     }
 
     private var finalPage: some View {

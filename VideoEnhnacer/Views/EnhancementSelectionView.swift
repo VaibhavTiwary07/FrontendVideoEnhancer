@@ -97,20 +97,20 @@ struct EnhancementSelectionView: View {
                             videoURL: videoURL,
                             enhancementType: enhancementType
                         )
-                        .frame(height: isIPad ? 420 : 360)
-                        .padding(.top, 30)
+                        .frame(height: isIPad ? 280 : 240)
+                        .padding(.top, 20)
                         
                         // Enhancement options section
-                        VStack(spacing: 24) {
+                        VStack(spacing: 16) {
                             SectionHeader(
                                 title: "Choose Enhancement Level",
                                 subtitle: dynamicSubtitle
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 40)
+                            .padding(.top, 20)
                             
-                            // Enhancement options grid
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 16)], spacing: 20) {
+                            // Enhancement options single row
+                            HStack(spacing: 12) {
                                 ForEach(enhancementOptions, id: \.id) { option in
                                     OptionCard(
                                         option: option,
@@ -126,18 +126,15 @@ struct EnhancementSelectionView: View {
                             
                             // Process button
                             ProcessButton(
-                                isProcessing: isProcessing,
-                                processingProgress: processingProgress,
                                 enhancementType: enhancementType,
-                                enhancementIcon: enhancementIcon,
                                 selectedOption: selectionState.selectedOption,
                                 onProcess: {
                                     processVideo()
                                 }
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 30)
-                            .padding(.bottom, 50)
+                            .padding(.top, 20)
+                            .padding(.bottom, 30)
                         }
                     }
                 }
@@ -150,6 +147,26 @@ struct EnhancementSelectionView: View {
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                     scrollOffset = value
+                }
+            }
+            
+            // Full-screen processing overlay
+            if isProcessing {
+                Color.black.opacity(0.8)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                    
+                    Text("Processing Video...")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Text("\(Int(processingProgress * 100))%")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
                 }
             }
         }
@@ -293,33 +310,24 @@ struct HeaderSection: View {
     let enhancementIcon: String
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Enhancement icon
-            ZStack {
-                Circle()
-                    .fill(Color.cardSoft)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
-                
-                Image(systemName: enhancementIcon)
-                    .font(.system(size: 32, weight: .medium))
-                    .foregroundColor(.accentWarm)
-            }
-            
-            // Title and description
+        VStack(spacing: 12) {
+            // Clean minimal header with gradient accent
             VStack(spacing: 8) {
                 Text(enhancementType)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 
+                // Decorative gradient line
+                Rectangle()
+                    .fill(LinearGradient.primaryTheme)
+                    .frame(width: 40, height: 2)
+                    .cornerRadius(1)
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                
                 Text("Choose your enhancement level")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.accentWarm.opacity(0.7))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.accentWarm.opacity(0.8))
                     .multilineTextAlignment(.center)
             }
         }
@@ -346,56 +354,22 @@ struct SectionHeader: View {
 }
 
 struct ProcessButton: View {
-    let isProcessing: Bool
-    let processingProgress: Double
     let enhancementType: String
-    let enhancementIcon: String
     let selectedOption: String
     let onProcess: () -> Void
     
     var body: some View {
         Button(action: onProcess) {
-            HStack(spacing: 12) {
-                if isProcessing {
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 3)
-                                .frame(width: 24, height: 24)
-                            
-                            Circle()
-                                .trim(from: 0, to: processingProgress)
-                                .stroke(Color.white, lineWidth: 3)
-                                .frame(width: 24, height: 24)
-                                .rotationEffect(.degrees(-90))
-                                .animation(.easeInOut, value: processingProgress)
-                        }
-                        
-                        if processingProgress > 0 {
-                            Text("\(Int(processingProgress * 100))%")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                    }
-                } else {
-                    Image(systemName: enhancementIcon)
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.white)
-                }
+            VStack(alignment: .center, spacing: 2) {
+                Text("Process with \(enhancementType)")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
                 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(isProcessing ? "Processing Video..." : "Process with \(enhancementType)")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                    
-                    if !isProcessing && !selectedOption.isEmpty {
-                        Text("Using \(selectedOption.capitalized) setting")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.8))
-                    }
+                if !selectedOption.isEmpty {
+                    Text("Using \(selectedOption.capitalized) setting")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                
-                Spacer()
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 18)
@@ -408,17 +382,15 @@ struct ProcessButton: View {
                     )
                     .shadow(
                         color: Color.black.opacity(0.15),
-                        radius: isProcessing ? 4 : 6,
+                        radius: 6,
                         x: 0,
-                        y: isProcessing ? 2 : 3
+                        y: 3
                     )
             )
-            .scaleEffect(isProcessing ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isProcessing)
         }
         .buttonStyle(PlainButtonStyle())
-        .disabled(isProcessing || selectedOption.isEmpty)
-        .opacity((isProcessing || selectedOption.isEmpty) ? 0.7 : 1.0)
+        .disabled(selectedOption.isEmpty)
+        .opacity(selectedOption.isEmpty ? 0.7 : 1.0)
     }
 }
 
@@ -445,6 +417,41 @@ struct OptionCard: View {
     let option: EnhancementOption
     let isSelected: Bool
     let onTap: () -> Void
+    
+    private var titleColor: Color {
+        isSelected ? .white : Color.accentWarm
+    }
+    
+    private var recommendedTextColor: Color {
+        isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7)
+    }
+    
+    private var recommendedBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient(colors: [Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing)
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
+                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+    
+    private var cardBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient.primaryTheme
+        } else {
+            return LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing)
+        }
+    }
+    
+    private var strokeColor: Color {
+        isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3)
+    }
 
     var body: some View {
         Button(action: {
@@ -452,23 +459,31 @@ struct OptionCard: View {
             impact.impactOccurred()
             onTap()
         }) {
-            VStack(spacing: 6) {
-                Image(systemName: option.icon)
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(isSelected ? .white : Color.accentWarm)
-
+            VStack(spacing: 4) {
                 Text(option.title)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(isSelected ? .white : Color.accentWarm)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(titleColor)
                     .multilineTextAlignment(.center)
+                
+                if option.isRecommended {
+                    Text("RECOMMENDED")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundColor(recommendedTextColor)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(recommendedBackground)
+                        )
+                }
             }
-            .frame(width: 80, height: 80)
+            .frame(width: 70, height: 70)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
+                    .fill(cardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3), lineWidth: 1)
+                            .stroke(strokeColor, lineWidth: 1)
                     )
             )
             .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
