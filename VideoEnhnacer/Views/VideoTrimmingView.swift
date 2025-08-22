@@ -332,7 +332,9 @@ struct VideoTrimmingView: View {
                 videoURL: videoURL,
                 enhancementType: enhancementType,
                 enhancementIcon: enhancementIcon,
-                gradientType: gradientType
+                gradientType: gradientType,
+                trimStartTime: trimStartTime,
+                trimEndTime: trimEndTime
             )
         }
         .onChange(of: trimStartTime) { newValue in

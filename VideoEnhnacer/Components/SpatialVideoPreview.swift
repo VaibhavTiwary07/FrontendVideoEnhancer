@@ -5,6 +5,8 @@ import AVKit
 struct SpatialVideoPreview: View {
     let videoURL: URL
     let enhancementType: String
+    let trimStartTime: Double?
+    let trimEndTime: Double?
     @State private var scrollOffset: CGFloat = 0
     @StateObject private var playerManager = VideoPreviewManager()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -89,6 +91,11 @@ struct SpatialVideoPreview: View {
     
     private func setupVideo() {
         playerManager.setupPlayer(with: videoURL)
+        
+        // Apply trimming if specified
+        if let startTime = trimStartTime, let endTime = trimEndTime {
+            playerManager.updateTrim(start: startTime, end: endTime)
+        }
     }
 }
 
@@ -189,7 +196,9 @@ struct ContextualInfoOverlay: View {
         ScrollView {
             SpatialVideoPreview(
                 videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
-                enhancementType: "AI Upscale"
+                enhancementType: "AI Upscale",
+                trimStartTime: 5.0,
+                trimEndTime: 15.0
             )
             .frame(height: 400)
         }

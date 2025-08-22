@@ -6,16 +6,16 @@ struct EnhancementSelectionView: View {
     let enhancementType: String
     let enhancementIcon: String
     let gradientType: GradientType
+    let trimStartTime: Double?
+    let trimEndTime: Double?
     
     @StateObject private var selectionState = EnhancementSelectionState()
+    @StateObject private var enhancementService = EnhancementService()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var scrollOffset: CGFloat = 0
-    @State private var isProcessing = false
-    @State private var processingProgress: Double = 0.0
     @State private var processedVideoURL: URL?
     @State private var showingResults = false
-    @State private var processingError: String?
     @State private var showingError = false
     
     private var isIPad: Bool {
@@ -95,7 +95,9 @@ struct EnhancementSelectionView: View {
                         // Spatial video preview
                         SpatialVideoPreview(
                             videoURL: videoURL,
-                            enhancementType: enhancementType
+                            enhancementType: enhancementType,
+                            trimStartTime: trimStartTime,
+                            trimEndTime: trimEndTime
                         )
                         .frame(height: isIPad ? 280 : 240)
                         .padding(.top, 20)
@@ -151,7 +153,7 @@ struct EnhancementSelectionView: View {
             }
             
             // Full-screen processing overlay
-            if isProcessing {
+            if enhancementService.isProcessing {
                 Color.black.opacity(0.8)
                     .ignoresSafeArea()
                 
@@ -165,17 +167,17 @@ struct EnhancementSelectionView: View {
                         
                         // Progress circle with gradient
                         Circle()
-                            .trim(from: 0, to: processingProgress)
+                            .trim(from: 0, to: enhancementService.processingProgress)
                             .stroke(
                                 LinearGradient.primaryTheme,
                                 style: StrokeStyle(lineWidth: 8, lineCap: .round)
                             )
                             .frame(width: 120, height: 120)
                             .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.3), value: processingProgress)
+                            .animation(.easeInOut(duration: 0.3), value: enhancementService.processingProgress)
                         
                         // Percentage text inside circle
-                        Text("\(Int(processingProgress * 100))%")
+                        Text("\(Int(enhancementService.processingProgress * 100))%")
                             .font(.system(size: 24, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                     }
@@ -287,39 +289,38 @@ struct EnhancementSelectionView: View {
         .alert("Processing Error", isPresented: $showingError) {
             Button("OK") { }
         } message: {
-            Text(processingError ?? "Unknown error occurred")
-        }
-        .onChange(of: showingResults) { _, newValue in
-            if !newValue {
-                isProcessing = false
-                processingProgress = 0.0
-            }
+            Text(enhancementService.processingError ?? "Unknown error occurred")
         }
     }
     
     private func processVideo() {
-        isProcessing = true
-        processingProgress = 0.0
-        
-        // Simulate processing with progress updates
-        let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            processingProgress += 0.02
-            
-            if processingProgress >= 1.0 {
-                timer.invalidate()
-                
-                // Simulate processing completion
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    processedVideoURL = videoURL // For demo purposes
-                    isProcessing = false
-                    showingResults = true
-                }
-            }
-        }
-        
         // Add haptic feedback
         let impact = UIImpactFeedbackGenerator(style: .heavy)
         impact.impactOccurred()
+        
+        // Create enhancement request with trimming data
+        let request = VideoEnhancementRequest(
+            videoURL: videoURL,
+            enhancementType: enhancementType,
+            enhancementOption: selectionState.selectedOption,
+            trimStartTime: trimStartTime,
+            trimEndTime: trimEndTime
+        )
+        
+        Task {
+            do {
+                let result = try await enhancementService.processVideo(request: request)
+                
+                await MainActor.run {
+                    processedVideoURL = result.processedVideoURL
+                    showingResults = true
+                }
+            } catch {
+                await MainActor.run {
+                    showingError = true
+                }
+            }
+        }
     }
 }
 
@@ -533,7 +534,9 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
             videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
             enhancementType: "AI Upscale",
             enhancementIcon: "arrow.up.square",
-            gradientType: .redPink
+            gradientType: .redPink,
+            trimStartTime: 5.0,
+            trimEndTime: 15.0
         )
     }
 }
