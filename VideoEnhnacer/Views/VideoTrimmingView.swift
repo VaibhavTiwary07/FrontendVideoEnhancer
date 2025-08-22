@@ -214,6 +214,10 @@ struct VideoTrimmingView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
+                        
+                        // Debug: Log current trim values before navigation
+                        print("🎬 VideoTrimmingView - Navigating with trimStartTime: \(trimStartTime), trimEndTime: \(trimEndTime)")
+                        
                         navigateToEnhancement = true
                     }) {
                         HStack(spacing: 12) {
@@ -338,6 +342,7 @@ struct VideoTrimmingView: View {
             )
         }
         .onChange(of: trimStartTime) { newValue in
+            print("🎬 VideoTrimmingView - trimStartTime changed to: \(newValue)")
             playerManager.updateTrim(start: newValue, end: trimEndTime)
             if let player = playerManager.player {
                 let time = CMTime(seconds: newValue, preferredTimescale: 600)
@@ -346,6 +351,7 @@ struct VideoTrimmingView: View {
             }
         }
         .onChange(of: trimEndTime) { newValue in
+            print("🎬 VideoTrimmingView - trimEndTime changed to: \(newValue)")
             playerManager.updateTrim(start: trimStartTime, end: newValue)
         }
     }
@@ -398,10 +404,21 @@ struct VideoTrimmingView: View {
     }
     
     private func updateTrimForPreset(_ preset: TimePreset) {
-        if trimStartTime > max(0, videoDuration - preset.duration) {
+        // Quick-set helper: Set trim window to preset duration starting from current position
+        // But allow further adjustment with independent handles
+        
+        let newEndTime = min(trimStartTime + preset.duration, videoDuration)
+        
+        // If preset would go beyond video end, adjust start time
+        if newEndTime >= videoDuration {
             trimStartTime = max(0, videoDuration - preset.duration)
+            trimEndTime = videoDuration
+        } else {
+            trimEndTime = newEndTime
         }
-        trimEndTime = min(trimStartTime + preset.duration, videoDuration)
+        
+        print("🎬 VideoTrimmingView - Preset \(preset.title): start=\(trimStartTime), end=\(trimEndTime)")
+        
         playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
         if let player = playerManager.player {
             let start = CMTime(seconds: trimStartTime, preferredTimescale: 600)

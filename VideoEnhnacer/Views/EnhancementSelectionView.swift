@@ -10,12 +10,14 @@ struct EnhancementSelectionView: View {
     let trimEndTime: Double?
     
     @StateObject private var selectionState = EnhancementSelectionState()
-    @StateObject private var enhancementService = EnhancementService()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var scrollOffset: CGFloat = 0
+    @State private var isProcessing = false
+    @State private var processingProgress: Double = 0.0
     @State private var processedVideoURL: URL?
     @State private var showingResults = false
+    @State private var processingError: String?
     @State private var showingError = false
     
     private var isIPad: Bool {
@@ -153,7 +155,7 @@ struct EnhancementSelectionView: View {
             }
             
             // Full-screen processing overlay
-            if enhancementService.isProcessing {
+            if isProcessing {
                 Color.black.opacity(0.8)
                     .ignoresSafeArea()
                 
@@ -167,17 +169,17 @@ struct EnhancementSelectionView: View {
                         
                         // Progress circle with gradient
                         Circle()
-                            .trim(from: 0, to: enhancementService.processingProgress)
+                            .trim(from: 0, to: processingProgress)
                             .stroke(
                                 LinearGradient.primaryTheme,
                                 style: StrokeStyle(lineWidth: 8, lineCap: .round)
                             )
                             .frame(width: 120, height: 120)
                             .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.3), value: enhancementService.processingProgress)
+                            .animation(.easeInOut(duration: 0.3), value: processingProgress)
                         
                         // Percentage text inside circle
-                        Text("\(Int(enhancementService.processingProgress * 100))%")
+                        Text("\(Int(processingProgress * 100))%")
                             .font(.system(size: 24, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                     }
@@ -268,6 +270,9 @@ struct EnhancementSelectionView: View {
             }
         }
         .onAppear {
+            // Debug: Log received trim values
+            print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
+            
             // Set default selection to recommended option
             if let recommended = enhancementOptions.first(where: { $0.isRecommended }) {
                 selectionState.selectedOption = recommended.id
@@ -289,7 +294,13 @@ struct EnhancementSelectionView: View {
         .alert("Processing Error", isPresented: $showingError) {
             Button("OK") { }
         } message: {
-            Text(enhancementService.processingError ?? "Unknown error occurred")
+            Text(processingError ?? "Unknown error occurred")
+        }
+        .onChange(of: showingResults) { _, newValue in
+            if !newValue {
+                isProcessing = false
+                processingProgress = 0.0
+            }
         }
     }
     
@@ -298,26 +309,27 @@ struct EnhancementSelectionView: View {
         let impact = UIImpactFeedbackGenerator(style: .heavy)
         impact.impactOccurred()
         
-        // Create enhancement request with trimming data
-        let request = VideoEnhancementRequest(
-            videoURL: videoURL,
-            enhancementType: enhancementType,
-            enhancementOption: selectionState.selectedOption,
-            trimStartTime: trimStartTime,
-            trimEndTime: trimEndTime
-        )
+        // Debug: Log trimming data (keeping for verification)
+        print("🎭 EnhancementSelectionView - Processing with:")
+        print("   trimStartTime: \(trimStartTime ?? -1)")
+        print("   trimEndTime: \(trimEndTime ?? -1)")
+        print("   enhancementOption: \(selectionState.selectedOption)")
         
-        Task {
-            do {
-                let result = try await enhancementService.processVideo(request: request)
+        isProcessing = true
+        processingProgress = 0.0
+        
+        // Simple mock processing with progress updates
+        let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            processingProgress += 0.02
+            
+            if processingProgress >= 1.0 {
+                timer.invalidate()
                 
-                await MainActor.run {
-                    processedVideoURL = result.processedVideoURL
+                // Simulate processing completion
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    processedVideoURL = videoURL // Mock result - return original video
+                    isProcessing = false
                     showingResults = true
-                }
-            } catch {
-                await MainActor.run {
-                    showingError = true
                 }
             }
         }

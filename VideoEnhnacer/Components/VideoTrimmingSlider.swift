@@ -11,20 +11,24 @@ struct VideoTrimmingSlider: View {
     let thumbnails: [UIImage]
 
     @State private var isDraggingStart = false
+    @State private var isDraggingEnd = false
     @State private var isDraggingWindow = false
     @State private var hapticTimer: Timer?
+    @State private var initialStartPosition: CGFloat = 0
+    @State private var initialEndPosition: CGFloat = 0
+    @State private var initialWindowPosition: CGFloat = 0
 
     private let handleWidth: CGFloat = 24
     private let trackHeight: CGFloat = 50
     private let cornerRadius: CGFloat = 12
+    private let minDuration: Double = 1.0 // Minimum 1 second trim duration
 
     var body: some View {
         GeometryReader { geometry in
             let trackWidth = geometry.size.width - handleWidth
             let startPosition = CGFloat(startTime / duration) * trackWidth
-            let maxWindowWidth = CGFloat(presetDuration / duration) * trackWidth
-            let windowWidth = min(maxWindowWidth, trackWidth - startPosition)
-            let endPosition = startPosition + windowWidth
+            let endPosition = CGFloat(endTime / duration) * trackWidth
+            let windowWidth = endPosition - startPosition
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: cornerRadius)
@@ -83,12 +87,18 @@ struct VideoTrimmingSlider: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
-                                isDraggingWindow = true
-                                let newStart = max(0, min(trackWidth - windowWidth, startPosition + value.translation.width))
+                                if !isDraggingWindow {
+                                    isDraggingWindow = true
+                                    initialWindowPosition = startPosition // Store initial window position
+                                }
+                                let newStart = max(0, min(trackWidth - windowWidth, initialWindowPosition + value.translation.width))
                                 let newTime = Double(newStart / trackWidth) * duration
+                                let windowDuration = endTime - startTime
                                 withAnimation(.interactiveSpring(response: 0.3, dampingFraction: 0.8)) {
                                     startTime = newTime
+                                    endTime = min(newTime + windowDuration, duration)
                                 }
+                                print("🎚️ VideoTrimmingSlider - Window drag: startTime = \(newTime), endTime = \(endTime)")
                             }
                             .onEnded { _ in
                                 isDraggingWindow = false
@@ -101,16 +111,45 @@ struct VideoTrimmingSlider: View {
                             .onChanged { value in
                                 if !isDraggingStart {
                                     isDraggingStart = true
+                                    initialStartPosition = startPosition // Store initial position
                                     startHapticFeedback()
                                 }
-                                let newStart = max(0, min(trackWidth - windowWidth, startPosition + value.translation.width))
+                                // Use initial position + translation to avoid circular reference
+                                let maxStart = CGFloat((endTime - minDuration) / duration) * trackWidth
+                                let newStart = max(0, min(maxStart, initialStartPosition + value.translation.width))
                                 let newTime = Double(newStart / trackWidth) * duration
                                 withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.9)) {
                                     startTime = newTime
                                 }
+                                print("🎚️ VideoTrimmingSlider - Start handle drag: startTime = \(newTime) (from initial: \(initialStartPosition) + translation: \(value.translation.width))")
                             }
                             .onEnded { _ in
                                 isDraggingStart = false
+                                endHapticFeedback()
+                            }
+                    )
+
+                // End Handle
+                appleStyleHandle(position: endPosition, isDragging: isDraggingEnd)
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                if !isDraggingEnd {
+                                    isDraggingEnd = true
+                                    initialEndPosition = endPosition // Store initial position
+                                    startHapticFeedback()
+                                }
+                                // Use initial position + translation to avoid circular reference
+                                let minEnd = CGFloat((startTime + minDuration) / duration) * trackWidth
+                                let newEnd = max(minEnd, min(trackWidth, initialEndPosition + value.translation.width))
+                                let newTime = Double(newEnd / trackWidth) * duration
+                                withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.9)) {
+                                    endTime = newTime
+                                }
+                                print("🎚️ VideoTrimmingSlider - End handle drag: endTime = \(newTime) (from initial: \(initialEndPosition) + translation: \(value.translation.width))")
+                            }
+                            .onEnded { _ in
+                                isDraggingEnd = false
                                 endHapticFeedback()
                             }
                     )
@@ -153,15 +192,6 @@ struct VideoTrimmingSlider: View {
             }
         }
         .frame(height: trackHeight + 30)
-        .onChange(of: presetDuration) { _, _ in
-            endTime = min(startTime + presetDuration, duration)
-            if startTime > duration - presetDuration {
-                startTime = max(0, duration - presetDuration)
-            }
-        }
-        .onChange(of: startTime) { _, _ in
-            endTime = min(startTime + presetDuration, duration)
-        }
     }
 
     @ViewBuilder
