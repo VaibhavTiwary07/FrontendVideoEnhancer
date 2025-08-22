@@ -43,6 +43,9 @@ class VideoPreviewManager: ObservableObject {
     func setupPlayer(with url: URL) {
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
+        
+        // Mute audio for seamless experience
+        player?.isMuted = true
 
         // Set up looping to startTime when reaching endTime or video end
         NotificationCenter.default.addObserver(
