@@ -6,6 +6,8 @@ struct EnhancementSelectionView: View {
     let enhancementType: String
     let enhancementIcon: String
     let gradientType: GradientType
+    let trimStartTime: Double?
+    let trimEndTime: Double?
     
     @StateObject private var selectionState = EnhancementSelectionState()
     @Environment(\.dismiss) private var dismiss
@@ -43,33 +45,33 @@ struct EnhancementSelectionView: View {
         switch enhancementType {
         case "AI Upscale":
             return [
-                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "3.square.fill"),
-                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "4.square.fill"),
-                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.fill")
+                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
+                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
+                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
             ]
         case "AI Denoise":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "1.square.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "3.square.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "waveform.path"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "sparkles", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "slider.horizontal.3")
             ]
         case "AI Auto Enhancement":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "1.square.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "3.square.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
             ]
         case "Stabilizer":
             return [
-                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "1.square.fill"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "2.square.fill", isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "3.square.fill")
+                EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "level"),
+                EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "gyroscope", isRecommended: true),
+                EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "arrow.triangle.2.circlepath")
             ]
         case "Frame Interpolation":
             return [
-                EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "waveform.path", isRecommended: true),
-                EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "waveform.path.ecg")
+                EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "play.rectangle.fill", isRecommended: true),
+                EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "forward.frame.fill")
             ]
         default:
             return []
@@ -95,22 +97,24 @@ struct EnhancementSelectionView: View {
                         // Spatial video preview
                         SpatialVideoPreview(
                             videoURL: videoURL,
-                            enhancementType: enhancementType
+                            enhancementType: enhancementType,
+                            trimStartTime: trimStartTime,
+                            trimEndTime: trimEndTime
                         )
-                        .frame(height: isIPad ? 420 : 360)
-                        .padding(.top, 30)
+                        .frame(height: isIPad ? 280 : 240)
+                        .padding(.top, 20)
                         
                         // Enhancement options section
-                        VStack(spacing: 24) {
+                        VStack(spacing: 16) {
                             SectionHeader(
                                 title: "Choose Enhancement Level",
                                 subtitle: dynamicSubtitle
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 40)
+                            .padding(.top, 20)
                             
-                            // Enhancement options grid
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
+                            // Enhancement options single row
+                            HStack(spacing: 12) {
                                 ForEach(enhancementOptions, id: \.id) { option in
                                     OptionCard(
                                         option: option,
@@ -126,18 +130,15 @@ struct EnhancementSelectionView: View {
                             
                             // Process button
                             ProcessButton(
-                                isProcessing: isProcessing,
-                                processingProgress: processingProgress,
                                 enhancementType: enhancementType,
-                                enhancementIcon: enhancementIcon,
                                 selectedOption: selectionState.selectedOption,
                                 onProcess: {
                                     processVideo()
                                 }
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 30)
-                            .padding(.bottom, 50)
+                            .padding(.top, 20)
+                            .padding(.bottom, 30)
                         }
                     }
                 }
@@ -150,6 +151,44 @@ struct EnhancementSelectionView: View {
                 .coordinateSpace(name: "scroll")
                 .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                     scrollOffset = value
+                }
+            }
+            
+            // Full-screen processing overlay
+            if isProcessing {
+                Color.black.opacity(0.8)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 24) {
+                    // Custom circular progress with orange gradient
+                    ZStack {
+                        // Background track
+                        Circle()
+                            .stroke(Color.white.opacity(0.2), lineWidth: 8)
+                            .frame(width: 120, height: 120)
+                        
+                        // Progress circle with gradient
+                        Circle()
+                            .trim(from: 0, to: processingProgress)
+                            .stroke(
+                                LinearGradient.primaryTheme,
+                                style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                            )
+                            .frame(width: 120, height: 120)
+                            .rotationEffect(.degrees(-90))
+                            .animation(.easeInOut(duration: 0.3), value: processingProgress)
+                        
+                        // Percentage text inside circle
+                        Text("\(Int(processingProgress * 100))%")
+                            .font(.system(size: 24, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                    
+                    Text("Processing Video...")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .opacity(0.9)
                 }
             }
         }
@@ -231,6 +270,9 @@ struct EnhancementSelectionView: View {
             }
         }
         .onAppear {
+            // Debug: Log received trim values
+            print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
+            
             // Set default selection to recommended option
             if let recommended = enhancementOptions.first(where: { $0.isRecommended }) {
                 selectionState.selectedOption = recommended.id
@@ -254,13 +296,29 @@ struct EnhancementSelectionView: View {
         } message: {
             Text(processingError ?? "Unknown error occurred")
         }
+        .onChange(of: showingResults) { _, newValue in
+            if !newValue {
+                isProcessing = false
+                processingProgress = 0.0
+            }
+        }
     }
     
     private func processVideo() {
+        // Add haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .heavy)
+        impact.impactOccurred()
+        
+        // Debug: Log trimming data (keeping for verification)
+        print("🎭 EnhancementSelectionView - Processing with:")
+        print("   trimStartTime: \(trimStartTime ?? -1)")
+        print("   trimEndTime: \(trimEndTime ?? -1)")
+        print("   enhancementOption: \(selectionState.selectedOption)")
+        
         isProcessing = true
         processingProgress = 0.0
         
-        // Simulate processing with progress updates
+        // Simple mock processing with progress updates
         let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             processingProgress += 0.02
             
@@ -269,16 +327,12 @@ struct EnhancementSelectionView: View {
                 
                 // Simulate processing completion
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    processedVideoURL = videoURL // For demo purposes
+                    processedVideoURL = videoURL // Mock result - return original video
                     isProcessing = false
                     showingResults = true
                 }
             }
         }
-        
-        // Add haptic feedback
-        let impact = UIImpactFeedbackGenerator(style: .heavy)
-        impact.impactOccurred()
     }
 }
 
@@ -287,33 +341,24 @@ struct HeaderSection: View {
     let enhancementIcon: String
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Enhancement icon
-            ZStack {
-                Circle()
-                    .fill(Color.cardSoft)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
-                
-                Image(systemName: enhancementIcon)
-                    .font(.system(size: 32, weight: .medium))
-                    .foregroundColor(.accentWarm)
-            }
-            
-            // Title and description
+        VStack(spacing: 12) {
+            // Clean minimal header with gradient accent
             VStack(spacing: 8) {
                 Text(enhancementType)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                 
+                // Decorative gradient line
+                Rectangle()
+                    .fill(LinearGradient.primaryTheme)
+                    .frame(width: 40, height: 2)
+                    .cornerRadius(1)
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                
                 Text("Choose your enhancement level")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.accentWarm.opacity(0.7))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.accentWarm.opacity(0.8))
                     .multilineTextAlignment(.center)
             }
         }
@@ -340,56 +385,22 @@ struct SectionHeader: View {
 }
 
 struct ProcessButton: View {
-    let isProcessing: Bool
-    let processingProgress: Double
     let enhancementType: String
-    let enhancementIcon: String
     let selectedOption: String
     let onProcess: () -> Void
     
     var body: some View {
         Button(action: onProcess) {
-            HStack(spacing: 12) {
-                if isProcessing {
-                    VStack(spacing: 8) {
-                        ZStack {
-                            Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 3)
-                                .frame(width: 24, height: 24)
-                            
-                            Circle()
-                                .trim(from: 0, to: processingProgress)
-                                .stroke(Color.white, lineWidth: 3)
-                                .frame(width: 24, height: 24)
-                                .rotationEffect(.degrees(-90))
-                                .animation(.easeInOut, value: processingProgress)
-                        }
-                        
-                        if processingProgress > 0 {
-                            Text("\(Int(processingProgress * 100))%")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                    }
-                } else {
-                    Image(systemName: enhancementIcon)
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.white)
-                }
+            VStack(alignment: .center, spacing: 2) {
+                Text("Process with \(enhancementType)")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
                 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(isProcessing ? "Processing Video..." : "Process with \(enhancementType)")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                    
-                    if !isProcessing && !selectedOption.isEmpty {
-                        Text("Using \(selectedOption.capitalized) setting")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.8))
-                    }
+                if !selectedOption.isEmpty {
+                    Text("Using \(selectedOption.capitalized) setting")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                
-                Spacer()
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 18)
@@ -402,17 +413,15 @@ struct ProcessButton: View {
                     )
                     .shadow(
                         color: Color.black.opacity(0.15),
-                        radius: isProcessing ? 4 : 6,
+                        radius: 6,
                         x: 0,
-                        y: isProcessing ? 2 : 3
+                        y: 3
                     )
             )
-            .scaleEffect(isProcessing ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isProcessing)
         }
         .buttonStyle(PlainButtonStyle())
-        .disabled(isProcessing || selectedOption.isEmpty)
-        .opacity((isProcessing || selectedOption.isEmpty) ? 0.7 : 1.0)
+        .disabled(selectedOption.isEmpty)
+        .opacity(selectedOption.isEmpty ? 0.7 : 1.0)
     }
 }
 
@@ -440,71 +449,81 @@ struct OptionCard: View {
     let isSelected: Bool
     let onTap: () -> Void
     
+    private var titleColor: Color {
+        isSelected ? .white : Color.accentWarm
+    }
+    
+    private var recommendedTextColor: Color {
+        isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7)
+    }
+    
+    private var recommendedBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient(colors: [Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing)
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
+                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+    
+    private var cardBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient.primaryTheme
+        } else {
+            return LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing)
+        }
+    }
+    
+    private var strokeColor: Color {
+        isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3)
+    }
+
     var body: some View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .medium)
             impact.impactOccurred()
             onTap()
         }) {
-            VStack(spacing: 16) {
-                // Icon with square background
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? Color.white.opacity(0.2) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.1))
-                        .frame(width: 48, height: 48)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(isSelected ? Color.white.opacity(0.4) : Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3), lineWidth: isSelected ? 2 : 1)
-                        )
-                    
-                    Image(systemName: option.icon)
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundColor(isSelected ? .white : Color(red: 1.0, green: 0.596, blue: 0.329))
-                }
+            VStack(spacing: 6) {
+                Image(systemName: option.icon)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(isSelected ? .white : Color.accentWarm)
                 
-                // Text content
-                VStack(spacing: 4) {
-                    HStack {
-                        Text(option.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(isSelected ? .white : Color.accentWarm)
-                        
-                        if option.isRecommended {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(isSelected ? .white.opacity(0.8) : Color(red: 1.0, green: 0.596, blue: 0.329))
-                        }
-                        
-                        Spacer()
-                    }
-                    
-                    HStack {
-                        Text(option.description)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7))
-                            .multilineTextAlignment(.leading)
-                        
-                        Spacer()
-                    }
+                Text(option.title)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundColor(titleColor)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                
+                if option.isRecommended {
+                    Text("RECOMMENDED")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(recommendedTextColor)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule()
+                                .fill(recommendedBackground)
+                        )
                 }
             }
-            .padding(20)
-            .frame(height: 120)
+            .frame(width: 70, height: 70)
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing))
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(cardBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.gray.opacity(0.1), lineWidth: 1)
-                    )
-                    .shadow(
-                        color: Color.black.opacity(isSelected ? 0.12 : 0.06),
-                        radius: isSelected ? 6 : 3,
-                        x: 0,
-                        y: isSelected ? 3 : 2
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(strokeColor, lineWidth: 1)
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
+            .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
+            .scaleEffect(isSelected ? 1.05 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
@@ -527,7 +546,9 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
             videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
             enhancementType: "AI Upscale",
             enhancementIcon: "arrow.up.square",
-            gradientType: .redPink
+            gradientType: .redPink,
+            trimStartTime: 5.0,
+            trimEndTime: 15.0
         )
     }
 }

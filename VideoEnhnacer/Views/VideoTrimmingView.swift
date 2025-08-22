@@ -203,6 +203,7 @@ struct VideoTrimmingView: View {
                         startTime: $trimStartTime,
                         endTime: $trimEndTime,
                         duration: videoDuration,
+                        presetDuration: selectedDuration.duration,
                         gradientType: gradientType,
                         thumbnails: thumbnails
                     )
@@ -213,6 +214,10 @@ struct VideoTrimmingView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
+                        
+                        // Debug: Log current trim values before navigation
+                        print("🎬 VideoTrimmingView - Navigating with trimStartTime: \(trimStartTime), trimEndTime: \(trimEndTime)")
+                        
                         navigateToEnhancement = true
                     }) {
                         HStack(spacing: 12) {
@@ -331,22 +336,23 @@ struct VideoTrimmingView: View {
                 videoURL: videoURL,
                 enhancementType: enhancementType,
                 enhancementIcon: enhancementIcon,
-                gradientType: gradientType
+                gradientType: gradientType,
+                trimStartTime: trimStartTime,
+                trimEndTime: trimEndTime
             )
         }
         .onChange(of: trimStartTime) { newValue in
+            print("🎬 VideoTrimmingView - trimStartTime changed to: \(newValue)")
+            playerManager.updateTrim(start: newValue, end: trimEndTime)
             if let player = playerManager.player {
-                player.pause()
                 let time = CMTime(seconds: newValue, preferredTimescale: 600)
                 player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                player.play()
             }
         }
         .onChange(of: trimEndTime) { newValue in
-            if let player = playerManager.player {
-                player.pause()
-                let time = CMTime(seconds: newValue, preferredTimescale: 600)
-                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
-            }
+            print("🎬 VideoTrimmingView - trimEndTime changed to: \(newValue)")
+            playerManager.updateTrim(start: trimStartTime, end: newValue)
         }
     }
     
@@ -363,8 +369,9 @@ struct VideoTrimmingView: View {
 
                 await MainActor.run {
                     self.videoDuration = durationSeconds
-                    self.trimEndTime = min(30, durationSeconds) // Default to 30s or video length
+                    self.trimEndTime = min(selectedDuration.duration, durationSeconds)
                     self.thumbnails = images
+                    self.playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
                 }
             } catch {
                 print("Error loading video duration: \(error)")
@@ -397,13 +404,25 @@ struct VideoTrimmingView: View {
     }
     
     private func updateTrimForPreset(_ preset: TimePreset) {
-        let maxEnd = min(trimStartTime + preset.duration, videoDuration)
-        trimEndTime = maxEnd
+        // Quick-set helper: Set trim window to preset duration starting from current position
+        // But allow further adjustment with independent handles
         
-        // Update player to show the trimmed section
+        let newEndTime = min(trimStartTime + preset.duration, videoDuration)
+        
+        // If preset would go beyond video end, adjust start time
+        if newEndTime >= videoDuration {
+            trimStartTime = max(0, videoDuration - preset.duration)
+            trimEndTime = videoDuration
+        } else {
+            trimEndTime = newEndTime
+        }
+        
+        print("🎬 VideoTrimmingView - Preset \(preset.title): start=\(trimStartTime), end=\(trimEndTime)")
+        
+        playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
         if let player = playerManager.player {
-            let startTime = CMTime(seconds: trimStartTime, preferredTimescale: 600)
-            player.seek(to: startTime)
+            let start = CMTime(seconds: trimStartTime, preferredTimescale: 600)
+            player.seek(to: start)
         }
     }
     

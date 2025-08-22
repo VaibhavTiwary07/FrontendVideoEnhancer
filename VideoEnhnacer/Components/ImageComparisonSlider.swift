@@ -28,7 +28,12 @@ final class RevealImageView: UIImageView {
 
     private let leftImageLayer = CALayer()
     private let maskLayer = CAGradientLayer()
+    private let topFadeLayer = CAGradientLayer()
     private let lineView = UIView()
+    private var autoSlideTimer: Timer?
+    private var autoSlideDirection: CGFloat = 1.0
+    private var isUserInteracting = false
+    private var resumeTimer: Timer?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -44,24 +49,46 @@ final class RevealImageView: UIImageView {
         contentMode = .scaleAspectFill
         clipsToBounds = true
 
-        // Setup gradient mask for smooth opacity transition
-        maskLayer.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
+        // Setup enhanced multi-zone gradient mask for seamless opacity transition
+        maskLayer.colors = [
+            UIColor.black.cgColor,                           // Solid left
+            UIColor.black.cgColor,                           // Solid zone
+            UIColor.black.withAlphaComponent(0.8).cgColor,   // Primary fade
+            UIColor.black.withAlphaComponent(0.4).cgColor,   // Light fade
+            UIColor.clear.cgColor                            // Transparent right
+        ]
         maskLayer.startPoint = CGPoint(x: 0, y: 0)
         maskLayer.endPoint = CGPoint(x: 1, y: 0)
-        maskLayer.locations = [0.0, 1.0]
         
-        leftImageLayer.mask = maskLayer
+        // Setup top fade layer for premium visual effect
+        topFadeLayer.colors = [
+            UIColor.clear.cgColor,
+            UIColor.black.cgColor
+        ]
+        topFadeLayer.startPoint = CGPoint(x: 0, y: 0)
+        topFadeLayer.endPoint = CGPoint(x: 0, y: 1)
+        topFadeLayer.locations = [0.0, 0.15]
+        
+        // Combine masks for sophisticated blending
+        let combinedMask = CALayer()
+        combinedMask.addSublayer(maskLayer)
+        combinedMask.mask = topFadeLayer
+        
+        leftImageLayer.mask = combinedMask
         leftImageLayer.contentsGravity = .resizeAspectFill
         layer.addSublayer(leftImageLayer)
 
+        // Setup enhanced white divider line
         lineView.backgroundColor = .white
+        lineView.layer.cornerRadius = 1
         lineView.layer.shadowColor = UIColor.black.cgColor
-        lineView.layer.shadowOffset = CGSize(width: 1, height: 0)
-        lineView.layer.shadowOpacity = 0.3
-        lineView.layer.shadowRadius = 2
+        lineView.layer.shadowOffset = CGSize(width: 0, height: 0)
+        lineView.layer.shadowOpacity = 0.4
+        lineView.layer.shadowRadius = 3
         addSubview(lineView)
 
         isUserInteractionEnabled = true
+        startAutoSliding()
     }
 
     override var intrinsicContentSize: CGSize {
@@ -71,42 +98,51 @@ final class RevealImageView: UIImageView {
     override func layoutSubviews() {
         super.layoutSubviews()
         leftImageLayer.frame = bounds
+        
+        // Update mask layers to match bounds
+        if let combinedMask = leftImageLayer.mask {
+            combinedMask.frame = bounds
+            maskLayer.frame = bounds
+            topFadeLayer.frame = bounds
+        }
+        
         updateView()
     }
 
     private func updateView() {
-        lineView.frame = CGRect(x: bounds.width * pct,
+        // Position white divider line
+        lineView.frame = CGRect(x: bounds.width * pct - 1,
                                 y: 0,
                                 width: 2,
                                 height: bounds.height)
 
-        // Update gradient mask for variable opacity effect
+        // Update gradient mask for clean before/after division
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        maskLayer.frame = bounds
         
-        // Create smooth gradient transition based on slider position
-        let fadeWidth: CGFloat = 0.15 // 15% fade zone for smooth blending
+        // Simple clean mask for before/after division
+        let fadeWidth: CGFloat = 0.02 // Very small fade zone for sharp division
         let solidEnd = max(0, pct - fadeWidth)
         let fadeEnd = pct
         
         if fadeEnd <= 0 {
             // Completely transparent
-            maskLayer.locations = [0.0, 0.0]
+            maskLayer.locations = [0.0, 0.0, 0.0, 0.0, 0.0]
         } else if solidEnd <= 0 {
             // Only fade zone visible
-            maskLayer.locations = [0.0, NSNumber(value: fadeEnd)]
+            maskLayer.locations = [0.0, NSNumber(value: fadeEnd), NSNumber(value: fadeEnd), NSNumber(value: fadeEnd), NSNumber(value: fadeEnd)]
         } else {
-            // Both solid and fade zones
-            maskLayer.locations = [NSNumber(value: solidEnd), NSNumber(value: fadeEnd)]
+            // Clean division with minimal fade
+            maskLayer.locations = [0.0, NSNumber(value: solidEnd), NSNumber(value: fadeEnd), NSNumber(value: fadeEnd), NSNumber(value: fadeEnd)]
         }
         
         CATransaction.commit()
-
         pctChanged?(pct)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isUserInteracting = true
+        stopAutoSliding()
         onInteractionStart?()
         handle(touches)
     }
@@ -116,10 +152,14 @@ final class RevealImageView: UIImageView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isUserInteracting = false
+        scheduleAutoSlideResume()
         onInteractionEnd?()
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isUserInteracting = false
+        scheduleAutoSlideResume()
         onInteractionEnd?()
     }
 
@@ -127,6 +167,49 @@ final class RevealImageView: UIImageView {
         guard let t = touches.first else { return }
         let loc = t.location(in: self)
         pct = max(0, min(1, loc.x / bounds.width))
+    }
+    
+    // MARK: - Auto-Sliding System
+    
+    private func startAutoSliding() {
+        guard autoSlideTimer == nil else { return }
+        autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            self?.performAutoSlide()
+        }
+    }
+    
+    private func stopAutoSliding() {
+        autoSlideTimer?.invalidate()
+        autoSlideTimer = nil
+        resumeTimer?.invalidate()
+        resumeTimer = nil
+    }
+    
+    private func scheduleAutoSlideResume() {
+        resumeTimer?.invalidate()
+        resumeTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+            self?.startAutoSliding()
+        }
+    }
+    
+    private func performAutoSlide() {
+        guard !isUserInteracting else { return }
+        
+        let slideSpeed: CGFloat = 0.008
+        pct += slideSpeed * autoSlideDirection
+        
+        // Reverse direction at boundaries with smooth transition
+        if pct >= 1.0 {
+            pct = 1.0
+            autoSlideDirection = -1.0
+        } else if pct <= 0.0 {
+            pct = 0.0
+            autoSlideDirection = 1.0
+        }
+    }
+    
+    deinit {
+        stopAutoSliding()
     }
 }
 
@@ -155,7 +238,6 @@ struct ImageComparisonSlider: UIViewRepresentable {
         }
         view.onInteractionStart = onInteractionStart
         view.onInteractionEnd = onInteractionEnd
-        view.layer.cornerRadius = 12
         return view
     }
 

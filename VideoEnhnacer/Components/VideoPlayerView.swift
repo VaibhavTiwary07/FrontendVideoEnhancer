@@ -37,20 +37,45 @@ struct VideoPreviewView: View {
 class VideoPreviewManager: ObservableObject {
     @Published var player: AVPlayer?
     private var timeObserver: Any?
+    private var startTime: Double = 0
+    private var endTime: Double?
     
     func setupPlayer(with url: URL) {
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
         
-        // Set up looping
+        // Mute audio for seamless experience
+        player?.isMuted = true
+
+        // Set up looping to startTime when reaching endTime or video end
         NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: playerItem,
             queue: .main
         ) { [weak self] _ in
-            self?.player?.seek(to: CMTime.zero)
-            self?.player?.play()
+            guard let self = self else { return }
+            let start = CMTime(seconds: self.startTime, preferredTimescale: 600)
+            self.player?.seek(to: start)
+            self.player?.play()
         }
+
+        addTimeObserver()
+    }
+
+    private func addTimeObserver() {
+        guard let player = player else { return }
+        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: 600), queue: .main) { [weak self] time in
+            guard let self = self, let end = self.endTime else { return }
+            if time.seconds >= end {
+                let start = CMTime(seconds: self.startTime, preferredTimescale: 600)
+                player.seek(to: start, toleranceBefore: .zero, toleranceAfter: .zero)
+            }
+        }
+    }
+
+    func updateTrim(start: Double, end: Double) {
+        startTime = start
+        endTime = end
     }
     
     func cleanup() {
