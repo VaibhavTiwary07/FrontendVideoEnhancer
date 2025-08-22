@@ -95,6 +95,8 @@ struct SpatialVideoPreview: View {
         // Apply trimming if specified
         if let startTime = trimStartTime, let endTime = trimEndTime {
             playerManager.updateTrim(start: startTime, end: endTime)
+            // Start playback so the preview begins from the trimmed start
+            playerManager.player?.play()
         }
     }
 }
