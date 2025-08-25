@@ -11,6 +11,115 @@ final class VideoProcessingService: VideoProcessingProtocol {
     private let fileManager = FileManager.default
     private let processingQueue = DispatchQueue(label: "video.processing", qos: .userInitiated)
     
+    // MARK: - iOS 15 Compatibility Helpers
+    private func loadAssetProperty<T>(_ asset: AVAsset, property: AVAsyncProperty<AVAsset, T>) async throws -> T {
+        if #available(iOS 16.0, *) {
+            return try await asset.load(property)
+        } else {
+            // iOS 15 fallback - convert property to legacy key
+            let key = propertyToLegacyKey(property)
+            return try await withCheckedThrowingContinuation { continuation in
+                asset.loadValuesAsynchronously(forKeys: [key]) {
+                    var error: NSError?
+                    let status = asset.statusOfValue(forKey: key, error: &error)
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if status == .loaded {
+                        do {
+                            let value = try self.extractPropertyValue(from: asset, key: key) as! T
+                            continuation.resume(returning: value)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    } else {
+                        continuation.resume(throwing: VideoProcessingError.processingFailed)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func loadTrackProperty<T>(_ track: AVAssetTrack, property: AVAsyncProperty<AVAssetTrack, T>) async throws -> T {
+        if #available(iOS 16.0, *) {
+            return try await track.load(property)
+        } else {
+            // iOS 15 fallback
+            let key = trackPropertyToLegacyKey(property)
+            return try await withCheckedThrowingContinuation { continuation in
+                track.loadValuesAsynchronously(forKeys: [key]) {
+                    var error: NSError?
+                    let status = track.statusOfValue(forKey: key, error: &error)
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if status == .loaded {
+                        do {
+                            let value = try self.extractTrackPropertyValue(from: track, key: key) as! T
+                            continuation.resume(returning: value)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    } else {
+                        continuation.resume(throwing: VideoProcessingError.processingFailed)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func propertyToLegacyKey<T>(_ property: AVAsyncProperty<AVAsset, T>) -> String {
+        // Map iOS 16+ properties to iOS 15 keys
+        switch "\(property)" {
+        case let str where str.contains("duration"):
+            return "duration"
+        case let str where str.contains("tracks"):
+            return "tracks"
+        case let str where str.contains("isPlayable"):
+            return "playable"
+        default:
+            return "duration" // Default fallback
+        }
+    }
+    
+    private func trackPropertyToLegacyKey<T>(_ property: AVAsyncProperty<AVAssetTrack, T>) -> String {
+        // Map iOS 16+ track properties to iOS 15 keys
+        switch "\(property)" {
+        case let str where str.contains("naturalSize"):
+            return "naturalSize"
+        case let str where str.contains("nominalFrameRate"):
+            return "nominalFrameRate"
+        case let str where str.contains("estimatedDataRate"):
+            return "estimatedDataRate"
+        default:
+            return "naturalSize" // Default fallback
+        }
+    }
+    
+    private func extractPropertyValue(from asset: AVAsset, key: String) throws -> Any {
+        switch key {
+        case "duration":
+            return asset.duration
+        case "tracks":
+            return asset.tracks
+        case "playable":
+            return asset.isPlayable
+        default:
+            throw VideoProcessingError.processingFailed
+        }
+    }
+    
+    private func extractTrackPropertyValue(from track: AVAssetTrack, key: String) throws -> Any {
+        switch key {
+        case "naturalSize":
+            return track.naturalSize
+        case "nominalFrameRate":
+            return track.nominalFrameRate
+        case "estimatedDataRate":
+            return track.estimatedDataRate
+        default:
+            throw VideoProcessingError.processingFailed
+        }
+    }
+    
     // MARK: - VideoProcessingProtocol Implementation
     func getVideoInfo(from url: URL) async throws -> VideoInfo {
         return try await withCheckedThrowingContinuation { continuation in
@@ -21,17 +130,17 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     // Load required properties
                     Task {
                         do {
-                            let duration = try await asset.load(.duration)
-                            let tracks = try await asset.load(.tracks)
+                            let duration = try await self.loadAssetProperty(asset, property: .duration)
+                            let tracks = try await self.loadAssetProperty(asset, property: .tracks)
                             
                             guard let videoTrack = tracks.first(where: { $0.mediaType == .video }) else {
                                 continuation.resume(throwing: VideoProcessingError.invalidFormat)
                                 return
                             }
                             
-                            let naturalSize = try await videoTrack.load(.naturalSize)
-                            let nominalFrameRate = try await videoTrack.load(.nominalFrameRate)
-                            let estimatedDataRate = try await videoTrack.load(.estimatedDataRate)
+                            let naturalSize = try await self.loadTrackProperty(videoTrack, property: .naturalSize)
+                            let nominalFrameRate = try await self.loadTrackProperty(videoTrack, property: .nominalFrameRate)
+                            let estimatedDataRate = try await self.loadTrackProperty(videoTrack, property: .estimatedDataRate)
                             
                             // Get file attributes
                             let attributes = try self.fileManager.attributesOfItem(atPath: url.path)
@@ -79,8 +188,8 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     let asset = AVURLAsset(url: url)
                     Task {
                         do {
-                            let isPlayable = try await asset.load(.isPlayable)
-                            let duration = try await asset.load(.duration)
+                            let isPlayable = try await self.loadAssetProperty(asset, property: .isPlayable)
+                            let duration = try await self.loadAssetProperty(asset, property: .duration)
                             
                             let isValid = isPlayable && CMTimeGetSeconds(duration) > 0
                             continuation.resume(returning: isValid)
@@ -152,7 +261,7 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     
                     Task {
                         do {
-                            let duration = try await asset.load(.duration)
+                            let duration = try await self.loadAssetProperty(asset, property: .duration)
                             let durationSeconds = CMTimeGetSeconds(duration)
                             
                             var times: [NSValue] = []

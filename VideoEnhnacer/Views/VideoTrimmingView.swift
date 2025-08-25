@@ -331,15 +331,17 @@ struct VideoTrimmingView: View {
         .onDisappear {
             playerManager.cleanup()
         }
-        .navigationDestination(isPresented: $navigateToEnhancement) {
-            EnhancementSelectionView(
-                videoURL: videoURL,
-                enhancementType: enhancementType,
-                enhancementIcon: enhancementIcon,
-                gradientType: gradientType,
-                trimStartTime: trimStartTime,
-                trimEndTime: trimEndTime
-            )
+        .fullScreenCover(isPresented: $navigateToEnhancement) {
+            NavigationView {
+                EnhancementSelectionView(
+                    videoURL: videoURL,
+                    enhancementType: enhancementType,
+                    enhancementIcon: enhancementIcon,
+                    gradientType: gradientType,
+                    trimStartTime: trimStartTime,
+                    trimEndTime: trimEndTime
+                )
+            }
         }
         .onChange(of: trimStartTime) { newValue in
             print("🎬 VideoTrimmingView - trimStartTime changed to: \(newValue)")

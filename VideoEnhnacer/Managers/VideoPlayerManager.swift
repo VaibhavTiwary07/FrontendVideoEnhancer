@@ -79,7 +79,25 @@ class VideoPlayerManager: ObservableObject {
                         defer { group.leave() }
                         do {
                             if let asset = await player.currentItem?.asset {
-                                _ = try await asset.load(.isPlayable)
+                                if #available(iOS 16.0, *) {
+                                    _ = try await asset.load(.isPlayable)
+                                } else {
+                                    // iOS 15 compatible asset loading
+                                    let keys = ["playable"]
+                                    try await withCheckedThrowingContinuation { continuation in
+                                        asset.loadValuesAsynchronously(forKeys: keys) {
+                                            var error: NSError?
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                            if let error = error {
+                                                continuation.resume(throwing: error)
+                                            } else if status == .loaded {
+                                                continuation.resume()
+                                            } else {
+                                                continuation.resume(throwing: VideoLoadError.loadFailed)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         } catch {
                             loadError = error

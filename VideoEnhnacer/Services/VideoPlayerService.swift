@@ -212,7 +212,24 @@ final class VideoPlayerService: VideoPlayerProtocol {
             for player in players {
                 group.addTask {
                     if let asset = await player.currentItem?.asset {
-                        _ = try await asset.load(.isPlayable)
+                        if #available(iOS 16.0, *) {
+                            _ = try await asset.load(.isPlayable)
+                        } else {
+                            // iOS 15 compatible asset loading
+                            try await withCheckedThrowingContinuation { continuation in
+                                asset.loadValuesAsynchronously(forKeys: ["playable"]) {
+                                    var error: NSError?
+                                    let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                    if let error = error {
+                                        continuation.resume(throwing: error)
+                                    } else if status == .loaded {
+                                        continuation.resume()
+                                    } else {
+                                        continuation.resume(throwing: VideoPlayerError.loadingFailed("Asset not playable"))
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -20,7 +20,19 @@ struct FavoritesView: View {
     ]
     
     var body: some View {
-        NavigationStack {
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+    
+    private var content: some View {
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()
@@ -66,7 +78,6 @@ struct FavoritesView: View {
                     }
                 }
             }
-        }
         .fullScreenCover(isPresented: $showingVideoPlayer) {
             if let videoURL = selectedVideo {
                 VideoPlayerFullScreenView(videoURL: videoURL) {
@@ -391,8 +402,16 @@ struct RoundedCorner: Shape {
 // MARK: - Local AVPlayer wrapper to avoid naming conflicts
 
 #Preview {
-    NavigationStack {
-        FavoritesView()
+    if #available(iOS 16.0, *) {
+        NavigationStack {
+            FavoritesView()
+        }
+        .environmentObject(FavoritesManager())
+    } else {
+        NavigationView {
+            FavoritesView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .environmentObject(FavoritesManager())
     }
-    .environmentObject(FavoritesManager())
 }

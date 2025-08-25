@@ -171,6 +171,22 @@ struct VideoResultsView: View {
                     Label("Share", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(GradientButtonStyle())
+            } else {
+                Button(action: {
+                    // iOS 15 sharing fallback
+                    let activityController = UIActivityViewController(
+                        activityItems: [processedVideoURL],
+                        applicationActivities: nil
+                    )
+                    
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let rootViewController = windowScene.windows.first?.rootViewController {
+                        rootViewController.present(activityController, animated: true)
+                    }
+                }) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(GradientButtonStyle())
             }
 
             Button(action: saveToPhotoLibrary) {

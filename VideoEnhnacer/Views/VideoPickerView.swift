@@ -14,7 +14,19 @@ struct VideoPickerView: View {
     @State private var showingPermissionAlert = false
     
     var body: some View {
-        NavigationStack {
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+    
+    private var content: some View {
             ZStack {
                 Color.primarySoft
                     .ignoresSafeArea()
@@ -227,21 +239,20 @@ struct VideoPickerView: View {
                     Spacer()
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.accentWarm)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Text("Step 1 of 4")
-                        .font(.caption)
-                        .foregroundColor(.accentWarm.opacity(0.7))
-                }
+                .foregroundColor(.accentWarm)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Text("Step 1 of 4")
+                    .font(.caption)
+                    .foregroundColor(.accentWarm.opacity(0.7))
             }
         }
         .photosPicker(isPresented: $showingVideoPicker, selection: Binding<PhotosPickerItem?>(
@@ -256,15 +267,29 @@ struct VideoPickerView: View {
             permissionManager.checkCurrentStatus()
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
-            NavigationStack {
-                if let videoURL = selectedVideoURL {
-                    VideoTrimmingView(
-                        videoURL: videoURL,
-                        enhancementType: enhancementType,
-                        enhancementIcon: enhancementIcon,
-                        gradientType: gradientType
-                    )
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    if let videoURL = selectedVideoURL {
+                        VideoTrimmingView(
+                            videoURL: videoURL,
+                            enhancementType: enhancementType,
+                            enhancementIcon: enhancementIcon,
+                            gradientType: gradientType
+                        )
+                    }
                 }
+            } else {
+                NavigationView {
+                    if let videoURL = selectedVideoURL {
+                        VideoTrimmingView(
+                            videoURL: videoURL,
+                            enhancementType: enhancementType,
+                            enhancementIcon: enhancementIcon,
+                            gradientType: gradientType
+                        )
+                    }
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
             }
         }
     }

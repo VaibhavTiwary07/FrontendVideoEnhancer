@@ -43,13 +43,15 @@ struct RefactoredVideoTrimmingView: View {
         .toolbar { navigationToolbar }
         .onAppear { handleViewAppearance() }
         .onDisappear { handleViewDisappearance() }
-        .navigationDestination(isPresented: $navigateToEnhancement) {
-            RefactoredEnhancementSelectionView(
-                videoURL: viewModel.videoURL,
-                enhancementType: viewModel.enhancementType,
-                trimStartTime: viewModel.trimStartTime,
-                trimEndTime: viewModel.trimEndTime
-            )
+        .fullScreenCover(isPresented: $navigateToEnhancement) {
+            NavigationView {
+                RefactoredEnhancementSelectionView(
+                    videoURL: viewModel.videoURL,
+                    enhancementType: viewModel.enhancementType,
+                    trimStartTime: viewModel.trimStartTime,
+                    trimEndTime: viewModel.trimEndTime
+                )
+            }
         }
         .gesture(swipeToGoBackGesture)
     }

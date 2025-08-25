@@ -10,7 +10,20 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     // MARK: - Published Properties
     @Published private var navigationState: NavigationState = .idle
     @Published private var currentFlow: NavigationFlow?
-    @Published var navigationPath = NavigationPath()
+    
+    // Universal Navigation State - works for both iOS versions
+    @Published var navigationStack: [AnyHashable] = []
+    
+    // iOS 16+ Navigation Path (computed property to avoid @available on stored property)
+    @available(iOS 16.0, *)
+    private var _navigationPath = NavigationPath()
+    
+    @available(iOS 16.0, *)
+    var navigationPath: NavigationPath {
+        get { _navigationPath }
+        set { _navigationPath = newValue }
+    }
+    
     @Published var presentedModal: NavigationModal?
     @Published var showingSidebar: Bool = false
     @Published var currentTab: Int = 0
@@ -68,8 +81,13 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     func goBack() {
         navigationState = .navigating(to: .home)
         
-        if !navigationPath.isEmpty {
-            navigationPath.removeLast()
+        if !navigationStack.isEmpty {
+            navigationStack.removeLast()
+            if #available(iOS 16.0, *) {
+                if !_navigationPath.isEmpty {
+                    _navigationPath.removeLast()
+                }
+            }
         } else {
             goToHome()
         }
@@ -77,7 +95,12 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     
     func goToHome() {
         navigationState = .navigating(to: .home)
-        navigationPath = NavigationPath()
+        
+        navigationStack = []
+        if #available(iOS 16.0, *) {
+            _navigationPath = NavigationPath()
+        }
+        
         currentTab = 0
         finishCurrentFlow()
     }
@@ -88,7 +111,11 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     }
     
     func resetToRoot() {
-        navigationPath = NavigationPath()
+        navigationStack = []
+        if #available(iOS 16.0, *) {
+            _navigationPath = NavigationPath()
+        }
+        
         presentedModal = nil
         showingSidebar = false
         currentTab = 0
@@ -195,17 +222,41 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         case .myCreations:
             currentTab = 1
         case .videoPicker(let type):
-            navigationPath.append(VideoPickerDestination(enhancementType: type))
+            let dest = VideoPickerDestination(enhancementType: type)
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         case .videoTrimming(let data):
-            navigationPath.append(VideoTrimmingDestination(data: data))
+            let dest = VideoTrimmingDestination(data: data)
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         case .enhancementSelection(let data):
-            navigationPath.append(EnhancementSelectionDestination(data: data))
+            let dest = EnhancementSelectionDestination(data: data)
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         case .videoResults(let result):
-            navigationPath.append(VideoResultsDestination(result: result))
+            let dest = VideoResultsDestination(result: result)
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         case .settings:
-            navigationPath.append(SettingsDestination())
+            let dest = SettingsDestination()
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         case .favorites:
-            navigationPath.append(FavoritesDestination())
+            let dest = FavoritesDestination()
+            navigationStack.append(dest)
+            if #available(iOS 16.0, *) {
+                _navigationPath.append(dest)
+            }
         }
         
         // Reset state after navigation
