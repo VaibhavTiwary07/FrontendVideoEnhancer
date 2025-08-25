@@ -14,10 +14,10 @@ struct EnhancementOptionSelector: View {
         switch enhancementType {
         case "AI Upscale":
             return [
-                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "plus.magnifyingglass"),
-                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
-                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
+                EnhancementOption(id: "2x", title: "", description: "", icon: "arrow.up.right.square", isRecommended: true),
+                EnhancementOption(id: "3x", title: "", description: "", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4x", title: "", description: "", icon: "rectangle.expand.vertical"),
+                EnhancementOption(id: "1080p", title: "", description: "", icon: "tv.and.hifispeaker.fill")
             ]
         case "AI Denoise":
             return [

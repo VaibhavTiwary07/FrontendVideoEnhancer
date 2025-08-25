@@ -210,17 +210,17 @@ final class EnhancementSelectionViewModel: ObservableObject {
     private func generateDynamicSubtitle(for enhancementType: EnhancementType) -> String {
         switch enhancementType.id {
         case "ai_upscale":
-            return "Select upscaler level that best fits your video"
+            return "Choose upscaling level"
         case "ai_denoise":
-            return "Select denoise level that best fits your video"
+            return "Choose denoise strength"
         case "ai_auto_enhancement":
-            return "Select auto enhancement level that best fits your video"
+            return "Choose enhancement strength"
         case "stabilizer":
-            return "Select stabilization level that best fits your video"
+            return "Choose stabilization level"
         case "frame_interpolation":
-            return "Select interpolation level that best fits your video"
+            return "Choose interpolation rate"
         default:
-            return "Select the level that best fits your video"
+            return "Choose enhancement level"
         }
     }
     
@@ -263,8 +263,8 @@ extension EnhancementType {
         processingTime: 30.0,
         qualityImpact: 0.9,
         options: [
-            EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
-            EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical")
+            EnhancementOption(id: "2x", title: "2X", description: "", icon: "arrow.up.right.square", isRecommended: true),
+            EnhancementOption(id: "4x", title: "4X", description: "", icon: "rectangle.expand.vertical")
         ],
         gradientType: .redPink
     )

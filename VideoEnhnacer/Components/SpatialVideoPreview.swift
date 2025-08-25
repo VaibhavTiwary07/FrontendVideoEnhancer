@@ -71,12 +71,12 @@ struct SpatialVideoPreview: View {
                     )
                     .scaleEffect(1.0 + (abs(scrollOffset) * 0.0002))
                     
-                    // Contextual information overlay
-                    ContextualInfoOverlay(
-                        enhancementType: enhancementType,
-                        scrollOffset: scrollOffset
-                    )
-                    .padding(.top, 20)
+//                    // Contextual information overlay
+//                    ContextualInfoOverlay(
+//                        enhancementType: enhancementType,
+//                        scrollOffset: scrollOffset
+//                    )
+//                    .padding(.top, 20)
                 }
                 .padding(.horizontal, 20)
             }
@@ -176,9 +176,9 @@ struct ContextualInfoOverlay: View {
                     .scaleEffect(1.0 + sin(Date().timeIntervalSince1970 * 2) * 0.2)
                     .animation(.easeInOut(duration: 1.0).repeatForever(), value: UUID())
                 
-                Text("Previewing with \(enhancementType)")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color.accentWarm.opacity(0.8))
+//                Text("Previewing with \(enhancementType)")
+//                    .font(.system(size: 14, weight: .medium))
+//                    .foregroundColor(Color.accentWarm.opacity(0.8))
                 
                 Spacer()
             }

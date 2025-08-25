@@ -45,10 +45,10 @@ struct EnhancementSelectionView: View {
         switch enhancementType {
         case "AI Upscale":
             return [
-                EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "plus.magnifyingglass"),
-                EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
-                EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
+                EnhancementOption(id: "2x", title: "2x", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
+                EnhancementOption(id: "3x", title: "3x", description: "Triple the resolution", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4x", title: "4x", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
+                EnhancementOption(id: "1080p", title: "1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
             ]
         case "AI Denoise":
             return [
@@ -111,7 +111,7 @@ struct EnhancementSelectionView: View {
                                 subtitle: dynamicSubtitle
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 20)
+                            .padding(.top, 50)
                             
                             // Enhancement options single row
                             HStack(spacing: 12) {

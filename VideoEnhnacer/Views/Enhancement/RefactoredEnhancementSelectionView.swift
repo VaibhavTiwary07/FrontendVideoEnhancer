@@ -204,17 +204,17 @@ struct EnhancementOptionsView: View {
     private var dynamicSubtitle: String {
         switch enhancementType.id {
         case "ai_upscale":
-            return "Select upscaler level that best fits your video"
+            return "Choose upscaling level"
         case "ai_denoise":
-            return "Select denoise level that best fits your video"
+            return "Choose denoise strength"
         case "ai_auto_enhancement":
-            return "Select auto enhancement level that best fits your video"
+            return "Choose enhancement strength"
         case "stabilizer":
-            return "Select stabilization level that best fits your video"
+            return "Choose stabilization level"
         case "frame_interpolation":
-            return "Select interpolation level that best fits your video"
+            return "Choose interpolation rate"
         default:
-            return "Select the level that best fits your video"
+            return "Choose enhancement level"
         }
     }
     
@@ -326,22 +326,23 @@ struct EnhancementOptionCard: View {
             HapticFeedbackManager.impact(.medium)
             onTap()
         }) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 Image(systemName: option.icon)
-                    .font(.system(size: 18, weight: .medium))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundColor(isSelected ? .white : Color.accentWarm)
                 
                 Text(option.title)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(titleColor)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 
                 if option.isRecommended {
                     Text("RECOMMENDED")
-                        .font(.system(size: 7, weight: .bold))
+                        .font(.system(size: 6, weight: .bold))
                         .foregroundColor(recommendedTextColor)
-                        .padding(.horizontal, 4)
+                        .padding(.horizontal, 3)
                         .padding(.vertical, 1)
                         .background(
                             Capsule()
@@ -349,7 +350,7 @@ struct EnhancementOptionCard: View {
                         )
                 }
             }
-            .frame(width: 70, height: 70)
+            .frame(width: 80, height: 80)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(cardBackground)
