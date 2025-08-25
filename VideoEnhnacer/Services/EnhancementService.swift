@@ -118,10 +118,13 @@ final class EnhancementService: EnhancementServiceProtocol {
                 enhancementType: request.enhancementType,
                 processingTime: 5.0, // Total simulated processing time
                 metadata: EnhancementMetadata(
+                    processingTime: 5.0,
+                    enhancementStrength: 0.8,
+                    qualityScore: 0.9,
+                    fileSize: 1024 * 1024 * 10, // 10MB mock size
                     appliedSettings: createAppliedSettings(from: request),
                     processingStartTime: Date().addingTimeInterval(-5.0),
-                    processingEndTime: Date(),
-                    outputFileSize: 1024 * 1024 * 10 // 10MB mock size
+                    processingEndTime: Date()
                 )
             )
             
@@ -176,7 +179,7 @@ final class EnhancementService: EnhancementServiceProtocol {
             print("🎨 Applying Stabilization with \(request.selectedOption.title)")
             
         default:
-            print("🎨 Applying \(request.enhancementType.title) with \(request.selectedOption.title)")
+            print("🎨 Applying \(request.enhancementType.name) with \(request.selectedOption.title)")
         }
         
         return processedURL
@@ -268,105 +271,126 @@ final class EnhancementTypeRegistry {
     private func createAIUpscaleType() -> EnhancementType {
         EnhancementType(
             id: "ai_upscale",
-            title: "AI Upscale",
-            subtitle: "Enhance image resolution",
+            name: "AI Upscale",
+            description: "Enhance image resolution using AI",
             icon: "arrow.up.square",
-            gradientType: .redPink,
+            category: .enhancement,
+            processingTime: 30.0,
+            qualityImpact: 0.9,
             options: [
                 EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
                 EnhancementOption(id: "3x", title: "3x Enhancement", description: "Triple the resolution", icon: "plus.magnifyingglass"),
                 EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
                 EnhancementOption(id: "1080p", title: "Standard 1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
-            ]
+            ],
+            gradientType: .redPink
         )
     }
     
     private func createFaceEnhancerType() -> EnhancementType {
         EnhancementType(
             id: "face_enhancer",
-            title: "Face & Object Enhancer",
-            subtitle: "Improve facial features",
+            name: "Face & Object Enhancer",
+            description: "Improve facial features and object details",
             icon: "face.smiling",
-            gradientType: .yellowGray,
+            category: .enhancement,
+            processingTime: 25.0,
+            qualityImpact: 0.8,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
                 EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
-            ]
+            ],
+            gradientType: .yellowGray
         )
     }
     
     private func createAIDenoiseType() -> EnhancementType {
         EnhancementType(
             id: "ai_denoise",
-            title: "AI Denoise",
-            subtitle: "Remove grain and noise",
+            name: "AI Denoise",
+            description: "Remove grain and noise using AI",
             icon: "waveform.path",
-            gradientType: .purpleGray,
+            category: .cleanup,
+            processingTime: 20.0,
+            qualityImpact: 0.7,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Gentle noise reduction", icon: "waveform.path"),
                 EnhancementOption(id: "medium", title: "Medium", description: "Balanced reduction", icon: "sparkles", isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Aggressive removal", icon: "slider.horizontal.3")
-            ]
+            ],
+            gradientType: .purpleGray
         )
     }
     
     private func createAIColorType() -> EnhancementType {
         EnhancementType(
             id: "ai_color",
-            title: "AI Color",
-            subtitle: "Color correction",
+            name: "AI Color",
+            description: "Color correction and enhancement",
             icon: "paintpalette.fill",
-            gradientType: .cyanGray,
+            category: .color,
+            processingTime: 15.0,
+            qualityImpact: 0.6,
             options: [
                 EnhancementOption(id: "auto", title: "Auto", description: "Automatic color correction", icon: "wand.and.stars", isRecommended: true),
                 EnhancementOption(id: "vibrant", title: "Vibrant", description: "Enhanced saturation", icon: "sun.max.fill"),
                 EnhancementOption(id: "natural", title: "Natural", description: "Natural color balance", icon: "leaf.fill")
-            ]
+            ],
+            gradientType: .cyanGray
         )
     }
     
     private func createAutoEnhancementType() -> EnhancementType {
         EnhancementType(
             id: "ai_auto_enhancement",
-            title: "AI Auto Enhancement",
-            subtitle: "One-click improvements",
+            name: "AI Auto Enhancement",
+            description: "One-click smart improvements",
             icon: "wand.and.stars",
-            gradientType: .pinkGray,
+            category: .enhancement,
+            processingTime: 30.0,
+            qualityImpact: 0.8,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
                 EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
-            ]
+            ],
+            gradientType: .pinkGray
         )
     }
     
     private func createStabilizerType() -> EnhancementType {
         EnhancementType(
             id: "stabilizer",
-            title: "Stabilizer",
-            subtitle: "Reduce camera shake",
+            name: "Stabilizer",
+            description: "Reduce camera shake",
             icon: "gyroscope",
-            gradientType: .gray,
+            category: .stabilization,
+            processingTime: 35.0,
+            qualityImpact: 0.8,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Gentle stabilization", icon: "level"),
                 EnhancementOption(id: "medium", title: "Medium", description: "Standard stabilization", icon: "gyroscope", isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Aggressive stabilization", icon: "arrow.triangle.2.circlepath")
-            ]
+            ],
+            gradientType: .gray
         )
     }
     
     private func createFrameInterpolationType() -> EnhancementType {
         EnhancementType(
             id: "frame_interpolation",
-            title: "Frame Interpolation",
-            subtitle: "Smooth motion",
+            name: "Frame Interpolation",
+            description: "Smooth motion and increase frame rate",
             icon: "timer.circle.fill",
-            gradientType: .redPink,
+            category: .enhancement,
+            processingTime: 45.0,
+            qualityImpact: 0.9,
             options: [
                 EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "play.rectangle.fill", isRecommended: true),
                 EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "forward.frame.fill")
-            ]
+            ],
+            gradientType: .redPink
         )
     }
 }

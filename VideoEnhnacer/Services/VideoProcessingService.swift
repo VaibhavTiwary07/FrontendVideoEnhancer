@@ -32,7 +32,7 @@ final class VideoProcessingService: VideoProcessingProtocol {
                             continuation.resume(throwing: error)
                         }
                     } else {
-                        continuation.resume(throwing: VideoProcessingError.processingFailed)
+                        continuation.resume(throwing: VideoProcessingError.processingFailed("Failed to load asset property"))
                     }
                 }
             }
@@ -59,7 +59,7 @@ final class VideoProcessingService: VideoProcessingProtocol {
                             continuation.resume(throwing: error)
                         }
                     } else {
-                        continuation.resume(throwing: VideoProcessingError.processingFailed)
+                        continuation.resume(throwing: VideoProcessingError.processingFailed("Failed to load asset property"))
                     }
                 }
             }
@@ -103,7 +103,7 @@ final class VideoProcessingService: VideoProcessingProtocol {
         case "playable":
             return asset.isPlayable
         default:
-            throw VideoProcessingError.processingFailed
+            throw VideoProcessingError.processingFailed("Unsupported property type")
         }
     }
     
@@ -116,7 +116,7 @@ final class VideoProcessingService: VideoProcessingProtocol {
         case "estimatedDataRate":
             return track.estimatedDataRate
         default:
-            throw VideoProcessingError.processingFailed
+            throw VideoProcessingError.processingFailed("Unsupported property type")
         }
     }
     

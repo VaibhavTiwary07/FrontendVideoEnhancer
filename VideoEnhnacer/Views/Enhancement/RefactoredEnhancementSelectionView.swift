@@ -42,7 +42,13 @@ struct RefactoredEnhancementSelectionView: View {
             
             contentView
                 .navigationBarBackButtonHidden()
-                .toolbar { navigationToolbar }
+                .navigationBarItems(
+                    leading: BackButton { dismiss() },
+                    trailing: HStack(spacing: 16) {
+                        StepIndicator(currentStep: 3, totalSteps: 4)
+                        CloseButton { dismiss() }
+                    }
+                )
         }
         .onAppear { handleViewAppearance() }
         .onDisappear { handleViewDisappearance() }
@@ -53,7 +59,7 @@ struct RefactoredEnhancementSelectionView: View {
             progress: viewModel.progress,
             processingState: viewModel.processingState
         )
-        .onChange(of: viewModel.result) { _, result in
+        .onChange(of: viewModel.result) { result in
             if result != nil { showingResults = true }
         }
     }

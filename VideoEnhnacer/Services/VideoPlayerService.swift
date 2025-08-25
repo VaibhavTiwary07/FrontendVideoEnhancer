@@ -216,7 +216,7 @@ final class VideoPlayerService: VideoPlayerProtocol {
                             _ = try await asset.load(.isPlayable)
                         } else {
                             // iOS 15 compatible asset loading
-                            try await withCheckedThrowingContinuation { continuation in
+                            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                                 asset.loadValuesAsynchronously(forKeys: ["playable"]) {
                                     var error: NSError?
                                     let status = asset.statusOfValue(forKey: "playable", error: &error)

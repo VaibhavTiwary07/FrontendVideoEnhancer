@@ -68,7 +68,7 @@ struct ContentView: View {
         .background(Color.appBackground)
         .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0), value: isSidebarExpanded)
         .environmentObject(favoritesManager)
-        .onChange(of: scenePhase) { _, newPhase in
+        .onChange(of: scenePhase) { newPhase in
             switch newPhase {
             case .background:
                 videoPlayerManager.pauseAllPlayers()

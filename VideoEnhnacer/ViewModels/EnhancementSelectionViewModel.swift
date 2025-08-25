@@ -256,14 +256,17 @@ extension EnhancementSelectionViewModel {
 extension EnhancementType {
     static let mockAIUpscale = EnhancementType(
         id: "ai_upscale",
-        title: "AI Upscale",
-        subtitle: "Enhance image resolution",
+        name: "AI Upscale",
+        description: "Enhance image resolution",
         icon: "arrow.up.square",
-        gradientType: .redPink,
+        category: .enhancement,
+        processingTime: 30.0,
+        qualityImpact: 0.9,
         options: [
             EnhancementOption(id: "2x", title: "2x Enhancement", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
             EnhancementOption(id: "4x", title: "4x Enhancement", description: "Quadruple the resolution", icon: "rectangle.expand.vertical")
-        ]
+        ],
+        gradientType: .redPink
     )
 }
 #endif

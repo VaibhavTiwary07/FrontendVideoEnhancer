@@ -22,11 +22,40 @@ protocol EnhancementServiceProtocol: AnyObject {
 // MARK: - Enhancement Type
 struct EnhancementType: Identifiable, Hashable {
     let id: String
-    let title: String
-    let subtitle: String
+    let name: String
+    let description: String
     let icon: String
-    let gradientType: GradientType
+    let category: EnhancementCategory
+    let processingTime: Double
+    let qualityImpact: Double
     let options: [EnhancementOption]
+    
+    // UI-specific properties
+    var title: String { name } // Computed property for backwards compatibility
+    var subtitle: String { description } // Computed property for backwards compatibility
+    let gradientType: GradientType
+    
+    init(
+        id: String,
+        name: String,
+        description: String,
+        icon: String,
+        category: EnhancementCategory = .enhancement,
+        processingTime: Double = 30.0,
+        qualityImpact: Double = 0.8,
+        options: [EnhancementOption] = [],
+        gradientType: GradientType = .redPink
+    ) {
+        self.id = id
+        self.name = name
+        self.description = description
+        self.icon = icon
+        self.category = category
+        self.processingTime = processingTime
+        self.qualityImpact = qualityImpact
+        self.options = options
+        self.gradientType = gradientType
+    }
     
     static func == (lhs: EnhancementType, rhs: EnhancementType) -> Bool {
         return lhs.id == rhs.id
@@ -34,6 +63,25 @@ struct EnhancementType: Identifiable, Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+// MARK: - Enhancement Category
+enum EnhancementCategory: String, CaseIterable, Hashable {
+    case enhancement = "enhancement"
+    case cleanup = "cleanup"
+    case color = "color"
+    case stabilization = "stabilization"
+    case effects = "effects"
+    
+    var displayName: String {
+        switch self {
+        case .enhancement: return "Enhancement"
+        case .cleanup: return "Cleanup"
+        case .color: return "Color"
+        case .stabilization: return "Stabilization"
+        case .effects: return "Effects"
+        }
     }
 }
 
@@ -112,10 +160,31 @@ struct EnhancementResult: Equatable, Hashable {
 
 // MARK: - Enhancement Metadata
 struct EnhancementMetadata: Equatable, Hashable {
+    let processingTime: Double
+    let enhancementStrength: Double
+    let qualityScore: Double
+    let fileSize: Int64
     let appliedSettings: [String: String]
-    let processingStartTime: Date
-    let processingEndTime: Date
-    let outputFileSize: Int64
+    let processingStartTime: Date?
+    let processingEndTime: Date?
+    
+    init(
+        processingTime: Double,
+        enhancementStrength: Double,
+        qualityScore: Double,
+        fileSize: Int64,
+        appliedSettings: [String: String] = [:],
+        processingStartTime: Date? = nil,
+        processingEndTime: Date? = nil
+    ) {
+        self.processingTime = processingTime
+        self.enhancementStrength = enhancementStrength
+        self.qualityScore = qualityScore
+        self.fileSize = fileSize
+        self.appliedSettings = appliedSettings
+        self.processingStartTime = processingStartTime
+        self.processingEndTime = processingEndTime
+    }
 }
 
 // MARK: - Output Quality

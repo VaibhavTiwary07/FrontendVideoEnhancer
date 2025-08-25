@@ -18,7 +18,7 @@ struct PageControlImageCarousel: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(height: 280)
-            .onChange(of: currentPage) { _, newPage in
+            .onChange(of: currentPage) { newPage in
                 startAutoSliding(for: newPage)
             }
             .onAppear {

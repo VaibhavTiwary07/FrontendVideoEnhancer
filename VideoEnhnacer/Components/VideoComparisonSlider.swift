@@ -174,7 +174,7 @@ struct VideoComparisonSlider: View {
             stopAutoSlide()
             stopResumeTimer()
         }
-        .onChange(of: playerState) { _, state in
+        .onChange(of: playerState) { state in
             // Handle state changes if needed for animations
         }
     }

@@ -303,12 +303,23 @@ struct FavoriteVideoCard: View {
         imageGenerator.maximumSize = CGSize(width: 300, height: 168) // 16:9 aspect ratio
         
         return await withCheckedContinuation { continuation in
-            imageGenerator.generateCGImageAsynchronously(for: .zero) { image, actualTime, error in
-                if let image = image {
-                    continuation.resume(returning: UIImage(cgImage: image))
-                } else {
-                    print("Error generating thumbnail: \(error?.localizedDescription ?? "Unknown error")")
-                    continuation.resume(returning: nil)
+            if #available(iOS 16.0, *) {
+                imageGenerator.generateCGImageAsynchronously(for: .zero) { image, actualTime, error in
+                    if let image = image {
+                        continuation.resume(returning: UIImage(cgImage: image))
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
+                }
+            } else {
+                // iOS 15 fallback
+                Task {
+                    do {
+                        let image = try imageGenerator.copyCGImage(at: .zero, actualTime: nil)
+                        continuation.resume(returning: UIImage(cgImage: image))
+                    } catch {
+                        continuation.resume(returning: nil)
+                    }
                 }
             }
         }

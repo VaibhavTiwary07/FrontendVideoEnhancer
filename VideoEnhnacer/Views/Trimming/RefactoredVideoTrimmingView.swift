@@ -40,7 +40,13 @@ struct RefactoredVideoTrimmingView: View {
             }
         }
         .navigationBarBackButtonHidden()
-        .toolbar { navigationToolbar }
+        .navigationBarItems(
+            leading: BackButton { dismiss() },
+            trailing: HStack(spacing: 16) {
+                StepIndicator(currentStep: 2, totalSteps: 4)
+                CloseButton { dismiss() }
+            }
+        )
         .onAppear { handleViewAppearance() }
         .onDisappear { handleViewDisappearance() }
         .fullScreenCover(isPresented: $navigateToEnhancement) {
@@ -407,10 +413,10 @@ struct VideoTrimmingSliderView: View {
             gradientType: enhancementType.gradientType,
             thumbnails: thumbnails
         )
-        .onChange(of: startTime) { _, newValue in
+        .onChange(of: startTime) { newValue in
             print("🎚️ RefactoredVideoTrimmingView - Start time changed to: \(newValue)")
         }
-        .onChange(of: endTime) { _, newValue in
+        .onChange(of: endTime) { newValue in
             print("🎚️ RefactoredVideoTrimmingView - End time changed to: \(newValue)")
         }
     }

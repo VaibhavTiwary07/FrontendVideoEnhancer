@@ -257,10 +257,13 @@ final class MockEnhancementService: EnhancementServiceProtocol {
             enhancementType: request.enhancementType,
             processingTime: 2.0,
             metadata: EnhancementMetadata(
+                processingTime: 2.0,
+                enhancementStrength: 0.8,
+                qualityScore: 0.9,
+                fileSize: 1024,
                 appliedSettings: [:],
                 processingStartTime: Date(),
-                processingEndTime: Date(),
-                outputFileSize: 1024
+                processingEndTime: Date()
             )
         )
         

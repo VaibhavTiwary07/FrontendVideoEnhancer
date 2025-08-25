@@ -14,14 +14,23 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     // Universal Navigation State - works for both iOS versions
     @Published var navigationStack: [AnyHashable] = []
     
-    // iOS 16+ Navigation Path (computed property to avoid @available on stored property)
-    @available(iOS 16.0, *)
-    private var _navigationPath = NavigationPath()
+    // iOS 16+ Navigation Path management - using dynamic approach
+    private var _internalNavigationPath: Any?
     
     @available(iOS 16.0, *)
     var navigationPath: NavigationPath {
-        get { _navigationPath }
-        set { _navigationPath = newValue }
+        get {
+            if let path = _internalNavigationPath as? NavigationPath {
+                return path
+            } else {
+                let newPath = NavigationPath()
+                _internalNavigationPath = newPath
+                return newPath
+            }
+        }
+        set {
+            _internalNavigationPath = newValue
+        }
     }
     
     @Published var presentedModal: NavigationModal?
@@ -84,8 +93,10 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         if !navigationStack.isEmpty {
             navigationStack.removeLast()
             if #available(iOS 16.0, *) {
-                if !_navigationPath.isEmpty {
-                    _navigationPath.removeLast()
+                var path = navigationPath
+                if !path.isEmpty {
+                    path.removeLast()
+                    _internalNavigationPath = path
                 }
             }
         } else {
@@ -98,7 +109,7 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         
         navigationStack = []
         if #available(iOS 16.0, *) {
-            _navigationPath = NavigationPath()
+            _internalNavigationPath = NavigationPath()
         }
         
         currentTab = 0
@@ -113,7 +124,7 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     func resetToRoot() {
         navigationStack = []
         if #available(iOS 16.0, *) {
-            _navigationPath = NavigationPath()
+            _internalNavigationPath = NavigationPath()
         }
         
         presentedModal = nil
@@ -225,37 +236,49 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
             let dest = VideoPickerDestination(enhancementType: type)
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         case .videoTrimming(let data):
             let dest = VideoTrimmingDestination(data: data)
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         case .enhancementSelection(let data):
             let dest = EnhancementSelectionDestination(data: data)
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         case .videoResults(let result):
             let dest = VideoResultsDestination(result: result)
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         case .settings:
             let dest = SettingsDestination()
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         case .favorites:
             let dest = FavoritesDestination()
             navigationStack.append(dest)
             if #available(iOS 16.0, *) {
-                _navigationPath.append(dest)
+                var path = navigationPath
+                path.append(dest)
+                _internalNavigationPath = path
             }
         }
         
@@ -311,68 +334,6 @@ struct VideoResultsDestination: Hashable {
 struct SettingsDestination: Hashable {}
 struct FavoritesDestination: Hashable {}
 
-// MARK: - Deep Link Handler
-final class DeepLinkHandler: DeepLinkHandling {
-    func canHandle(url: URL) -> Bool {
-        guard url.scheme == "videoenhancer" else { return false }
-        
-        let supportedHosts = ["enhancement", "video", "results"]
-        return supportedHosts.contains(url.host ?? "")
-    }
-    
-    func handle(url: URL, coordinator: AppCoordinator) -> Bool {
-        guard canHandle(url: url) else { return false }
-        
-        switch url.host ?? "" {
-        case "enhancement":
-            return handleEnhancementDeepLink(url: url, coordinator: coordinator)
-        case "video":
-            return handleVideoDeepLink(url: url, coordinator: coordinator)
-        case "results":
-            return handleResultsDeepLink(url: url, coordinator: coordinator)
-        default:
-            return false
-        }
-    }
-    
-    func handle(url: URL) -> NavigationDestination? {
-        // This method is for protocol conformance but not used in this implementation
-        return nil
-    }
-    
-    private func handleEnhancementDeepLink(url: URL, coordinator: AppCoordinator) -> Bool {
-        let pathComponents = url.pathComponents.filter { $0 != "/" }
-        
-        guard let enhancementId = pathComponents.first else { return false }
-        
-        // Get enhancement type from registry
-        if let enhancementType = EnhancementTypeRegistry.shared.getEnhancementType(withId: enhancementId) {
-            Task { @MainActor in
-                coordinator.startEnhancementFlow(with: enhancementType)
-            }
-            return true
-        }
-        
-        return false
-    }
-    
-    private func handleVideoDeepLink(url: URL, coordinator: AppCoordinator) -> Bool {
-        // Handle video-related deep links
-        Task { @MainActor in
-            coordinator.startVideoPickerFlow()
-        }
-        return true
-    }
-    
-    private func handleResultsDeepLink(url: URL, coordinator: AppCoordinator) -> Bool {
-        // Handle results deep links
-        Task { @MainActor in
-            coordinator.goToHome()
-            coordinator.switchTab(to: 1) // My Creations tab
-        }
-        return true
-    }
-}
 
 // MARK: - Preview Support
 #if DEBUG

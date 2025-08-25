@@ -84,7 +84,7 @@ class VideoPlayerManager: ObservableObject {
                                 } else {
                                     // iOS 15 compatible asset loading
                                     let keys = ["playable"]
-                                    try await withCheckedThrowingContinuation { continuation in
+                                    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                                         asset.loadValuesAsynchronously(forKeys: keys) {
                                             var error: NSError?
                                             let status = asset.statusOfValue(forKey: "playable", error: &error)

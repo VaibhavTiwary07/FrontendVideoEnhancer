@@ -193,82 +193,77 @@ struct EnhancementSelectionView: View {
             }
         }
         .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    dismiss()
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 17, weight: .medium))
-                    }
-                    .foregroundColor(.accentWarm)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.accentWarm.opacity(0.1))
-                    )
+        .navigationBarItems(
+            leading: Button(action: {
+                let impact = UIImpactFeedbackGenerator(style: .light)
+                impact.impactOccurred()
+                dismiss()
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .medium))
+                    Text("Back")
+                        .font(.system(size: 17, weight: .medium))
                 }
-            }
-            
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
-                    // Enhanced step indicator
-                    VStack(spacing: 4) {
-                        // Progress dots with connecting lines
-                        HStack(spacing: 8) {
-                            ForEach(1...4, id: \.self) { step in
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(step <= 3 ? Color.accentWarm : Color.accentWarm.opacity(0.3))
-                                        .frame(width: step == 3 ? 10 : 8, height: step == 3 ? 10 : 8)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.accentWarm, lineWidth: step == 3 ? 2 : 1)
-                                                .opacity(step == 3 ? 1 : 0.5)
-                                        )
-                                    
-                                    // Connecting line (except for last step)
-                                    if step < 4 {
-                                        Rectangle()
-                                            .fill(step < 3 ? Color.accentWarm : Color.accentWarm.opacity(0.3))
-                                            .frame(width: 12, height: 2)
-                                            .cornerRadius(1)
-                                    }
+                .foregroundColor(.accentWarm)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.accentWarm.opacity(0.1))
+                )
+            },
+            trailing: HStack(spacing: 16) {
+                // Enhanced step indicator
+                VStack(spacing: 4) {
+                    // Progress dots with connecting lines
+                    HStack(spacing: 8) {
+                        ForEach(1...4, id: \.self) { step in
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(step <= 3 ? Color.accentWarm : Color.accentWarm.opacity(0.3))
+                                    .frame(width: step == 3 ? 10 : 8, height: step == 3 ? 10 : 8)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.accentWarm, lineWidth: step == 3 ? 2 : 1)
+                                            .opacity(step == 3 ? 1 : 0.5)
+                                    )
+                                
+                                // Connecting line (except for last step)
+                                if step < 4 {
+                                    Rectangle()
+                                        .fill(step < 3 ? Color.accentWarm : Color.accentWarm.opacity(0.3))
+                                        .frame(width: 12, height: 2)
+                                        .cornerRadius(1)
                                 }
                             }
                         }
-                        
-                        Text("Step 3 of 4")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.accentWarm)
                     }
                     
-                    // Close button
-                    Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.accentWarm)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color.accentWarm.opacity(0.15))
-                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                            )
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    Text("Step 3 of 4")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.accentWarm)
                 }
+                
+                // Close button
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.accentWarm)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.accentWarm.opacity(0.15))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-        }
+        )
         .onAppear {
             // Debug: Log received trim values
             print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
@@ -296,7 +291,7 @@ struct EnhancementSelectionView: View {
         } message: {
             Text(processingError ?? "Unknown error occurred")
         }
-        .onChange(of: showingResults) { _, newValue in
+        .onChange(of: showingResults) { newValue in
             if !newValue {
                 isProcessing = false
                 processingProgress = 0.0
