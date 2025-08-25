@@ -59,12 +59,7 @@ struct FavoritesView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back") {
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
-                        dismiss()
-                    }
-                    .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
+                    BackButton { dismiss() }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {

@@ -248,83 +248,59 @@ struct VideoTrimmingView: View {
                     }
                 }
         )
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    // Add haptic feedback
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    dismiss()
-                }) {
+        .navigationBarItems(
+            leading: BackButton { dismiss() },
+            trailing: HStack(spacing: 16) {
+                // Enhanced step indicator
+                VStack(spacing: 4) {
+                    // Progress dots with connecting lines
                     HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 17, weight: .medium))
-                    }
-                    .foregroundColor(.accentWarm)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.accentWarm.opacity(0.1))
-                    )
-                }
-            }
-            
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
-                    // Enhanced step indicator
-                    VStack(spacing: 4) {
-                        // Progress dots with connecting lines
-                        HStack(spacing: 8) {
-                            ForEach(1...3, id: \.self) { step in
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
-                                        .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.accentWarm, lineWidth: step == 2 ? 2 : 1)
-                                                .opacity(step == 2 ? 1 : 0.5)
-                                        )
-                                    
-                                    // Connecting line (except for last step)
-                                    if step < 3 {
-                                        Rectangle()
-                                            .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
-                                            .frame(width: 12, height: 2)
-                                            .cornerRadius(1)
-                                    }
+                        ForEach(1...3, id: \.self) { step in
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.accentWarm, lineWidth: step == 2 ? 2 : 1)
+                                            .opacity(step == 2 ? 1 : 0.5)
+                                    )
+                                
+                                // Connecting line (except for last step)
+                                if step < 3 {
+                                    Rectangle()
+                                        .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: 12, height: 2)
+                                        .cornerRadius(1)
                                 }
                             }
                         }
-                        
-                        Text("Step 2 of 3")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.accentWarm)
                     }
                     
-                    // Close button
-                    Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.accentWarm)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color.accentWarm.opacity(0.15))
-                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                            )
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    Text("Step 2 of 3")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.accentWarm)
                 }
+                
+                // Close button
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.accentWarm)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.accentWarm.opacity(0.15))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-        }
+        )
         .onAppear {
             setupVideo()
         }
@@ -333,11 +309,9 @@ struct VideoTrimmingView: View {
         }
         .fullScreenCover(isPresented: $navigateToEnhancement) {
             NavigationView {
-                EnhancementSelectionView(
+                RefactoredEnhancementSelectionView(
                     videoURL: videoURL,
-                    enhancementType: enhancementType,
-                    enhancementIcon: enhancementIcon,
-                    gradientType: gradientType,
+                    enhancementType: getEnhancementType(from: enhancementType),
                     trimStartTime: trimStartTime,
                     trimEndTime: trimEndTime
                 )
@@ -447,6 +421,28 @@ struct VideoTrimmingView: View {
             let minutes = Int(seconds) / 60
             let remainingSeconds = Int(seconds) % 60
             return String(format: "%d:%02d", minutes, remainingSeconds)
+        }
+    }
+    
+    // Helper function to convert String enhancementType to EnhancementType struct
+    private func getEnhancementType(from stringType: String) -> EnhancementType {
+        let registry = EnhancementTypeRegistry.shared
+        let supportedTypes = registry.getAllEnhancementTypes()
+        
+        // Map string names to enhancement IDs
+        switch stringType {
+        case "AI Upscale":
+            return supportedTypes.first { $0.id == "ai_upscale" } ?? supportedTypes[0]
+        case "AI Denoise":
+            return supportedTypes.first { $0.id == "ai_denoise" } ?? supportedTypes[0]
+        case "AI Auto Enhancement":
+            return supportedTypes.first { $0.id == "ai_auto_enhancement" } ?? supportedTypes[0]
+        case "Stabilizer":
+            return supportedTypes.first { $0.id == "stabilizer" } ?? supportedTypes[0]
+        case "Frame Interpolation":
+            return supportedTypes.first { $0.id == "frame_interpolation" } ?? supportedTypes[0]
+        default:
+            return supportedTypes[0]
         }
     }
 }

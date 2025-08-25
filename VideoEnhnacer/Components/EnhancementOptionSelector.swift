@@ -68,9 +68,10 @@ struct EnhancementOptionSelector: View {
                 // Options Grid
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
                     ForEach(options, id: \.id) { option in
-                        OptionCard(
+                        EnhancementOptionCard(
                             option: option,
                             isSelected: selectedOption == option.id,
+                            isAnalyzing: false,
                             onTap: {
                                 let impact = UIImpactFeedbackGenerator(style: .light)
                                 impact.impactOccurred()
@@ -128,77 +129,9 @@ struct EnhancementOptionSelector: View {
     }
 }
 
-//struct OptionCard: View {
-//    let option: EnhancementOption
-//    let isSelected: Bool
-//    let onTap: () -> Void
-//
-//    var body: some View {
-//        Button(action: onTap) {
-//            HStack(spacing: 16) {
-//                // Icon
-//                ZStack {
-//                    Circle()
-//                        .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
-//                        .frame(width: 50, height: 50)
-//                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-//
-//                    Image(systemName: option.icon)
-//                        .font(.system(size: 20, weight: .medium))
-//                        .foregroundColor(.white)
-//                }
-//
-//                // Content
-//                VStack(alignment: .leading, spacing: 6) {
-//                    HStack {
-//                        Text(option.title)
-//                            .font(.system(size: 18, weight: .bold))
-//                            .foregroundColor(.white)
-//
-//                        if option.isRecommended {
-//                            Text("RECOMMENDED")
-//                                .font(.system(size: 10, weight: .bold))
-//                                .foregroundColor(.white)
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 4)
-//                                .background(
-//                                    Capsule()
-//                                        .fill(LinearGradient.primaryTheme)
-//                                )
-//                        }
-//
-//                        Spacer()
-//                    }
-//
-//                    Text(option.description)
-//                        .font(.system(size: 14, weight: .medium))
-//                        .foregroundColor(.white.opacity(0.8))
-//                        .multilineTextAlignment(.leading)
-//                }
-//
-//                Spacer()
-//
-//                // Selection indicator
-//                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-//                    .font(.system(size: 20, weight: .medium))
-//                    .foregroundColor(isSelected ? .white : .white.opacity(0.4))
-//            }
-//            .padding(20)
-//            .background(
-//                RoundedRectangle(cornerRadius: 16)
-//                    .fill(Color.white.opacity(isSelected ? 0.15 : 0.08))
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 16)
-//                            .stroke(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing), lineWidth: isSelected ? 2 : 1)
-//                    )
-//            )
-//            .shadow(color: .black.opacity(isSelected ? 0.3 : 0.1), radius: isSelected ? 8 : 4, x: 0, y: isSelected ? 4 : 2)
-//            .scaleEffect(isSelected ? 1.02 : 1.0)
-//            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
-//        }
-//        .buttonStyle(PlainButtonStyle())
-//    }
-//}
+// MARK: - Duplicate OptionCard component was removed
+// Using shared EnhancementOptionCard from Components/Shared/ instead
+
 
 // EnhancementOption is now defined in EnhancementServiceProtocol.swift to avoid conflicts
 

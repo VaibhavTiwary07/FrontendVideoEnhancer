@@ -90,13 +90,13 @@ class VideoPreviewManager: ObservableObject {
     
     func cleanup() {
         player?.pause()
-        player = nil
         
         if let timeObserver = timeObserver {
             player?.removeTimeObserver(timeObserver)
             self.timeObserver = nil
         }
         
+        player = nil
         NotificationCenter.default.removeObserver(self)
     }
     
