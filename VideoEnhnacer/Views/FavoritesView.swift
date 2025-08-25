@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import AVKit
 
 struct FavoritesView: View {
     @EnvironmentObject private var favoritesManager: FavoritesManager
@@ -336,7 +337,7 @@ struct VideoPlayerFullScreenView: View {
             Color.black.ignoresSafeArea()
             
             if let player = playerManager.player {
-                VideoPlayerView(player: player)
+                VideoPlayer(player: player)
                     .onAppear {
                         player.play()
                     }
@@ -386,6 +387,8 @@ struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
+
+// MARK: - Local AVPlayer wrapper to avoid naming conflicts
 
 #Preview {
     NavigationStack {

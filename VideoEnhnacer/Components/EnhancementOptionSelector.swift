@@ -200,21 +200,7 @@ struct EnhancementOptionSelector: View {
 //    }
 //}
 
-struct EnhancementOption {
-    let id: String
-    let title: String
-    let description: String
-    let icon: String
-    let isRecommended: Bool
-    
-    init(id: String, title: String, description: String, icon: String, isRecommended: Bool = false) {
-        self.id = id
-        self.title = title
-        self.description = description
-        self.icon = icon
-        self.isRecommended = isRecommended
-    }
-}
+// EnhancementOption is now defined in EnhancementServiceProtocol.swift to avoid conflicts
 
 #Preview {
     ZStack {

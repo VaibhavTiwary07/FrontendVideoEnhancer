@@ -50,12 +50,12 @@ struct HomeView: View {
                                         icon: "arrow.up.square",
                                         title: "AI Upscale",
                                         subtitle: "Enhance image resolution",
-                                        gradientType: .redPink
+                                        gradientType: .cyanGray
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Upscale",
                                             icon: "arrow.up.square",
-                                            gradientType: .redPink
+                                            gradientType: .cyanGray
                                         )
                                     }
                                     

@@ -37,7 +37,7 @@ struct VideoComparisonSlider: View {
                         Group {
                             if playerState == .ready,
                                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
-                                VideoPlayerView(player: enhancedPlayer)
+                                AVPlayerUIView(player: enhancedPlayer)
                                     .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             } else {
@@ -49,7 +49,7 @@ struct VideoComparisonSlider: View {
                         Group {
                             if playerState == .ready,
                                let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
-                                VideoPlayerView(player: normalPlayer)
+                                AVPlayerUIView(player: normalPlayer)
                                     .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .mask(
@@ -248,7 +248,7 @@ struct VideoComparisonSlider: View {
     }
 }
 
-struct VideoPlayerView: UIViewRepresentable {
+struct AVPlayerUIView: UIViewRepresentable {
     let player: AVPlayer
     
     func makeUIView(context: Context) -> UIView {
