@@ -6,6 +6,12 @@ struct HomeView: View {
     @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var isHomeViewActive = false
     @State private var selectedEnhancement: Enhancement?
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    private var isCompactDevice: Bool {
+        verticalSizeClass == .compact || horizontalSizeClass == .compact
+    }
 
     struct Enhancement: Identifiable {
         let id = UUID()
@@ -15,37 +21,34 @@ struct HomeView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.appBackground
-                .ignoresSafeArea()
-            
-            ScrollView {
-                ZStack(alignment: .top) {
-                    VStack(spacing: 0) {
-                        // Top Carousel Section (Full Width)
-                        PageControlImageCarousel()
+        GeometryReader { geometry in
+            ZStack {
+                Color.appBackground
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    ZStack(alignment: .top) {
+                        VStack(spacing: 0) {
+                            // Top Carousel Section (Full Width)
+                            PageControlImageCarousel()
+                        }
                         
-                        // Spacing for overlap
-//                        Spacer()
-//                            .frame(height: 50)
-                    }
-                    
-                    // Enhancement Cards Section (Overlapping)
-                    VStack(spacing: 0) {
-                        // Push enhancement section down to overlap carousel
-                        Spacer()
-                            .frame(height: 250)
-                        
-                        VStack(spacing: 16) {
+                        // Enhancement Cards Section (Overlapping)
+                        VStack(spacing: 0) {
+                            // Push enhancement section down to overlap carousel - dynamic height
+                            Spacer()
+                                .frame(height: dynamicCarouselOverlapHeight(screenHeight: geometry.size.height))
+                            
+                            VStack(spacing: 16) {
                             VStack(spacing: 16) {
                                 Text("Enhancement Options")
                                     .font(.system(size: 20, weight: .semibold))
                                     .foregroundColor(.primaryText)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 20)
-                                    .padding(.top, 20)
+                                    .padding(.horizontal, dynamicHorizontalPadding(screenWidth: geometry.size.width))
+                                    .padding(.top, dynamicTopPadding())
                                 
-                                VStack(spacing: 16) {
+                                VStack(spacing: dynamicCardSpacing(screenHeight: geometry.size.height)) {
                                     ImageComparisonCard(
                                         icon: "arrow.up.square",
                                         title: "AI Upscale",
@@ -137,7 +140,8 @@ struct HomeView: View {
                                         )
                                     }
                                 }
-                                .padding(.bottom, 100)
+                                .padding(.bottom, dynamicBottomPadding(screenHeight: geometry.size.height))
+                            }
                             }
                         }
                         .background(
@@ -177,6 +181,56 @@ struct HomeView: View {
         }
         .onDisappear {
             isHomeViewActive = false
+        }
+    }
+    
+    // MARK: - Dynamic Layout Helper Functions
+    
+    private func dynamicCarouselOverlapHeight(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 {
+            return 200 // Smaller overlap for compact devices
+        } else if screenHeight < 800 {
+            return 220 // Medium overlap for standard phones
+        } else {
+            return 250 // Original overlap for larger screens
+        }
+    }
+    
+    private func dynamicHorizontalPadding(screenWidth: CGFloat) -> CGFloat {
+        if screenWidth < 380 {
+            return 16 // Smaller padding for very small screens
+        } else {
+            return 20 // Standard padding
+        }
+    }
+    
+    private func dynamicTopPadding() -> CGFloat {
+        return isCompactDevice ? 12 : 20
+    }
+    
+    private func dynamicCardSpacing(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 {
+            return 10 // Tighter spacing for compact devices
+        } else {
+            return 16 // Standard spacing
+        }
+    }
+    
+    private func dynamicBottomPadding(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 {
+            return 60 // Less bottom padding for small screens
+        } else if screenHeight < 800 {
+            return 80 // Medium padding
+        } else {
+            return 100 // Original padding for larger screens
+        }
+    }
+    
+    private func getIOSCompatibleSymbol(_ preferredSymbol: String, fallback: String) -> String {
+        if #available(iOS 16.0, *) {
+            return preferredSymbol
+        } else {
+            return fallback
         }
     }
 }
