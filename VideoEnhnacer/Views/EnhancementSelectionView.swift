@@ -10,6 +10,7 @@ struct EnhancementSelectionView: View {
     let trimEndTime: Double?
     
     @StateObject private var selectionState = EnhancementSelectionState()
+    @StateObject private var interpolationService = FrameInterpolationService()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var scrollOffset: CGFloat = 0
@@ -200,26 +201,41 @@ struct EnhancementSelectionView: View {
                         
                         // Progress circle with gradient
                         Circle()
-                            .trim(from: 0, to: processingProgress)
+                            .trim(from: 0, to: getCurrentProgress())
                             .stroke(
                                 LinearGradient.primaryTheme,
                                 style: StrokeStyle(lineWidth: 8, lineCap: .round)
                             )
                             .frame(width: 120, height: 120)
                             .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.3), value: processingProgress)
+                            .animation(.easeInOut(duration: 0.3), value: getCurrentProgress())
                         
                         // Percentage text inside circle
-                        Text("\(Int(processingProgress * 100))%")
+                        Text("\(Int(getCurrentProgress() * 100))%")
                             .font(.system(size: 24, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                     }
                     .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
                     
-                    Text("Processing Video...")
+                    Text(getCurrentStatus())
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .opacity(0.9)
+                    
+                    // Add cancel button for frame interpolation
+                    if enhancementType == "Frame Interpolation" && interpolationService.isPolling {
+                        Button("Cancel") {
+                            cancelProcessing()
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.red.opacity(0.7))
+                        )
+                    }
                 }
             }
         }
@@ -318,7 +334,12 @@ struct EnhancementSelectionView: View {
             }
         }
         .alert("Processing Error", isPresented: $showingError) {
-            Button("OK") { }
+            Button("Retry") { 
+                retryProcessing()
+            }
+            Button("Cancel", role: .cancel) { 
+                processingError = nil
+            }
         } message: {
             Text(processingError ?? "Unknown error occurred")
         }
@@ -328,6 +349,60 @@ struct EnhancementSelectionView: View {
                 processingProgress = 0.0
             }
         }
+        .onChange(of: interpolationService.processedVideoURL) { newURL in
+            if let newURL = newURL {
+                processedVideoURL = newURL
+                isProcessing = false
+                showingResults = true
+            }
+        }
+        .onChange(of: interpolationService.errorMessage) { newError in
+            if !newError.isEmpty {
+                processingError = newError
+                showingError = true
+                isProcessing = false
+            }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func getCurrentProgress() -> Double {
+        if enhancementType == "Frame Interpolation" {
+            return interpolationService.progress
+        } else {
+            return processingProgress
+        }
+    }
+    
+    private func getCurrentStatus() -> String {
+        if enhancementType == "Frame Interpolation" {
+            return interpolationService.status.isEmpty ? "Processing Video..." : interpolationService.status
+        } else {
+            return "Processing Video..."
+        }
+    }
+    
+    private func cancelProcessing() {
+        if enhancementType == "Frame Interpolation" {
+            interpolationService.cancelProcessing()
+        }
+        isProcessing = false
+        processingProgress = 0.0
+    }
+    
+    private func retryProcessing() {
+        // Clear previous error
+        processingError = nil
+        showingError = false
+        
+        // Reset interpolation service if needed
+        if enhancementType == "Frame Interpolation" {
+            interpolationService.resetState()
+        }
+        
+        // Start processing again
+        processVideo()
     }
     
     private func processVideo() {
@@ -335,27 +410,34 @@ struct EnhancementSelectionView: View {
         let impact = UIImpactFeedbackGenerator(style: .heavy)
         impact.impactOccurred()
         
-        // Debug: Log trimming data (keeping for verification)
+        // Debug: Log processing data
         print("🎭 EnhancementSelectionView - Processing with:")
         print("   trimStartTime: \(trimStartTime ?? -1)")
         print("   trimEndTime: \(trimEndTime ?? -1)")
+        print("   enhancementType: \(enhancementType)")
         print("   enhancementOption: \(selectionState.selectedOption)")
         
         isProcessing = true
         processingProgress = 0.0
         
-        // Simple mock processing with progress updates
-        let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            processingProgress += 0.02
-            
-            if processingProgress >= 1.0 {
-                timer.invalidate()
+        // Check if this is frame interpolation
+        if enhancementType == "Frame Interpolation" {
+            // Use real server processing for frame interpolation
+            interpolationService.uploadVideo(videoURL: videoURL, level: selectionState.selectedOption)
+        } else {
+            // Keep existing mock processing for other enhancement types
+            let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+                processingProgress += 0.02
                 
-                // Simulate processing completion
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    processedVideoURL = videoURL // Mock result - return original video
-                    isProcessing = false
-                    showingResults = true
+                if processingProgress >= 1.0 {
+                    timer.invalidate()
+                    
+                    // Simulate processing completion
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        processedVideoURL = videoURL // Mock result - return original video
+                        isProcessing = false
+                        showingResults = true
+                    }
                 }
             }
         }
