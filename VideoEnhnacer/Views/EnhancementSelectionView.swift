@@ -202,8 +202,8 @@ struct EnhancementSelectionView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .medium))
-                    Text("Back")
-                        .font(.system(size: 17, weight: .medium))
+//                    Text("Back")
+//                        .font(.system(size: 17, weight: .medium))
                 }
                 .foregroundColor(.accentWarm)
                 .padding(.horizontal, 8)

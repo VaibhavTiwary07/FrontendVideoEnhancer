@@ -38,7 +38,7 @@ struct VideoResultsView: View {
             HStack {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
-                    Text("Back")
+//                    Text("Back")
                 }
                 .foregroundColor(.white)
                 Spacer()
@@ -136,8 +136,8 @@ struct VideoResultsView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 16, weight: .medium))
+//                        Text("Back")
+//                            .font(.system(size: 16, weight: .medium))
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)

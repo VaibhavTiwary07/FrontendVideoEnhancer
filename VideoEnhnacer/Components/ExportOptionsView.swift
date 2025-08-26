@@ -162,7 +162,7 @@ struct ExportOptionsView: View {
                             )
                     }
                     
-                    Spacer()
+//                    Spacer()
                 }
                 .padding(24)
                 .frame(width: 280)
