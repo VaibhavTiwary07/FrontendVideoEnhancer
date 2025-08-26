@@ -5,7 +5,7 @@ import Combine
 
 // MARK: - Video Trimming Player Manager (Native iOS Approach)
 /// Simple, native iOS ObservableObject for video trimming following Apple's patterns
-final class VideoTrimmingPlayerManager: ObservableObject {
+class VideoTrimmingPlayerManager: ObservableObject {
     
     // MARK: - Published Properties
     @Published var player: AVPlayer?
@@ -20,6 +20,7 @@ final class VideoTrimmingPlayerManager: ObservableObject {
     private var endTime: Double?
     private var statusObserver: AnyCancellable?
     private let videoURL: URL
+    var onPositionChange: ((CMTime) -> Void)?
     
     // MARK: - Computed Properties
     var isReadyToPlay: Bool {
@@ -82,11 +83,15 @@ final class VideoTrimmingPlayerManager: ObservableObject {
     func setTrimRange(start: Double, end: Double) {
         startTime = start
         endTime = end
-        
+
         // Seek to start position
         seek(to: start)
-        
+
         print("✂️ VideoTrimmingPlayerManager - Trim range set: \(start) to \(end)")
+    }
+
+    func setTrimRange(start: CMTime, end: CMTime) {
+        setTrimRange(start: start.seconds, end: end.seconds)
     }
     
     func cleanup() {
@@ -151,9 +156,10 @@ final class VideoTrimmingPlayerManager: ObservableObject {
         let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
         timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             guard let self = self else { return }
-            
+
             self.currentTime = time.seconds
-            
+            self.onPositionChange?(time)
+
             // Handle trim end time
             if let endTime = self.endTime, time.seconds >= endTime {
                 self.seek(to: self.startTime)

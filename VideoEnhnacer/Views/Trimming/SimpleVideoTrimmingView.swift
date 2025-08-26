@@ -9,6 +9,9 @@ struct SimpleVideoTrimmingView: View {
     // MARK: - Properties
     let videoURL: URL
     let enhancementType: EnhancementType
+
+    @StateObject private var playerManager: VideoTrimmingPlayerManager
+    private let videoProcessingService = VideoProcessingService()
     
     @Environment(\.dismiss) private var dismiss
     @State private var navigateToEnhancement = false
@@ -27,6 +30,13 @@ struct SimpleVideoTrimmingView: View {
     
     // Note: Direct player control will be handled through proper SwiftUI patterns
     
+    // MARK: - Initialization
+    init(videoURL: URL, enhancementType: EnhancementType) {
+        self.videoURL = videoURL
+        self.enhancementType = enhancementType
+        self._playerManager = StateObject(wrappedValue: VideoTrimmingPlayerManager(videoURL: videoURL))
+    }
+
     // MARK: - Time Presets
     enum TimePreset: CaseIterable {
         case thirtySeconds, fiveMinutes
@@ -100,7 +110,7 @@ struct SimpleVideoTrimmingView: View {
             // Video Preview Section
             VStack(spacing: 16) {
                 ZStack {
-                    SimpleVideoPlayerView(videoURL: videoURL)
+                    SimpleVideoPlayerView(videoURL: videoURL, playerManager: playerManager)
                         .frame(height: DynamicScaling.videoHeight(for: DynamicScaling.currentDeviceSize()))
                         .cornerRadius(20)
                         .overlay(
@@ -247,7 +257,19 @@ struct SimpleVideoTrimmingView: View {
     private var videoTrimmingSlider: some View {
         Group {
             if let asset = videoAsset {
-                PryntTrimmerRepresentable(
+                if isLoadingThumbnails {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.accentWarm.opacity(0.2))
+                        .overlay(
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                Text("Generating Thumbnails...")
+                                    .dynamicFont(14, weight: .medium)
+                                    .foregroundColor(.accentWarm)
+                            }
+                        )
+                } else {
+                    PryntTrimmerRepresentable(
                     startTime: $startTimeCMTime,
                     endTime: $endTimeCMTime,
                     currentTime: $currentTimeCMTime,
@@ -256,6 +278,8 @@ struct SimpleVideoTrimmingView: View {
                     mainColor: UIColor(red: 1.0, green: 0.596, blue: 0.329, alpha: 1.0), // Orange theme
                     positionBarColor: .white,
                     backgroundColor: UIColor.black.withAlphaComponent(0.3),
+                    thumbnails: thumbnails,
+                    playerManager: playerManager,
                     onPositionChanged: { time in
                         // Handle position scrubbing
                         HapticFeedbackManager.impact(.light)
@@ -295,6 +319,7 @@ struct SimpleVideoTrimmingView: View {
                         )
                 )
                 .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+                }
             } else {
                 // Fallback loading state
                 RoundedRectangle(cornerRadius: 12)
@@ -339,21 +364,22 @@ struct SimpleVideoTrimmingView: View {
         Task {
             do {
                 let asset = AVAsset(url: videoURL)
-                
+
                 // Set the asset for PryntTrimmerView
                 await MainActor.run {
                     self.videoAsset = asset
                 }
-                
+
                 if #available(iOS 16.0, *) {
                     let duration = try await asset.load(.duration)
                     await MainActor.run {
                         self.videoDuration = duration.seconds
                         self.trimEndTime = min(selectedDuration.duration, duration.seconds)
-                        
+
                         // Initialize CMTime values
                         self.startTimeCMTime = .zero
                         self.endTimeCMTime = CMTime(seconds: min(selectedDuration.duration, duration.seconds), preferredTimescale: 600)
+                        self.playerManager.setTrimRange(start: self.startTimeCMTime, end: self.endTimeCMTime)
                     }
                 } else {
                     // iOS 15 compatible
@@ -373,15 +399,39 @@ struct SimpleVideoTrimmingView: View {
                     await MainActor.run {
                         self.videoDuration = duration.seconds
                         self.trimEndTime = min(selectedDuration.duration, duration.seconds)
-                        
+
                         // Initialize CMTime values
                         self.startTimeCMTime = .zero
                         self.endTimeCMTime = CMTime(seconds: min(selectedDuration.duration, duration.seconds), preferredTimescale: 600)
+                        self.playerManager.setTrimRange(start: self.startTimeCMTime, end: self.endTimeCMTime)
                     }
                 }
+
+                // Observe player time updates to sync position bar
+                playerManager.onPositionChange = { time in
+                    self.currentTimeCMTime = time
+                }
+
+                // Generate thumbnails
+                await generateThumbnails()
+
             } catch {
                 print("❌ Failed to load video duration: \(error)")
             }
+        }
+    }
+
+    private func generateThumbnails() async {
+        isLoadingThumbnails = true
+        do {
+            let thumbs = try await videoProcessingService.generateThumbnails(for: videoURL, count: 10, quality: .medium)
+            await MainActor.run {
+                self.thumbnails = thumbs
+                self.isLoadingThumbnails = false
+            }
+        } catch {
+            await MainActor.run { self.isLoadingThumbnails = false }
+            print("❌ Thumbnail generation failed: \(error)")
         }
     }
     
@@ -393,9 +443,7 @@ struct SimpleVideoTrimmingView: View {
         // Update CMTime values for PryntTrimmerView
         startTimeCMTime = .zero
         endTimeCMTime = CMTime(seconds: min(preset.duration, videoDuration), preferredTimescale: 600)
-        
-        // Player trim range will be handled through proper SwiftUI communication
-        // This will be implemented with proper data binding patterns
+        playerManager.setTrimRange(start: startTimeCMTime, end: endTimeCMTime)
     }
     
     private func formatDuration(_ duration: Double) -> String {

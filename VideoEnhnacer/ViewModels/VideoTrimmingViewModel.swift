@@ -17,6 +17,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     @Published private(set) var isLoadingVideo: Bool = false
     @Published private(set) var isLoadingThumbnails: Bool = false
     @Published private(set) var error: VideoProcessingError?
+    @Published var currentTime: Double = 0
     
     // MARK: - Private Properties
     private let videoProcessingService: VideoProcessingProtocol
@@ -140,6 +141,10 @@ final class VideoTrimmingViewModel: ObservableObject {
                 self?.error = VideoProcessingError.processingFailed(playerError.localizedDescription)
             }
             .store(in: &cancellables)
+
+        playerViewModel.$currentTime
+            .receive(on: RunLoop.main)
+            .assign(to: &$currentTime)
     }
     
     private func performVideoLoading() async {
