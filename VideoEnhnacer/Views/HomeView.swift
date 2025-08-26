@@ -149,18 +149,6 @@ struct HomeView: View {
                 }
             }
             
-            // Floating Action Button
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    FloatingActionButton {
-                        showVideoPropertyList = true
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
-                }
-            }
         }
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
