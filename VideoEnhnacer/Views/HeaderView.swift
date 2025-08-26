@@ -43,9 +43,23 @@ struct HeaderView: View {
             
             Spacer()
             
-            // Right side placeholder for future actions
-            Color.clear
-                .frame(width: 36, height: 36)
+            // Pro Button
+            Button(action: {
+                // Visual only - no functionality
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 14, weight: .medium))
+                    Text("Pro")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .foregroundColor(.white)
+                .frame(width: 70, height: 36)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(LinearGradient.primaryTheme)
+                )
+            }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)

@@ -18,6 +18,10 @@ struct VideoResultsView: View {
     @State private var saveError: String?
     @State private var showingError = false
     @State private var saveSuccess = false
+    @State private var showingExportOptions = false
+    @State private var selectedResolution = "1080p"
+    @State private var selectedFrameRate = "30fps"
+    @State private var selectedFormat = "MP4"
 
     enum ViewMode { case original, compare, output }
 
@@ -151,6 +155,24 @@ struct VideoResultsView: View {
                 .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
+                
+                // Export Button
+                Button(action: {
+                    showingExportOptions = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.down.to.line")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Export")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(width: 70, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(LinearGradient.primaryTheme)
+                    )
+                }
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
@@ -210,6 +232,18 @@ struct VideoResultsView: View {
             Button("OK") { }
         } message: {
             Text("Video has been saved to your photo library")
+        }
+        .overlay {
+            if showingExportOptions {
+                ExportOptionsView(
+                    isPresented: $showingExportOptions,
+                    selectedResolution: $selectedResolution,
+                    selectedFrameRate: $selectedFrameRate,
+                    selectedFormat: $selectedFormat
+                )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .zIndex(1)
+            }
         }
     }
 
