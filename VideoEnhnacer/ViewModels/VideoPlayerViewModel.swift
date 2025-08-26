@@ -49,6 +49,12 @@ final class VideoPlayerViewModel: ObservableObject {
         }
     }
     
+    func setupPlayerWithURL(_ videoURL: URL) {
+        Task {
+            await loadPlayerWithURL(videoURL)
+        }
+    }
+    
     func setActive(_ isActive: Bool) {
         videoPlayerService.setActiveView(forKey: key, isActive: isActive)
     }
@@ -122,6 +128,21 @@ final class VideoPlayerViewModel: ObservableObject {
                 normalVideoName: normalVideoName,
                 enhancedVideoName: enhancedVideoName
             )
+        } catch let playerError as VideoPlayerError {
+            error = playerError
+            isLoading = false
+        } catch {
+            self.error = VideoPlayerError.loadingFailed(error.localizedDescription)
+            isLoading = false
+        }
+    }
+    
+    private func loadPlayerWithURL(_ videoURL: URL) async {
+        isLoading = true
+        error = nil
+        
+        do {
+            try await videoPlayerService.setupPlayerWithURL(videoURL, forKey: key)
         } catch let playerError as VideoPlayerError {
             error = playerError
             isLoading = false

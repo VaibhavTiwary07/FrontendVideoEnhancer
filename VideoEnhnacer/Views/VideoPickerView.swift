@@ -322,30 +322,6 @@ struct VideoTransferable: Transferable {
     }
 }
 
-// FloatingActionButton style matching the existing FAB component
-struct FloatingActionButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(LinearGradient.primaryTheme)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(
-                        color: Color.black.opacity(0.15),
-                        radius: configuration.isPressed ? 4 : 6,
-                        x: 0,
-                        y: configuration.isPressed ? 2 : 3
-                    )
-            )
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
 
 // MARK: - Video Picker Modifier
 struct VideoPickerModifier: ViewModifier {
