@@ -159,7 +159,7 @@ struct VideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
     
     var body: some View {
-        Group {
+        ZStack {
             if let player = playerViewModel.normalPlayer {
                 VideoPlayer(player: player)
                     .onAppear {
@@ -170,67 +170,24 @@ struct VideoPlayerView: View {
                         playerViewModel.setActive(false)
                     }
             } else if playerViewModel.isLoading {
-                VideoLoadingPlaceholder()
+                VideoLoadingPlaceholder(
+                    width: 300,
+                    height: 200,
+                    cornerRadius: 20
+                )
             } else if let error = playerViewModel.error {
-                VideoErrorPlaceholder(error: error)
+                VideoErrorPlaceholder(
+                    width: 300,
+                    height: 200,
+                    cornerRadius: 20,
+                    errorMessage: error.localizedDescription
+                )
             }
         }
     }
 }
 
-// MARK: - Video Loading Placeholder
-struct VideoLoadingPlaceholder: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.accentWarm.opacity(0.1))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-            )
-            .overlay(
-                VStack(spacing: 12) {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(1.2)
-                    
-                    Text("Loading Video...")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
-                }
-            )
-    }
-}
-
-// MARK: - Video Error Placeholder
-struct VideoErrorPlaceholder: View {
-    let error: VideoPlayerError
-    
-    var body: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.red.opacity(0.1))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.red.opacity(0.2), lineWidth: 1)
-            )
-            .overlay(
-                VStack(spacing: 12) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundColor(.red.opacity(0.8))
-                    
-                    Text("Error Loading Video")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.red.opacity(0.8))
-                    
-                    Text(error.localizedDescription)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.red.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                }
-                .padding()
-            )
-    }
-}
+// MARK: - Placeholder components are now in AspectRatioVideoPlayer.swift to avoid duplication
 
 // MARK: - Video Change Button
 struct VideoChangeButton: View {
