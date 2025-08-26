@@ -91,8 +91,8 @@ struct PropertySlider: View {
         
         PropertySlider(
             title: "Face Enhancer",
-            beforeImage: "face.dashed",
-            afterImage: "face.smiling"
+            beforeImage: getIOSCompatibleSymbol("face.dashed", fallback: "person.crop.circle"),
+            afterImage: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle")
         )
         
         PropertySlider(

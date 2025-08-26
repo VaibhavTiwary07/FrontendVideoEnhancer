@@ -19,6 +19,13 @@ struct ImageComparisonCard: View {
         Button(action: action) {
             GeometryReader { geometry in
                 ZStack {
+                    // Safety check for geometry to prevent crashes
+                    if geometry.size.width <= 0 || geometry.size.height <= 0 || 
+                       geometry.size.width.isNaN || geometry.size.height.isNaN {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(Text("Loading...").foregroundColor(.secondary))
+                    } else {
                     // Static gradient background without moving effect
                     ZStack {
                         // Static gradient background
@@ -32,18 +39,18 @@ struct ImageComparisonCard: View {
                         ZStack {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 60, weight: .ultraLight))
-                                .position(x: geometry.size.width * 0.25,
-                                          y: geometry.size.height * 0.3)
+                                .position(x: max(30, geometry.size.width * 0.25),
+                                          y: max(20, geometry.size.height * 0.3))
 
                             Image(systemName: getBackgroundSymbol())
                                 .font(.system(size: 100, weight: .ultraLight))
-                                .position(x: geometry.size.width * 0.6,
-                                          y: geometry.size.height * 0.7)
+                                .position(x: max(50, min(geometry.size.width - 50, geometry.size.width * 0.6)),
+                                          y: max(50, min(geometry.size.height - 20, geometry.size.height * 0.7)))
 
                             Image(systemName: "circle.grid.2x2.fill")
                                 .font(.system(size: 80, weight: .ultraLight))
-                                .position(x: geometry.size.width * 0.85,
-                                          y: geometry.size.height * 0.4)
+                                .position(x: max(40, min(geometry.size.width - 40, geometry.size.width * 0.85)),
+                                          y: max(40, geometry.size.height * 0.4))
                         }
                         .foregroundColor(.white.opacity(0.06))
                     }
@@ -60,6 +67,7 @@ struct ImageComparisonCard: View {
                         sliderView(containerHeight: geometry.size.height)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
+                    } // End of geometry safety check
                 }
             }
         }
@@ -96,7 +104,7 @@ struct ImageComparisonCard: View {
     private func textAreaWidth(totalWidth: CGFloat) -> CGFloat {
         let sliderAreaWidth: CGFloat = 116 + 16 // slider width + trailing padding
         let leadingPadding: CGFloat = 16
-        return totalWidth - sliderAreaWidth - leadingPadding
+        return max(100, totalWidth - sliderAreaWidth - leadingPadding) // Ensure minimum width
     }
     
     @ViewBuilder
@@ -152,9 +160,9 @@ struct ImageComparisonCard: View {
         case "face.smiling": return "person.crop.circle.fill"
         case "waveform.path": return "waveform.circle.fill"
         case "paintpalette.fill": return "paintpalette.fill"
-        case "wand.and.stars": return "wand.and.stars.fill"
+        case "wand.and.stars": return getIOSCompatibleSymbol("wand.and.stars.fill", fallback: "wand.and.stars")
         case "gyroscope": return "gyroscope"
-        case "timer.circle.fill": return "timer.circle.fill"
+        case "timer.circle.fill": return getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer")
         default: return "circle.fill"
         }
     }
@@ -198,6 +206,15 @@ struct ImageComparisonCard: View {
                 .init(color: Color(red: 240/255, green: 150/255, blue: 180/255).opacity(0.35), location: 0.6),
 //                .init(color: Color(red: 255/255, green: 245/255, blue: 250/255).opacity(0.0), location: 0.6)
             ]
+        }
+    }
+    
+    // MARK: - iOS Compatibility Helper
+    private func getIOSCompatibleSymbol(_ preferredSymbol: String, fallback: String) -> String {
+        if #available(iOS 16.0, *) {
+            return preferredSymbol
+        } else {
+            return fallback
         }
     }
     

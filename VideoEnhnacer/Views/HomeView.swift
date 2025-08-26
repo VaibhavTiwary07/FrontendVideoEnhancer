@@ -60,14 +60,14 @@ struct HomeView: View {
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "face.smiling",
+                                        icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
                                         title: "Face & Object Enhancer",
                                         subtitle: "Improve facial features",
                                         gradientType: .yellowGray
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Face & Object Enhancer",
-                                            icon: "face.smiling",
+                                            icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
                                             gradientType: .yellowGray
                                         )
                                     }
@@ -125,14 +125,14 @@ struct HomeView: View {
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "timer.circle.fill",
+                                        icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
                                         title: "Frame Interpolation",
                                         subtitle: "Smooth motion",
                                         gradientType: .redPink
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Frame Interpolation",
-                                            icon: "timer.circle.fill",
+                                            icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
                                             gradientType: .redPink
                                         )
                                     }

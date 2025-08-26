@@ -25,12 +25,17 @@ struct VideoTrimmingSlider: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let trackWidth = geometry.size.width - handleWidth
-            let startPosition = CGFloat(startTime / duration) * trackWidth
-            let endPosition = CGFloat(endTime / duration) * trackWidth
-            let windowWidth = endPosition - startPosition
+            // Safety check for geometry and duration to prevent crashes
+            if geometry.size.width > 0 && geometry.size.height > 0 && 
+               !geometry.size.width.isNaN && !geometry.size.height.isNaN && 
+               duration > 0 {
+                
+                let trackWidth = max(handleWidth, geometry.size.width - handleWidth)
+                let startPosition = max(0, min(trackWidth, CGFloat(startTime / duration) * trackWidth))
+                let endPosition = max(startPosition + 10, min(trackWidth, CGFloat(endTime / duration) * trackWidth))
+                let windowWidth = max(10, endPosition - startPosition)
 
-            ZStack(alignment: .leading) {
+                ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.black.opacity(0.3))
                     .frame(height: trackHeight)
@@ -41,7 +46,7 @@ struct VideoTrimmingSlider: View {
                                     Image(uiImage: image)
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(width: geo.size.width / CGFloat(max(thumbnails.count, 1)), height: trackHeight)
+                                        .frame(width: max(10, geo.size.width / CGFloat(max(thumbnails.count, 1))), height: trackHeight)
                                         .clipped()
                                 }
                             }
@@ -169,7 +174,7 @@ struct VideoTrimmingSlider: View {
                                         Capsule().stroke(Color.white.opacity(0.2), lineWidth: 0.5)
                                     )
                             )
-                            .offset(x: max(0, min(geometry.size.width - 60, startPosition - 20)))
+                            .offset(x: max(0, min(geometry.size.width.safeValue - 60, startPosition - 20)))
 
                         Spacer()
 
@@ -185,10 +190,17 @@ struct VideoTrimmingSlider: View {
                                         Capsule().stroke(Color.white.opacity(0.2), lineWidth: 0.5)
                                     )
                             )
-                            .offset(x: min(0, max(-geometry.size.width + 60, endPosition - geometry.size.width + 20)))
+                            .offset(x: min(0, max(-geometry.size.width.safeValue + 60, endPosition - geometry.size.width.safeValue + 20)))
                     }
                 }
                 .padding(.top, trackHeight + 8)
+            }
+            } else {
+                // Fallback for invalid geometry
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: trackHeight)
+                    .overlay(Text("Loading...").foregroundColor(.secondary))
             }
         }
         .frame(height: trackHeight + 30)

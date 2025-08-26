@@ -292,13 +292,13 @@ final class EnhancementTypeRegistry {
             id: "face_enhancer",
             name: "Face & Object Enhancer",
             description: "Improve facial features and object details",
-            icon: "face.smiling",
+            icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
             category: .enhancement,
             processingTime: 25.0,
             qualityImpact: 0.8,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: getIOSCompatibleSymbol("wand.and.stars", fallback: "wand.and.stars"), isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
             ],
             gradientType: .yellowGray
@@ -352,7 +352,7 @@ final class EnhancementTypeRegistry {
             qualityImpact: 0.8,
             options: [
                 EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: "wand.and.stars", isRecommended: true),
+                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: getIOSCompatibleSymbol("wand.and.stars", fallback: "wand.and.stars"), isRecommended: true),
                 EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
             ],
             gradientType: .pinkGray
@@ -382,7 +382,7 @@ final class EnhancementTypeRegistry {
             id: "frame_interpolation",
             name: "Frame Interpolation",
             description: "Smooth motion and increase frame rate",
-            icon: "timer.circle.fill",
+            icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
             category: .enhancement,
             processingTime: 45.0,
             qualityImpact: 0.9,

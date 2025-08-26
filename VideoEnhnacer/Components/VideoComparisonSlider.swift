@@ -23,6 +23,17 @@ struct VideoComparisonSlider: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
+                // Safety check for geometry to prevent NaN crashes
+                if geometry.size.width <= 0 || geometry.size.height <= 0 || 
+                   geometry.size.width.isNaN || geometry.size.height.isNaN || 
+                   geometry.size.width.isInfinite || geometry.size.height.isInfinite {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .overlay(
+                            Text("Loading...")
+                                .foregroundColor(.secondary)
+                        )
+                } else {
                 // Background
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.cardBackground)
@@ -32,7 +43,7 @@ struct VideoComparisonSlider: View {
                 VStack(spacing: 12) {
                     // Video Players Container
                     ZStack {
-                        let videoHeight = geometry.size.height - 90 // Account for labels, slider, and padding
+                        let videoHeight = max(60, geometry.size.height - 90) // Account for labels, slider, and padding
                         // Enhanced Video (Background)
                         Group {
                             if playerState == .ready,
@@ -55,7 +66,7 @@ struct VideoComparisonSlider: View {
                                     .mask(
                                         HStack(spacing: 0) {
                                             Rectangle()
-                                                .frame(width: geometry.size.width * sliderValue)
+                                                .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)))
                                             
                                             Color.clear
                                         }
@@ -65,7 +76,7 @@ struct VideoComparisonSlider: View {
                                     .mask(
                                         HStack(spacing: 0) {
                                             Rectangle()
-                                                .frame(width: geometry.size.width * sliderValue)
+                                                .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)))
                                             
                                             Color.clear
                                         }
@@ -79,8 +90,8 @@ struct VideoComparisonSlider: View {
                             .frame(width: 2, height: videoHeight)
                             .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 0)
                             .position(
-                                x: geometry.size.width * sliderValue,
-                                y: videoHeight / 2
+                                x: max(1, min(geometry.size.width - 1, geometry.size.width * sliderValue)),
+                                y: max(1, videoHeight / 2)
                             )
                     }
                     
@@ -116,7 +127,7 @@ struct VideoComparisonSlider: View {
                                             endPoint: .trailing
                                         )
                                     )
-                                    .frame(width: geometry.size.width * sliderValue, height: 4)
+                                    .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)), height: 4)
                                     .clipShape(RoundedRectangle(cornerRadius: 2)),
                                 alignment: .leading
                             )
@@ -141,7 +152,7 @@ struct VideoComparisonSlider: View {
                             )
                             .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
                             .position(
-                                x: geometry.size.width * sliderValue,
+                                x: max(10, min(geometry.size.width - 10, geometry.size.width * sliderValue)),
                                 y: 10
                             )
                             .gesture(
@@ -149,7 +160,7 @@ struct VideoComparisonSlider: View {
                                     .onChanged { value in
                                         isUserInteracting = true
                                         stopAutoSlide()
-                                        let newValue = min(max(value.location.x / geometry.size.width, 0), 1)
+                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
                                         sliderValue = newValue
                                     }
                                     .onEnded { _ in
@@ -160,6 +171,7 @@ struct VideoComparisonSlider: View {
                     .frame(height: 20)
                 }
                 .padding(8)
+                } // End of geometry safety check
             }
         }
         .onAppear {
