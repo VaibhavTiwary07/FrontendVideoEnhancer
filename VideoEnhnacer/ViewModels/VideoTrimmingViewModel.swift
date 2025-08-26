@@ -180,9 +180,8 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     private func setupVideoPlayers() async {
-        // Extract filename without extension for player setup
-        let fileName = videoURL.deletingPathExtension().lastPathComponent
-        playerViewModel.setupPlayers(normalVideoName: fileName, enhancedVideoName: fileName)
+        // Use the actual video URL instead of trying to find bundle resources
+        playerViewModel.setupPlayerWithURL(videoURL)
     }
     
     private func generateThumbnails() async {

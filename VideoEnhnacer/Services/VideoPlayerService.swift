@@ -158,6 +158,29 @@ final class VideoPlayerService: VideoPlayerProtocol {
         return playerPairs[key]?.enhanced
     }
     
+    func setupPlayerWithURL(_ videoURL: URL, forKey key: String) async throws {
+        await updatePlayerState(.loading)
+        
+        loadingKeys.insert(key)
+        defer { loadingKeys.remove(key) }
+        
+        do {
+            let playerPair = try await loadPlayerPairWithURL(videoURL)
+            playerPairs[key] = playerPair
+            loadedKeys.insert(key)
+            
+//            setupLoopObservers(forKey: key)
+            await updatePlayerState(.ready)
+            
+            print("✅ VideoPlayerService - Successfully setup players with URL: \(videoURL.lastPathComponent)")
+            
+        } catch {
+            await updatePlayerState(.error(VideoPlayerError.loadingFailed(error.localizedDescription)))
+            print("❌ VideoPlayerService - Failed to setup players with URL: \(error)")
+            throw error
+        }
+    }
+    
     func getPlayerState(forKey key: String) -> VideoPlayerState {
         return playerState
     }
@@ -234,6 +257,39 @@ final class VideoPlayerService: VideoPlayerProtocol {
                 }
             }
             try await group.waitForAll()
+        }
+    }
+    
+    private func loadPlayerPairWithURL(_ videoURL: URL) async throws -> PlayerPair {
+        return try await withCheckedThrowingContinuation { continuation in
+            Task.detached {
+                do {
+                    // Check URL accessibility first
+                    guard videoURL.startAccessingSecurityScopedResource() || FileManager.default.fileExists(atPath: videoURL.path) else {
+                        continuation.resume(throwing: VideoPlayerError.urlNotAccessible(videoURL.absoluteString))
+                        return
+                    }
+                    defer { videoURL.stopAccessingSecurityScopedResource() }
+                    
+                    let normalPlayer = AVPlayer(url: videoURL)
+                    let enhancedPlayer = AVPlayer(url: videoURL) // For now, use same video for both
+                    
+                    // Configure players
+                    normalPlayer.isMuted = true
+                    enhancedPlayer.isMuted = true
+                    
+                    // Preload the videos
+                    try await self.preloadPlayers([normalPlayer, enhancedPlayer])
+                    
+                    let playerPair = PlayerPair(normal: normalPlayer, enhanced: enhancedPlayer)
+                    continuation.resume(returning: playerPair)
+                    
+                } catch let error as VideoPlayerError {
+                    continuation.resume(throwing: error)
+                } catch {
+                    continuation.resume(throwing: VideoPlayerError.loadingFailed(error.localizedDescription))
+                }
+            }
         }
     }
     

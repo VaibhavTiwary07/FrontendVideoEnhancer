@@ -66,8 +66,8 @@ struct RefactoredVideoTrimmingView: View {
     @ViewBuilder
     private var contentView: some View {
         VStack(spacing: 0) {
-            VideoPreviewSection(
-                playerViewModel: viewModel.playerViewModel,
+            SimpleVideoPreviewSection(
+                videoURL: viewModel.videoURL,
                 enhancementType: viewModel.enhancementType
             )
             .padding(.top, 20)
@@ -124,22 +124,16 @@ struct RefactoredVideoTrimmingView: View {
     }
 }
 
-// MARK: - Video Preview Section
-struct VideoPreviewSection: View {
-    let playerViewModel: VideoPlayerViewModel
+// MARK: - Simple Video Preview Section (Native iOS)
+struct SimpleVideoPreviewSection: View {
+    let videoURL: URL
     let enhancementType: EnhancementType
-    
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
-    private var isIPad: Bool {
-        horizontalSizeClass == .regular
-    }
     
     var body: some View {
         VStack(spacing: 16) {
             ZStack {
-                VideoPlayerView(playerViewModel: playerViewModel)
-                    .frame(height: isIPad ? 400 : 320)
+                SimpleVideoPlayerView(videoURL: videoURL)
+                    .deviceOptimizedVideoHeight()
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
@@ -154,38 +148,6 @@ struct VideoPreviewSection: View {
     }
 }
 
-// MARK: - Video Player View
-struct VideoPlayerView: View {
-    @ObservedObject var playerViewModel: VideoPlayerViewModel
-    
-    var body: some View {
-        ZStack {
-            if let player = playerViewModel.normalPlayer {
-                VideoPlayer(player: player)
-                    .onAppear {
-                        playerViewModel.setActive(true)
-                        playerViewModel.play()
-                    }
-                    .onDisappear {
-                        playerViewModel.setActive(false)
-                    }
-            } else if playerViewModel.isLoading {
-                VideoLoadingPlaceholder(
-                    width: 300,
-                    height: 200,
-                    cornerRadius: 20
-                )
-            } else if let error = playerViewModel.error {
-                VideoErrorPlaceholder(
-                    width: 300,
-                    height: 200,
-                    cornerRadius: 20,
-                    errorMessage: error.localizedDescription
-                )
-            }
-        }
-    }
-}
 
 // MARK: - Placeholder components are now in AspectRatioVideoPlayer.swift to avoid duplication
 

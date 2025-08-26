@@ -202,6 +202,12 @@ final class MockVideoPlayerService: VideoPlayerProtocol {
         playerState = .ready
     }
     
+    func setupPlayerWithURL(_ videoURL: URL, forKey key: String) async throws {
+        playerState = .loading
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        playerState = .ready
+    }
+    
     func setActiveView(forKey key: String, isActive: Bool) {}
     func cleanup() {}
     func play(forKey key: String) async { playerState = .playing }

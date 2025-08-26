@@ -11,6 +11,7 @@ protocol VideoPlayerProtocol: AnyObject {
     
     // MARK: - Player Management
     func setupPlayers(normalVideoName: String, enhancedVideoName: String) async throws
+    func setupPlayerWithURL(_ videoURL: URL, forKey key: String) async throws
     func setActiveView(forKey key: String, isActive: Bool)
     func cleanup()
     
@@ -50,6 +51,7 @@ enum VideoPlayerState: Equatable {
 // MARK: - Video Player Error
 enum VideoPlayerError: Error, Equatable, LocalizedError {
     case fileNotFound(String)
+    case urlNotAccessible(String)
     case loadingFailed(String)
     case playbackFailed(String)
     case invalidTimeRange
@@ -58,6 +60,8 @@ enum VideoPlayerError: Error, Equatable, LocalizedError {
         switch self {
         case .fileNotFound(let fileName):
             return "Video file '\(fileName)' not found in bundle"
+        case .urlNotAccessible(let urlString):
+            return "Cannot access video at '\(urlString)'. Please check permissions."
         case .loadingFailed(let reason):
             return "Failed to load video: \(reason)"
         case .playbackFailed(let reason):
