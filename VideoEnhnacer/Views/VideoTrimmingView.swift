@@ -23,6 +23,25 @@ struct VideoTrimmingView: View {
         horizontalSizeClass == .regular
     }
     
+    private var isSmallScreen: Bool {
+        let screenHeight = UIScreen.main.bounds.height
+        return screenHeight <= 736
+    }
+    
+    private var adaptiveVideoHeight: CGFloat {
+        if isIPad {
+            return 400
+        } else if isSmallScreen {
+            return 240
+        } else {
+            return 320
+        }
+    }
+    
+    private var adaptiveBottomPadding: CGFloat {
+        isSmallScreen ? 20 : 40
+    }
+    
     enum TimePreset: CaseIterable {
         case thirtySeconds, fiveMinutes
         
@@ -46,13 +65,14 @@ struct VideoTrimmingView: View {
             Color.primarySoft
                 .ignoresSafeArea()
             
-            VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 0) {
                 // Enhanced Video Preview Section
                 VStack(spacing: 16) {
                     ZStack {
                         if let player = playerManager.player {
                             VideoPlayer(player: player)
-                                .frame(height: isIPad ? 400 : 320)
+                                .frame(height: adaptiveVideoHeight)
                                 .cornerRadius(20)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
@@ -66,7 +86,7 @@ struct VideoTrimmingView: View {
                         } else {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(Color.accentWarm.opacity(0.1))
-                                .frame(height: isIPad ? 400 : 320)
+                                .frame(height: adaptiveVideoHeight)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
                                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
@@ -233,7 +253,8 @@ struct VideoTrimmingView: View {
                     .buttonStyle(FloatingActionButtonStyle())
                     .padding(.horizontal, 20)
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, adaptiveBottomPadding)
+            }
             }
         }
         .navigationBarBackButtonHidden()

@@ -24,6 +24,25 @@ struct EnhancementSelectionView: View {
         horizontalSizeClass == .regular
     }
     
+    private var isSmallScreen: Bool {
+        let screenHeight = UIScreen.main.bounds.height
+        return screenHeight <= 736
+    }
+    
+    private var adaptivePreviewHeight: CGFloat {
+        if isIPad {
+            return 280
+        } else if isSmallScreen {
+            return 200
+        } else {
+            return 240
+        }
+    }
+    
+    private var adaptiveTopPadding: CGFloat {
+        isSmallScreen ? 30 : 50
+    }
+    
     private var dynamicSubtitle: String {
         switch enhancementType {
         case "AI Upscale":
@@ -113,7 +132,7 @@ struct EnhancementSelectionView: View {
                             trimStartTime: trimStartTime,
                             trimEndTime: trimEndTime
                         )
-                        .frame(height: isIPad ? 280 : 240)
+                        .frame(height: adaptivePreviewHeight)
                         .padding(.top, 20)
                         
                         // Enhancement options section
@@ -123,7 +142,7 @@ struct EnhancementSelectionView: View {
                                 subtitle: dynamicSubtitle
                             )
                             .padding(.horizontal, 20)
-                            .padding(.top, 50)
+                            .padding(.top, adaptiveTopPadding)
                             
                             // Enhancement options single row
                             HStack(spacing: 12) {
@@ -150,7 +169,7 @@ struct EnhancementSelectionView: View {
                             )
                             .padding(.horizontal, 20)
                             .padding(.top, 20)
-                            .padding(.bottom, 30)
+                            .padding(.bottom, isSmallScreen ? 80 : 30)
                         }
                     }
                 }

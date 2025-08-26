@@ -12,6 +12,27 @@ struct VideoPickerView: View {
     @State private var navigateToTrimming = false
     @StateObject private var permissionManager = PermissionManager()
     @State private var showingPermissionAlert = false
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    private var isSmallScreen: Bool {
+        // Detect iPhone SE and similar small screens
+        let screenHeight = UIScreen.main.bounds.height
+        return screenHeight <= 736 // iPhone SE (3rd gen) is 667pt, iPhone 8 Plus is 736pt
+    }
+    
+    private var adaptiveVideoHeight: CGFloat {
+        if isSmallScreen {
+            return 160
+        } else if horizontalSizeClass == .regular {
+            return 220
+        } else {
+            return 200
+        }
+    }
+    
+    private var adaptiveSpacing: CGFloat {
+        isSmallScreen ? 16 : 30
+    }
     
     var body: some View {
         if #available(iOS 16.0, *) {
@@ -31,7 +52,8 @@ struct VideoPickerView: View {
                 Color.primarySoft
                     .ignoresSafeArea()
                 
-                VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 0) {
                     // Enhanced Header
                     VStack(spacing: 20) {
                         // Icon with modern styling
@@ -71,17 +93,15 @@ struct VideoPickerView: View {
                         }
                         .padding(.top, 10)
                     }
-                    .padding(.top, 40)
-                    
-                    Spacer()
+                    .padding(.top, isSmallScreen ? 20 : 40)
                     
                     // Enhanced Video selection area
-                    VStack(spacing: 30) {
+                    VStack(spacing: adaptiveSpacing) {
                         if let videoURL = selectedVideoURL {
                             // Enhanced Video preview with info
                             VStack(spacing: 20) {
                                 VideoPreviewView(videoURL: videoURL)
-                                    .frame(height: 220)
+                                    .frame(height: adaptiveVideoHeight)
                                     .cornerRadius(20)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
@@ -235,9 +255,9 @@ struct VideoPickerView: View {
                             }
                         }
                     }
-                    
-                    Spacer()
+                    .padding(.bottom, isSmallScreen ? 80 : 100)
                 }
+            }
             }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
