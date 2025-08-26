@@ -322,29 +322,6 @@ struct VideoTransferable: Transferable {
     }
 }
 
-// Custom button style for modern buttons
-struct GradientButtonStyle: ButtonStyle {
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 18, weight: .semibold))
-            .foregroundColor(.accentWarm)
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.cardSoft)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.accentWarm.opacity(0.3), lineWidth: 1)
-                    )
-                    .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            )
-            .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
-
 // FloatingActionButton style matching the existing FAB component
 struct FloatingActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
