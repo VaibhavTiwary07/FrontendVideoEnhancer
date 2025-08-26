@@ -1,9 +1,9 @@
 import SwiftUI
 import AVKit
 
-// MARK: - Refactored Video Trimming View
-/// Clean, MVVM-focused view following Single Responsibility Principle
-struct RefactoredVideoTrimmingView: View {
+// MARK: - Enhanced Video Trimming View
+/// Updated trimming view using PryntTrimmerRepresentable for a unified experience
+struct EnhancedVideoTrimmingView: View {
     
     // MARK: - Dependencies
     @Environment(\.dismiss) private var dismiss
@@ -116,7 +116,7 @@ struct RefactoredVideoTrimmingView: View {
     // MARK: - Event Handlers
     private func handleViewAppearance() {
         viewModel.loadVideo()
-        print("🎬 RefactoredVideoTrimmingView - Appeared for \(viewModel.enhancementType.title)")
+        print("🎬 EnhancedVideoTrimmingView - Appeared for \(viewModel.enhancementType.title)")
     }
     
     private func handleViewDisappearance() {
@@ -246,21 +246,15 @@ struct VideoControlsSection: View {
             )
             .padding(.horizontal, 20)
             
-            VideoTrimmingSliderView(
-                startTime: $viewModel.trimStartTime,
-                endTime: $viewModel.trimEndTime,
-                duration: viewModel.videoDuration,
-                thumbnails: viewModel.thumbnails,
-                enhancementType: viewModel.enhancementType
-            )
-            .frame(height: 60)
-            .padding(.horizontal, 20)
+            PryntTrimmerSliderView(viewModel: viewModel)
+                .frame(height: 60)
+                .padding(.horizontal, 20)
             
             ContinueButton(
                 enhancementType: viewModel.enhancementType,
                 canProceed: viewModel.canProceed,
                 onContinue: {
-                    print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
+                    print("🎬 EnhancedVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
                     onContinue()
                 }
             )
@@ -316,28 +310,32 @@ struct TimePresetButton: View {
 }
 
 // MARK: - Video Trimming Slider View
-struct VideoTrimmingSliderView: View {
-    @Binding var startTime: Double
-    @Binding var endTime: Double
-    let duration: Double
-    let thumbnails: [UIImage]
-    let enhancementType: EnhancementType
-    
+struct PryntTrimmerSliderView: View {
+    @ObservedObject var viewModel: VideoTrimmingViewModel
+
     var body: some View {
-        VideoTrimmingSlider(
-            startTime: $startTime,
-            endTime: $endTime,
-            duration: duration,
-            presetDuration: 30, // Default preset, not used for constraints
-            gradientType: enhancementType.gradientType,
-            thumbnails: thumbnails
+        let asset = AVAsset(url: viewModel.videoURL)
+        let startBinding = Binding<CMTime>(
+            get: { CMTime(seconds: viewModel.trimStartTime, preferredTimescale: 600) },
+            set: { viewModel.updateTrimTimes(start: $0.seconds, end: viewModel.trimEndTime) }
         )
-        .onChange(of: startTime) { newValue in
-            print("🎚️ RefactoredVideoTrimmingView - Start time changed to: \(newValue)")
-        }
-        .onChange(of: endTime) { newValue in
-            print("🎚️ RefactoredVideoTrimmingView - End time changed to: \(newValue)")
-        }
+        let endBinding = Binding<CMTime>(
+            get: { CMTime(seconds: viewModel.trimEndTime, preferredTimescale: 600) },
+            set: { viewModel.updateTrimTimes(start: viewModel.trimStartTime, end: $0.seconds) }
+        )
+        let currentBinding = Binding<CMTime?>(
+            get: { CMTime(seconds: viewModel.currentTime, preferredTimescale: 600) },
+            set: { time in viewModel.playerViewModel.seek(to: time?.seconds ?? 0) }
+        )
+
+        return PryntTrimmerRepresentable(
+            startTime: startBinding,
+            endTime: endBinding,
+            currentTime: currentBinding,
+            asset: asset,
+            thumbnails: viewModel.thumbnails,
+            playerManager: nil
+        )
     }
 }
 
@@ -436,10 +434,10 @@ struct InfoCardItem: View {
 
 // MARK: - Preview
 #if DEBUG
-struct RefactoredVideoTrimmingView_Previews: PreviewProvider {
+struct EnhancedVideoTrimmingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            RefactoredVideoTrimmingView(
+            EnhancedVideoTrimmingView(
                 videoURL: URL(string: "https://example.com/video.mp4")!,
                 enhancementType: EnhancementType.mockAIUpscale
             )

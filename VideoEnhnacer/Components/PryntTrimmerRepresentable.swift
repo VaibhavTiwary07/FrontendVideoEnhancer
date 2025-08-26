@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import UIKit
 import PryntTrimmerView
 
 // MARK: - Enhanced PryntTrimmerView SwiftUI Wrapper
@@ -16,6 +17,8 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
     let mainColor: UIColor
     let positionBarColor: UIColor
     let backgroundColor: UIColor
+    var thumbnailImages: [UIImage]
+    var playerManager: VideoTrimmingPlayerManager?
     
     // MARK: - Callbacks
     let onPositionChanged: ((CMTime) -> Void)?
@@ -34,6 +37,8 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
         mainColor: UIColor = UIColor(red: 1.0, green: 0.596, blue: 0.329, alpha: 1.0), // Orange theme
         positionBarColor: UIColor = .white,
         backgroundColor: UIColor = .black,
+        thumbnails: [UIImage] = [],
+        playerManager: VideoTrimmingPlayerManager? = nil,
         onPositionChanged: ((CMTime) -> Void)? = nil,
         onPositionStoppedMoving: ((CMTime) -> Void)? = nil,
         onTrimChanged: ((CMTime, CMTime) -> Void)? = nil,
@@ -48,6 +53,8 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
         self.mainColor = mainColor
         self.positionBarColor = positionBarColor
         self.backgroundColor = backgroundColor
+        self.thumbnailImages = thumbnails
+        self.playerManager = playerManager
         self.onPositionChanged = onPositionChanged
         self.onPositionStoppedMoving = onPositionStoppedMoving
         self.onTrimChanged = onTrimChanged
@@ -73,6 +80,11 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
         trimmer.rulerLabelInterval = 5.0
         trimmer.maxLength = 60.0 // Max 60 seconds selection
         trimmer.minLength = 1.0  // Min 1 second selection
+
+        // Apply thumbnails if provided
+        if !thumbnailImages.isEmpty {
+            trimmer.thumbnailImages = thumbnailImages
+        }
         
         return trimmer
     }
@@ -80,27 +92,35 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
     func updateUIView(_ uiView: TrimmerView, context: Context) {
         // Update coordinator reference
         context.coordinator.parent = self
-        
+        context.coordinator.playerManager = playerManager
+
+        // Update thumbnails if new ones were provided
+        if !thumbnailImages.isEmpty {
+            uiView.thumbnailImages = thumbnailImages
+        }
+
         // Update trimmer times if changed from outside
         if let currentTime = currentTime {
             context.coordinator.updatePositionBar(to: currentTime, in: uiView)
         }
-        
+
         // Sync any external time changes
         context.coordinator.syncTimesFromParent(in: uiView)
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
+        Coordinator(parent: self, playerManager: playerManager)
     }
     
     // MARK: - Coordinator with Full TrimmerViewDelegate Implementation
     class Coordinator: NSObject, TrimmerViewDelegate {
         var parent: PryntTrimmerRepresentable
+        var playerManager: VideoTrimmingPlayerManager?
         private var isUpdatingFromTrimmer = false
 
-        init(parent: PryntTrimmerRepresentable) {
+        init(parent: PryntTrimmerRepresentable, playerManager: VideoTrimmingPlayerManager?) {
             self.parent = parent
+            self.playerManager = playerManager
             super.init()
         }
         
@@ -111,6 +131,7 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 self.parent.currentTime = playerTime
+                self.playerManager?.seek(to: playerTime.seconds)
                 self.parent.onPositionChanged?(playerTime)
                 print("🎚️ PryntTrimmer - Position changed: \(playerTime.seconds)")
             }
@@ -121,6 +142,7 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 self.parent.currentTime = playerTime
+                self.playerManager?.seek(to: playerTime.seconds)
                 self.parent.onPositionStoppedMoving?(playerTime)
                 print("🎚️ PryntTrimmer - Position stopped at: \(playerTime.seconds)")
             }
@@ -153,6 +175,7 @@ struct PryntTrimmerRepresentable: UIViewRepresentable {
                 self.isUpdatingFromTrimmer = true
                 self.parent.startTime = startTime
                 self.parent.endTime = endTime
+                self.playerManager?.setTrimRange(start: startTime, end: endTime)
                 self.parent.onTrimChanged?(startTime, endTime)
                 self.isUpdatingFromTrimmer = false
                 print("✂️ PryntTrimmer - Trim changed: \(startTime.seconds) to \(endTime.seconds)")

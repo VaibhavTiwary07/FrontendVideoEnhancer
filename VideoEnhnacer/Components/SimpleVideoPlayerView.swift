@@ -7,11 +7,16 @@ import AVKit
 struct SimpleVideoPlayerView: View {
     let videoURL: URL
     @StateObject private var playerManager: VideoTrimmingPlayerManager
-    
+
     // MARK: - Initialization
     init(videoURL: URL) {
         self.videoURL = videoURL
         self._playerManager = StateObject(wrappedValue: VideoTrimmingPlayerManager(videoURL: videoURL))
+    }
+
+    init(videoURL: URL, playerManager: VideoTrimmingPlayerManager) {
+        self.videoURL = videoURL
+        self._playerManager = StateObject(wrappedValue: playerManager)
     }
     
     // MARK: - Body
