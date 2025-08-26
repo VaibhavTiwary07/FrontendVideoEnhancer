@@ -36,6 +36,10 @@ struct EnhancementSelectionView: View {
             return "Select stabilization level that best fits your video"
         case "Frame Interpolation":
             return "Select interpolation level that best fits your video"
+        case "Face & Object Enhancer":
+            return "Select enhancement level that best fits your video"
+        case "AI Color":
+            return "Select color enhancement level that best fits your video"
         default:
             return "Select the level that best fits your video"
         }
@@ -72,6 +76,14 @@ struct EnhancementSelectionView: View {
             return [
                 EnhancementOption(id: "smooth", title: "Smooth", description: "Enhanced motion smoothness", icon: "play.rectangle.fill", isRecommended: true),
                 EnhancementOption(id: "fluid", title: "Fluid", description: "Ultra-smooth motion", icon: "forward.frame.fill")
+            ]
+        case "Face & Object Enhancer":
+            return [
+                EnhancementOption(id: "enhanced", title: "Enhanced", description: "Face and object enhancement", icon: "face.smiling", isRecommended: true)
+            ]
+        case "AI Color":
+            return [
+                EnhancementOption(id: "enhanced", title: "Enhanced", description: "Color enhancement", icon: "paintpalette", isRecommended: true)
             ]
         default:
             return []
