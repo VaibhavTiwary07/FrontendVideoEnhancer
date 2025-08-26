@@ -314,7 +314,24 @@ struct VideoTrimmingView: View {
         let asset = AVURLAsset(url: videoURL)
         Task {
             do {
-                let duration = try await asset.load(.duration)
+                let duration: CMTime
+                if #available(iOS 16.0, *) {
+                    duration = try await asset.load(.duration)
+                } else {
+                    try await withCheckedThrowingContinuation { continuation in
+                        asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+                            var error: NSError?
+                            let status = asset.statusOfValue(forKey: "duration", error: &error)
+                            if let error = error {
+                                continuation.resume(throwing: error)
+                            } else if status == .loaded {
+                                continuation.resume(returning: asset.duration)
+                            } else {
+                                continuation.resume(throwing: VideoProcessingError.processingFailed("Duration load failed"))
+                            }
+                        }
+                    }
+                }
                 let durationSeconds = CMTimeGetSeconds(duration)
                 let images = await generateThumbnails(for: asset, duration: durationSeconds)
 
