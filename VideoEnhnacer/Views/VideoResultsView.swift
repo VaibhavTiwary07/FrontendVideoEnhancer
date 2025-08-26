@@ -142,17 +142,17 @@ struct VideoResultsView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(LinearGradient.primaryTheme.opacity(0.8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(LinearGradient.primaryTheme.opacity(0.8))
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 12)
+//                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+//                            )
+//                    )
+//                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
-                .buttonStyle(PlainButtonStyle())
+//                .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
                 
@@ -239,11 +239,44 @@ struct VideoResultsView: View {
                     isPresented: $showingExportOptions,
                     selectedResolution: $selectedResolution,
                     selectedFrameRate: $selectedFrameRate,
-                    selectedFormat: $selectedFormat
+                    selectedFormat: $selectedFormat,
+                    onExport: exportVideo
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
                 .zIndex(1)
             }
+        }
+    }
+
+    private func exportVideo() {
+        print("🎬 Exporting video with settings:")
+        print("Resolution: \(selectedResolution)")
+        print("Frame Rate: \(selectedFrameRate)")
+        print("Format: \(selectedFormat)")
+        
+        // Haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+        
+        // For now, we'll use the iOS native share functionality
+        // In a full implementation, you would process the video with the selected settings
+        let activityController = UIActivityViewController(
+            activityItems: [processedVideoURL],
+            applicationActivities: nil
+        )
+        
+        // Present the share sheet
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            
+            // For iPad, we need to set the popover presentation controller
+            if let popover = activityController.popoverPresentationController {
+                popover.sourceView = rootViewController.view
+                popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            
+            rootViewController.present(activityController, animated: true)
         }
     }
 

@@ -5,6 +5,7 @@ struct ExportOptionsView: View {
     @Binding var selectedResolution: String
     @Binding var selectedFrameRate: String
     @Binding var selectedFormat: String
+    let onExport: () -> Void
     
     private let resolutionOptions = ["720p", "1080p"]
     private let frameRateOptions = ["30fps", "60fps"]
@@ -61,11 +62,12 @@ struct ExportOptionsView: View {
                     }
                 }
             
-            HStack {
-                Spacer()
-                
-                // Export options panel
-                VStack(spacing: 20) {
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    // Export options panel
+                    VStack(spacing: 20) {
                     // Header
                     HStack {
                         Text("Export Options")
@@ -162,7 +164,36 @@ struct ExportOptionsView: View {
                             )
                     }
                     
-//                    Spacer()
+                    // Export Button
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        onExport()
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            isPresented = false
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 16, weight: .semibold))
+                            Text("Export")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(LinearGradient.primaryTheme)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                        )
+                    }
+                    .scaleEffect(1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPresented)
                 }
                 .padding(24)
                 .frame(width: 280)
@@ -176,6 +207,9 @@ struct ExportOptionsView: View {
                 )
                 .shadow(color: .black.opacity(0.5), radius: 20, x: -5, y: 0)
                 .padding(.trailing, 16)
+                .padding(.top, 60) // Position at top
+                }
+                Spacer()
             }
         }
     }
@@ -224,6 +258,9 @@ struct ExportOptionsView: View {
         isPresented: .constant(true),
         selectedResolution: .constant("1080p"),
         selectedFrameRate: .constant("30fps"),
-        selectedFormat: .constant("MP4")
+        selectedFormat: .constant("MP4"),
+        onExport: {
+            print("Export button tapped!")
+        }
     )
 }
