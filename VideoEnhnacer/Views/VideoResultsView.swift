@@ -32,11 +32,7 @@ struct VideoResultsView: View {
     private var comparisonPage: some View {
         VStack {
             HStack {
-                Button(action: { dismiss() }) {
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                }
-                .foregroundColor(.white)
+                BackButton { dismiss() }
                 Spacer()
             }
             .padding()
@@ -124,31 +120,9 @@ struct VideoResultsView: View {
         VStack(spacing: 20) {
             // Back button header
             HStack {
-                Button(action: { 
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
+                BackButton { 
                     selectedTab = 0 
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 16, weight: .medium))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(LinearGradient.primaryTheme.opacity(0.8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
-                .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
             }
@@ -168,6 +142,22 @@ struct VideoResultsView: View {
 
             if #available(iOS 16.0, *) {
                 ShareLink(item: processedVideoURL) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(GradientButtonStyle())
+            } else {
+                Button(action: {
+                    // iOS 15 sharing fallback
+                    let activityController = UIActivityViewController(
+                        activityItems: [processedVideoURL],
+                        applicationActivities: nil
+                    )
+                    
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let rootViewController = windowScene.windows.first?.rootViewController {
+                        rootViewController.present(activityController, animated: true)
+                    }
+                }) {
                     Label("Share", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(GradientButtonStyle())

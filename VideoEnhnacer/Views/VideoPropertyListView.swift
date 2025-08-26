@@ -5,95 +5,69 @@ struct VideoPropertyListView: View {
     @State private var selectedProperty: VideoProperty?
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.appBackground
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Header
-                        VStack(spacing: 12) {
-                            Text("Video Enhancement")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.primaryText)
-                            
-                            Text("Choose enhancement properties for your video")
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundColor(.secondaryText)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+    
+    private var content: some View {
+        ZStack {
+            Color.appBackground
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header
+                    VStack(spacing: 12) {
+                        Text("Video Enhancement")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.primaryText)
                         
-                        // Video Properties
-                        ForEach(videoProperties, id: \.id) { property in
-                            PropertySlider(
-                                title: property.title,
-                                beforeImage: property.beforeIcon,
-                                afterImage: property.afterIcon
-                            )
-                        }
-                        
-                        // Action Buttons
-                        VStack(spacing: 16) {
-                            // Process Button
-                            Button(action: {
-                                processVideo()
-                            }) {
-                                HStack {
-                                    Image(systemName: "wand.and.stars")
-                                        .font(.system(size: 18, weight: .medium))
-                                    
-                                    Text("Process Video")
-                                        .font(.system(size: 18, weight: .semibold))
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .primaryGradient()
-                                        .shadow(
-                                            color: Color.black.opacity(0.15),
-                                            radius: 8,
-                                            x: 0,
-                                            y: 4
-                                        )
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            // Save Preset Button
-                            NeomorphicButton(
-                                title: "Save as Preset",
-                                systemImage: "bookmark"
-                            ) {
-                                savePreset()
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
-                        
-                        Spacer(minLength: 40)
+                        Text("Customize your video enhancement settings")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondaryText)
+                            .multilineTextAlignment(.center)
                     }
+                    .padding(.top, 20)
+                    
+                    // Properties List
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 1), spacing: 16) {
+                        ForEach(videoProperties, id: \.id) { property in
+                            VideoPropertyCard(
+                                property: property,
+                                isSelected: selectedProperty?.id == property.id,
+                                onTap: {
+                                    selectedProperty = property
+                                })
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer(minLength: 40)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.secondaryText)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Reset") {
-                        resetAllProperties()
-                    }
-                    .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
+                .foregroundColor(.secondaryText)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Reset") {
+                    resetAllProperties()
                 }
+                .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
             }
         }
     }

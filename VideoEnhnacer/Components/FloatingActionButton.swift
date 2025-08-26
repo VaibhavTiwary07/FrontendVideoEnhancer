@@ -4,11 +4,6 @@ struct FloatingActionButton: View {
     let action: () -> Void
     @State private var isPressed = false
     @State private var rotationAngle: Double = 0
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
-    private var isIPad: Bool {
-        horizontalSizeClass == .regular
-    }
     
     var body: some View {
         Button(action: {
@@ -24,9 +19,9 @@ struct FloatingActionButton: View {
             action()
         }) {
             Image(systemName: "plus")
-                .font(.system(size: isIPad ? 28 : 24, weight: .medium))
+                .dynamicFont(24, weight: .medium)
                 .foregroundColor(.white)
-                .frame(width: isIPad ? 72 : 64, height: isIPad ? 72 : 64)
+                .dynamicFrame(width: 64, height: 64)
                 .rotationEffect(.degrees(rotationAngle))
                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
         }
@@ -84,8 +79,7 @@ struct FABButtonStyle: ButtonStyle {
                 FloatingActionButton {
                     print("FAB tapped")
                 }
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
+                .dynamicPadding(20)
             }
         }
     }

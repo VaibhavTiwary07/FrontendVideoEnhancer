@@ -76,17 +76,27 @@ class VideoPreviewManager: ObservableObject {
     func updateTrim(start: Double, end: Double) {
         startTime = start
         endTime = end
+
+        guard let player = player else { return }
+
+        let wasPlaying = player.rate != 0
+        let startCMTime = CMTime(seconds: startTime, preferredTimescale: 600)
+        player.seek(to: startCMTime, toleranceBefore: .zero, toleranceAfter: .zero) { [weak player] _ in
+            if wasPlaying {
+                player?.play()
+            }
+        }
     }
     
     func cleanup() {
         player?.pause()
-        player = nil
         
         if let timeObserver = timeObserver {
             player?.removeTimeObserver(timeObserver)
             self.timeObserver = nil
         }
         
+        player = nil
         NotificationCenter.default.removeObserver(self)
     }
     

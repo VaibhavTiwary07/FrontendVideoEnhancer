@@ -3,7 +3,7 @@ import AVFoundation
 
 struct VideoInfoCard: View {
     let videoURL: URL
-    @State private var videoInfo: VideoInfo?
+    @State private var videoInfo: VideoInfoData?
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -73,7 +73,7 @@ struct VideoInfoCard: View {
                 
                 let fileSize = try FileManager.default.attributesOfItem(atPath: videoURL.path)[.size] as? Int64 ?? 0
                 
-                let info = VideoInfo(
+                let info = VideoInfoData(
                     duration: duration,
                     resolution: resolution,
                     fileSize: fileSize
@@ -114,7 +114,7 @@ struct InfoItem: View {
     }
 }
 
-struct VideoInfo {
+struct VideoInfoData {
     let duration: CMTime
     let resolution: CGSize
     let fileSize: Int64

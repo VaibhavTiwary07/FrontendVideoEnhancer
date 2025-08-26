@@ -37,7 +37,7 @@ struct VideoComparisonSlider: View {
                         Group {
                             if playerState == .ready,
                                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
-                                VideoPlayerView(player: enhancedPlayer)
+                                AVPlayerUIView(player: enhancedPlayer)
                                     .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                             } else {
@@ -49,7 +49,7 @@ struct VideoComparisonSlider: View {
                         Group {
                             if playerState == .ready,
                                let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
-                                VideoPlayerView(player: normalPlayer)
+                                AVPlayerUIView(player: normalPlayer)
                                     .frame(height: videoHeight)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .mask(
@@ -87,16 +87,16 @@ struct VideoComparisonSlider: View {
                     // Labels
                     HStack {
                         Text("Before")
-                            .font(.system(size: 11, weight: .medium))
+                            .dynamicFont(11, weight: .medium)
                             .foregroundColor(.secondaryText)
                         
                         Spacer()
                         
                         Text("After")
-                            .font(.system(size: 11, weight: .medium))
+                            .dynamicFont(11, weight: .medium)
                             .foregroundColor(.primaryText)
                     }
-                    .padding(.horizontal, 8)
+                    .dynamicHorizontalPadding(8)
                     
                     // Custom Slider
                     ZStack {
@@ -174,7 +174,7 @@ struct VideoComparisonSlider: View {
             stopAutoSlide()
             stopResumeTimer()
         }
-        .onChange(of: playerState) { _, state in
+        .onChange(of: playerState) { state in
             // Handle state changes if needed for animations
         }
     }
@@ -235,7 +235,7 @@ struct VideoComparisonSlider: View {
                                 .tint(Color.primaryText.opacity(0.6))
                             
                             Text("Loading...")
-                                .font(.system(size: 10, weight: .medium))
+                                .dynamicFont(10, weight: .medium)
                                 .foregroundColor(.secondaryText)
                         }
                     } else {
@@ -248,7 +248,7 @@ struct VideoComparisonSlider: View {
     }
 }
 
-struct VideoPlayerView: UIViewRepresentable {
+struct AVPlayerUIView: UIViewRepresentable {
     let player: AVPlayer
     
     func makeUIView(context: Context) -> UIView {

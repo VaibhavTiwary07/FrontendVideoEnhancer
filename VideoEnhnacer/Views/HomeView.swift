@@ -50,12 +50,12 @@ struct HomeView: View {
                                         icon: "arrow.up.square",
                                         title: "AI Upscale",
                                         subtitle: "Enhance image resolution",
-                                        gradientType: .redPink
+                                        gradientType: .cyanGray
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Upscale",
                                             icon: "arrow.up.square",
-                                            gradientType: .redPink
+                                            gradientType: .cyanGray
                                         )
                                     }
                                     
@@ -149,18 +149,6 @@ struct HomeView: View {
                 }
             }
             
-            // Floating Action Button
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    FloatingActionButton {
-                        showVideoPropertyList = true
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
-                }
-            }
         }
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()

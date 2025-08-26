@@ -70,7 +70,7 @@ struct ImageComparisonCard: View {
                 .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
                 .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
         )
-        .frame(minHeight: 110, maxHeight: 130)
+        .frame(minHeight: 110)
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .animation(.easeInOut(duration: 0.1), value: isPressed)
         .simultaneousGesture(
@@ -152,7 +152,7 @@ struct ImageComparisonCard: View {
         case "face.smiling": return "person.crop.circle.fill"
         case "waveform.path": return "waveform.circle.fill"
         case "paintpalette.fill": return "paintpalette.fill"
-        case "wand.and.stars": return "wand.and.stars.fill"
+        case "wand.and.stars": return "wand.and.stars"
         case "gyroscope": return "gyroscope"
         case "timer.circle.fill": return "timer.circle.fill"
         default: return "circle.fill"

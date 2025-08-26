@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import AVKit
 
 struct FavoritesView: View {
     @EnvironmentObject private var favoritesManager: FavoritesManager
@@ -19,7 +20,19 @@ struct FavoritesView: View {
     ]
     
     var body: some View {
-        NavigationStack {
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+    
+    private var content: some View {
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()
@@ -46,12 +59,7 @@ struct FavoritesView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back") {
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
-                        dismiss()
-                    }
-                    .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
+                    BackButton { dismiss() }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -65,7 +73,6 @@ struct FavoritesView: View {
                     }
                 }
             }
-        }
         .fullScreenCover(isPresented: $showingVideoPlayer) {
             if let videoURL = selectedVideo {
                 VideoPlayerFullScreenView(videoURL: videoURL) {
@@ -291,12 +298,23 @@ struct FavoriteVideoCard: View {
         imageGenerator.maximumSize = CGSize(width: 300, height: 168) // 16:9 aspect ratio
         
         return await withCheckedContinuation { continuation in
-            imageGenerator.generateCGImageAsynchronously(for: .zero) { image, actualTime, error in
-                if let image = image {
-                    continuation.resume(returning: UIImage(cgImage: image))
-                } else {
-                    print("Error generating thumbnail: \(error?.localizedDescription ?? "Unknown error")")
-                    continuation.resume(returning: nil)
+            if #available(iOS 16.0, *) {
+                imageGenerator.generateCGImageAsynchronously(for: .zero) { image, actualTime, error in
+                    if let image = image {
+                        continuation.resume(returning: UIImage(cgImage: image))
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
+                }
+            } else {
+                // iOS 15 fallback
+                Task {
+                    do {
+                        let image = try imageGenerator.copyCGImage(at: .zero, actualTime: nil)
+                        continuation.resume(returning: UIImage(cgImage: image))
+                    } catch {
+                        continuation.resume(returning: nil)
+                    }
                 }
             }
         }
@@ -336,7 +354,7 @@ struct VideoPlayerFullScreenView: View {
             Color.black.ignoresSafeArea()
             
             if let player = playerManager.player {
-                VideoPlayerView(player: player)
+                VideoPlayer(player: player)
                     .onAppear {
                         player.play()
                     }
@@ -387,9 +405,19 @@ struct RoundedCorner: Shape {
     }
 }
 
+// MARK: - Local AVPlayer wrapper to avoid naming conflicts
+
 #Preview {
-    NavigationStack {
-        FavoritesView()
+    if #available(iOS 16.0, *) {
+        NavigationStack {
+            FavoritesView()
+        }
+        .environmentObject(FavoritesManager())
+    } else {
+        NavigationView {
+            FavoritesView()
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+        .environmentObject(FavoritesManager())
     }
-    .environmentObject(FavoritesManager())
 }

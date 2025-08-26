@@ -47,63 +47,42 @@ struct VideoTrimmingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Enhanced Video Preview Section
+                // Enhanced Video Preview Section - Senior-level implementation
                 VStack(spacing: 16) {
                     ZStack {
-                        if let player = playerManager.player {
-                            VideoPlayer(player: player)
-                                .frame(height: isIPad ? 400 : 320)
-                                .cornerRadius(20)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                                )
-                                .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
-                                .padding(.horizontal, 20)
-                                .onAppear {
-                                    player.play()
-                                }
-                        } else {
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.accentWarm.opacity(0.1))
-                                .frame(height: isIPad ? 400 : 320)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                                )
-                                .padding(.horizontal, 20)
-                                .overlay(
-                                    VStack(spacing: 12) {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                            .scaleEffect(1.2)
-                                        
-                                        Text("Loading Video...")
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(.white.opacity(0.8))
-                                    }
-                                )
+                        AspectRatioVideoPlayer(
+                            player: playerManager.player,
+                            contentMode: .fit,
+                            maxHeight: DynamicScaling.isTabletOrLarger ? 500 : 320,
+                            minHeight: DynamicScaling.isCompactDevice ? 180 : 220,
+                            cornerRadius: 20
+                        )
+                        .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+                        .padding(.horizontal, 20)
+                        .onAppear {
+                            if let player = playerManager.player {
+                                player.play()
+                            }
                         }
                         
-                        // Change Video Button
+                        // Change Video Button - Positioned as overlay
                         VStack {
                             HStack {
                                 Spacer()
                                 
                                 Button(action: {
-                                    let impact = UIImpactFeedbackGenerator(style: .light)
-                                    impact.impactOccurred()
+                                    HapticFeedbackManager.impact(.light)
                                     dismiss()
                                 }) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "arrow.triangle.2.circlepath")
-                                            .font(.system(size: 14, weight: .medium))
+                                            .dynamicFont(14, weight: .medium)
                                         
                                         Text("Change")
-                                            .font(.system(size: 14, weight: .semibold))
+                                            .dynamicFont(14, weight: .semibold)
                                     }
                                     .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
+                                    .dynamicPadding(12)
                                     .padding(.vertical, 8)
                                     .background(
                                         Capsule()
@@ -116,28 +95,27 @@ struct VideoTrimmingView: View {
                                     .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
                                 }
                             }
-                            .padding(.trailing, 32)
-                            .padding(.top, 16)
+                            .dynamicPadding(16)
                             
                             Spacer()
                         }
                     }
                     
-                    // Enhanced Video info card
+                    // Enhanced Video info card - Senior-level responsive design
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 6) {
                                 Image(systemName: "scissors")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .dynamicFont(14, weight: .medium)
                                     .foregroundColor(.white.opacity(0.8))
                                 
                                 Text("Selected Duration")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .dynamicFont(14, weight: .medium)
                                     .foregroundColor(.white.opacity(0.8))
                             }
                             
                             Text(formatDuration(trimEndTime - trimStartTime))
-                                .font(.system(size: 24, weight: .bold))
+                                .dynamicFont(24, weight: .bold)
                                 .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
@@ -147,21 +125,21 @@ struct VideoTrimmingView: View {
                         VStack(alignment: .trailing, spacing: 6) {
                             HStack(spacing: 6) {
                                 Text("Total Duration")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .dynamicFont(14, weight: .medium)
                                     .foregroundColor(.white.opacity(0.8))
                                 
                                 Image(systemName: "clock")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .dynamicFont(14, weight: .medium)
                                     .foregroundColor(.white.opacity(0.8))
                             }
                             
                             Text(formatDuration(videoDuration))
-                                .font(.system(size: 24, weight: .bold))
+                                .dynamicFont(24, weight: .bold)
                                 .foregroundColor(.accentWarm)
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
-                    .padding(.horizontal, 24)
+                    .dynamicPadding(24)
                     .padding(.vertical, 20)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
@@ -172,20 +150,19 @@ struct VideoTrimmingView: View {
                             )
                     )
                     .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-                    .padding(.horizontal, 20)
+                    .dynamicHorizontalPadding(20)
                 }
                 .padding(.top, 20)
                 
                 Spacer()
                 
-                // Controls Section
-                VStack(spacing: 30) {
+                // Controls Section - Senior-level responsive implementation
+                VStack(spacing: DynamicScaling.spacing(30, for: DynamicScaling.currentDeviceSize())) {
                     // Duration Preset Buttons
-                    HStack(spacing: 16) {
+                    HStack(spacing: DynamicScaling.spacing(16, for: DynamicScaling.currentDeviceSize())) {
                         ForEach(TimePreset.allCases, id: \.title) { preset in
                             Button(preset.title) {
-                                let impact = UIImpactFeedbackGenerator(style: .light)
-                                impact.impactOccurred()
+                                HapticFeedbackManager.impact(.light)
                                 selectedDuration = preset
                                 updateTrimForPreset(preset)
                             }
@@ -196,7 +173,7 @@ struct VideoTrimmingView: View {
                         
                         Spacer()
                     }
-                    .padding(.horizontal, 20)
+                    .dynamicHorizontalPadding(20)
                     
                     // Video Trimming Slider
                     VideoTrimmingSlider(
@@ -207,31 +184,30 @@ struct VideoTrimmingView: View {
                         gradientType: gradientType,
                         thumbnails: thumbnails
                     )
-                    .frame(height: 60)
-                    .padding(.horizontal, 20)
+                    .dynamicFrame(height: 60)
+                    .dynamicHorizontalPadding(20)
                     
-                    // Process Button
+                    // Process Button - Enhanced with senior-level styling
                     Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
+                        HapticFeedbackManager.impact(.medium)
                         
                         // Debug: Log current trim values before navigation
                         print("🎬 VideoTrimmingView - Navigating with trimStartTime: \(trimStartTime), trimEndTime: \(trimEndTime)")
                         
                         navigateToEnhancement = true
                     }) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: DynamicScaling.spacing(12, for: DynamicScaling.currentDeviceSize())) {
                             Image(systemName: enhancementIcon)
-                                .font(.system(size: 20, weight: .medium))
+                                .dynamicFont(20, weight: .medium)
                             
                             Text("Continue to \(enhancementType)")
-                                .font(.system(size: 18, weight: .semibold))
+                                .dynamicFont(18, weight: .semibold)
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         }
                     }
                     .buttonStyle(FloatingActionButtonStyle())
-                    .padding(.horizontal, 20)
+                    .dynamicHorizontalPadding(20)
                 }
                 .padding(.bottom, 40)
             }
@@ -248,98 +224,73 @@ struct VideoTrimmingView: View {
                     }
                 }
         )
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    // Add haptic feedback
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    dismiss()
-                }) {
+        .navigationBarItems(
+            leading: BackButton { dismiss() },
+            trailing: HStack(spacing: 16) {
+                // Enhanced step indicator
+                VStack(spacing: 4) {
+                    // Progress dots with connecting lines
                     HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 17, weight: .medium))
-                    }
-                    .foregroundColor(.accentWarm)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.accentWarm.opacity(0.1))
-                    )
-                }
-            }
-            
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
-                    // Enhanced step indicator
-                    VStack(spacing: 4) {
-                        // Progress dots with connecting lines
-                        HStack(spacing: 8) {
-                            ForEach(1...3, id: \.self) { step in
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
-                                        .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.accentWarm, lineWidth: step == 2 ? 2 : 1)
-                                                .opacity(step == 2 ? 1 : 0.5)
-                                        )
-                                    
-                                    // Connecting line (except for last step)
-                                    if step < 3 {
-                                        Rectangle()
-                                            .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
-                                            .frame(width: 12, height: 2)
-                                            .cornerRadius(1)
-                                    }
+                        ForEach(1...3, id: \.self) { step in
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(step <= 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                    .frame(width: step == 2 ? 10 : 8, height: step == 2 ? 10 : 8)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.accentWarm, lineWidth: step == 2 ? 2 : 1)
+                                            .opacity(step == 2 ? 1 : 0.5)
+                                    )
+                                
+                                // Connecting line (except for last step)
+                                if step < 3 {
+                                    Rectangle()
+                                        .fill(step < 2 ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.accentWarm.opacity(0.3)], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: 12, height: 2)
+                                        .cornerRadius(1)
                                 }
                             }
                         }
-                        
-                        Text("Step 2 of 3")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.accentWarm)
                     }
                     
-                    // Close button
-                    Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.accentWarm)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color.accentWarm.opacity(0.15))
-                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                            )
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    Text("Step 2 of 3")
+                        .dynamicFont(12, weight: .medium)
+                        .foregroundColor(.accentWarm)
                 }
+                
+                // Close button - Senior-level implementation
+                Button(action: {
+                    HapticFeedbackManager.impact(.medium)
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .dynamicFont(16, weight: .medium)
+                        .foregroundColor(.accentWarm)
+                        .dynamicFrame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.accentWarm.opacity(0.15))
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
-        }
+        )
         .onAppear {
             setupVideo()
         }
         .onDisappear {
             playerManager.cleanup()
         }
-        .navigationDestination(isPresented: $navigateToEnhancement) {
-            EnhancementSelectionView(
-                videoURL: videoURL,
-                enhancementType: enhancementType,
-                enhancementIcon: enhancementIcon,
-                gradientType: gradientType,
-                trimStartTime: trimStartTime,
-                trimEndTime: trimEndTime
-            )
+        .fullScreenCover(isPresented: $navigateToEnhancement) {
+            NavigationView {
+                RefactoredEnhancementSelectionView(
+                    videoURL: videoURL,
+                    enhancementType: getEnhancementType(from: enhancementType),
+                    trimStartTime: trimStartTime,
+                    trimEndTime: trimEndTime
+                )
+            }
         }
         .onChange(of: trimStartTime) { newValue in
             print("🎬 VideoTrimmingView - trimStartTime changed to: \(newValue)")
@@ -447,21 +398,48 @@ struct VideoTrimmingView: View {
             return String(format: "%d:%02d", minutes, remainingSeconds)
         }
     }
+    
+    // Helper function to convert String enhancementType to EnhancementType struct
+    private func getEnhancementType(from stringType: String) -> EnhancementType {
+        let registry = EnhancementTypeRegistry.shared
+        let supportedTypes = registry.getAllEnhancementTypes()
+        
+        // Map string names to enhancement IDs
+        switch stringType {
+        case "AI Upscale":
+            return supportedTypes.first { $0.id == "ai_upscale" } ?? supportedTypes[0]
+        case "AI Denoise":
+            return supportedTypes.first { $0.id == "ai_denoise" } ?? supportedTypes[0]
+        case "AI Auto Enhancement":
+            return supportedTypes.first { $0.id == "ai_auto_enhancement" } ?? supportedTypes[0]
+        case "Stabilizer":
+            return supportedTypes.first { $0.id == "stabilizer" } ?? supportedTypes[0]
+        case "Frame Interpolation":
+            return supportedTypes.first { $0.id == "frame_interpolation" } ?? supportedTypes[0]
+        default:
+            return supportedTypes[0]
+        }
+    }
 }
 
 
-// Custom button style for preset buttons
+// Senior-level preset button style with dynamic scaling
 struct PresetButtonStyle: ButtonStyle {
     let isSelected: Bool
     
     func makeBody(configuration: Configuration) -> some View {
+        let deviceSize = DynamicScaling.currentDeviceSize()
+        
         configuration.label
-            .font(.system(size: 16, weight: .semibold))
+            .font(.system(size: DynamicScaling.font(16, for: deviceSize), weight: .semibold))
             .foregroundColor(isSelected ? .white : .white.opacity(0.8))
             .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-            .frame(width: 80, height: 40)
+            .frame(
+                width: DynamicScaling.size(80, for: deviceSize),
+                height: DynamicScaling.size(40, for: deviceSize)
+            )
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: DynamicScaling.cornerRadius(12, for: deviceSize))
                     .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                     .scaleEffect(configuration.isPressed ? 0.95 : 1.0)

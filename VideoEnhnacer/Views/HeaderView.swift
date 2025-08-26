@@ -38,17 +38,28 @@ struct HeaderView: View {
             
             // App Title (Optional)
             Text("Video Enhancer")
-                .font(.system(size: 18, weight: .semibold))
+                .dynamicFont(18, weight: .semibold)
                 .foregroundColor(.primaryText)
             
             Spacer()
             
-            // Right side placeholder for future actions
-            Color.clear
-                .frame(width: 36, height: 36)
+            // Pro Button
+            Button(action: {
+                // No action - empty as requested
+            }) {
+                HStack(spacing: DynamicScaling.spacing(6, for: DynamicScaling.currentDeviceSize())) {
+                    Image(systemName: "star.fill")
+                        .dynamicFont(14, weight: .medium)
+                    
+                    Text("Pro")
+                        .dynamicFont(14, weight: .semibold)
+                }
+                .foregroundColor(.white)
+            }
+            .gradientButtonStyle()
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .dynamicHorizontalPadding(20)
+        .dynamicVerticalPadding(12)
         .background(
             Rectangle()
                 .fill(Color.cardBackground)

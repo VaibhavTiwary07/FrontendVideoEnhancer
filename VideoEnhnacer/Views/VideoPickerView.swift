@@ -14,7 +14,19 @@ struct VideoPickerView: View {
     @State private var showingPermissionAlert = false
     
     var body: some View {
-        NavigationStack {
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                content
+            }
+        } else {
+            NavigationView {
+                content
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        }
+    }
+    
+    private var content: some View {
             ZStack {
                 Color.primarySoft
                     .ignoresSafeArea()
@@ -227,48 +239,57 @@ struct VideoPickerView: View {
                     Spacer()
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.accentWarm)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Text("Step 1 of 4")
-                        .font(.caption)
-                        .foregroundColor(.accentWarm.opacity(0.7))
-                }
+                .foregroundColor(.accentWarm)
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Text("Step 1 of 4")
+                    .font(.caption)
+                    .foregroundColor(.accentWarm.opacity(0.7))
             }
         }
-        .photosPicker(isPresented: $showingVideoPicker, selection: Binding<PhotosPickerItem?>(
-            get: { nil },
-            set: { item in
-                if let item = item {
-                    loadVideo(from: item)
-                }
-            }
-        ), matching: .videos)
+        .modifier(VideoPickerModifier(showingVideoPicker: $showingVideoPicker) { url in
+            selectedVideoURL = url
+        })
         .onAppear {
             permissionManager.checkCurrentStatus()
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
-            NavigationStack {
-                if let videoURL = selectedVideoURL {
-                    VideoTrimmingView(
-                        videoURL: videoURL,
-                        enhancementType: enhancementType,
-                        enhancementIcon: enhancementIcon,
-                        gradientType: gradientType
-                    )
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    if let videoURL = selectedVideoURL {
+                        VideoTrimmingView(
+                            videoURL: videoURL,
+                            enhancementType: enhancementType,
+                            enhancementIcon: enhancementIcon,
+                            gradientType: gradientType
+                        )
+                    }
                 }
+            } else {
+                NavigationView {
+                    if let videoURL = selectedVideoURL {
+                        VideoTrimmingView(
+                            videoURL: videoURL,
+                            enhancementType: enhancementType,
+                            enhancementIcon: enhancementIcon,
+                            gradientType: gradientType
+                        )
+                    }
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
             }
         }
     }
     
+    @available(iOS 16.0, *)
     private func loadVideo(from item: PhotosPickerItem) {
         item.loadTransferable(type: VideoTransferable.self) { result in
             switch result {
@@ -286,6 +307,7 @@ struct VideoPickerView: View {
 }
 
 // Video transferable for PhotosPicker
+@available(iOS 16.0, *)
 struct VideoTransferable: Transferable {
     let url: URL
     
@@ -345,6 +367,89 @@ struct FloatingActionButtonStyle: ButtonStyle {
                     )
             )
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Video Picker Modifier
+struct VideoPickerModifier: ViewModifier {
+    @Binding var showingVideoPicker: Bool
+    let onVideoSelected: (URL) -> Void
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content
+                .photosPicker(isPresented: $showingVideoPicker, selection: Binding<PhotosPickerItem?>(
+                    get: { nil },
+                    set: { item in
+                        if let item = item {
+                            loadVideo(from: item)
+                        }
+                    }
+                ), matching: .videos)
+        } else {
+            content
+                .sheet(isPresented: $showingVideoPicker) {
+                    UIKitVideoPickerWrapper { url in
+                        onVideoSelected(url)
+                        showingVideoPicker = false
+                    }
+                }
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    private func loadVideo(from item: PhotosPickerItem) {
+        item.loadTransferable(type: VideoTransferable.self) { result in
+            switch result {
+            case .success(let video):
+                if let video = video {
+                    DispatchQueue.main.async {
+                        onVideoSelected(video.url)
+                    }
+                }
+            case .failure(let error):
+                print("Error loading video: \(error)")
+            }
+        }
+    }
+}
+
+// MARK: - UIKit Video Picker for iOS 15
+struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
+    let onVideoSelected: (URL) -> Void
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        picker.mediaTypes = ["public.movie"]
+        picker.allowsEditing = false
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onVideoSelected: onVideoSelected)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let onVideoSelected: (URL) -> Void
+        
+        init(onVideoSelected: @escaping (URL) -> Void) {
+            self.onVideoSelected = onVideoSelected
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let url = info[.mediaURL] as? URL {
+                onVideoSelected(url)
+            }
+            picker.dismiss(animated: true)
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
     }
 }
 
