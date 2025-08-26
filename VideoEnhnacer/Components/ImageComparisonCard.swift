@@ -152,7 +152,7 @@ struct ImageComparisonCard: View {
         case "face.smiling": return "person.crop.circle.fill"
         case "waveform.path": return "waveform.circle.fill"
         case "paintpalette.fill": return "paintpalette.fill"
-        case "wand.and.stars": return "wand.and.stars.fill"
+        case "wand.and.stars": return "wand.and.stars"
         case "gyroscope": return "gyroscope"
         case "timer.circle.fill": return "timer.circle.fill"
         default: return "circle.fill"

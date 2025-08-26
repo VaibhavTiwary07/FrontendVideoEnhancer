@@ -87,16 +87,16 @@ struct VideoComparisonSlider: View {
                     // Labels
                     HStack {
                         Text("Before")
-                            .font(.system(size: 11, weight: .medium))
+                            .dynamicFont(11, weight: .medium)
                             .foregroundColor(.secondaryText)
                         
                         Spacer()
                         
                         Text("After")
-                            .font(.system(size: 11, weight: .medium))
+                            .dynamicFont(11, weight: .medium)
                             .foregroundColor(.primaryText)
                     }
-                    .padding(.horizontal, 8)
+                    .dynamicHorizontalPadding(8)
                     
                     // Custom Slider
                     ZStack {
@@ -235,7 +235,7 @@ struct VideoComparisonSlider: View {
                                 .tint(Color.primaryText.opacity(0.6))
                             
                             Text("Loading...")
-                                .font(.system(size: 10, weight: .medium))
+                                .dynamicFont(10, weight: .medium)
                                 .foregroundColor(.secondaryText)
                         }
                     } else {
