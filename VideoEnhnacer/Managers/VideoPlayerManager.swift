@@ -4,6 +4,7 @@ import AVFoundation
 class VideoPlayerManager: ObservableObject {
     private var playerPairs: [String: (normal: AVPlayer, enhanced: AVPlayer)] = [:]
     private var loopObservers: [String: [NSObjectProtocol]] = [:]
+    private var timeSyncObservers: [String: Any] = [:]
     private var loadedKeys: Set<String> = []
     private var loadingKeys: Set<String> = []
     private var activeViewKeys: Set<String> = []
@@ -198,6 +199,7 @@ class VideoPlayerManager: ObservableObject {
         
         // Clean up existing observers for this key
         cleanupObservers(forKey: key)
+        cleanupTimeObserver(forKey: key)
         
         var observers: [NSObjectProtocol] = []
         
@@ -224,6 +226,18 @@ class VideoPlayerManager: ObservableObject {
         observers.append(enhancedObserver)
         
         loopObservers[key] = observers
+
+        // Periodically sync enhanced player's time to normal player's time
+        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
+        let token = playerPair.normal.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            guard let self = self else { return }
+            let enhancedTime = playerPair.enhanced.currentTime()
+            let diff = abs(CMTimeGetSeconds(enhancedTime) - CMTimeGetSeconds(time))
+            if diff > 0.05 {
+                playerPair.enhanced.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+            }
+        }
+        timeSyncObservers[key] = token
     }
     
     private func cleanupObservers(forKey key: String) {
@@ -232,6 +246,15 @@ class VideoPlayerManager: ObservableObject {
                 NotificationCenter.default.removeObserver(observer)
             }
             loopObservers.removeValue(forKey: key)
+        }
+    }
+
+    private func cleanupTimeObserver(forKey key: String) {
+        if let token = timeSyncObservers[key] {
+            if let pair = playerPairs[key] {
+                pair.normal.removeTimeObserver(token)
+            }
+            timeSyncObservers.removeValue(forKey: key)
         }
     }
     
@@ -244,6 +267,7 @@ class VideoPlayerManager: ObservableObject {
         } else {
             activeViewKeys.remove(key)
             pausePlayers(forKey: key)
+            cleanupTimeObserver(forKey: key)
         }
     }
     
@@ -306,6 +330,9 @@ class VideoPlayerManager: ObservableObject {
         NotificationCenter.default.removeObserver(self)
         for key in loopObservers.keys {
             cleanupObservers(forKey: key)
+        }
+        for key in timeSyncObservers.keys {
+            cleanupTimeObserver(forKey: key)
         }
         for (_, playerPair) in playerPairs {
             playerPair.normal.pause()

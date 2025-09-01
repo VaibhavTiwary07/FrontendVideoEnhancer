@@ -99,6 +99,46 @@ struct VideoComparisonSlider: View {
                                 x: max(1, min(geometry.size.width - 1, geometry.size.width * sliderValue)),
                                 y: max(1, videoHeight / 2)
                             )
+
+                        // Draggable handle aligned with divider
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 22, height: 22)
+                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
+                            .position(
+                                x: max(11, min(geometry.size.width - 11, geometry.size.width * sliderValue)),
+                                y: max(12, videoHeight / 2)
+                            )
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        isUserInteracting = true
+                                        stopAutoSlide()
+                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+                                        sliderValue = newValue
+                                    }
+                                    .onEnded { _ in
+                                        scheduleAutoSlideResume()
+                                    }
+                            )
+
+                        // Make the whole video area draggable
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                            .frame(height: videoHeight)
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        isUserInteracting = true
+                                        stopAutoSlide()
+                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+                                        sliderValue = newValue
+                                    }
+                                    .onEnded { _ in
+                                        scheduleAutoSlideResume()
+                                    }
+                            )
                     }
                     
                     // Labels
@@ -276,7 +316,7 @@ struct AVPlayerUIView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         let playerLayer = AVPlayerLayer(player: player)
-        playerLayer.videoGravity = .resizeAspectFill
+        playerLayer.videoGravity = .resizeAspect
         view.layer.addSublayer(playerLayer)
         
         DispatchQueue.main.async {
