@@ -22,6 +22,7 @@ struct VideoResultsView: View {
     @State private var selectedResolution = "1080p"
     @State private var selectedFrameRate = "30fps"
     @State private var selectedFormat = "MP4"
+    @State private var exportedVideoURL: URL? = nil
 
     enum ViewMode { case original, compare, output }
     
@@ -81,6 +82,24 @@ struct VideoResultsView: View {
                 }
                 .foregroundColor(.white)
                 Spacer()
+
+                // Export button moved to top-right
+                Button(action: {
+                    showingExportOptions = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.down.to.line")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Export")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(width: 70, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(LinearGradient.primaryTheme)
+                    )
+                }
             }
             .padding()
 
@@ -98,14 +117,26 @@ struct VideoResultsView: View {
             .padding()
 
             Spacer()
-
-            Button("Save & Share") {
-                selectedTab = 1
-            }
-            .buttonStyle(GradientButtonStyle())
-            .padding()
         }
         .background(Color.black.ignoresSafeArea())
+        .overlay {
+            if showingExportOptions {
+                ExportOptionsView(
+                    isPresented: $showingExportOptions,
+                    selectedResolution: $selectedResolution,
+                    selectedFrameRate: $selectedFrameRate,
+                    selectedFormat: $selectedFormat,
+                    onExport: { },
+                    videoURL: processedVideoURL,
+                    onCompleted: { url in
+                        self.exportedVideoURL = url
+                        self.selectedTab = 1
+                    }
+                )
+                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .zIndex(1)
+            }
+        }
     }
 
     private func modeButton(title: String, mode: ViewMode) -> some View {
@@ -197,41 +228,23 @@ struct VideoResultsView: View {
 //                .buttonStyle(PlainButtonStyle())
                 
                 Spacer()
-                
-                // Export Button
-                Button(action: {
-                    showingExportOptions = true
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.down.to.line")
-                            .font(.system(size: 14, weight: .medium))
-                        Text("Export")
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .foregroundColor(.white)
-                    .frame(width: 70, height: 36)
-                    .background(
-                        RoundedRectangle(cornerRadius: 18)
-                            .fill(LinearGradient.primaryTheme)
-                    )
-                }
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
             
-            VideoPreviewView(videoURL: processedVideoURL)
+            VideoPreviewView(videoURL: effectiveVideoURL)
                 .frame(height: 300)
                 .padding()
 
             FavoriteButton(
-                videoURL: processedVideoURL,
+                videoURL: effectiveVideoURL,
                 enhancementType: enhancementType,
                 enhancementIcon: enhancementIcon,
                 title: "\(enhancementType) Enhanced Video"
             )
 
             if #available(iOS 16.0, *) {
-                ShareLink(item: processedVideoURL) {
+                ShareLink(item: effectiveVideoURL) {
                     Label("Share", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(GradientButtonStyle())
@@ -239,7 +252,7 @@ struct VideoResultsView: View {
                 Button(action: {
                     // iOS 15 sharing fallback
                     let activityController = UIActivityViewController(
-                        activityItems: [processedVideoURL],
+                        activityItems: [effectiveVideoURL],
                         applicationActivities: nil
                     )
                     
@@ -275,20 +288,7 @@ struct VideoResultsView: View {
         } message: {
             Text("Video has been saved to your photo library")
         }
-        .overlay {
-            if showingExportOptions {
-                ExportOptionsView(
-                    isPresented: $showingExportOptions,
-                    selectedResolution: $selectedResolution,
-                    selectedFrameRate: $selectedFrameRate,
-                    selectedFormat: $selectedFormat,
-                    onExport: { },
-                    videoURL: processedVideoURL
-                )
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-                .zIndex(1)
-            }
-        }
+        // ExportOptionsView overlay is shown on the comparison page only
     }
 
     private func exportVideo() {
@@ -323,10 +323,14 @@ struct VideoResultsView: View {
         }
     }
 
+    private var effectiveVideoURL: URL {
+        return exportedVideoURL ?? processedVideoURL
+    }
+
     private func saveToPhotoLibrary() {
         isSaving = true
         PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: processedVideoURL)
+            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: effectiveVideoURL)
         }) { success, error in
             DispatchQueue.main.async {
                 isSaving = false

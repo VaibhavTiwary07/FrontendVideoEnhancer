@@ -9,6 +9,7 @@ struct ExportOptionsView: View {
     @Binding var selectedFormat: String
     let onExport: () -> Void
     let videoURL: URL
+    let onCompleted: (URL) -> Void
     
     private let resolutionOptions = ["720p", "1080p"]
     private let frameRateOptions = ["30fps", "60fps"]
@@ -273,20 +274,21 @@ extension ExportOptionsView {
         exportError = nil
 
         exportVideo(videoURL: videoURL, resolution: selectedResolution, fps: selectedFrameRate, format: selectedFormat) { result in
-            switch result {
-            case .success(let tempURL):
-                os_log("Export succeeded: %@", log: OSLog.default, type: .debug, tempURL.absoluteString)
-                // Dismiss panel and present share sheet
-                withAnimation(.easeOut(duration: 0.25)) {
-                    isPresented = false
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let tempURL):
+                    os_log("Export succeeded: %@", log: OSLog.default, type: .debug, tempURL.absoluteString)
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        isPresented = false
+                    }
+                    onCompleted(tempURL)
+                case .failure(let error):
+                    os_log("Export failed: %@", log: OSLog.default, type: .error, error.localizedDescription)
+                    exportError = error.localizedDescription
+                    showError = true
                 }
-                presentShareSheet(for: tempURL)
-            case .failure(let error):
-                os_log("Export failed: %@", log: OSLog.default, type: .error, error.localizedDescription)
-                exportError = error.localizedDescription
-                showError = true
+                isExporting = false
             }
-            isExporting = false
         }
     }
 
@@ -418,6 +420,7 @@ extension ExportOptionsView {
         selectedFrameRate: .constant("30fps"),
         selectedFormat: .constant("MP4"),
         onExport: { },
-        videoURL: URL(fileURLWithPath: "/tmp/dummy.mp4")
+        videoURL: URL(fileURLWithPath: "/tmp/dummy.mp4"),
+        onCompleted: { _ in }
     )
 }
