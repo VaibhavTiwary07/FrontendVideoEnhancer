@@ -282,7 +282,8 @@ struct VideoResultsView: View {
                     selectedResolution: $selectedResolution,
                     selectedFrameRate: $selectedFrameRate,
                     selectedFormat: $selectedFormat,
-                    onExport: exportVideo
+                    onExport: { },
+                    videoURL: processedVideoURL
                 )
                 .transition(.move(edge: .trailing).combined(with: .opacity))
                 .zIndex(1)

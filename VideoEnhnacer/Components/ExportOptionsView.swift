@@ -1,4 +1,6 @@
 import SwiftUI
+import OSLog
+import UIKit
 
 struct ExportOptionsView: View {
     @Binding var isPresented: Bool
@@ -6,10 +8,16 @@ struct ExportOptionsView: View {
     @Binding var selectedFrameRate: String
     @Binding var selectedFormat: String
     let onExport: () -> Void
+    let videoURL: URL
     
     private let resolutionOptions = ["720p", "1080p"]
     private let frameRateOptions = ["30fps", "60fps"]
     private let formatOptions = ["MP4", "3GP", "AVI"]
+
+    // Local export state
+    @State private var isExporting: Bool = false
+    @State private var exportError: String? = nil
+    @State private var showError: Bool = false
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -169,14 +177,12 @@ struct ExportOptionsView: View {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
                         onExport()
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            isPresented = false
-                        }
+                        startExport()
                     }) {
                         HStack {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 16, weight: .semibold))
-                            Text("Export")
+                            Text(isExporting ? "Exporting..." : "Export")
                                 .font(.system(size: 16, weight: .semibold))
                         }
                         .foregroundColor(.white)
@@ -194,6 +200,7 @@ struct ExportOptionsView: View {
                     }
                     .scaleEffect(1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPresented)
+                    .disabled(isExporting)
                 }
                 .padding(24)
                 .frame(width: 280)
@@ -211,6 +218,11 @@ struct ExportOptionsView: View {
                 }
                 Spacer()
             }
+        }
+        .alert("Export Failed", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(exportError ?? "Unknown error")
         }
     }
     
@@ -253,14 +265,159 @@ struct ExportOptionsView: View {
     }
 }
 
+// MARK: - Export Integration (iOS 15 friendly)
+extension ExportOptionsView {
+    private func startExport() {
+        guard !isExporting else { return }
+        isExporting = true
+        exportError = nil
+
+        exportVideo(videoURL: videoURL, resolution: selectedResolution, fps: selectedFrameRate, format: selectedFormat) { result in
+            switch result {
+            case .success(let tempURL):
+                os_log("Export succeeded: %@", log: OSLog.default, type: .debug, tempURL.absoluteString)
+                // Dismiss panel and present share sheet
+                withAnimation(.easeOut(duration: 0.25)) {
+                    isPresented = false
+                }
+                presentShareSheet(for: tempURL)
+            case .failure(let error):
+                os_log("Export failed: %@", log: OSLog.default, type: .error, error.localizedDescription)
+                exportError = error.localizedDescription
+                showError = true
+            }
+            isExporting = false
+        }
+    }
+
+    // Multipart upload to server which returns exported video data
+    // Saves received data to a temporary file and returns its URL
+    private func exportVideo(videoURL: URL, resolution: String, fps: String, format: String, completion: @escaping (Result<URL, Error>) -> Void) {
+        let endpoint = AppConfig.baseURL + "/export"
+        guard let url = URL(string: endpoint) else {
+            let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid export URL: \(endpoint)"])
+            os_log("Invalid export URL: %@", log: OSLog.default, type: .error, endpoint)
+            completion(.failure(error))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        // Create multipart form-data body
+        var body = Data()
+        
+        // Add resolution field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"resolution\"\r\n\r\n\(resolution)\r\n".data(using: .utf8)!)
+        
+        // Add fps field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"fps\"\r\n\r\n\(fps)\r\n".data(using: .utf8)!)
+        
+        // Add format field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"format\"\r\n\r\n\(format)\r\n".data(using: .utf8)!)
+        
+        // Add video file
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        let fileExt = (videoURL.pathExtension.isEmpty ? format : videoURL.pathExtension).lowercased()
+        let mime = mimeType(for: fileExt)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"video.\(fileExt)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mime)\r\n\r\n".data(using: .utf8)!)
+        do {
+            let videoData = try Data(contentsOf: videoURL)
+            body.append(videoData)
+        } catch {
+            os_log("Failed to read video file: %@", log: OSLog.default, type: .error, error.localizedDescription)
+            completion(.failure(error))
+            return
+        }
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        // Perform the upload
+        os_log("Starting video export to %@ with resolution=%@, fps=%@, format=%@", log: OSLog.default, type: .debug, url.absoluteString, resolution, fps, format)
+        URLSession.shared.uploadTask(with: request, from: body) { data, response, error in
+            if let error = error {
+                os_log("Network error during export: %@", log: OSLog.default, type: .error, error.localizedDescription)
+                completion(.failure(error))
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid server response"])
+                os_log("Invalid server response for export to %@", log: OSLog.default, type: .error, url.absoluteString)
+                completion(.failure(error))
+                return
+            }
+
+            os_log("HTTP status %d for export to %@", log: OSLog.default, type: .debug, httpResponse.statusCode, url.absoluteString)
+            if httpResponse.statusCode != 200 {
+                let errorMsg: String
+                if let data = data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let serverError = json["error"] as? String {
+                    errorMsg = serverError
+                } else {
+                    errorMsg = "Unexpected server response: \(httpResponse.statusCode)"
+                }
+                let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+                os_log("Export failed: %@", log: OSLog.default, type: .error, errorMsg)
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data else {
+                let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received from server"])
+                os_log("No data received from server for export to %@", log: OSLog.default, type: .error, url.absoluteString)
+                completion(.failure(error))
+                return
+            }
+
+            // Save the downloaded video to a temporary file
+            let ext = fileExt.isEmpty ? format.lowercased() : fileExt
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("exported_video.\(ext)")
+            do {
+                try data.write(to: tempURL)
+                os_log("Exported video saved to: %@", log: OSLog.default, type: .debug, tempURL.absoluteString)
+                completion(.success(tempURL))
+            } catch {
+                os_log("Failed to save exported video: %@", log: OSLog.default, type: .error, error.localizedDescription)
+                completion(.failure(error))
+            }
+        }.resume()
+    }
+
+    private func mimeType(for fileExtension: String) -> String {
+        switch fileExtension.lowercased() {
+        case "mp4": return "video/mp4"
+        case "3gp": return "video/3gpp"
+        case "avi": return "video/x-msvideo"
+        default: return "application/octet-stream"
+        }
+    }
+
+    private func presentShareSheet(for url: URL) {
+        let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            if let popover = activityController.popoverPresentationController {
+                popover.sourceView = rootViewController.view
+                popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            rootViewController.present(activityController, animated: true)
+        }
+    }
+}
+
 #Preview {
     ExportOptionsView(
         isPresented: .constant(true),
         selectedResolution: .constant("1080p"),
         selectedFrameRate: .constant("30fps"),
         selectedFormat: .constant("MP4"),
-        onExport: {
-            print("Export button tapped!")
-        }
+        onExport: { },
+        videoURL: URL(fileURLWithPath: "/tmp/dummy.mp4")
     )
 }

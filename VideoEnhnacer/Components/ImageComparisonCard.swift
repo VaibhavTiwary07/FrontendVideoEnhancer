@@ -8,7 +8,6 @@ struct ImageComparisonCard: View {
     let action: () -> Void
     
     @State private var sliderValue: Double = 0.5
-    @State private var isPressed = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -71,7 +70,8 @@ struct ImageComparisonCard: View {
                 }
             }
         }
-        .buttonStyle(PlainButtonStyle())
+        // Use a custom ButtonStyle to provide press feedback without hijacking scroll gestures
+        .buttonStyle(PressableCardButtonStyle(scale: 0.98))
         .background(
             RoundedRectangle(cornerRadius: 22)
                 .fill(Color.white.opacity(0.95))
@@ -79,17 +79,7 @@ struct ImageComparisonCard: View {
                 .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
         )
         .frame(minHeight: 110, maxHeight: 130)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.easeInOut(duration: 0.1), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    isPressed = true
-                }
-                .onEnded { _ in
-                    isPressed = false
-                }
-        )
+        .contentShape(RoundedRectangle(cornerRadius: 22))
         .padding(.horizontal, 20)
         .onAppear {
             // Auto-slide handled by slider itself
@@ -219,6 +209,16 @@ struct ImageComparisonCard: View {
     }
     
     // Auto-slide methods removed - handled by ImageComparisonSlider
+}
+
+// MARK: - ButtonStyle for press feedback that doesn't conflict with ScrollView (iOS 15 friendly)
+private struct PressableCardButtonStyle: ButtonStyle {
+    let scale: CGFloat
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? scale : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
 }
 
 #Preview {
