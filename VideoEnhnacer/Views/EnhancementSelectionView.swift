@@ -10,7 +10,7 @@ struct EnhancementSelectionView: View {
     let trimEndTime: Double?
     
     @StateObject private var selectionState = EnhancementSelectionState()
-    @StateObject private var interpolationService = FrameInterpolationService()
+    @StateObject private var serverService = ServerEnhancementService()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @State private var scrollOffset: CGFloat = 0
@@ -69,10 +69,9 @@ struct EnhancementSelectionView: View {
         switch enhancementType {
         case "AI Upscale":
             return [
-                EnhancementOption(id: "2x", title: "2x", description: "Double the resolution", icon: "arrow.up.right.square", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3x", description: "Triple the resolution", icon: "plus.magnifyingglass"),
-                EnhancementOption(id: "4x", title: "4x", description: "Quadruple the resolution", icon: "rectangle.expand.vertical"),
-                EnhancementOption(id: "1080p", title: "1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill")
+                EnhancementOption(id: "1080", title: "1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill", isRecommended: true),
+                EnhancementOption(id: "2K", title: "2K", description: "Upscale to 2K", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4K", title: "4K", description: "Upscale to 4K", icon: "rectangle.expand.vertical")
             ]
         case "AI Denoise":
             return [
@@ -222,8 +221,8 @@ struct EnhancementSelectionView: View {
                         .foregroundColor(.white)
                         .opacity(0.9)
                     
-                    // Add cancel button for frame interpolation
-                    if enhancementType == "Frame Interpolation" && interpolationService.isPolling {
+                    // Cancel button
+                    if isProcessing {
                         Button("Cancel") {
                             cancelProcessing()
                         }
@@ -349,44 +348,19 @@ struct EnhancementSelectionView: View {
                 processingProgress = 0.0
             }
         }
-        .onChange(of: interpolationService.processedVideoURL) { newURL in
-            if let newURL = newURL {
-                processedVideoURL = newURL
-                isProcessing = false
-                showingResults = true
-            }
-        }
-        .onChange(of: interpolationService.errorMessage) { newError in
-            if !newError.isEmpty {
-                processingError = newError
-                showingError = true
-                isProcessing = false
-            }
+        .onReceive(serverService.progressPublisher) { prog in
+            processingProgress = prog
         }
     }
     
     // MARK: - Helper Methods
     
-    private func getCurrentProgress() -> Double {
-        if enhancementType == "Frame Interpolation" {
-            return interpolationService.progress
-        } else {
-            return processingProgress
-        }
-    }
+    private func getCurrentProgress() -> Double { processingProgress }
     
-    private func getCurrentStatus() -> String {
-        if enhancementType == "Frame Interpolation" {
-            return interpolationService.status.isEmpty ? "Processing Video..." : interpolationService.status
-        } else {
-            return "Processing Video..."
-        }
-    }
+    private func getCurrentStatus() -> String { isProcessing ? "Processing Video..." : "" }
     
     private func cancelProcessing() {
-        if enhancementType == "Frame Interpolation" {
-            interpolationService.cancelProcessing()
-        }
+        Task { await serverService.cancelProcessing() }
         isProcessing = false
         processingProgress = 0.0
     }
@@ -395,11 +369,6 @@ struct EnhancementSelectionView: View {
         // Clear previous error
         processingError = nil
         showingError = false
-        
-        // Reset interpolation service if needed
-        if enhancementType == "Frame Interpolation" {
-            interpolationService.resetState()
-        }
         
         // Start processing again
         processVideo()
@@ -420,24 +389,45 @@ struct EnhancementSelectionView: View {
         isProcessing = true
         processingProgress = 0.0
         
-        // Check if this is frame interpolation
-        if enhancementType == "Frame Interpolation" {
-            // Use real server processing for frame interpolation
-            interpolationService.uploadVideo(videoURL: videoURL, level: selectionState.selectedOption)
-        } else {
-            // Keep existing mock processing for other enhancement types
-            let _ = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-                processingProgress += 0.02
-                
-                if processingProgress >= 1.0 {
-                    timer.invalidate()
-                    
-                    // Simulate processing completion
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        processedVideoURL = videoURL // Mock result - return original video
-                        isProcessing = false
-                        showingResults = true
-                    }
+        Task {
+            do {
+                let typeId: String
+                switch enhancementType {
+                case "AI Auto Enhancement": typeId = "ai_auto_enhancement"
+                case "AI Denoise": typeId = "ai_denoise"
+                case "Face & Object Enhancer": typeId = "face_enhancer"
+                case "AI Color": typeId = "ai_color"
+                case "Stabilizer": typeId = "stabilizer"
+                case "Frame Interpolation": typeId = "frame_interpolation"
+                case "AI Upscale": typeId = "ai_upscale"
+                default: typeId = "ai_auto_enhancement"
+                }
+                let type = EnhancementType(
+                    id: typeId,
+                    name: enhancementType,
+                    description: "",
+                    icon: enhancementIcon,
+                    options: enhancementOptions,
+                    gradientType: gradientType
+                )
+                let selected = enhancementOptions.first { $0.id == selectionState.selectedOption } ?? enhancementOptions.first!
+                let request = EnhancementRequest(
+                    enhancementType: type,
+                    selectedOption: selected,
+                    trimStartTime: trimStartTime,
+                    trimEndTime: trimEndTime
+                )
+                let result = try await serverService.processVideo(at: videoURL, with: request)
+                await MainActor.run {
+                    processedVideoURL = result.processedURL
+                    isProcessing = false
+                    showingResults = true
+                }
+            } catch {
+                await MainActor.run {
+                    processingError = error.localizedDescription
+                    showingError = true
+                    isProcessing = false
                 }
             }
         }

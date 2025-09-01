@@ -31,7 +31,7 @@ class FrameInterpolationService: ObservableObject {
     @Published var isSaving: Bool = false
     
     // MARK: - Configuration
-    private let baseURL = "http://192.168.0.104:5015"
+    private let baseURL = AppConfig.baseURL
     private var currentTimer: Timer?
     private var documentPickerDelegate: DocumentPickerDelegate?
     

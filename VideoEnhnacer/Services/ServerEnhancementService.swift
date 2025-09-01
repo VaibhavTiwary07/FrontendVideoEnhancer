@@ -1,0 +1,234 @@
+import Foundation
+import Combine
+import AVFoundation
+import Photos
+import SwiftUI
+
+// MARK: - Server-backed Enhancement Service (uses ContentShree2 backend contract)
+final class ServerEnhancementService: ObservableObject, EnhancementServiceProtocol {
+    // Published state
+    @Published private var processingState: EnhancementProcessingState = .idle
+    @Published private var progress: Double = 0.0
+    
+    var processingStatePublisher: Published<EnhancementProcessingState>.Publisher { $processingState }
+    var progressPublisher: Published<Double>.Publisher { $progress }
+    
+    private let baseURL = AppConfig.baseURL
+    private var pollTimer: Timer?
+    private var currentTaskId: String = ""
+    private let enhancementRegistry: EnhancementTypeRegistry
+    
+    init(enhancementRegistry: EnhancementTypeRegistry = .shared) {
+        self.enhancementRegistry = enhancementRegistry
+    }
+    
+    func getSupportedEnhancementTypes() -> [EnhancementType] {
+        enhancementRegistry.getAllEnhancementTypes()
+    }
+    
+    func validateEnhancement(request: EnhancementRequest) throws {
+        // Basic validation as in existing service
+        let supported = getSupportedEnhancementTypes()
+        guard supported.contains(where: { $0.id == request.enhancementType.id }) else {
+            throw EnhancementError.invalidInput("Unsupported enhancement type: \(request.enhancementType.id)")
+        }
+    }
+    
+    func cancelProcessing() async {
+        await MainActor.run {
+            self.pollTimer?.invalidate()
+            self.pollTimer = nil
+            self.processingState = .cancelled
+            self.progress = 0.0
+        }
+    }
+    
+    func processVideo(at url: URL, with request: EnhancementRequest) async throws -> EnhancementResult {
+        try await withCheckedThrowingContinuation { continuation in
+            Task { [weak self] in
+                guard let self = self else { return }
+                await self.updateState(.preparing, progress: 0.0)
+                
+                do {
+                    let (endpoint, includeLevel) = self.mapEndpoint(for: request.enhancementType.id)
+                    try await self.uploadVideo(
+                        videoURL: url,
+                        endpoint: endpoint,
+                        includeLevel: includeLevel,
+                        level: self.mapLevel(for: request)
+                    )
+                    await self.updateState(.processing(phase: .analysis), progress: 0.3)
+                    
+                    // Start polling
+                    try await self.pollUntilComplete(taskId: self.currentTaskId)
+                    
+                    // Fetch result
+                    let (processedURL, originalURL) = try await self.fetchResult(taskId: self.currentTaskId)
+                    
+                    let result = EnhancementResult(
+                        originalURL: originalURL ?? url,
+                        processedURL: processedURL,
+                        enhancementType: request.enhancementType,
+                        processingTime: 0,
+                        metadata: EnhancementMetadata(
+                            processingTime: 0,
+                            enhancementStrength: 0,
+                            qualityScore: 0,
+                            fileSize: 0,
+                            appliedSettings: [
+                                "endpoint": endpoint,
+                                "level": self.mapLevel(for: request) ?? ""
+                            ]
+                        )
+                    )
+                    await self.updateState(.completed(result), progress: 1.0)
+                    continuation.resume(returning: result)
+                } catch {
+                    await self.updateState(.failed(.processingFailed(error.localizedDescription)), progress: self.progress)
+                    continuation.resume(throwing: EnhancementError.processingFailed(error.localizedDescription))
+                }
+            }
+        }
+    }
+    
+    // MARK: - Private helpers
+    private func mapEndpoint(for enhancementId: String) -> (String, Bool) {
+        switch enhancementId {
+        case "ai_auto_enhancement":
+            return ("/brightness", true) // brightness is auto enhancement
+        case "ai_denoise":
+            return ("/denoise", true)
+        case "face_enhancer":
+            return ("/face_enhance", false)
+        case "ai_color":
+            return ("/colorization", false)
+        case "stabilizer":
+            return ("/stabilization", true)
+        case "frame_interpolation":
+            return ("/interpolation", true)
+        case "ai_upscale":
+            return ("/upscale", true)
+        default:
+            return ("/brightness", true)
+        }
+    }
+    
+    private func mapLevel(for request: EnhancementRequest) -> String? {
+        let id = request.enhancementType.id
+        let opt = request.selectedOption.id
+        switch id {
+        case "ai_auto_enhancement", "ai_denoise", "stabilizer":
+            return opt // low/medium/high
+        case "frame_interpolation":
+            return opt // smooth/fluid
+        case "ai_upscale":
+            // Align to backend expected values
+            let mapped = opt.lowercased()
+            if mapped == "1080p" || mapped == "1080" { return "1080" }
+            if mapped == "2k" { return "2K" }
+            if mapped == "4k" { return "4K" }
+            return "1080" // default
+        case "ai_color", "face_enhancer":
+            return nil // backend doesn’t require level
+        default:
+            return opt
+        }
+    }
+    
+    @MainActor
+    private func updateState(_ state: EnhancementProcessingState, progress: Double) {
+        self.processingState = state
+        self.progress = progress
+    }
+    
+    private func uploadVideo(videoURL: URL, endpoint: String, includeLevel: Bool, level: String?) async throws {
+        guard let url = URL(string: baseURL + endpoint) else { throw EnhancementError.processingFailed("Invalid URL") }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        if includeLevel, let level = level {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"level\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(level)\r\n".data(using: .utf8)!)
+        }
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"video\"; filename=\"video.mp4\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: video/mp4\r\n\r\n".data(using: .utf8)!)
+        let data = try Data(contentsOf: videoURL)
+        body.append(data)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        let (respData, _) = try await URLSession.shared.data(for: request)
+        let json = try JSONSerialization.jsonObject(with: respData) as? [String: Any]
+        guard let taskId = json?["task_id"] as? String else {
+            throw EnhancementError.processingFailed("Invalid response from server")
+        }
+        self.currentTaskId = taskId
+    }
+    
+    private func pollUntilComplete(taskId: String) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.processingState = .processing(phase: .enhancement)
+                self.progress = max(self.progress, 0.3)
+                
+                self.pollTimer?.invalidate()
+                self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
+                    guard let url = URL(string: self.baseURL + "/progress/" + taskId) else { return }
+                    URLSession.shared.dataTask(with: url) { data, response, _ in
+                        DispatchQueue.main.async {
+                            guard let data = data,
+                                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+                            let status = json["status"] as? String ?? ""
+                            let prog = json["progress"] as? Double ?? 0.0
+                            self.progress = prog
+                            if status == "completed" {
+                                timer.invalidate()
+                                self.pollTimer = nil
+                                continuation.resume()
+                            } else if status == "failed" {
+                                timer.invalidate()
+                                self.pollTimer = nil
+                                let msg = json["error"] as? String ?? "Unknown error"
+                                continuation.resume(throwing: EnhancementError.processingFailed(msg))
+                            }
+                        }
+                    }.resume()
+                }
+            }
+        }
+    }
+    
+    private func fetchResult(taskId: String) async throws -> (URL, URL?) {
+        guard let url = URL(string: baseURL + "/result/" + taskId) else { throw EnhancementError.processingFailed("Bad result URL") }
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: String]
+        guard let processedURL = json?["processed_url"] else { throw EnhancementError.processingFailed("No processed_url") }
+        let originalURL = json?["original_url"]
+        
+        let processedLocal = try await downloadToDocuments(from: processedURL, prefix: "enhanced_video")
+        var originalLocal: URL? = nil
+        if let originalURL = originalURL {
+            originalLocal = try? await downloadToDocuments(from: originalURL, prefix: "original_video")
+        }
+        return (processedLocal, originalLocal)
+    }
+    
+    private func downloadToDocuments(from path: String, prefix: String) async throws -> URL {
+        guard let url = URL(string: baseURL + path) else { throw EnhancementError.processingFailed("Bad download URL") }
+        let (tempURL, _) = try await URLSession.shared.download(from: url)
+        let destURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("\(prefix)_\(UUID().uuidString).mp4")
+        try? FileManager.default.removeItem(at: destURL)
+        try FileManager.default.moveItem(at: tempURL, to: destURL)
+        return destURL
+    }
+}

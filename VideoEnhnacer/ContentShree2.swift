@@ -1,12 +1,4 @@
 //
-//  ContentShree.swift
-//  VideoEnhnacer
-//
-//  Created by Vaibhav Tiwary on 26/08/25.
-//
-
-import Foundation
-//
 //  ContentView.swift
 //  VideoEnhancementApp
 //
@@ -18,9 +10,9 @@ import AVKit
 import MobileCoreServices
 import UIKit
 
-struct ContentShree: View {
+struct ContentShree2: View {
     @State private var selectedVideo: URL? = nil
-    @State private var enhancementType: String = "colorization"
+    @State private var enhancementType: String = "brightness"
     @State private var level: String = "medium"
     @State private var taskId: String = ""
     @State private var progress: Double = 0.0
@@ -39,7 +31,7 @@ struct ContentShree: View {
     @State private var isSaving = false
     @State private var documentPickerDelegate: DocumentPickerDelegate?
     
-    let baseURL = "http://192.168.0.104:5015"
+    let baseURL = AppConfig.baseURL
     
     let enhancementTypes = ["brightness", "denoise", "face_enhance", "colorization", "stabilization", "interpolation", "upscale"]
     let levels = ["low", "medium", "high"]
@@ -307,16 +299,51 @@ struct ContentShree: View {
     func pollProgress() {
         isPolling = true
         Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
-            let url = URL(string: baseURL + "/progress/" + taskId)!
+            guard let url = URL(string: baseURL + "/progress/" + taskId) else {
+                DispatchQueue.main.async {
+                    errorMessage = "Invalid progress URL"
+                    timer.invalidate()
+                    isPolling = false
+                }
+                return
+            }
             URLSession.shared.dataTask(with: url) { data, response, error in
                 DispatchQueue.main.async {
+                    // Handle network errors
                     if let error = error {
                         errorMessage = error.localizedDescription
                         timer.invalidate()
                         isPolling = false
                         return
                     }
+                    
+                    // Check HTTP status code
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode == 404 {
+                            errorMessage = "Task not found on server"
+                            timer.invalidate()
+                            isPolling = false
+                            return
+                        }
+                        if httpResponse.statusCode != 200 {
+                            errorMessage = "Unexpected server response: \(httpResponse.statusCode)"
+                            timer.invalidate()
+                            isPolling = false
+                            return
+                        }
+                    }
+                    
+                    // Parse JSON response
                     if let data = data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        // Check for error field in JSON (e.g., {"error": "Task not found"})
+                        if let errorMsg = json["error"] as? String {
+                            errorMessage = errorMsg
+                            timer.invalidate()
+                            isPolling = false
+                            return
+                        }
+                        
+                        // Handle task status
                         status = json["status"] as? String ?? "Unknown"
                         progress = json["progress"] as? Double ?? 0.0
                         if status == "completed" {
@@ -328,6 +355,11 @@ struct ContentShree: View {
                             timer.invalidate()
                             isPolling = false
                         }
+                    } else {
+                        // Handle JSON parsing failure
+                        errorMessage = "Failed to parse server response"
+                        timer.invalidate()
+                        isPolling = false
                     }
                 }
             }.resume()
@@ -600,24 +632,6 @@ struct VideoPicker: UIViewControllerRepresentable {
     }
 }
 
-class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate {
-    let onComplete: () -> Void
-    let onError: (Error?) -> Void
-    
-    init(onComplete: @escaping () -> Void, onError: @escaping (Error?) -> Void) {
-        self.onComplete = onComplete
-        self.onError = onError
-    }
-    
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        onComplete()
-    }
-    
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        onError(nil)
-    }
-}
 #Preview {
-    ContentShree()
-    
+    ContentShree2()
 }

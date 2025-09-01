@@ -42,6 +42,8 @@ struct VideoComparisonCard: View {
                 VideoComparisonSlider(
                     normalVideoName: normalVideo,
                     enhancedVideoName: enhancedVideo,
+                    originalURL: nil,
+                    enhancedURL: nil,
                     videoPlayerManager: videoPlayerManager
                 )
                 .frame(height: 140)

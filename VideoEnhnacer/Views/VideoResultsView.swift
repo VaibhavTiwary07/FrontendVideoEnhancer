@@ -52,7 +52,13 @@ struct VideoResultsView: View {
                 case .original:
                     VideoPreviewView(videoURL: originalVideoURL)
                 case .compare:
-                    VideoComparisonSlider(normalVideoName: "normal", enhancedVideoName: "enhanced", videoPlayerManager: videoPlayerManager)
+                    VideoComparisonSlider(
+                        normalVideoName: nil,
+                        enhancedVideoName: nil,
+                        originalURL: originalVideoURL,
+                        enhancedURL: processedVideoURL,
+                        videoPlayerManager: videoPlayerManager
+                    )
                 case .output:
                     VideoPreviewView(videoURL: processedVideoURL)
                 }

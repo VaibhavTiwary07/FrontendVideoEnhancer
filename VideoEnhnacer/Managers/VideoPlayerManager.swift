@@ -53,6 +53,61 @@ class VideoPlayerManager: ObservableObject {
             }
         }
     }
+
+    // New: Setup players from file URLs (for server-processed results)
+    func setupVideoPlayers(forKey key: String, originalURL: URL, processedURL: URL) {
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
+        
+        loadingKeys.insert(key)
+        playerStates[key] = .loading
+        
+        Task {
+            do {
+                let normalPlayer = AVPlayer(url: originalURL)
+                let enhancedPlayer = AVPlayer(url: processedURL)
+                normalPlayer.isMuted = true
+                enhancedPlayer.isMuted = true
+                
+                // Preload by ensuring asset is playable
+                try await preload(player: normalPlayer)
+                try await preload(player: enhancedPlayer)
+                
+                await MainActor.run {
+                    self.playerPairs[key] = (normal: normalPlayer, enhanced: enhancedPlayer)
+                    self.loadedKeys.insert(key)
+                    self.loadingKeys.remove(key)
+                    self.playerStates[key] = .ready
+                    self.syncPlayers(forKey: key)
+                    if self.activeViewKeys.contains(key) {
+                        self.resumePlayers(forKey: key)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.loadingKeys.remove(key)
+                    self.playerStates[key] = .error(error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    private func preload(player: AVPlayer) async throws {
+        if let asset = await player.currentItem?.asset {
+            if #available(iOS 16.0, *) {
+                _ = try await asset.load(.isPlayable)
+            } else {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    asset.loadValuesAsynchronously(forKeys: ["playable"]) {
+                        var err: NSError?
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                        if let err = err { continuation.resume(throwing: err) }
+                        else if status == .loaded { continuation.resume() }
+                        else { continuation.resume(throwing: VideoLoadError.loadFailed) }
+                    }
+                }
+            }
+        }
+    }
     
     private func loadVideoPlayersAsync(normalVideoName: String, enhancedVideoName: String) async throws -> (normal: AVPlayer, enhanced: AVPlayer) {
         return try await withCheckedThrowingContinuation { continuation in

@@ -10,9 +10,7 @@ final class DIContainer: ObservableObject {
     // MARK: - Service Properties
     private(set) lazy var videoPlayerService: VideoPlayerProtocol = VideoPlayerService()
     private(set) lazy var videoProcessingService: VideoProcessingProtocol = VideoProcessingService()
-    private(set) lazy var enhancementService: EnhancementServiceProtocol = EnhancementService(
-        videoProcessingService: videoProcessingService
-    )
+    private(set) lazy var enhancementService: EnhancementServiceProtocol = ServerEnhancementService()
     @MainActor private(set) lazy var navigationCoordinator: AppCoordinator = AppCoordinator()
     
     // MARK: - Private Initialization (Singleton)

@@ -6,13 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = DB755CE72E6573CF001F92A1 /* PryntTrimmerView */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoEnhnacer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DB755CEE2E657869001F92A1 /* Exceptions for "VideoEnhnacer" folder in "VideoEnhnacer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DB23E7F02E4C4F6000777DE1 /* VideoEnhnacer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DB23E7F32E4C4F6000777DE1 /* VideoEnhnacer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DB755CEE2E657869001F92A1 /* Exceptions for "VideoEnhnacer" folder in "VideoEnhnacer" target */,
+			);
 			path = VideoEnhnacer;
 			sourceTree = "<group>";
 		};
@@ -23,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +83,7 @@
 			);
 			name = VideoEnhnacer;
 			packageProductDependencies = (
+				DB755CE72E6573CF001F92A1 /* PryntTrimmerView */,
 			);
 			productName = VideoEnhnacer;
 			productReference = DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */;
@@ -94,6 +113,9 @@
 			);
 			mainGroup = DB23E7E82E4C4F6000777DE1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DB23E7F22E4C4F6000777DE1 /* Products */;
 			projectDirPath = "";
@@ -251,6 +273,9 @@
 				DEVELOPMENT_TEAM = 3LUNZ43L4D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoEnhnacer/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "it need is it";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "It needed it to run";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -291,6 +316,9 @@
 				DEVELOPMENT_TEAM = 3LUNZ43L4D;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoEnhnacer/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "it need is it";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "It needed it to run";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -341,6 +369,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/HHK1/PryntTrimmerView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DB755CE72E6573CF001F92A1 /* PryntTrimmerView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */;
+			productName = PryntTrimmerView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DB23E7E92E4C4F6000777DE1 /* Project object */;
 }

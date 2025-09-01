@@ -3,8 +3,11 @@ import AVFoundation
 import UIKit
 
 struct VideoComparisonSlider: View {
-    let normalVideoName: String
-    let enhancedVideoName: String
+    // Either provide asset names or URLs
+    let normalVideoName: String?
+    let enhancedVideoName: String?
+    let originalURL: URL?
+    let enhancedURL: URL?
     @ObservedObject var videoPlayerManager: VideoPlayerManager
     @State private var sliderValue: Double = 0.3
     @State private var isViewVisible: Bool = false
@@ -13,7 +16,10 @@ struct VideoComparisonSlider: View {
     @State private var resumeTimer: Timer?
     
     private var videoKey: String {
-        "\(normalVideoName)-\(enhancedVideoName)"
+        if let originalURL = originalURL, let enhancedURL = enhancedURL {
+            return "\(originalURL.absoluteString.hashValue)-\(enhancedURL.absoluteString.hashValue)"
+        }
+        return "\(normalVideoName ?? "")->\(enhancedVideoName ?? "")"
     }
     
     private var playerState: VideoPlayerManager.PlayerState {
@@ -176,7 +182,11 @@ struct VideoComparisonSlider: View {
         }
         .onAppear {
             isViewVisible = true
-            videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            if let originalURL = originalURL, let enhancedURL = enhancedURL {
+                videoPlayerManager.setupVideoPlayers(forKey: videoKey, originalURL: originalURL, processedURL: enhancedURL)
+            } else if let normalVideoName = normalVideoName, let enhancedVideoName = enhancedVideoName {
+                videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            }
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
             startAutoSlide()
         }
@@ -289,6 +299,8 @@ struct AVPlayerUIView: UIViewRepresentable {
     VideoComparisonSlider(
         normalVideoName: "normal",
         enhancedVideoName: "enhanced",
+        originalURL: nil,
+        enhancedURL: nil,
         videoPlayerManager: VideoPlayerManager()
     )
     .frame(height: 160)

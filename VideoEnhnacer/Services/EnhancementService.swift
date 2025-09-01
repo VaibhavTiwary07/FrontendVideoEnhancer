@@ -278,10 +278,9 @@ final class EnhancementTypeRegistry {
             processingTime: 30.0,
             qualityImpact: 0.9,
             options: [
-                EnhancementOption(id: "2x", title: "2X", description: "", icon: "arrow.up.right.square", isRecommended: true),
-                EnhancementOption(id: "3x", title: "3X", description: "", icon: "plus.magnifyingglass"),
-                EnhancementOption(id: "4x", title: "4X", description: "", icon: "rectangle.expand.vertical"),
-                EnhancementOption(id: "1080p", title: "1080p", description: "", icon: "tv.and.hifispeaker.fill")
+                EnhancementOption(id: "1080", title: "1080p", description: "Upscale to Full HD", icon: "tv.and.hifispeaker.fill", isRecommended: true),
+                EnhancementOption(id: "2K", title: "2K", description: "Upscale to 2K", icon: "plus.magnifyingglass"),
+                EnhancementOption(id: "4K", title: "4K", description: "Upscale to 4K", icon: "rectangle.expand.vertical")
             ],
             gradientType: .redPink
         )
