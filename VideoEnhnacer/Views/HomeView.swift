@@ -27,19 +27,17 @@ struct HomeView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    ZStack(alignment: .top) {
-                        VStack(spacing: 0) {
-                            // Top Carousel Section (Full Width)
-                            PageControlImageCarousel()
-                        }
+                    VStack(spacing: 0) {
+                        // Top Carousel Section (Full Width)
+                        PageControlImageCarousel()
+                            .frame(height: 280)
                         
-                        // Enhancement Cards Section (Overlapping)
-                        VStack(spacing: 0) {
-                            // Push enhancement section down to overlap carousel - dynamic height
-                            Spacer()
-                                .frame(height: dynamicCarouselOverlapHeight(screenHeight: geometry.size.height))
-                            
-                            VStack(spacing: 16) {
+                        // Spacing between carousel and enhancement cards
+                        Spacer()
+                            .frame(height: 20)
+                        
+                        // Enhancement Cards Section
+                        VStack(spacing: 16) {
                             VStack(spacing: 16) {
                                 Text("Enhancement Options")
                                     .font(.system(size: 20, weight: .semibold))
@@ -141,7 +139,6 @@ struct HomeView: View {
                                     }
                                 }
                                 .padding(.bottom, dynamicBottomPadding(screenHeight: geometry.size.height))
-                            }
                             }
                         }
                         .background(

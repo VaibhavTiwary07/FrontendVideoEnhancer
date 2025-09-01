@@ -221,23 +221,44 @@ struct VideoComparisonSlider: View {
             }
         }
         .onAppear {
+            print("🎯 VideoComparisonSlider onAppear")
+            print("🎯 normalVideoName: \(String(describing: normalVideoName))")
+            print("🎯 enhancedVideoName: \(String(describing: enhancedVideoName))")
+            print("🎯 originalURL: \(String(describing: originalURL))")
+            print("🎯 enhancedURL: \(String(describing: enhancedURL))")
+            print("🎯 videoKey: \(videoKey)")
+            print("🎯 Current player state: \(playerState)")
+            
             isViewVisible = true
+            
+            // Setup video players if not already done
             if let originalURL = originalURL, let enhancedURL = enhancedURL {
+                print("🎯 Setting up URL-based players")
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, originalURL: originalURL, processedURL: enhancedURL)
             } else if let normalVideoName = normalVideoName, let enhancedVideoName = enhancedVideoName {
+                print("🎯 Setting up asset-based players")
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            } else {
+                print("🎯 ⚠️ No valid video sources provided!")
             }
+            
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
             startAutoSlide()
         }
         .onDisappear {
+            print("🎯 VideoComparisonSlider onDisappear for key: \(videoKey)")
             isViewVisible = false
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
             stopAutoSlide()
             stopResumeTimer()
         }
-        .onChange(of: playerState) { state in
-            // Handle state changes if needed for animations
+        .onChange(of: playerState) { _, state in
+            print("🎯 Player state changed for key '\(videoKey)': \(state)")
+            // Re-activate players when they become ready
+            if state == .ready && isViewVisible {
+                print("🎯 Re-activating players after state change")
+                videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+            }
         }
     }
     

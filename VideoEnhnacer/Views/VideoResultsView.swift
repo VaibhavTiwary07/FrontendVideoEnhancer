@@ -24,6 +24,37 @@ struct VideoResultsView: View {
     @State private var selectedFormat = "MP4"
 
     enum ViewMode { case original, compare, output }
+    
+    @ViewBuilder
+    private var currentModeView: some View {
+        switch mode {
+        case .original:
+            VideoPreviewView(videoURL: originalVideoURL)
+                .onAppear {
+                    print("🎥 Original mode appeared")
+                }
+        case .compare:
+            VideoComparisonSlider(
+                normalVideoName: nil,
+                enhancedVideoName: nil,
+                originalURL: originalVideoURL,
+                enhancedURL: processedVideoURL,
+                videoPlayerManager: videoPlayerManager
+            )
+            .onAppear {
+                print("🎥 Compare mode appeared")
+                print("🎥 normalVideoName: nil")
+                print("🎥 enhancedVideoName: nil")
+                print("🎥 originalURL: \(originalVideoURL)")
+                print("🎥 enhancedURL: \(processedVideoURL)")
+            }
+        case .output:
+            VideoPreviewView(videoURL: processedVideoURL)
+                .onAppear {
+                    print("🎥 Output mode appeared")
+                }
+        }
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -31,6 +62,14 @@ struct VideoResultsView: View {
             finalPage.tag(1)
         }
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        .onAppear {
+            print("🎬 VideoResultsView appeared")
+            print("🎬 Current mode: \(mode)")
+            print("🎬 Video key: \(generateVideoKey())")
+            
+            // Pre-setup video players for comparison mode
+            videoPlayerManager.setupVideoPlayers(forKey: generateVideoKey(), originalURL: originalVideoURL, processedURL: processedVideoURL)
+        }
     }
 
     private var comparisonPage: some View {
@@ -47,22 +86,7 @@ struct VideoResultsView: View {
 
             Spacer()
 
-            Group {
-                switch mode {
-                case .original:
-                    VideoPreviewView(videoURL: originalVideoURL)
-                case .compare:
-                    VideoComparisonSlider(
-                        normalVideoName: nil,
-                        enhancedVideoName: nil,
-                        originalURL: originalVideoURL,
-                        enhancedURL: processedVideoURL,
-                        videoPlayerManager: videoPlayerManager
-                    )
-                case .output:
-                    VideoPreviewView(videoURL: processedVideoURL)
-                }
-            }
+            currentModeView
             .frame(height: 300)
             .padding()
 
@@ -88,7 +112,15 @@ struct VideoResultsView: View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .light)
             impact.impactOccurred()
+            
+            print("🔄 Switching to mode: \(mode)")
+            print("🔄 Original URL: \(originalVideoURL)")
+            print("🔄 Processed URL: \(processedVideoURL)")
+            print("🔄 VideoPlayerManager state before switch: \(videoPlayerManager.getPlayerState(forKey: generateVideoKey()))")
+            
             self.mode = mode
+            
+            print("🔄 Mode switched to: \(self.mode)")
         }) {
             HStack(spacing: 8) {
                 Image(systemName: symbolForMode(mode))
@@ -128,6 +160,10 @@ struct VideoResultsView: View {
         case .output:
             return "wand.and.stars"
         }
+    }
+    
+    private func generateVideoKey() -> String {
+        return "\(originalVideoURL.absoluteString.hashValue)-\(processedVideoURL.absoluteString.hashValue)"
     }
 
     private var finalPage: some View {

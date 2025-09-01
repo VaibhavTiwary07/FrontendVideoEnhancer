@@ -57,7 +57,14 @@ class VideoPlayerManager: ObservableObject {
 
     // New: Setup players from file URLs (for server-processed results)
     func setupVideoPlayers(forKey key: String, originalURL: URL, processedURL: URL) {
-        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
+        print("🎬 VideoPlayerManager: Setting up video players for key '\(key)'")
+        print("🎬 Original URL: \(originalURL)")
+        print("🎬 Processed URL: \(processedURL)")
+        
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { 
+            print("🎬 Players already loaded/loading for key '\(key)'")
+            return 
+        }
         
         loadingKeys.insert(key)
         playerStates[key] = .loading
@@ -74,12 +81,14 @@ class VideoPlayerManager: ObservableObject {
                 try await preload(player: enhancedPlayer)
                 
                 await MainActor.run {
+                    print("🎬 Successfully loaded players for key '\(key)'")
                     self.playerPairs[key] = (normal: normalPlayer, enhanced: enhancedPlayer)
                     self.loadedKeys.insert(key)
                     self.loadingKeys.remove(key)
                     self.playerStates[key] = .ready
                     self.syncPlayers(forKey: key)
                     if self.activeViewKeys.contains(key) {
+                        print("🎬 Auto-playing loaded players for active key '\(key)'")
                         self.resumePlayers(forKey: key)
                     }
                 }
@@ -259,13 +268,21 @@ class VideoPlayerManager: ObservableObject {
     }
     
     func setViewActive(forKey key: String, isActive: Bool) {
+        print("🎬 VideoPlayerManager: Setting view active for key '\(key)': \(isActive)")
+        print("🎬 Current player state for key '\(key)': \(playerStates[key] ?? .loading)")
+        print("🎬 Active view keys: \(activeViewKeys)")
+        
         if isActive {
             activeViewKeys.insert(key)
             if playerStates[key] == .ready {
+                print("🎬 Resuming players for key '\(key)'")
                 resumePlayers(forKey: key)
+            } else {
+                print("🎬 Players not ready for key '\(key)', state: \(playerStates[key] ?? .loading)")
             }
         } else {
             activeViewKeys.remove(key)
+            print("🎬 Pausing players for key '\(key)'")
             pausePlayers(forKey: key)
             cleanupTimeObserver(forKey: key)
         }
