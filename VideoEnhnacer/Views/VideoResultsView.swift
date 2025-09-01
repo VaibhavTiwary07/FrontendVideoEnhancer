@@ -232,6 +232,27 @@ struct VideoResultsView: View {
             .padding(.horizontal, 20)
             .padding(.top, 10)
             
+            // Export settings chip (shown when exported video exists)
+            if exportedVideoURL != nil {
+                HStack(spacing: 8) {
+                    Text("\(selectedResolution) • \(selectedFrameRate) • \(selectedFormat.uppercased())")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+            }
+            
             VideoPreviewView(videoURL: effectiveVideoURL)
                 .frame(height: 300)
                 .padding()
