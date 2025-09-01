@@ -274,7 +274,12 @@ class VideoPlayerManager: ObservableObject {
         
         if isActive {
             activeViewKeys.insert(key)
-            if playerStates[key] == .ready {
+            // Ensure time sync observers exist after re-activation
+            if timeSyncObservers[key] == nil, playerPairs[key] != nil {
+                syncPlayers(forKey: key)
+            }
+
+            if playerStates[key] == .ready || playerStates[key] == .paused {
                 print("🎬 Resuming players for key '\(key)'")
                 resumePlayers(forKey: key)
             } else {
