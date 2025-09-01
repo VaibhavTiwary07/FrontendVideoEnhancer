@@ -252,7 +252,8 @@ struct VideoComparisonSlider: View {
             stopAutoSlide()
             stopResumeTimer()
         }
-        .onChange(of: playerState) { _, state in
+        // iOS 15-compatible onChange signature
+        .onChange(of: playerState) { state in
             print("🎯 Player state changed for key '\(videoKey)': \(state)")
             // Re-activate players when they become ready
             if state == .ready && isViewVisible {
