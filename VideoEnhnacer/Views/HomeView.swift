@@ -135,7 +135,11 @@ struct HomeView: View {
                                         icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
                                         title: "Frame Interpolation",
                                         subtitle: "Smooth motion",
-                                        gradientType: .cyanGray
+                                        gradientType: .cyanGray,
+                                        useVideoComparison: true,
+                                        originalVideoURL: Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4"),
+                                        processedVideoURL: Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4"),
+                                        videoPlayerManager: videoPlayerManager
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Frame Interpolation",

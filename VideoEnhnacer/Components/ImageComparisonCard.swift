@@ -8,6 +8,13 @@ struct ImageComparisonCard: View {
     let gradientType: GradientType
     let beforeImageName: String
     let afterImageName: String
+    // Optional video comparison
+    let useVideoComparison: Bool
+    let normalVideoName: String?
+    let enhancedVideoName: String?
+    let originalVideoURL: URL?
+    let processedVideoURL: URL?
+    let videoPlayerManager: VideoPlayerManager?
     let action: () -> Void
     
     @State private var sliderValue: Double = 0.5
@@ -23,6 +30,12 @@ struct ImageComparisonCard: View {
          gradientType: GradientType,
          beforeImageName: String = "test",
          afterImageName: String = "testEnhanced",
+         useVideoComparison: Bool = false,
+         normalVideoName: String? = nil,
+         enhancedVideoName: String? = nil,
+         originalVideoURL: URL? = nil,
+         processedVideoURL: URL? = nil,
+         videoPlayerManager: VideoPlayerManager? = nil,
          action: @escaping () -> Void) {
         self.icon = icon
         self.title = title
@@ -30,6 +43,12 @@ struct ImageComparisonCard: View {
         self.gradientType = gradientType
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
+        self.useVideoComparison = useVideoComparison
+        self.normalVideoName = normalVideoName
+        self.enhancedVideoName = enhancedVideoName
+        self.originalVideoURL = originalVideoURL
+        self.processedVideoURL = processedVideoURL
+        self.videoPlayerManager = videoPlayerManager
         self.action = action
     }
     
@@ -157,11 +176,41 @@ struct ImageComparisonCard: View {
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
         ZStack {
-            ImageComparisonSlider(
-                beforeImageName: beforeImageName,
-                afterImageName: afterImageName,
-                sliderValue: $sliderValue
-            )
+            if useVideoComparison, let manager = videoPlayerManager {
+                // Prefer URL-based videos if provided, else fall back to asset names
+                if let originalURL = originalVideoURL, let processedURL = processedVideoURL {
+                    VideoComparisonSlider(
+                        normalVideoName: nil,
+                        enhancedVideoName: nil,
+                        originalURL: originalURL,
+                        enhancedURL: processedURL,
+                        videoPlayerManager: manager,
+                        compact: true
+                    )
+                } else if let normal = normalVideoName, let enhanced = enhancedVideoName {
+                    VideoComparisonSlider(
+                        normalVideoName: normal,
+                        enhancedVideoName: enhanced,
+                        originalURL: nil,
+                        enhancedURL: nil,
+                        videoPlayerManager: manager,
+                        compact: true
+                    )
+                } else {
+                    // Fallback to image slider if inputs missing
+                    ImageComparisonSlider(
+                        beforeImageName: beforeImageName,
+                        afterImageName: afterImageName,
+                        sliderValue: $sliderValue
+                    )
+                }
+            } else {
+                ImageComparisonSlider(
+                    beforeImageName: beforeImageName,
+                    afterImageName: afterImageName,
+                    sliderValue: $sliderValue
+                )
+            }
         }
         .mask(
             LinearGradient(
@@ -174,7 +223,7 @@ struct ImageComparisonCard: View {
             )
         )
         .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
-//        .frame(width: 10)
+//        .frame(width: 150)
     }
 
     // MARK: - Custom shape for rounding selected corners

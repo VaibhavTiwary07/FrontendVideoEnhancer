@@ -9,11 +9,14 @@ struct VideoComparisonSlider: View {
     let originalURL: URL?
     let enhancedURL: URL?
     @ObservedObject var videoPlayerManager: VideoPlayerManager
+    // When true, fill the given frame without extra background/padding
+    let compact: Bool
     @State private var sliderValue: Double = 0.3
     @State private var isViewVisible: Bool = false
     @State private var isUserInteracting: Bool = false
     @State private var autoSlideTimer: Timer?
     @State private var resumeTimer: Timer?
+    @State private var autoSlideDirection: Double = 1.0
     
     private var videoKey: String {
         if let originalURL = originalURL, let enhancedURL = enhancedURL {
@@ -24,6 +27,22 @@ struct VideoComparisonSlider: View {
     
     private var playerState: VideoPlayerManager.PlayerState {
         videoPlayerManager.getPlayerState(forKey: videoKey)
+    }
+
+    init(
+        normalVideoName: String? = nil,
+        enhancedVideoName: String? = nil,
+        originalURL: URL? = nil,
+        enhancedURL: URL? = nil,
+        videoPlayerManager: VideoPlayerManager,
+        compact: Bool = false
+    ) {
+        self.normalVideoName = normalVideoName
+        self.enhancedVideoName = enhancedVideoName
+        self.originalURL = originalURL
+        self.enhancedURL = enhancedURL
+        self.videoPlayerManager = videoPlayerManager
+        self.compact = compact
     }
     
     var body: some View {
@@ -40,25 +59,33 @@ struct VideoComparisonSlider: View {
                                 .foregroundColor(.secondary)
                         )
                 } else {
-                // Background
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.cardBackground)
-                    .neomorphicStyle(cornerRadius: 12, shadowRadius: 6)
+                // Background (skip in compact mode)
+                if !compact {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.cardBackground)
+                        .neomorphicStyle(cornerRadius: 12, shadowRadius: 6)
+                }
                 
                 // Video Comparison Area
-                VStack(spacing: 12) {
+                VStack(spacing: compact ? 0 : 12) {
                     // Video Players Container
                     ZStack {
-                        let videoHeight = max(60, geometry.size.height - 90) // Account for labels, slider, and padding
+                        let videoHeight = compact ? geometry.size.height : max(60, geometry.size.height - 90)
+                        let videoWidth = geometry.size.width
                         // Enhanced Video (Background)
                         Group {
                             if playerState == .ready,
                                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
-                                AVPlayerUIView(player: enhancedPlayer)
-                                    .frame(height: videoHeight)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                AVPlayerUIView(player: enhancedPlayer, videoGravity: compact ? .resizeAspectFill : .resizeAspect)
+                                    .frame(width: videoWidth, height: videoHeight)
+                                    .if(!compact) { view in
+                                        view.clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
                             } else {
                                 videoPlaceholder(title: "Enhanced", isLoading: playerState == .loading, height: videoHeight)
+                                    .if(!compact) { view in
+                                        view.clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
                             }
                         }
                         
@@ -66,9 +93,11 @@ struct VideoComparisonSlider: View {
                         Group {
                             if playerState == .ready,
                                let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
-                                AVPlayerUIView(player: normalPlayer)
-                                    .frame(height: videoHeight)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                AVPlayerUIView(player: normalPlayer, videoGravity: compact ? .resizeAspectFill : .resizeAspect)
+                                    .frame(width: videoWidth, height: videoHeight)
+                                    .if(!compact) { view in
+                                        view.clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
                                     .mask(
                                         HStack(spacing: 0) {
                                             Rectangle()
@@ -79,6 +108,9 @@ struct VideoComparisonSlider: View {
                                     )
                             } else {
                                 videoPlaceholder(title: "Normal", isLoading: playerState == .loading, height: videoHeight)
+                                    .if(!compact) { view in
+                                        view.clipShape(RoundedRectangle(cornerRadius: 8))
+                                    }
                                     .mask(
                                         HStack(spacing: 0) {
                                             Rectangle()
@@ -141,82 +173,84 @@ struct VideoComparisonSlider: View {
                             )
                     }
                     
-                    // Labels
-                    HStack {
-                        Text("Before")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.secondaryText)
+                    if !compact {
+                        // Labels
+                        HStack {
+                            Text("Before")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.secondaryText)
+                            
+                            Spacer()
+                            
+                            Text("After")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.primaryText)
+                        }
+                        .padding(.horizontal, 8)
                         
-                        Spacer()
-                        
-                        Text("After")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.primaryText)
-                    }
-                    .padding(.horizontal, 8)
-                    
-                    // Custom Slider
-                    ZStack {
-                        // Track
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(height: 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(
-                                        LinearGradient(
-                                            stops: [
-                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
-                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
-                                            ],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
+                        // Custom Slider
+                        ZStack {
+                            // Track
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(height: 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(
+                                            LinearGradient(
+                                                stops: [
+                                                    .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                    .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
+                                                ],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
                                         )
-                                    )
-                                    .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)), height: 4)
-                                    .clipShape(RoundedRectangle(cornerRadius: 2)),
-                                alignment: .leading
-                            )
-                        
-                        // Thumb
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 20, height: 20)
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            stops: [
-                                                .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
-                                                .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
+                                        .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)), height: 4)
+                                        .clipShape(RoundedRectangle(cornerRadius: 2)),
+                                    alignment: .leading
+                                )
+                            
+                            // Thumb
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 20, height: 20)
+                                .background(
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                stops: [
+                                                    .init(color: Color(red: 255/255, green: 16/255, blue: 0/255).opacity(0.91), location: 0.0),
+                                                    .init(color: Color(red: 255/255, green: 110/255, blue: 99/255).opacity(0.3), location: 0.7)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
                                         )
-                                    )
-                                    .frame(width: 18, height: 18)
-                            )
-                            .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
-                            .position(
-                                x: max(10, min(geometry.size.width - 10, geometry.size.width * sliderValue)),
-                                y: 10
-                            )
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        isUserInteracting = true
-                                        stopAutoSlide()
-                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
-                                        sliderValue = newValue
-                                    }
-                                    .onEnded { _ in
-                                        scheduleAutoSlideResume()
-                                    }
-                            )
+                                        .frame(width: 18, height: 18)
+                                )
+                                .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
+                                .position(
+                                    x: max(10, min(geometry.size.width - 10, geometry.size.width * sliderValue)),
+                                    y: 10
+                                )
+                                .gesture(
+                                    DragGesture(minimumDistance: 0)
+                                        .onChanged { value in
+                                            isUserInteracting = true
+                                            stopAutoSlide()
+                                            let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+                                            sliderValue = newValue
+                                        }
+                                        .onEnded { _ in
+                                            scheduleAutoSlideResume()
+                                        }
+                                )
+                        }
+                        .frame(height: 20)
                     }
-                    .frame(height: 20)
                 }
-                .padding(8)
+                .padding(compact ? 0 : 8)
                 } // End of geometry safety check
             }
         }
@@ -264,16 +298,31 @@ struct VideoComparisonSlider: View {
     }
     
     private func startAutoSlide() {
-        autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { _ in
-            guard !isUserInteracting else { return }
-            
-            withAnimation(.easeInOut(duration: 1.5)) {
-                if sliderValue == 0.3 {
+        stopAutoSlide()
+        if compact {
+            autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                guard !isUserInteracting else { return }
+                let speed = 0.008
+                sliderValue += speed * autoSlideDirection
+                if sliderValue >= 1.0 {
                     sliderValue = 1.0
-                } else if sliderValue == 1.0 {
+                    autoSlideDirection = -1.0
+                } else if sliderValue <= 0.0 {
                     sliderValue = 0.0
-                } else {
-                    sliderValue = 0.3
+                    autoSlideDirection = 1.0
+                }
+            }
+        } else {
+            autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { _ in
+                guard !isUserInteracting else { return }
+                withAnimation(.easeInOut(duration: 1.5)) {
+                    if sliderValue == 0.3 {
+                        sliderValue = 1.0
+                    } else if sliderValue == 1.0 {
+                        sliderValue = 0.0
+                    } else {
+                        sliderValue = 0.3
+                    }
                 }
             }
         }
@@ -334,11 +383,12 @@ struct VideoComparisonSlider: View {
 
 struct AVPlayerUIView: UIViewRepresentable {
     let player: AVPlayer
+    let videoGravity: AVLayerVideoGravity
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         let playerLayer = AVPlayerLayer(player: player)
-        playerLayer.videoGravity = .resizeAspect
+        playerLayer.videoGravity = videoGravity
         view.layer.addSublayer(playerLayer)
         
         DispatchQueue.main.async {
@@ -352,20 +402,21 @@ struct AVPlayerUIView: UIViewRepresentable {
         if let playerLayer = uiView.layer.sublayers?.first as? AVPlayerLayer {
             DispatchQueue.main.async {
                 playerLayer.frame = uiView.bounds
+                playerLayer.videoGravity = videoGravity
             }
         }
     }
 }
-
-#Preview {
-    VideoComparisonSlider(
-        normalVideoName: "normal",
-        enhancedVideoName: "enhanced",
-        originalURL: nil,
-        enhancedURL: nil,
-        videoPlayerManager: VideoPlayerManager()
-    )
-    .frame(height: 160)
-    .padding()
-    .background(Color.appBackground)
-}
+//
+//#Preview {
+//    VideoComparisonSlider(
+//        normalVideoName: "normal",
+//        enhancedVideoName: "enhanced",
+//        originalURL: nil,
+//        enhancedURL: nil,
+//        videoPlayerManager: VideoPlayerManager()
+//    )
+//    .frame(height: 160)
+//    .padding()
+//    .background(Color.appBackground)
+//}
