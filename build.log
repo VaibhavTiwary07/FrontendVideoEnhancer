@@ -1,0 +1,799 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme VideoEnhnacer -project VideoEnhnacer.xcodeproj -configuration Debug -sdk iphonesimulator build
+
+Build settings from command line:
+    SDKROOT = iphonesimulator18.5
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  PryntTrimmerView: https://github.com/HHK1/PryntTrimmerView.git @ 4.0.2
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+{ platform:iOS Simulator, arch:arm64, id:CD7F9FE2-255C-4E72-8E42-4FAD59CDF247, OS:18.5, name:iPad (A16) }
+{ platform:iOS Simulator, arch:x86_64, id:CD7F9FE2-255C-4E72-8E42-4FAD59CDF247, OS:18.5, name:iPad (A16) }
+{ platform:iOS Simulator, arch:arm64, id:15198F8E-F43B-4001-9273-09D913809941, OS:18.5, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:x86_64, id:15198F8E-F43B-4001-9273-09D913809941, OS:18.5, name:iPad Air 11-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:1A1ACE24-6725-4296-802E-F7C39F52BF55, OS:18.5, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:x86_64, id:1A1ACE24-6725-4296-802E-F7C39F52BF55, OS:18.5, name:iPad Air 13-inch (M3) }
+{ platform:iOS Simulator, arch:arm64, id:D11EBB54-9084-4734-B9CB-2B2142CE0081, OS:18.5, name:iPad Pro 11-inch (M4) }
+{ platform:iOS Simulator, arch:x86_64, id:D11EBB54-9084-4734-B9CB-2B2142CE0081, OS:18.5, name:iPad Pro 11-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:A73CA73A-DF39-492F-AF83-5BF7A5AD4269, OS:18.5, name:iPad Pro 13-inch (M4) }
+{ platform:iOS Simulator, arch:x86_64, id:A73CA73A-DF39-492F-AF83-5BF7A5AD4269, OS:18.5, name:iPad Pro 13-inch (M4) }
+{ platform:iOS Simulator, arch:arm64, id:83E50510-6E5C-4E19-AAB6-EC3EDCD6AABC, OS:18.5, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:x86_64, id:83E50510-6E5C-4E19-AAB6-EC3EDCD6AABC, OS:18.5, name:iPad mini (A17 Pro) }
+{ platform:iOS Simulator, arch:arm64, id:890E96DA-F239-4B3A-9E7B-BD1AC4E77ACE, OS:18.5, name:iPhone 13 mini }
+{ platform:iOS Simulator, arch:x86_64, id:890E96DA-F239-4B3A-9E7B-BD1AC4E77ACE, OS:18.5, name:iPhone 13 mini }
+{ platform:iOS Simulator, arch:arm64, id:169A27F0-3D06-423B-AE53-996369DFC656, OS:18.5, name:iPhone 16 }
+{ platform:iOS Simulator, arch:x86_64, id:169A27F0-3D06-423B-AE53-996369DFC656, OS:18.5, name:iPhone 16 }
+{ platform:iOS Simulator, arch:arm64, id:9782FB1E-02CE-49A6-8F4F-EE9F3FB13268, OS:18.5, name:iPhone 16 Plus }
+{ platform:iOS Simulator, arch:x86_64, id:9782FB1E-02CE-49A6-8F4F-EE9F3FB13268, OS:18.5, name:iPhone 16 Plus }
+{ platform:iOS Simulator, arch:arm64, id:E91CDB7E-14D6-4980-AB3F-96B5C4BD7517, OS:18.5, name:iPhone 16 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:E91CDB7E-14D6-4980-AB3F-96B5C4BD7517, OS:18.5, name:iPhone 16 Pro }
+{ platform:iOS Simulator, arch:arm64, id:481DD558-F984-4AFF-A91F-26520B1E792C, OS:18.5, name:iPhone 16 Pro Max }
+{ platform:iOS Simulator, arch:x86_64, id:481DD558-F984-4AFF-A91F-26520B1E792C, OS:18.5, name:iPhone 16 Pro Max }
+{ platform:iOS Simulator, arch:arm64, id:02613826-F8FD-4874-BC6F-85A7C8517D2C, OS:18.5, name:iPhone 16e }
+{ platform:iOS Simulator, arch:x86_64, id:02613826-F8FD-4874-BC6F-85A7C8517D2C, OS:18.5, name:iPhone 16e }
+{ platform:iOS Simulator, arch:arm64, id:C40529AD-AB05-4FB4-9156-AE20B46CBC5C, OS:18.5, name:iPhone SE (3rd generation) }
+{ platform:iOS Simulator, arch:x86_64, id:C40529AD-AB05-4FB4-9156-AE20B46CBC5C, OS:18.5, name:iPhone SE (3rd generation) }
+{ platform:macOS, arch:arm64, id:00008132-000239A23439801C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008132-000239A23439801C, name:My Mac }
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:macOS, name:Any Mac }
+{ platform:iOS, arch:arm64, id:00008030-000345D23ED8C02E, name:Black iPad }
+{ platform:iOS, arch:arm64, id:00008110-001C6C183E80A01E, name:Vaibhav }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (3 targets)
+    Target 'VideoEnhnacer' in project 'VideoEnhnacer'
+        ➜ Explicit dependency on target 'PryntTrimmerView' in project 'PryntTrimmerView'
+    Target 'PryntTrimmerView' in project 'PryntTrimmerView'
+        ➜ Explicit dependency on target 'PryntTrimmerView' in project 'PryntTrimmerView'
+    Target 'PryntTrimmerView' in project 'PryntTrimmerView' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 1192ffc3fddab82e4e6dc27c2495d8aa
+Build description path: /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/XCBuildData/1192ffc3fddab82e4e6dc27c2495d8aa.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView_const_extract_protocols.json (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView_const_extract_protocols.json
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/PryntTrimmerView.modulemap /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/PryntTrimmerView.modulemap (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/PryntTrimmerView.modulemap /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-OutputFileMap.json (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.SwiftConstValuesFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftFileList (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.SwiftFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.SwiftFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-DebugDylibPath-normal-x86_64.txt (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-DebugDylibPath-normal-x86_64.txt
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-DebugDylibInstallName-normal-x86_64.txt (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-DebugDylibInstallName-normal-x86_64.txt
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer_const_extract_protocols.json (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.SwiftFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.SwiftFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.LinkFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.LinkFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.SwiftConstValuesFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer-OutputFileMap.json (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.LinkFileList (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.LinkFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer-OutputFileMap.json (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftConstValuesFileList (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.LinkFileList (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    write-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.LinkFileList
+
+SwiftDriver PryntTrimmerView normal arm64 com.apple.xcode.tools.swift.compiler (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PryntTrimmerView -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios12.0-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -I /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView_const_extract_protocols.json -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources-normal/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver PryntTrimmerView normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PryntTrimmerView -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target x86_64-apple-ios12.0-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -I /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView_const_extract_protocols.json -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources-normal/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal x86_64 Compiling\ AVAssetTimeSelector.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Parents/AVAssetTimeSelector.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Parents/AVAssetTimeSelector.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ ThumbSelectorView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/ThumbSelectorView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/ThumbSelectorView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ PryntTrimmerView (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+EmitSwiftModule normal x86_64 (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ VideoCropView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/VideoCropView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/VideoCropView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ HandlerView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Trimmer/HandlerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Trimmer/HandlerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ CropMaskView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/CropMaskView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/CropMaskView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ VideoScrollView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/VideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Cropper/VideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ PryntTrimmerView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Trimmer/PryntTrimmerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Trimmer/PryntTrimmerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ AssetVideoScrollView.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Parents/AssetVideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView/Sources/PryntTrimmerView/Parents/AssetVideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    
+
+SwiftDriver\ Compilation\ Requirements PryntTrimmerView normal arm64 com.apple.xcode.tools.swift.compiler (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PryntTrimmerView -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios12.0-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -I /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView_const_extract_protocols.json -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources-normal/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver\ Compilation PryntTrimmerView normal arm64 com.apple.xcode.tools.swift.compiler (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PryntTrimmerView -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios12.0-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -I /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView_const_extract_protocols.json -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources-normal/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftdoc (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftdoc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.abi.json (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.abi.json /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftsourceinfo (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftsourceinfo /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal x86_64 Compiling HandlerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftDriverJobDiscovery normal x86_64 Emitting module for PryntTrimmerView (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftDriver\ Compilation\ Requirements PryntTrimmerView normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name PryntTrimmerView -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target x86_64-apple-ios12.0-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -suppress-warnings -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -I /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView_const_extract_protocols.json -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources-normal/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftMergeGeneratedHeaders /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/PryntTrimmerView-Swift.h /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-Swift.h /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-Swift.h (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-swiftHeaderTool -arch arm64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView-Swift.h -arch x86_64 /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView-Swift.h -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/GeneratedModuleMaps-iphonesimulator/PryntTrimmerView-Swift.h
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.swiftdoc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftdoc (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftdoc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.swiftdoc
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.swiftmodule /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftmodule (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftmodule /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.swiftmodule
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.abi.json /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.abi.json (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.abi.json /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/x86_64-apple-ios-simulator.abi.json
+
+Copy /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftsourceinfo (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/x86_64/PryntTrimmerView.swiftsourceinfo /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PryntTrimmerView.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo
+
+Ld /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/Binary/PryntTrimmerView.o normal arm64 (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+    cd /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/SourcePackages/checkouts/PryntTrimmerView
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios12.0-simulator -r -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -O0 -w -L/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/Developer/Library/Frameworks -filelist /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.LinkFileList -nostdlib -Xlinker -object_path_lto -Xlinker /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -dependency_info -Xlinker /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/PryntTrimmerView.swiftmodule -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/PryntTrimmerView.build/Debug-iphonesimulator/PryntTrimmerView.build/Objects-normal/arm64/Binary/PryntTrimmerView.o
+
+ProcessProductPackaging /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacer.entitlements /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "3LUNZ43L4D.com.vaibhavtiwary.VideoEnhnacer";
+}
+    
+    builtin-productPackagingUtility /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacer.entitlements -entitlements -format xml -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent
+
+ProcessProductPackaging /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacer.entitlements /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+    Entitlements:
+    
+    {
+}
+    
+    builtin-productPackagingUtility /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacer.entitlements -entitlements -format xml -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent
+
+SwiftDriverJobDiscovery normal x86_64 Compiling CropMaskView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+ProcessProductPackagingDER /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent.der (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    /usr/bin/derq query -f xml -i /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app.xcent.der --raw
+
+ProcessProductPackagingDER /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent.der (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    /usr/bin/derq query -f xml -i /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer.app-Simulated.xcent.der --raw
+
+SwiftDriverJobDiscovery normal x86_64 Compiling AVAssetTimeSelector.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftDriver VideoEnhnacer normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VideoEnhnacer -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target x86_64-apple-ios15.6-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64 -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer_const_extract_protocols.json -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-generated-files.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-own-target-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer-0bd6c0aff6428f03145378ef92fdfbee-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-project-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources-normal/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver VideoEnhnacer normal arm64 com.apple.xcode.tools.swift.compiler (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name VideoEnhnacer -Onone -enforce-exclusivity\=checked @/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios15.6-simulator -g -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -swift-version 5 -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64 -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer_const_extract_protocols.json -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-generated-files.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-own-target-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer-0bd6c0aff6428f03145378ef92fdfbee-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-project-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources-normal/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources/arm64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/arm64/VideoEnhnacer-Swift.h -working-directory /Users/vaibhavtiwary/Desktop/VideoEnhnacer -experimental-emit-module-separately -disable-cmo
+
+CompileAssetCatalogVariant thinned /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/VideoEnhnacer.app /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Assets.xcassets (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Assets.xcassets --compile /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.6 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/assetcatalog_generated_info.plist_thinned
+/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriverJobDiscovery normal x86_64 Compiling VideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftDriverJobDiscovery normal x86_64 Compiling ThumbSelectorView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftDriverJobDiscovery normal x86_64 Compiling VideoCropView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 Compiling\ VideoPlayerManager.swift,\ VideoProcessingService.swift,\ PaywallView.swift,\ PropertySlider.swift,\ AppCoordinator.swift,\ FrameInterpolationService.swift,\ VideoPlayerViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PropertySlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Coordinators/AppCoordinator.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/FrameInterpolationService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoPlayerViewModel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:24:34: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                    let status = asset.statusOfValue(forKey: key, error: &error)
+                                 ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:29:45: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                            let value = try self.extractPropertyValue(from: asset, key: key) as! T
+                                            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:51:34: warning: capture of 'track' with non-sendable type 'AVAssetTrack' in a '@Sendable' closure
+                    let status = track.statusOfValue(forKey: key, error: &error)
+                                 ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAssetTrack.h:35:12: note: class 'AVAssetTrack' does not conform to the 'Sendable' protocol
+@interface AVAssetTrack : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:56:45: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                            let value = try self.extractTrackPropertyValue(from: track, key: key) as! T
+                                            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:133:54: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                            let duration = try await self.loadAssetProperty(asset, property: .duration)
+                                                     ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:170:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:182:27: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                    guard self.fileManager.fileExists(atPath: url.path) else {
+                          ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:200:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:229:37: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                    let outputURL = self.generateOutputURL(for: url, suffix: "_trimmed")
+                                    ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:246:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:264:54: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                            let duration = try await self.loadAssetProperty(asset, property: .duration)
+                                                     ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:294:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:319:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:337:37: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                    let outputURL = self.generateOutputURL(for: url, suffix: "_compressed")
+                                    ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:366:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:384:37: warning: capture of 'self' with non-sendable type 'VideoProcessingService' in a '@Sendable' closure
+                    let outputURL = self.generateOutputURL(for: url, suffix: "_converted", extension: format.fileExtension)
+                                    ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:8:13: note: class 'VideoProcessingService' does not conform to the 'Sendable' protocol
+final class VideoProcessingService: VideoProcessingProtocol {
+            ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift:401:19: warning: 'catch' block is unreachable because no errors are thrown in 'do' block
+                } catch {
+                  ^
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift:177:26: error: cannot convert value of type 'KeyPath<EnvironmentValues, _>' to expected argument type 'WritableKeyPath<EnvironmentValues, V>'
+            .environment(\._colorScheme, .light)
+                         ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift:177:26: error: value of type 'EnvironmentValues' has no member '_colorScheme'
+            .environment(\._colorScheme, .light)
+                         ^~~~~~~~~~~~~~
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift:177:43: error: cannot infer contextual base in reference to member 'light'
+            .environment(\._colorScheme, .light)
+                                         ~^~~~~
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PropertySlider.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Coordinators/AppCoordinator.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/FrameInterpolationService.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoPlayerViewModel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:124:38: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                        let status = asset.statusOfValue(forKey: "playable", error: &err)
+                                     ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:2:1: warning: add '@preconcurrency' to suppress 'Sendable'-related warnings from module 'AVFoundation'
+import AVFoundation
+^
+@preconcurrency 
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:167:58: warning: capture of 'asset' with non-sendable type 'AVAsset' in a '@Sendable' closure
+                                            let status = asset.statusOfValue(forKey: "playable", error: &error)
+                                                         ^
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsset.h:62:12: note: class 'AVAsset' does not conform to the 'Sendable' protocol
+@interface AVAsset : NSObject <NSCopying, AVAsynchronousKeyValueLoading>
+           ^
+/Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift:254:23: warning: value 'self' was defined but never used; consider replacing with boolean test
+            guard let self = self else { return }
+                  ~~~~^~~~~~~
+                                  != nil
+
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PropertySlider.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Coordinators/AppCoordinator.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/FrameInterpolationService.swift -primary-file /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoPlayerViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HeaderView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NativeVideoTrimmerView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Extensions.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoProcessingProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/Logger.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/ContentView2.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoResultsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/FloatingActionButton.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoInfoCard.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/GradientType+Extensions.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/EnhancementServiceProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/AppConfig.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/Enhancement/RefactoredEnhancementSelectionView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/SidebarView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/CustomTabBar.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/SpatialVideoPreview.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/DependencyInjection/DIContainer.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/PermissionManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoPlayerService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/MyCreationsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PageControlImageCarousel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoTrimmingSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/EnhancementService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/EnhancementSelectionViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/FavoritesView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPropertyCard.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Conditional.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoPlayerProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/DocumentPickerDelegate.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/Trimming/RefactoredVideoTrimmingView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoPropertyListView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ExportOptionsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoComparisonSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/AppGradients.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/SettingsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PryntTrimmerRepresentable.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/FavoritesManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/ServerEnhancementService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoTrimmingViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HomeView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentShree2.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NeomorphicButton.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacerApp.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/EnhancementSelectionView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoTrimmingView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonCard.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPlayerView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/iOS15Compatibility.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/NavigationCoordinatorProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/DeepLinkHandler.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoPickerView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/EnhancementOptionSelector.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoComparisonCard.swift /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources/GeneratedAssetSymbols.swift -supplementary-output-file-map /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/supplementaryOutputs-1 -emit-localized-strings -emit-localized-strings-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64 -target x86_64-apple-ios15.6-simulator -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -I /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator -no-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoEnhnacer_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/vaibhavtiwary/Desktop/VideoEnhnacer -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -enable-anonymous-context-mangled-names -file-compilation-dir /Users/vaibhavtiwary/Desktop/VideoEnhnacer -Xcc -ivfsstatcache -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-generated-files.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-own-target-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer-0bd6c0aff6428f03145378ef92fdfbee-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/VideoEnhnacer-project-headers.hmap -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources-normal/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources/x86_64 -Xcc -I/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/DerivedSources -Xcc -DDEBUG\=1 -module-name VideoEnhnacer -frontend-parseable-output -disable-clang-spi -target-sdk-version 18.5 -target-sdk-name iphonesimulator18.5 -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoPlayerManager.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoProcessingService.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/PaywallView.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/PropertySlider.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/AppCoordinator.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/FrameInterpolationService.o -o /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Build/Intermediates.noindex/VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoPlayerViewModel.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoPlayerManager.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoProcessingService.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/PaywallView.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/PropertySlider.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/AppCoordinator.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/FrameInterpolationService.o -index-unit-output-path /VideoEnhnacer.build/Debug-iphonesimulator/VideoEnhnacer.build/Objects-normal/x86_64/VideoPlayerViewModel.o -index-store-path /Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-dqopdjmhhzmcwpbypehgajypqwjs/Index.noindex/DataStore -index-system-modules
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ VideoEnhnacer (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+EmitSwiftModule normal x86_64 (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 Compiling\ ContentView.swift,\ PageControlImageCarousel.swift,\ VideoTrimmingSlider.swift,\ EnhancementService.swift,\ EnhancementSelectionViewModel.swift,\ FavoritesView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PageControlImageCarousel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoTrimmingSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/EnhancementService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/EnhancementSelectionViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/FavoritesView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PageControlImageCarousel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoTrimmingSlider.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/EnhancementService.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/EnhancementSelectionViewModel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/FavoritesView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 Compiling\ FavoritesManager.swift,\ ServerEnhancementService.swift,\ VideoTrimmingViewModel.swift,\ HomeView.swift,\ ContentShree2.swift,\ NeomorphicButton.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/FavoritesManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/ServerEnhancementService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoTrimmingViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HomeView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentShree2.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NeomorphicButton.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/FavoritesManager.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/ServerEnhancementService.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoTrimmingViewModel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HomeView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ContentShree2.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NeomorphicButton.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 Compiling\ ImageComparisonSlider.swift,\ VideoPropertyCard.swift,\ View+Conditional.swift,\ VideoPlayerProtocol.swift,\ DocumentPickerDelegate.swift,\ RefactoredVideoTrimmingView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPropertyCard.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Conditional.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoPlayerProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/DocumentPickerDelegate.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/Trimming/RefactoredVideoTrimmingView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonSlider.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPropertyCard.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Conditional.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoPlayerProtocol.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/DocumentPickerDelegate.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/Trimming/RefactoredVideoTrimmingView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 Compiling\ VideoPropertyListView.swift,\ ExportOptionsView.swift,\ VideoComparisonSlider.swift,\ AppGradients.swift,\ SettingsView.swift,\ PryntTrimmerRepresentable.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoPropertyListView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ExportOptionsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoComparisonSlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/AppGradients.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/SettingsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PryntTrimmerRepresentable.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoPropertyListView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ExportOptionsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoComparisonSlider.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/AppGradients.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/SettingsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PryntTrimmerRepresentable.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 Compiling\ HeaderView.swift,\ NativeVideoTrimmerView.swift,\ View+Extensions.swift,\ VideoProcessingProtocol.swift,\ Logger.swift,\ ContentView2.swift,\ VideoResultsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HeaderView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NativeVideoTrimmerView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Extensions.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoProcessingProtocol.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/Logger.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/ContentView2.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoResultsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/HeaderView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/NativeVideoTrimmerView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/View+Extensions.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Protocols/VideoProcessingProtocol.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Utilities/Logger.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/ContentView2.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoResultsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftDriverJobDiscovery normal x86_64 Compiling PryntTrimmerView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 Compiling\ CustomTabBar.swift,\ SpatialVideoPreview.swift,\ DIContainer.swift,\ PermissionManager.swift,\ VideoPlayerService.swift,\ MyCreationsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/CustomTabBar.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/SpatialVideoPreview.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/DependencyInjection/DIContainer.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/PermissionManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoPlayerService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/MyCreationsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/CustomTabBar.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/SpatialVideoPreview.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/DependencyInjection/DIContainer.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/PermissionManager.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoPlayerService.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/MyCreationsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftDriverJobDiscovery normal x86_64 Compiling AssetVideoScrollView.swift (in target 'PryntTrimmerView' from project 'PryntTrimmerView')
+
+SwiftCompile normal x86_64 Compiling\ VideoEnhnacerApp.swift,\ EnhancementSelectionView.swift,\ VideoTrimmingView.swift,\ ImageComparisonCard.swift,\ VideoPlayerView.swift,\ iOS15Compatibility.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacerApp.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/EnhancementSelectionView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoTrimmingView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonCard.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPlayerView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/iOS15Compatibility.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/VideoEnhnacerApp.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/EnhancementSelectionView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoTrimmingView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/ImageComparisonCard.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/VideoPlayerView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Extensions/iOS15Compatibility.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ VideoEnhnacer (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+
+EmitSwiftModule normal arm64 (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+    cd /Users/vaibhavtiwary/Desktop/VideoEnhnacer
+    
+
+SwiftCompile normal arm64 Compiling\ VideoResultsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoResultsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+Command SwiftCompile failed with a nonzero exit code
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal x86_64 /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+	SwiftCompile normal x86_64 Compiling\ VideoPlayerManager.swift,\ VideoProcessingService.swift,\ PaywallView.swift,\ PropertySlider.swift,\ AppCoordinator.swift,\ FrameInterpolationService.swift,\ VideoPlayerViewModel.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Managers/VideoPlayerManager.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/VideoProcessingService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/PaywallView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Components/PropertySlider.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Coordinators/AppCoordinator.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Services/FrameInterpolationService.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/ViewModels/VideoPlayerViewModel.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+	SwiftCompile normal arm64 Compiling\ VideoResultsView.swift /Users/vaibhavtiwary/Desktop/VideoEnhnacer/VideoEnhnacer/Views/VideoResultsView.swift (in target 'VideoEnhnacer' from project 'VideoEnhnacer')
+	Building project VideoEnhnacer with scheme VideoEnhnacer and configuration Debug
+(4 failures)

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HeaderView: View {
     @Binding var isSidebarExpanded: Bool
+    @Binding var isShowingPaywall: Bool
     
     var body: some View {
         HStack {
@@ -45,7 +46,7 @@ struct HeaderView: View {
             
             // Pro Button
             Button(action: {
-                // Visual only - no functionality
+                isShowingPaywall = true
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "crown.fill")
@@ -78,7 +79,7 @@ struct HeaderView: View {
 
 #Preview {
     VStack {
-        HeaderView(isSidebarExpanded: .constant(false))
+        HeaderView(isSidebarExpanded: .constant(false), isShowingPaywall: .constant(false))
         Spacer()
     }
     .background(Color.appBackground)

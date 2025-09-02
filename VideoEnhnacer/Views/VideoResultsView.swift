@@ -13,7 +13,7 @@ struct VideoResultsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedTab = 0
     @State private var mode: ViewMode = .original
-    @StateObject private var videoPlayerManager = VideoPlayerManager()
+    @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     @State private var isSaving = false
     @State private var saveError: String?
     @State private var showingError = false
@@ -70,6 +70,7 @@ struct VideoResultsView: View {
             
             // Pre-setup video players for comparison mode
             videoPlayerManager.setupVideoPlayers(forKey: generateVideoKey(), originalURL: originalVideoURL, processedURL: processedVideoURL)
+            videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
         }
     }
 

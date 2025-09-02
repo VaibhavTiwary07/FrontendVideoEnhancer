@@ -18,6 +18,18 @@ class VideoPlayerManager: ObservableObject {
         case error(String)
         case paused
     }
+
+    // Debug helper to inspect internal state for a given key
+    func debugStatus(forKey key: String, context: String = "") {
+        let state = playerStates[key] ?? .loading
+        let loaded = loadedKeys.contains(key)
+        let loading = loadingKeys.contains(key)
+        let active = activeViewKeys.contains(key)
+        let pair = playerPairs[key]
+        let hasNormal = pair?.normal.currentItem != nil
+        let hasEnhanced = pair?.enhanced.currentItem != nil
+        print("🧩 VideoPlayerManager.debugStatus \(context) -> key='\(key)' state=\(state) loaded=\(loaded) loading=\(loading) active=\(active) hasNormal=\(hasNormal) hasEnhanced=\(hasEnhanced)")
+    }
     
     func getPlayerState(forKey key: String) -> PlayerState {
         return playerStates[key] ?? .loading

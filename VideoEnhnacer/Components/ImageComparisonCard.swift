@@ -185,7 +185,8 @@ struct ImageComparisonCard: View {
                         originalURL: originalURL,
                         enhancedURL: processedURL,
                         videoPlayerManager: manager,
-                        compact: true
+                        compact: true,
+                        customKey: title
                     )
                 } else if let normal = normalVideoName, let enhanced = enhancedVideoName {
                     VideoComparisonSlider(
@@ -194,7 +195,8 @@ struct ImageComparisonCard: View {
                         originalURL: nil,
                         enhancedURL: nil,
                         videoPlayerManager: manager,
-                        compact: true
+                        compact: true,
+                        customKey: title
                     )
                 } else {
                     // Fallback to image slider if inputs missing
@@ -210,6 +212,16 @@ struct ImageComparisonCard: View {
                     afterImageName: afterImageName,
                     sliderValue: $sliderValue
                 )
+            }
+        }
+        .onAppear {
+            if useVideoComparison {
+                print("🧩 Card '\(title)' sliderView appear useVideoComparison=true originalURL=\(String(describing: originalVideoURL)) processedURL=\(String(describing: processedVideoURL))")
+            }
+        }
+        .onDisappear {
+            if useVideoComparison {
+                print("🧩 Card '\(title)' sliderView disappear")
             }
         }
         .mask(

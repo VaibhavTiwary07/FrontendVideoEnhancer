@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var videoPlayerManager = VideoPlayerManager()
+    @EnvironmentObject var videoPlayerManager: VideoPlayerManager
     @StateObject var favoritesManager = FavoritesManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
+    @State private var isShowingPaywall = false
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
@@ -19,17 +20,17 @@ struct ContentView: View {
             // Main Content - Full Width
             VStack(spacing: 0) {
                 // Header with Hamburger Menu
-                HeaderView(isSidebarExpanded: $isSidebarExpanded)
+                HeaderView(isSidebarExpanded: $isSidebarExpanded, isShowingPaywall: $isShowingPaywall)
                 
                 // Content Area
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomeView(videoPlayerManager: videoPlayerManager)
+                        HomeView()
                     case 1:
                         MyCreationsView()
                     default:
-                        HomeView(videoPlayerManager: videoPlayerManager)
+                        HomeView()
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -68,6 +69,9 @@ struct ContentView: View {
         .background(Color.appBackground)
         .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0), value: isSidebarExpanded)
         .environmentObject(favoritesManager)
+        .fullScreenCover(isPresented: $isShowingPaywall) {
+            PaywallView(isPresented: $isShowingPaywall)
+        }
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
             case .background:

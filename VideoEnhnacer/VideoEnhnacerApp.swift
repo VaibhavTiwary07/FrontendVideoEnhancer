@@ -13,9 +13,11 @@ import SwiftUI
 
 @main
 struct VideoEnhnacerApp: App {
+    @StateObject private var videoPlayerManager = VideoPlayerManager()
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(videoPlayerManager)
         }
     }
 }

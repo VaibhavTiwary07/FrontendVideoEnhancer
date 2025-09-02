@@ -11,6 +11,8 @@ struct VideoComparisonSlider: View {
     @ObservedObject var videoPlayerManager: VideoPlayerManager
     // When true, fill the given frame without extra background/padding
     let compact: Bool
+    // Optional stable key to persist players across view lifecycles
+    let customKey: String?
     @State private var sliderValue: Double = 0.3
     @State private var isViewVisible: Bool = false
     @State private var isUserInteracting: Bool = false
@@ -19,6 +21,7 @@ struct VideoComparisonSlider: View {
     @State private var autoSlideDirection: Double = 1.0
     
     private var videoKey: String {
+        if let customKey = customKey, !customKey.isEmpty { return customKey }
         if let originalURL = originalURL, let enhancedURL = enhancedURL {
             return "\(originalURL.absoluteString.hashValue)-\(enhancedURL.absoluteString.hashValue)"
         }
@@ -35,7 +38,8 @@ struct VideoComparisonSlider: View {
         originalURL: URL? = nil,
         enhancedURL: URL? = nil,
         videoPlayerManager: VideoPlayerManager,
-        compact: Bool = false
+        compact: Bool = false,
+        customKey: String? = nil
     ) {
         self.normalVideoName = normalVideoName
         self.enhancedVideoName = enhancedVideoName
@@ -43,6 +47,7 @@ struct VideoComparisonSlider: View {
         self.enhancedURL = enhancedURL
         self.videoPlayerManager = videoPlayerManager
         self.compact = compact
+        self.customKey = customKey
     }
     
     var body: some View {
@@ -262,6 +267,11 @@ struct VideoComparisonSlider: View {
             print("🎯 enhancedURL: \(String(describing: enhancedURL))")
             print("🎯 videoKey: \(videoKey)")
             print("🎯 Current player state: \(playerState)")
+            if let originalURL = originalURL { print("🎯 originalURL exists? \(FileManager.default.fileExists(atPath: originalURL.path)) path=\(originalURL.path)") }
+            if let enhancedURL = enhancedURL { print("🎯 enhancedURL exists? \(FileManager.default.fileExists(atPath: enhancedURL.path)) path=\(enhancedURL.path)") }
+            let hasNormal = videoPlayerManager.getNormalPlayer(forKey: videoKey) != nil
+            let hasEnhanced = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) != nil
+            print("🎯 Pre-setup players exists? normal=\(hasNormal) enhanced=\(hasEnhanced)")
             
             isViewVisible = true
             
@@ -277,6 +287,7 @@ struct VideoComparisonSlider: View {
             }
             
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+            videoPlayerManager.debugStatus(forKey: videoKey, context: "onAppear after setViewActive")
             startAutoSlide()
         }
         .onDisappear {
@@ -285,6 +296,7 @@ struct VideoComparisonSlider: View {
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
             stopAutoSlide()
             stopResumeTimer()
+            videoPlayerManager.debugStatus(forKey: videoKey, context: "onDisappear after deactivate")
         }
         // iOS 15-compatible onChange signature
         .onChange(of: playerState) { state in
@@ -293,6 +305,7 @@ struct VideoComparisonSlider: View {
             if state == .ready && isViewVisible {
                 print("🎯 Re-activating players after state change")
                 videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+                videoPlayerManager.debugStatus(forKey: videoKey, context: "onChange -> ready, after setViewActive")
             }
         }
     }

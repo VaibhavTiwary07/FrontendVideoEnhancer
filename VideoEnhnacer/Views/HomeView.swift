@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @State private var showVideoPropertyList = false
     @State private var selectedVideoURL: URL?
-    @ObservedObject var videoPlayerManager: VideoPlayerManager
+    @EnvironmentObject var videoPlayerManager: VideoPlayerManager
     @State private var isHomeViewActive = false
     @State private var selectedEnhancement: Enhancement?
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -122,7 +122,11 @@ struct HomeView: View {
                                         icon: "gyroscope",
                                         title: "Stabilizer",
                                         subtitle: "Reduce camera shake",
-                                        gradientType: .gray
+                                        gradientType: .gray,
+                                        useVideoComparison: true,
+                                        originalVideoURL: Bundle.main.url(forResource: "StablilizationBefore", withExtension: "mp4"),
+                                        processedVideoURL: Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4"),
+                                        videoPlayerManager: videoPlayerManager
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Stabilizer",
@@ -185,9 +189,30 @@ struct HomeView: View {
         }
         .onAppear {
             isHomeViewActive = true
+            // Resume any players associated with visible comparison sliders
+            videoPlayerManager.resumeActiveViewPlayers()
+            print("🏠 HomeView onAppear: resuming players for active views")
+
+            // Prewarm and reactivate Stabilizer and Frame Interpolation players with stable keys
+            if let stabOrig = Bundle.main.url(forResource: "StablilizationBefore", withExtension: "mp4"),
+               let stabProc = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") {
+                let key = "Stabilizer"
+                videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc)
+                videoPlayerManager.setViewActive(forKey: key, isActive: true)
+                videoPlayerManager.debugStatus(forKey: key, context: "HomeView.onAppear prewarm")
+            }
+
+            if let interpOrig = Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4"),
+               let interpProc = Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4") {
+                let key = "Frame Interpolation"
+                videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: interpOrig, processedURL: interpProc)
+                videoPlayerManager.setViewActive(forKey: key, isActive: true)
+                videoPlayerManager.debugStatus(forKey: key, context: "HomeView.onAppear prewarm")
+            }
         }
         .onDisappear {
             isHomeViewActive = false
+            print("🏠 HomeView onDisappear")
         }
     }
     
@@ -243,6 +268,6 @@ struct HomeView: View {
 }
 
 
-#Preview {
-    HomeView(videoPlayerManager: VideoPlayerManager())
-}
+//#Preview {
+//    HomeView(videoPlayerManager: VideoPlayerManager())
+//}
