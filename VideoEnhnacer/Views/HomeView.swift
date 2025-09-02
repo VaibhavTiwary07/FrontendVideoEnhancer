@@ -64,12 +64,12 @@ struct HomeView: View {
                                         icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
                                         title: "Face & Object Enhancer",
                                         subtitle: "Improve facial features",
-                                        gradientType: .yellowGray
+                                        gradientType: .redPink
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Face & Object Enhancer",
                                             icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
-                                            gradientType: .yellowGray
+                                            gradientType: .redPink
                                         )
                                     }
                                     
@@ -77,14 +77,14 @@ struct HomeView: View {
                                         icon: "waveform.path",
                                         title: "AI Denoise",
                                         subtitle: "Remove grain and noise",
-                                        gradientType: .purpleGray,
+                                        gradientType: .pinkGray,
                                         beforeImageName: "AIDenoiseBefore",
                                         afterImageName: "AIDenoiseAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Denoise",
                                             icon: "waveform.path",
-                                            gradientType: .purpleGray
+                                            gradientType: .pinkGray
                                         )
                                     }
                                     
@@ -92,14 +92,14 @@ struct HomeView: View {
                                         icon: "paintpalette.fill",
                                         title: "AI Color",
                                         subtitle: "Color correction",
-                                        gradientType: .cyanGray,
+                                        gradientType: .yellowGray,
                                         beforeImageName: "AIColorisationBefore",
                                         afterImageName: "AIColorisationAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Color",
                                             icon: "paintpalette.fill",
-                                            gradientType: .cyanGray
+                                            gradientType: .yellowGray
                                         )
                                     }
                                     
@@ -107,14 +107,14 @@ struct HomeView: View {
                                         icon: "wand.and.stars",
                                         title: "AI Auto Enhancement",
                                         subtitle: "One-click improvements",
-                                        gradientType: .pinkGray,
+                                        gradientType: .purpleGray,
                                         beforeImageName: "AutoEnhacementBefore",
                                         afterImageName: "AutoEnhacementAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Auto Enhancement",
                                             icon: "wand.and.stars",
-                                            gradientType: .pinkGray
+                                            gradientType: .purpleGray
                                         )
                                     }
                                     
@@ -135,12 +135,12 @@ struct HomeView: View {
                                         icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
                                         title: "Frame Interpolation",
                                         subtitle: "Smooth motion",
-                                        gradientType: .redPink
+                                        gradientType: .cyanGray
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Frame Interpolation",
                                             icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
-                                            gradientType: .redPink
+                                            gradientType: .cyanGray
                                         )
                                     }
                                 }

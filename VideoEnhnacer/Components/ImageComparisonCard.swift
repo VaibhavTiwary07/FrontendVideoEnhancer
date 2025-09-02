@@ -76,7 +76,7 @@ struct ImageComparisonCard: View {
                     
                     // Content overlay with precise positioning
                     HStack(spacing: 0) {
-                        Spacer(minLength: 20)
+                        Spacer(minLength: 10)
                         // Left side - Precisely centered text content
                         textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
                         
@@ -84,6 +84,7 @@ struct ImageComparisonCard: View {
                         
                         // Right side - Image comparison slider with proper containment
                         sliderView(containerHeight: geometry.size.height)
+//                            .frame(width:150)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     } // End of geometry safety check
@@ -162,24 +163,18 @@ struct ImageComparisonCard: View {
                 sliderValue: $sliderValue
             )
         }
-        .overlay(
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.6),
-//                            Color.white.opacity(0.5),
-//                            Color.white.opacity(0.4),
-                            Color.white.opacity(0.1)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .allowsHitTesting(false)
+        .mask(
+            LinearGradient(
+                colors: [
+                    Color.white.opacity(0.2),
+                    Color.white.opacity(1.0)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
         )
         .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
-        .frame(width: 150)
+//        .frame(width: 10)
     }
 
     // MARK: - Custom shape for rounding selected corners

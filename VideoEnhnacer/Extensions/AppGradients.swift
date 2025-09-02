@@ -129,7 +129,7 @@ struct AppGradients {
     // MARK: - Purple Gray Variants
     static let purpleGray = LinearGradient(
         colors: [
-            Color(red: 120/255, green: 80/255, blue: 200/255).opacity(0.6),     // Deep lavender
+/*    /*        Color(red: 120/255, green: 80/255, blue: 200/255).opacity(0.6),  */ */  // Deep lavender
             Color(red: 160/255, green: 130/255, blue: 220/255).opacity(0.35),   // Lilac
             Color(red: 200/255, green: 180/255, blue: 240/255).opacity(0.15),   // Light purple
             Color(red: 245/255, green: 240/255, blue: 255/255).opacity(0.0)     // Transparent
@@ -286,7 +286,7 @@ enum GradientType: CaseIterable {
         case .redPink: return AppGradients.redPinkDark
         case .gray: return AppGradients.grayDark
         case .yellowGray: return AppGradients.yellowGrayDark
-        case .purpleGray: return AppGradients.purpleGrayDark
+        case .purpleGray: return AppGradients.yellowGray
         case .cyanGray: return AppGradients.cyanGrayDark
         case .pinkGray: return AppGradients.pinkGrayDark
         }
