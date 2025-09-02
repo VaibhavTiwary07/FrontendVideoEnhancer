@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ImageComparisonCard: View {
     let icon: String
@@ -75,6 +76,7 @@ struct ImageComparisonCard: View {
                     
                     // Content overlay with precise positioning
                     HStack(spacing: 0) {
+                        Spacer(minLength: 20)
                         // Left side - Precisely centered text content
                         textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
                         
@@ -153,13 +155,45 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
-        ImageComparisonSlider(
-            beforeImageName: beforeImageName,
-            afterImageName: afterImageName,
-            sliderValue: $sliderValue
+        ZStack {
+            ImageComparisonSlider(
+                beforeImageName: beforeImageName,
+                afterImageName: afterImageName,
+                sliderValue: $sliderValue
+            )
+        }
+        .overlay(
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.6),
+//                            Color.white.opacity(0.5),
+//                            Color.white.opacity(0.4),
+                            Color.white.opacity(0.1)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .allowsHitTesting(false)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 22))
-        .frame(width: 116)
+        .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
+        .frame(width: 150)
+    }
+
+    // MARK: - Custom shape for rounding selected corners
+    private struct RoundedCornerShape: Shape {
+        var radius: CGFloat = 0
+        var corners: UIRectCorner = .allCorners
+        func path(in rect: CGRect) -> Path {
+            let path = UIBezierPath(
+                roundedRect: rect,
+                byRoundingCorners: corners,
+                cornerRadii: CGSize(width: radius, height: radius)
+            )
+            return Path(path.cgPath)
+        }
     }
     
     private func getBackgroundSymbol() -> String {

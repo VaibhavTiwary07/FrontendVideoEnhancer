@@ -35,6 +35,7 @@ final class RevealImageView: UIImageView {
     private var isUserInteracting = false
     private var resumeTimer: Timer?
 
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -78,6 +79,7 @@ final class RevealImageView: UIImageView {
         leftImageLayer.contentsGravity = .resizeAspectFill
         layer.addSublayer(leftImageLayer)
 
+
         // Setup enhanced white divider line
         lineView.backgroundColor = .white
         lineView.layer.cornerRadius = 1
@@ -105,6 +107,8 @@ final class RevealImageView: UIImageView {
             maskLayer.frame = bounds
             topFadeLayer.frame = bounds
         }
+
+        // No overlay; card applies SwiftUI overlay as needed
         
         updateView()
     }
@@ -139,6 +143,8 @@ final class RevealImageView: UIImageView {
         CATransaction.commit()
         pctChanged?(pct)
     }
+
+    // No overlay appearance; handled in SwiftUI where used
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         isUserInteracting = true
@@ -285,4 +291,3 @@ struct ImageComparisonSlider: UIViewRepresentable {
     .padding()
     .background(Color.appBackground)
 }
-
