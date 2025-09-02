@@ -5,6 +5,8 @@ struct ImageComparisonCard: View {
     let title: String
     let subtitle: String
     let gradientType: GradientType
+    let beforeImageName: String
+    let afterImageName: String
     let action: () -> Void
     
     @State private var sliderValue: Double = 0.5
@@ -12,6 +14,22 @@ struct ImageComparisonCard: View {
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
+    }
+
+    init(icon: String,
+         title: String,
+         subtitle: String,
+         gradientType: GradientType,
+         beforeImageName: String = "test",
+         afterImageName: String = "testEnhanced",
+         action: @escaping () -> Void) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.gradientType = gradientType
+        self.beforeImageName = beforeImageName
+        self.afterImageName = afterImageName
+        self.action = action
     }
     
     var body: some View {
@@ -136,8 +154,8 @@ struct ImageComparisonCard: View {
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
         ImageComparisonSlider(
-            beforeImageName: "test",
-            afterImageName: "testEnhanced",
+            beforeImageName: beforeImageName,
+            afterImageName: afterImageName,
             sliderValue: $sliderValue
         )
         .clipShape(RoundedRectangle(cornerRadius: 22))
@@ -227,7 +245,9 @@ private struct PressableCardButtonStyle: ButtonStyle {
             icon: "arrow.up.square",
             title: "AI Upscale",
             subtitle: "Enhance image resolution",
-            gradientType: .redPink
+            gradientType: .redPink,
+            beforeImageName: "test",
+            afterImageName: "testEnhanced"
         ) {
             print("Tapped AI Upscale")
         }
@@ -236,7 +256,9 @@ private struct PressableCardButtonStyle: ButtonStyle {
             icon: "waveform.path",
             title: "AI Denoise",
             subtitle: "Remove grain and noise",
-            gradientType: .purpleGray
+            gradientType: .purpleGray,
+            beforeImageName: "AIDenoiseBefore",
+            afterImageName: "AIDenoiseAfter"
         ) {
             print("Tapped AI Denoise")
         }

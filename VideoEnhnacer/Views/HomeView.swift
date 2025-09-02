@@ -77,7 +77,9 @@ struct HomeView: View {
                                         icon: "waveform.path",
                                         title: "AI Denoise",
                                         subtitle: "Remove grain and noise",
-                                        gradientType: .purpleGray
+                                        gradientType: .purpleGray,
+                                        beforeImageName: "AIDenoiseBefore",
+                                        afterImageName: "AIDenoiseAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Denoise",
@@ -90,7 +92,9 @@ struct HomeView: View {
                                         icon: "paintpalette.fill",
                                         title: "AI Color",
                                         subtitle: "Color correction",
-                                        gradientType: .cyanGray
+                                        gradientType: .cyanGray,
+                                        beforeImageName: "AIColorisationBefore",
+                                        afterImageName: "AIColorisationAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Color",
@@ -103,7 +107,9 @@ struct HomeView: View {
                                         icon: "wand.and.stars",
                                         title: "AI Auto Enhancement",
                                         subtitle: "One-click improvements",
-                                        gradientType: .pinkGray
+                                        gradientType: .pinkGray,
+                                        beforeImageName: "AutoEnhacementBefore",
+                                        afterImageName: "AutoEnhacementAfter"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Auto Enhancement",
