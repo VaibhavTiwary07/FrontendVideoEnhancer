@@ -157,14 +157,7 @@ struct ImageComparisonCard: View {
                 NavigationView {
                     RefactoredVideoTrimmingView(
                         videoURL: videoURL,
-                        enhancementType: EnhancementType(
-                            id: title.lowercased().replacingOccurrences(of: " ", with: "_"),
-                            name: title,
-                            description: subtitle,
-                            icon: icon,
-                            options: [],
-                            gradientType: gradientType
-                        )
+                        enhancementType: resolvedEnhancementType()
                     )
                 }
             }
@@ -321,6 +314,41 @@ struct ImageComparisonCard: View {
         case "gyroscope": return "gyroscope"
         case "timer.circle.fill": return getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer")
         default: return "circle.fill"
+        }
+    }
+
+    // MARK: - Enhancement type resolution using registry (restores backend + options)
+    private func resolvedEnhancementType() -> EnhancementType {
+        let id = mapTitleToId(title)
+        let service = DIContainer.shared.enhancement
+        let types = service.getSupportedEnhancementTypes()
+        if let found = types.first(where: { $0.id == id }) {
+            return found
+        }
+        // Fallback: construct minimal type if registry unavailable
+        return EnhancementType(
+            id: id,
+            name: title,
+            description: subtitle,
+            icon: icon,
+            options: [],
+            gradientType: gradientType
+        )
+    }
+
+    private func mapTitleToId(_ title: String) -> String {
+        switch title {
+        case "AI Upscale": return "ai_upscale"
+        case "Face & Object Enhancer": return "face_enhancer"
+        case "AI Denoise": return "ai_denoise"
+        case "AI Color": return "ai_color"
+        case "Stabilizer": return "stabilizer"
+        case "Frame Interpolation": return "frame_interpolation"
+        case "AI Auto Enhancement": return "ai_auto_enhancement"
+        default:
+            return title.lowercased()
+                .replacingOccurrences(of: " & ", with: "_")
+                .replacingOccurrences(of: " ", with: "_")
         }
     }
     
