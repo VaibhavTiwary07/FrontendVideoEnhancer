@@ -25,7 +25,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     private var loadingTask: Task<Void, Never>?
     
     // MARK: - Public Properties
-    let videoURL: URL
+    @Published private(set) var videoURL: URL
     let enhancementType: EnhancementType
     
     // MARK: - Computed Properties
@@ -117,6 +117,13 @@ final class VideoTrimmingViewModel: ObservableObject {
         loadVideo()
     }
     
+    func replaceVideo(with newURL: URL) {
+        // Reset state and load new video
+        trimmingReset()
+        videoURL = newURL
+        loadVideo()
+    }
+    
     func cleanup() {
         loadingTask?.cancel()
         playerViewModel.cleanup()
@@ -180,9 +187,8 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     private func setupVideoPlayers() async {
-        // Extract filename without extension for player setup
-        let fileName = videoURL.deletingPathExtension().lastPathComponent
-        playerViewModel.setupPlayers(normalVideoName: fileName, enhancedVideoName: fileName)
+        // Use direct file URLs so trimming works with user-selected videos
+        playerViewModel.setupPlayers(originalURL: videoURL, enhancedURL: videoURL)
     }
     
     private func generateThumbnails() async {
@@ -226,6 +232,18 @@ final class VideoTrimmingViewModel: ObservableObject {
         playerViewModel.seek(to: trimStartTime)
         
         print("🎬 VideoTrimmingViewModel - Applied preset \(preset.title): \(trimStartTime) to \(trimEndTime)")
+    }
+
+    private func trimmingReset() {
+        trimStartTime = 0
+        trimEndTime = 30
+        selectedDuration = .thirtySeconds
+        videoDuration = 0
+        thumbnails = []
+        isLoadingVideo = false
+        isLoadingThumbnails = false
+        error = nil
+        playerViewModel.cleanup()
     }
     
     private func formatDuration(_ timeInSeconds: Double) -> String {

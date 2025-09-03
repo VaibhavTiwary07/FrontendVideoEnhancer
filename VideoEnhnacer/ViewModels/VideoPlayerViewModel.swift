@@ -44,8 +44,32 @@ final class VideoPlayerViewModel: ObservableObject {
     
     // MARK: - Public Methods
     func setupPlayers(normalVideoName: String, enhancedVideoName: String) {
-        Task {
-            await loadPlayers(normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+        Task { @MainActor in
+            do {
+                try await videoPlayerService.setupPlayers(key: key, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            } catch {
+                if let err = error as? VideoPlayerError {
+                    self.error = err
+                } else {
+                    self.error = VideoPlayerError.loadingFailed(error.localizedDescription)
+                }
+                self.isLoading = false
+            }
+        }
+    }
+
+    func setupPlayers(originalURL: URL, enhancedURL: URL) {
+        Task { @MainActor in
+            do {
+                try await videoPlayerService.setupPlayers(key: key, originalURL: originalURL, enhancedURL: enhancedURL)
+            } catch {
+                if let err = error as? VideoPlayerError {
+                    self.error = err
+                } else {
+                    self.error = VideoPlayerError.loadingFailed(error.localizedDescription)
+                }
+                self.isLoading = false
+            }
         }
     }
     
@@ -113,23 +137,7 @@ final class VideoPlayerViewModel: ObservableObject {
         }
     }
     
-    private func loadPlayers(normalVideoName: String, enhancedVideoName: String) async {
-        isLoading = true
-        error = nil
-        
-        do {
-            try await videoPlayerService.setupPlayers(
-                normalVideoName: normalVideoName,
-                enhancedVideoName: enhancedVideoName
-            )
-        } catch let playerError as VideoPlayerError {
-            error = playerError
-            isLoading = false
-        } catch {
-            self.error = VideoPlayerError.loadingFailed(error.localizedDescription)
-            isLoading = false
-        }
-    }
+    private func loadPlayers(normalVideoName: String, enhancedVideoName: String) async { }
 }
 
 // MARK: - Preview Support

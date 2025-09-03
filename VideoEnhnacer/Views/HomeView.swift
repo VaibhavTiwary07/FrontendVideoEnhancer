@@ -180,13 +180,7 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
-        .fullScreenCover(item: $selectedEnhancement) { enhancement in
-            VideoPickerView(
-                enhancementType: enhancement.type,
-                enhancementIcon: enhancement.icon,
-                gradientType: enhancement.gradientType
-            )
-        }
+        // VideoPickerView is removed from flow; direct picking happens in cards
         .onAppear {
             isHomeViewActive = true
             // Resume any players associated with visible comparison sliders

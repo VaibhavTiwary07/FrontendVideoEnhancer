@@ -565,53 +565,18 @@ extension View {
     }
 }
 
-// MARK: - Processing Overlay
+// MARK: - Processing Overlay (minimal spinner only)
 struct EnhancementProcessingOverlay: View {
     let progress: Double
     let processingState: EnhancementProcessingState
-    
-    private var statusText: String {
-        switch processingState {
-        case .processing(let phase):
-            return phase.displayName
-        case .preparing:
-            return "Preparing..."
-        default:
-            return "Processing Video..."
-        }
-    }
     
     var body: some View {
         Color.black.opacity(0.8)
             .ignoresSafeArea()
             .overlay(
-                VStack(spacing: 24) {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.2), lineWidth: 8)
-                            .frame(width: 120, height: 120)
-                        
-                        Circle()
-                            .trim(from: 0, to: progress)
-                            .stroke(
-                                LinearGradient.primaryTheme,
-                                style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                            )
-                            .frame(width: 120, height: 120)
-                            .rotationEffect(.degrees(-90))
-                            .animation(.easeInOut(duration: 0.3), value: progress)
-                        
-                        Text("\(Int(progress * 100))%")
-                            .font(.system(size: 24, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                    }
-                    .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
-                    
-                    Text(statusText)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .opacity(0.9)
-                }
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
             )
     }
 }

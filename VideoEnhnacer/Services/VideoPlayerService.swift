@@ -36,39 +36,46 @@ final class VideoPlayerService: VideoPlayerProtocol {
     }
     
     // MARK: - VideoPlayerProtocol Implementation
-    func setupPlayers(normalVideoName: String, enhancedVideoName: String) async throws {
-        let key = "\(normalVideoName)_\(enhancedVideoName)"
-        
-        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else {
-            return
-        }
-        
+    func setupPlayers(key: String, normalVideoName: String, enhancedVideoName: String) async throws {
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
         loadingKeys.insert(key)
         await updatePlayerState(.loading)
-        
         do {
-            let playerPair = try await loadPlayerPair(
-                normalVideoName: normalVideoName,
-                enhancedVideoName: enhancedVideoName
-            )
-            
-            playerPairs[key] = playerPair
+            let pair = try await loadPlayerPair(normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            playerPairs[key] = pair
             setupPlayerObservers(forKey: key)
-            
             loadingKeys.remove(key)
             loadedKeys.insert(key)
             await updatePlayerState(.ready)
-            
         } catch {
             loadingKeys.remove(key)
-            if let playerError = error as? VideoPlayerError {
-                await updatePlayerState(.error(playerError))
-                throw playerError
-            } else {
-                let playerError = VideoPlayerError.loadingFailed(error.localizedDescription)
-                await updatePlayerState(.error(playerError))
-                throw playerError
-            }
+            let playerError = (error as? VideoPlayerError) ?? VideoPlayerError.loadingFailed(error.localizedDescription)
+            await updatePlayerState(.error(playerError))
+            throw playerError
+        }
+    }
+
+    func setupPlayers(key: String, originalURL: URL, enhancedURL: URL) async throws {
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
+        loadingKeys.insert(key)
+        await updatePlayerState(.loading)
+        do {
+            let normalPlayer = AVPlayer(url: originalURL)
+            let enhancedPlayer = AVPlayer(url: enhancedURL)
+            normalPlayer.isMuted = true
+            enhancedPlayer.isMuted = true
+            try await preloadPlayers([normalPlayer, enhancedPlayer])
+            let pair = PlayerPair(normal: normalPlayer, enhanced: enhancedPlayer)
+            playerPairs[key] = pair
+            setupPlayerObservers(forKey: key)
+            loadingKeys.remove(key)
+            loadedKeys.insert(key)
+            await updatePlayerState(.ready)
+        } catch {
+            loadingKeys.remove(key)
+            let playerError = (error as? VideoPlayerError) ?? VideoPlayerError.loadingFailed(error.localizedDescription)
+            await updatePlayerState(.error(playerError))
+            throw playerError
         }
     }
     

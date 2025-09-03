@@ -10,7 +10,8 @@ protocol VideoPlayerProtocol: AnyObject {
     var currentTimePublisher: Published<Double>.Publisher { get }
     
     // MARK: - Player Management
-    func setupPlayers(normalVideoName: String, enhancedVideoName: String) async throws
+    func setupPlayers(key: String, normalVideoName: String, enhancedVideoName: String) async throws
+    func setupPlayers(key: String, originalURL: URL, enhancedURL: URL) async throws
     func setActiveView(forKey key: String, isActive: Bool)
     func cleanup()
     

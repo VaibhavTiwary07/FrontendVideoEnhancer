@@ -194,9 +194,14 @@ final class MockVideoPlayerService: VideoPlayerProtocol {
     var playerStatePublisher: Published<VideoPlayerState>.Publisher { $playerState }
     var currentTimePublisher: Published<Double>.Publisher { $currentTime }
     
-    func setupPlayers(normalVideoName: String, enhancedVideoName: String) async throws {
+    func setupPlayers(key: String, normalVideoName: String, enhancedVideoName: String) async throws {
         playerState = .loading
         try await Task.sleep(nanoseconds: 1_000_000_000)
+        playerState = .ready
+    }
+    func setupPlayers(key: String, originalURL: URL, enhancedURL: URL) async throws {
+        playerState = .loading
+        try await Task.sleep(nanoseconds: 500_000_000)
         playerState = .ready
     }
     

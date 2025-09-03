@@ -1,9 +1,13 @@
 import SwiftUI
 import AVKit
+import PhotosUI
 
 // MARK: - Refactored Video Trimming View
 /// Clean, MVVM-focused view following Single Responsibility Principle
 struct RefactoredVideoTrimmingView: View {
+    @State private var resolutionText: String = "—"
+    @State private var sizeText: String = "—"
+    @State private var showingVideoPicker = false
     
     // MARK: - Dependencies
     @Environment(\.dismiss) private var dismiss
@@ -60,6 +64,13 @@ struct RefactoredVideoTrimmingView: View {
             }
         }
         .gesture(swipeToGoBackGesture)
+        .sheet(isPresented: $showingVideoPicker) {
+            UIKitVideoPickerWrapper { newVideoURL in
+                // Update video in-place and recompute metadata
+                viewModel.replaceVideo(with: newVideoURL)
+                computeMetadata()
+            }
+        }
     }
     
     // MARK: - Content Views
@@ -68,13 +79,16 @@ struct RefactoredVideoTrimmingView: View {
         VStack(spacing: 0) {
             VideoPreviewSection(
                 playerViewModel: viewModel.playerViewModel,
-                enhancementType: viewModel.enhancementType
+                enhancementType: viewModel.enhancementType,
+                onChangeVideo: { showingVideoPicker = true }
             )
             .padding(.top, 20)
             
             VideoInfoSection(
                 selectedDuration: viewModel.trimmedDurationFormatted,
-                totalDuration: viewModel.totalDurationFormatted
+                totalDuration: viewModel.totalDurationFormatted,
+                resolution: resolutionText,
+                size: sizeText
             )
             
             Spacer()
@@ -117,10 +131,38 @@ struct RefactoredVideoTrimmingView: View {
     private func handleViewAppearance() {
         viewModel.loadVideo()
         print("🎬 RefactoredVideoTrimmingView - Appeared for \(viewModel.enhancementType.title)")
+        computeMetadata()
     }
     
     private func handleViewDisappearance() {
         viewModel.cleanup()
+    }
+
+    private func computeMetadata() {
+        let url = viewModel.videoURL
+        let asset = AVAsset(url: url)
+        // Resolution
+        if let track = asset.tracks(withMediaType: .video).first {
+            var size = track.naturalSize
+            let transform = track.preferredTransform
+            let rotated = abs(transform.b) > 0.0001 && abs(transform.c) > 0.0001
+            if rotated { size = CGSize(width: size.height, height: size.width) }
+            resolutionText = "\(Int(size.width))×\(Int(size.height))"
+        } else {
+            resolutionText = "—"
+        }
+        // File size (best effort)
+        do {
+            let attrs = try FileManager.default.attributesOfItem(atPath: url.path)
+            if let bytes = attrs[.size] as? NSNumber {
+                let mb = Double(truncating: bytes) / (1024.0 * 1024.0)
+                sizeText = String(format: "%.1f MB", mb)
+            } else {
+                sizeText = "—"
+            }
+        } catch {
+            sizeText = "—"
+        }
     }
 }
 
@@ -128,6 +170,7 @@ struct RefactoredVideoTrimmingView: View {
 struct VideoPreviewSection: View {
     let playerViewModel: VideoPlayerViewModel
     let enhancementType: EnhancementType
+    let onChangeVideo: () -> Void
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -148,7 +191,9 @@ struct VideoPreviewSection: View {
                     .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
                     .padding(.horizontal, 20)
                 
-                VideoChangeButton { /* Handle change video */ }
+                VideoChangeButton { 
+                    onChangeVideo()
+                }
             }
         }
     }
@@ -278,24 +323,41 @@ struct VideoChangeButton: View {
 struct VideoInfoSection: View {
     let selectedDuration: String
     let totalDuration: String
+    let resolution: String
+    let size: String
     
     var body: some View {
-        HStack {
-            InfoCardItem(
-                icon: "scissors",
-                title: "Selected Duration",
-                value: selectedDuration,
-                alignment: .leading
-            )
-            
-            Spacer()
-            
-            InfoCardItem(
-                icon: "clock",
-                title: "Total Duration",
-                value: totalDuration,
-                alignment: .trailing
-            )
+        VStack(spacing: 12) {
+            HStack {
+                InfoCardItem(
+                    icon: "scissors",
+                    title: "Selected Duration",
+                    value: selectedDuration,
+                    alignment: .leading
+                )
+                Spacer()
+                InfoCardItem(
+                    icon: "clock",
+                    title: "Total Duration",
+                    value: totalDuration,
+                    alignment: .trailing
+                )
+            }
+            HStack {
+                InfoCardItem(
+                    icon: "rectangle.expand.vertical",
+                    title: "Resolution",
+                    value: resolution,
+                    alignment: .leading
+                )
+                Spacer()
+                InfoCardItem(
+                    icon: "internaldrive",
+                    title: "Size",
+                    value: size,
+                    alignment: .trailing
+                )
+            }
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
@@ -514,6 +576,7 @@ struct InfoCardItem: View {
         }
     }
 }
+
 
 // MARK: - Preview
 #if DEBUG

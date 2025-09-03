@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import PhotosUI
+import AVFoundation
 
 struct ImageComparisonCard: View {
     let icon: String
@@ -18,6 +20,10 @@ struct ImageComparisonCard: View {
     let action: () -> Void
     
     @State private var sliderValue: Double = 0.5
+    @State private var showingVideoPicker = false
+    @State private var selectedVideoURL: URL?
+    @State private var navigateToTrimming = false
+    @StateObject private var permissionManager = PermissionManager()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isIPad: Bool {
@@ -53,7 +59,7 @@ struct ImageComparisonCard: View {
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: handleCardTap) {
             GeometryReader { geometry in
                 ZStack {
                     // Safety check for geometry to prevent crashes
@@ -126,6 +132,59 @@ struct ImageComparisonCard: View {
         }
         .onDisappear {
             // Auto-slide handled by slider itself
+        }
+        .onAppear {
+            permissionManager.checkCurrentStatus()
+        }
+        .sheet(isPresented: $showingVideoPicker) {
+            InlineUIKitVideoPicker { url in
+                // Capture selection and let onChange(of: showingVideoPicker)
+                // perform the navigation after the sheet fully dismisses
+                selectedVideoURL = url
+                showingVideoPicker = false
+            }
+        }
+        .onChange(of: showingVideoPicker) { isPresented in
+            if !isPresented, selectedVideoURL != nil {
+                // Defer a tick to ensure sheet dismissal completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    navigateToTrimming = true
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $navigateToTrimming) {
+            if let videoURL = selectedVideoURL {
+                NavigationView {
+                    RefactoredVideoTrimmingView(
+                        videoURL: videoURL,
+                        enhancementType: EnhancementType(
+                            id: title.lowercased().replacingOccurrences(of: " ", with: "_"),
+                            name: title,
+                            description: subtitle,
+                            icon: icon,
+                            options: [],
+                            gradientType: gradientType
+                        )
+                    )
+                }
+            }
+        }
+    }
+    
+    // MARK: - Card Tap Handler
+    private func handleCardTap() {
+        if permissionManager.canAccessPhotoLibrary {
+            showingVideoPicker = true
+        } else if permissionManager.needsPermissionRequest {
+            Task {
+                await permissionManager.requestPhotoLibraryPermission()
+                if permissionManager.canAccessPhotoLibrary {
+                    showingVideoPicker = true
+                }
+            }
+        } else {
+            // Fallback to original action if permission denied
+            action()
         }
     }
     
@@ -317,6 +376,45 @@ struct ImageComparisonCard: View {
     }
     
     // Auto-slide methods removed - handled by ImageComparisonSlider
+}
+
+// MARK: - UIKit Video Picker for Direct Selection
+struct InlineUIKitVideoPicker: UIViewControllerRepresentable {
+    let onVideoSelected: (URL) -> Void
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .photoLibrary
+        picker.mediaTypes = ["public.movie"]
+        picker.allowsEditing = false
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onVideoSelected: onVideoSelected)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let onVideoSelected: (URL) -> Void
+        
+        init(onVideoSelected: @escaping (URL) -> Void) {
+            self.onVideoSelected = onVideoSelected
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let url = info[.mediaURL] as? URL {
+                onVideoSelected(url)
+            }
+            picker.dismiss(animated: true)
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
+    }
 }
 
 // MARK: - ButtonStyle for press feedback that doesn't conflict with ScrollView (iOS 15 friendly)
