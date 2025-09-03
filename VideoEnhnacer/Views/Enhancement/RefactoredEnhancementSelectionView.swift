@@ -43,11 +43,7 @@ struct RefactoredEnhancementSelectionView: View {
             contentView
                 .navigationBarBackButtonHidden()
                 .navigationBarItems(
-                    leading: BackButton { dismiss() },
-                    trailing: HStack(spacing: 16) {
-                        StepIndicator(currentStep: 3, totalSteps: 4)
-                        CloseButton { dismiss() }
-                    }
+                    trailing: StepIndicator(currentStep: 3, totalSteps: 4)
                 )
         }
         .onAppear { handleViewAppearance() }
@@ -571,13 +567,53 @@ struct EnhancementProcessingOverlay: View {
     let processingState: EnhancementProcessingState
     
     var body: some View {
-        Color.black.opacity(0.8)
-            .ignoresSafeArea()
-            .overlay(
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
-            )
+        ZStack {
+            // Dim background that blocks interactions
+            Color.black.opacity(0.8)
+                .ignoresSafeArea()
+                .allowsHitTesting(true)
+
+            VStack(spacing: 24) {
+                // Circular ring with primary (orange) gradient
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.2), lineWidth: 8)
+                        .frame(width: 120, height: 120)
+
+                    Circle()
+                        .trim(from: 0, to: max(0.0, min(1.0, progress)))
+                        .stroke(
+                            LinearGradient.primaryTheme,
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
+                        .frame(width: 120, height: 120)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeInOut(duration: 0.25), value: progress)
+
+                    Text("\(Int(max(0.0, min(1.0, progress)) * 100))%")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                }
+                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+
+                Text(statusText)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .opacity(0.9)
+            }
+            .padding()
+        }
+    }
+
+    private var statusText: String {
+        switch processingState {
+        case .preparing: return "Preparing..."
+        case .processing(let phase): return phase.displayName
+        case .completed: return "Completed"
+        case .failed: return "Failed"
+        case .cancelled: return "Cancelled"
+        case .idle: return ""
+        }
     }
 }
 
