@@ -94,6 +94,10 @@ final class EnhancementSelectionViewModel: ObservableObject {
             return
         }
         
+        // Clear previous result to prevent showing stale data
+        result = nil
+        error = nil
+        
         currentTask = Task { [weak self] in
             await self?.performVideoProcessing(with: option)
         }

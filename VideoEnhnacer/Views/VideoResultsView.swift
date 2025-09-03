@@ -36,9 +36,9 @@ struct VideoResultsView: View {
                 enhancedVideoName: nil,
                 originalURL: originalVideoURL,
                 enhancedURL: processedVideoURL,
-                videoPlayerManager: videoPlayerManager
+                videoPlayerManager: videoPlayerManager,
+                backgroundColor: Color.black
             )
-            .background(Color.black)
         case .output:
             VideoPreviewView(videoURL: processedVideoURL)
         }

@@ -13,6 +13,8 @@ struct VideoComparisonSlider: View {
     let compact: Bool
     // Optional stable key to persist players across view lifecycles
     let customKey: String?
+    // Optional background color
+    let backgroundColor: Color?
     @State private var sliderValue: Double = 0.3
     @State private var isViewVisible: Bool = false
     @State private var isUserInteracting: Bool = false
@@ -39,7 +41,8 @@ struct VideoComparisonSlider: View {
         enhancedURL: URL? = nil,
         videoPlayerManager: VideoPlayerManager,
         compact: Bool = false,
-        customKey: String? = nil
+        customKey: String? = nil,
+        backgroundColor: Color? = nil
     ) {
         self.normalVideoName = normalVideoName
         self.enhancedVideoName = enhancedVideoName
@@ -48,6 +51,7 @@ struct VideoComparisonSlider: View {
         self.videoPlayerManager = videoPlayerManager
         self.compact = compact
         self.customKey = customKey
+        self.backgroundColor = backgroundColor
     }
     
     var body: some View {
@@ -67,8 +71,12 @@ struct VideoComparisonSlider: View {
                 // Background (skip in compact mode)
                 if !compact {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.cardBackground)
+                        .fill(backgroundColor ?? Color.cardBackground)
                         .neomorphicStyle(cornerRadius: 12, shadowRadius: 6)
+                } else if let backgroundColor = backgroundColor {
+                    Rectangle()
+                        .fill(backgroundColor)
+                        .ignoresSafeArea()
                 }
                 
                 // Video Comparison Area

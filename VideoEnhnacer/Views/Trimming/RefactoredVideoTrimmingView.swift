@@ -419,6 +419,8 @@ struct TimePresetButtons: View {
     
     var body: some View {
         HStack(spacing: 16) {
+            Spacer()
+            
             ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
                 TimePresetButton(
                     title: preset.title,
