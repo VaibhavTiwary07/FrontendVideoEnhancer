@@ -16,7 +16,7 @@ struct SpatialVideoPreview: View {
     }
     
     private var videoHeight: CGFloat {
-        isIPad ? 350 : 280
+        isIPad ? 450 : 380
     }
     
     var body: some View {
@@ -25,60 +25,9 @@ struct SpatialVideoPreview: View {
                 // Background depth layers
                 BackgroundDepthLayers(scrollOffset: scrollOffset)
                 
-                // Main video preview with spatial effects
-                VStack(spacing: 0) {
-                    // Video container with depth
-                    ZStack {
-                        // Shadow layers for depth
-                        ForEach(0..<3) { layer in
-                            RoundedRectangle(cornerRadius: 24)
-                                .fill(Color.black.opacity(0.3 - Double(layer) * 0.1))
-                                .frame(height: videoHeight)
-                                .offset(
-                                    x: CGFloat(layer) * 2,
-                                    y: CGFloat(layer) * 2
-                                )
-                                .scaleEffect(1.0 - CGFloat(layer) * 0.02)
-                        }
-                        
-                        // Main video layer
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color.cardSoft)
-                            .frame(height: videoHeight)
-                            .overlay(
-                                Group {
-                                    if let player = playerManager.player {
-                                        VideoPlayer(player: player)
-                                            .disabled(true)
-                                            .cornerRadius(24)
-                                            .onAppear {
-                                                player.play()
-                                            }
-                                    } else {
-                                        VideoLoadingView()
-                                    }
-                                }
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(Color.accentWarm.opacity(0.15), lineWidth: 1)
-                            )
-                    }
-                    .rotation3DEffect(
-                        .degrees(scrollOffset * 0.1),
-                        axis: (x: 1, y: 0, z: 0),
-                        perspective: 0.5
-                    )
-                    .scaleEffect(1.0 + (abs(scrollOffset) * 0.0002))
-                    
-//                    // Contextual information overlay
-//                    ContextualInfoOverlay(
-//                        enhancementType: enhancementType,
-//                        scrollOffset: scrollOffset
-//                    )
-//                    .padding(.top, 20)
-                }
-                .padding(.horizontal, 20)
+                // Main video preview
+                mainVideoContainer
+                    .frame(maxWidth: .infinity)
             }
         }
         .onAppear {
@@ -86,6 +35,70 @@ struct SpatialVideoPreview: View {
         }
         .onDisappear {
             playerManager.cleanup()
+        }
+    }
+    
+    @ViewBuilder
+    private var mainVideoContainer: some View {
+        VStack(spacing: 0) {
+            // Video container with depth
+            ZStack {
+                shadowLayers
+                mainVideoLayer
+            }
+            .rotation3DEffect(
+                .degrees(scrollOffset * 0.1),
+                axis: (x: 1, y: 0, z: 0),
+                perspective: 0.5
+            )
+            .scaleEffect(1.0 + (abs(scrollOffset) * 0.0002))
+        }
+    }
+    
+    @ViewBuilder
+    private var shadowLayers: some View {
+        ForEach(0..<3, id: \.self) { layer in
+            shadowLayer(for: layer)
+        }
+    }
+    
+    private func shadowLayer(for layer: Int) -> some View {
+        RoundedRectangle(cornerRadius: 24)
+            .fill(Color.black.opacity(0.3 - Double(layer) * 0.1))
+            .frame(maxWidth: .infinity)
+            .frame(height: videoHeight)
+            .offset(
+                x: CGFloat(layer) * 2,
+                y: CGFloat(layer) * 2
+            )
+            .scaleEffect(1.0 - CGFloat(layer) * 0.02)
+    }
+    
+    @ViewBuilder
+    private var mainVideoLayer: some View {
+        RoundedRectangle(cornerRadius: 24)
+            .fill(Color.cardSoft)
+            .frame(maxWidth: .infinity)
+            .frame(height: videoHeight)
+            .overlay(videoPlayerContent)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color.accentWarm.opacity(0.15), lineWidth: 1)
+            )
+    }
+    
+    @ViewBuilder
+    private var videoPlayerContent: some View {
+        if let player = playerManager.player {
+            VideoPlayer(player: player)
+                .disabled(true)
+                .aspectRatio(contentMode: .fit)
+                .cornerRadius(24)
+                .onAppear {
+                    player.play()
+                }
+        } else {
+            VideoLoadingView()
         }
     }
     
@@ -192,7 +205,7 @@ struct ContextualInfoOverlay: View {
 
 #Preview {
     ZStack {
-        Color.primarySoft
+        Color.black
             .ignoresSafeArea()
         
         ScrollView {

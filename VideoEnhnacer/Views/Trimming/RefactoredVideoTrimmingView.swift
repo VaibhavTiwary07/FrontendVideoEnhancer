@@ -47,7 +47,7 @@ struct RefactoredVideoTrimmingView: View {
         .navigationBarItems(
             leading: BackButton { dismiss() },
             trailing: HStack(spacing: 16) {
-                StepIndicator(currentStep: 2, totalSteps: 4)
+                
                 CloseButton { dismiss() }
             }
         )
@@ -108,12 +108,12 @@ struct RefactoredVideoTrimmingView: View {
             BackButton { dismiss() }
         }
         
-        ToolbarItem(placement: .navigationBarTrailing) {
-            HStack(spacing: 16) {
-                StepIndicator(currentStep: 2, totalSteps: 4)
-                CloseButton { dismiss() }
-            }
-        }
+//        ToolbarItem(placement: .navigationBarTrailing) {
+//            HStack(spacing: 16) {
+//                StepIndicator(currentStep: 2, totalSteps: 4)
+//                CloseButton { dismiss() }
+//            }
+//        }
     }
     
     // MARK: - Gestures

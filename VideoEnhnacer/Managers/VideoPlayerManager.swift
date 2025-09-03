@@ -305,6 +305,21 @@ class VideoPlayerManager: ObservableObject {
         }
     }
     
+    func cleanupPlayersForKey(_ key: String) {
+        print("🎬 VideoPlayerManager: Cleaning up players for key '\(key)'")
+        cleanupObservers(forKey: key)
+        cleanupTimeObserver(forKey: key)
+        if let playerPair = playerPairs[key] {
+            playerPair.normal.pause()
+            playerPair.enhanced.pause()
+        }
+        playerPairs.removeValue(forKey: key)
+        loadedKeys.remove(key)
+        loadingKeys.remove(key)
+        activeViewKeys.remove(key)
+        playerStates.removeValue(forKey: key)
+    }
+    
     func pausePlayers(forKey key: String) {
         playerPairs[key]?.normal.pause()
         playerPairs[key]?.enhanced.pause()

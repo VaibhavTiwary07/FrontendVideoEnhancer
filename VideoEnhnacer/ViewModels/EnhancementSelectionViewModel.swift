@@ -78,11 +78,11 @@ final class EnhancementSelectionViewModel: ObservableObject {
             isAnalyzing = true
         }
         
-        Task {
+        Task { [weak self] in
             try await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    isAnalyzing = false
+                    self?.isAnalyzing = false
                 }
             }
         }
@@ -94,8 +94,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
             return
         }
         
-        currentTask = Task {
-            await performVideoProcessing(with: option)
+        currentTask = Task { [weak self] in
+            await self?.performVideoProcessing(with: option)
         }
     }
     
@@ -103,8 +103,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
         currentTask?.cancel()
         currentTask = nil
         
-        Task {
-            await enhancementService.cancelProcessing()
+        Task { [weak self] in
+            await self?.enhancementService.cancelProcessing()
         }
     }
     
@@ -233,9 +233,9 @@ final class EnhancementSelectionViewModel: ObservableObject {
     
     // MARK: - Cleanup
     deinit {
-        Task { @MainActor in
-            cleanup()
-        }
+        currentTask?.cancel()
+        currentTask = nil
+        cancellables.removeAll()
     }
 }
 

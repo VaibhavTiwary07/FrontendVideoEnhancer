@@ -42,18 +42,16 @@ struct RefactoredEnhancementSelectionView: View {
             
             contentView
                 .navigationBarBackButtonHidden()
-                .navigationBarItems(
-                    trailing: StepIndicator(currentStep: 3, totalSteps: 4)
-                )
+                .toolbar { navigationToolbar }
         }
         .onAppear { handleViewAppearance() }
-        .onDisappear { handleViewDisappearance() }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
         .errorAlert(error: viewModel.error) { viewModel.retryProcessing() }
         .processingOverlay(
             isPresenting: viewModel.isProcessing,
             progress: viewModel.progress,
-            processingState: viewModel.processingState
+            processingState: viewModel.processingState,
+            onCancel: { viewModel.cancelProcessing() }
         )
         .onChange(of: viewModel.result) { result in
             if result != nil { showingResults = true }
@@ -63,29 +61,37 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                EnhancementHeaderView(
-                    enhancementType: viewModel.enhancementType,
-                    playerViewModel: playerViewModel,
-                    videoURL: viewModel.videoURL,
-                    trimStartTime: viewModel.trimStartTime,
-                    trimEndTime: viewModel.trimEndTime
-                )
-                
-                EnhancementOptionsView(
-                    enhancementType: viewModel.enhancementType,
-                    selectedOption: $viewModel.selectedOption,
-                    isAnalyzing: viewModel.isAnalyzing,
-                    onOptionSelected: viewModel.updateSelection
-                )
-                
-                EnhancementActionView(
-                    enhancementType: viewModel.enhancementType,
-                    selectedOption: viewModel.selectedOption,
-                    canProcess: viewModel.canProcess,
-                    onProcess: viewModel.processVideo
-                )
+        VStack(spacing: 0) {
+            // Title at the top
+            EnhancementTitleSection(enhancementType: viewModel.enhancementType)
+                .padding(.top, 12)
+                .padding(.horizontal, 20)
+            
+            ScrollView(showsIndicators: false) {
+                LazyVStack(spacing: 20) {
+                    // Video Preview
+                    SpatialVideoPreview(
+                        videoURL: viewModel.videoURL,
+                        enhancementType: viewModel.enhancementType.title,
+                        trimStartTime: viewModel.trimStartTime,
+                        trimEndTime: viewModel.trimEndTime
+                    )
+                    
+                    EnhancementOptionsView(
+                        enhancementType: viewModel.enhancementType,
+                        selectedOption: $viewModel.selectedOption,
+                        isAnalyzing: viewModel.isAnalyzing,
+                        onOptionSelected: viewModel.updateSelection
+                    )
+                   
+                    EnhancementActionView(
+                        enhancementType: viewModel.enhancementType,
+                        selectedOption: viewModel.selectedOption,
+                        canProcess: viewModel.canProcess,
+                        onProcess: viewModel.processVideo
+                    )
+                }
+                .padding(.horizontal, 20)
                 .padding(.bottom, 30)
             }
         }
@@ -108,13 +114,18 @@ struct RefactoredEnhancementSelectionView: View {
     @ToolbarContentBuilder
     private var navigationToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            BackButton { dismiss() }
+            if !viewModel.isProcessing {
+                BackButton { dismiss() }
+            } else {
+                EmptyView()
+            }
         }
         
         ToolbarItem(placement: .navigationBarTrailing) {
-            HStack(spacing: 16) {
-                StepIndicator(currentStep: 3, totalSteps: 4)
+            if !viewModel.isProcessing {
                 CloseButton { dismiss() }
+            } else {
+                EmptyView()
             }
         }
     }
@@ -125,41 +136,124 @@ struct RefactoredEnhancementSelectionView: View {
         print("   Enhancement: \(viewModel.enhancementType.title)")
         print("   Trim: \(viewModel.trimStartTime ?? -1) to \(viewModel.trimEndTime ?? -1)")
     }
+}
+
+// MARK: - View Modifiers
+extension View {
+    func errorAlert(error: EnhancementError?, onRetry: @escaping () -> Void) -> some View {
+        self.alert(
+            "Processing Error",
+            isPresented: .constant(error != nil)
+        ) {
+            Button("Retry", action: onRetry)
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(error?.localizedDescription ?? "Unknown error occurred")
+        }
+    }
     
-    private func handleViewDisappearance() {
-        viewModel.cleanup()
-        playerViewModel.cleanup()
+    func processingOverlay(
+        isPresenting: Bool,
+        progress: Double,
+        processingState: EnhancementProcessingState,
+        onCancel: (() -> Void)? = nil
+    ) -> some View {
+        self.overlay(
+            Group {
+                if isPresenting {
+                    EnhancementProcessingOverlay(
+                        progress: progress,
+                        processingState: processingState,
+                        onCancel: onCancel
+                    )
+                }
+            }
+        )
     }
 }
 
-// MARK: - Enhancement Header View
-struct EnhancementHeaderView: View {
-    let enhancementType: EnhancementType
-    let playerViewModel: VideoPlayerViewModel
-    let videoURL: URL
-    let trimStartTime: Double?
-    let trimEndTime: Double?
-    
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    
-    private var isIPad: Bool {
-        horizontalSizeClass == .regular
-    }
+// MARK: - Processing Overlay
+struct EnhancementProcessingOverlay: View {
+    let progress: Double
+    let processingState: EnhancementProcessingState
+    let onCancel: (() -> Void)?
     
     var body: some View {
-        VStack(spacing: 16) {
-            EnhancementTitleSection(enhancementType: enhancementType)
-                .padding(.top, 20)
-            
-            SpatialVideoPreview(
-                videoURL: videoURL,
-                enhancementType: enhancementType.title,
-                trimStartTime: trimStartTime,
-                trimEndTime: trimEndTime
-            )
-            .frame(height: isIPad ? 280 : 240)
-            .padding(.top, 20)
+        ZStack {
+            Color.black.opacity(0.8)
+                .ignoresSafeArea()
+                .allowsHitTesting(true)
+
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.2), lineWidth: 8)
+                        .frame(width: 120, height: 120)
+
+                    Circle()
+                        .trim(from: 0, to: max(0.0, min(1.0, progress)))
+                        .stroke(
+                            LinearGradient.primaryTheme,
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
+                        .frame(width: 120, height: 120)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeInOut(duration: 0.25), value: progress)
+
+                    Text("\(Int(max(0.0, min(1.0, progress)) * 100))%")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                }
+                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+
+                Text(statusText)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                    .opacity(0.9)
+                
+                if let onCancel = onCancel, !isCompleted(processingState) {
+                    Button(action: {
+                        HapticFeedbackManager.impact(.medium)
+                        onCancel()
+                    }) {
+                        Text("Cancel")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.red.opacity(0.8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding()
         }
+    }
+
+    private var statusText: String {
+        switch processingState {
+        case .preparing: return "Preparing..."
+        case .processing(let phase): return phase.displayName
+        case .completed: return "Completed"
+        case .failed: return "Failed"
+        case .cancelled: return "Cancelled"
+        case .idle: return ""
+        }
+    }
+    
+    private func isCompleted(_ state: EnhancementProcessingState) -> Bool {
+        if case .completed = state {
+            return true
+        }
+        return false
     }
 }
 
@@ -220,7 +314,6 @@ struct EnhancementOptionsView: View {
                 title: "Choose Enhancement Level",
                 subtitle: dynamicSubtitle
             )
-            .padding(.horizontal, 20)
             .padding(.top, 20)
             
             EnhancementOptionGrid(
@@ -229,7 +322,6 @@ struct EnhancementOptionsView: View {
                 isAnalyzing: isAnalyzing,
                 onOptionSelected: onOptionSelected
             )
-            .padding(.horizontal, 20)
         }
     }
 }
@@ -387,7 +479,6 @@ struct EnhancementActionView: View {
             canProcess: canProcess,
             onProcess: onProcess
         )
-        .padding(.horizontal, 20)
         .padding(.top, 20)
     }
 }
@@ -486,40 +577,6 @@ struct CloseButton: View {
     }
 }
 
-struct StepIndicator: View {
-    let currentStep: Int
-    let totalSteps: Int
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 8) {
-                ForEach(1...totalSteps, id: \.self) { step in
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(step <= currentStep ? Color.accentWarm : Color.accentWarm.opacity(0.3))
-                            .frame(width: step == currentStep ? 10 : 8, height: step == currentStep ? 10 : 8)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.accentWarm, lineWidth: step == currentStep ? 2 : 1)
-                                    .opacity(step == currentStep ? 1 : 0.5)
-                            )
-                        
-                        if step < totalSteps {
-                            Rectangle()
-                                .fill(step < currentStep ? Color.accentWarm : Color.accentWarm.opacity(0.3))
-                                .frame(width: 12, height: 2)
-                                .cornerRadius(1)
-                        }
-                    }
-                }
-            }
-            
-            Text("Step \(currentStep) of \(totalSteps)")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.accentWarm)
-        }
-    }
-}
 
 // MARK: - Haptic Feedback Manager
 struct HapticFeedbackManager {
@@ -529,93 +586,6 @@ struct HapticFeedbackManager {
     }
 }
 
-// MARK: - View Modifiers
-extension View {
-    func errorAlert(error: EnhancementError?, onRetry: @escaping () -> Void) -> some View {
-        self.alert(
-            "Processing Error",
-            isPresented: .constant(error != nil)
-        ) {
-            Button("Retry", action: onRetry)
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text(error?.localizedDescription ?? "Unknown error occurred")
-        }
-    }
-    
-    func processingOverlay(
-        isPresenting: Bool,
-        progress: Double,
-        processingState: EnhancementProcessingState
-    ) -> some View {
-        self.overlay(
-            Group {
-                if isPresenting {
-                    EnhancementProcessingOverlay(
-                        progress: progress,
-                        processingState: processingState
-                    )
-                }
-            }
-        )
-    }
-}
-
-// MARK: - Processing Overlay (minimal spinner only)
-struct EnhancementProcessingOverlay: View {
-    let progress: Double
-    let processingState: EnhancementProcessingState
-    
-    var body: some View {
-        ZStack {
-            // Dim background that blocks interactions
-            Color.black.opacity(0.8)
-                .ignoresSafeArea()
-                .allowsHitTesting(true)
-
-            VStack(spacing: 24) {
-                // Circular ring with primary (orange) gradient
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 8)
-                        .frame(width: 120, height: 120)
-
-                    Circle()
-                        .trim(from: 0, to: max(0.0, min(1.0, progress)))
-                        .stroke(
-                            LinearGradient.primaryTheme,
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                        )
-                        .frame(width: 120, height: 120)
-                        .rotationEffect(.degrees(-90))
-                        .animation(.easeInOut(duration: 0.25), value: progress)
-
-                    Text("\(Int(max(0.0, min(1.0, progress)) * 100))%")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                }
-                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-
-                Text(statusText)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .opacity(0.9)
-            }
-            .padding()
-        }
-    }
-
-    private var statusText: String {
-        switch processingState {
-        case .preparing: return "Preparing..."
-        case .processing(let phase): return phase.displayName
-        case .completed: return "Completed"
-        case .failed: return "Failed"
-        case .cancelled: return "Cancelled"
-        case .idle: return ""
-        }
-    }
-}
 
 // MARK: - Preview
 #if DEBUG

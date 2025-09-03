@@ -38,6 +38,7 @@ struct VideoResultsView: View {
                 enhancedURL: processedVideoURL,
                 videoPlayerManager: videoPlayerManager
             )
+            .background(Color.black)
         case .output:
             VideoPreviewView(videoURL: processedVideoURL)
         }
@@ -75,9 +76,9 @@ struct VideoResultsView: View {
 
                 // Mode buttons
                 HStack(spacing: 12) {
-                    squareModeButton(.original)
-                    squareModeButton(.compare)
-                    squareModeButton(.output)
+                    enhancementStyleModeButton(.original, title: "Original")
+                    enhancementStyleModeButton(.compare, title: "Compare")
+                    enhancementStyleModeButton(.output, title: "Enhanced")
                     Spacer()
                 }
                 .padding(.horizontal)
@@ -108,6 +109,10 @@ struct VideoResultsView: View {
             videoPlayerManager.setupVideoPlayers(forKey: generateVideoKey(), originalURL: originalVideoURL, processedURL: processedVideoURL)
             videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
         }
+        .onDisappear {
+            // Clean up video players to prevent state conflicts with other views
+            videoPlayerManager.cleanupPlayersForKey(generateVideoKey())
+        }
         .alert("Save Error", isPresented: $showingError) {
             Button("OK") { }
         } message: {
@@ -120,6 +125,41 @@ struct VideoResultsView: View {
         }
     }
 
+    private func enhancementStyleModeButton(_ target: ViewMode, title: String) -> some View {
+        Button(action: {
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            self.mode = target
+        }) {
+            let isSelected = (self.mode == target)
+            VStack(spacing: 4) {
+                Image(systemName: symbolForMode(target))
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
+                
+                Text(title)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(width: 70, height: 70)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.08)], startPoint: .leading, endPoint: .trailing))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? Color.white.opacity(0.2) : Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
+            .scaleEffect(isSelected ? 1.05 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
     private func squareModeButton(_ target: ViewMode) -> some View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .light)
@@ -149,7 +189,7 @@ struct VideoResultsView: View {
         case .original:
             return "video.fill"
         case .compare:
-            return "slider.horizontal.below.rectangle"
+            return "rectangle.split.2x1"
         case .output:
             return "wand.and.stars"
         }
@@ -180,3 +220,36 @@ struct VideoResultsView: View {
         }
     }
 }
+
+#if DEBUG
+struct VideoResultsView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Fallback URLs in case bundle lookups fail
+        let original = Bundle.main.url(forResource: "StablilizationBefore", withExtension: "mp4") ?? URL(fileURLWithPath: "/tmp/original.mp4")
+        let processed = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") ?? URL(fileURLWithPath: "/tmp/processed.mp4")
+        
+        return Group {
+            VideoResultsView(
+                originalVideoURL: original,
+                processedVideoURL: processed,
+                enhancementType: "Stabilizer",
+                enhancementIcon: "gyroscope",
+                gradientType: .gray
+            )
+            .environmentObject(VideoPlayerManager())
+            .previewDisplayName("Stabilizer - Output")
+            
+            VideoResultsView(
+                originalVideoURL: Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4") ?? original,
+                processedVideoURL: Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4") ?? processed,
+                enhancementType: "Frame Interpolation",
+                enhancementIcon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
+                gradientType: .cyanGray
+            )
+            .environmentObject(VideoPlayerManager())
+            .previewDisplayName("Interpolation - Output")
+        }
+        .background(Color.black)
+    }
+}
+#endif
