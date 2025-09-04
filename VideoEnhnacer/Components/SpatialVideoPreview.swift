@@ -7,6 +7,8 @@ struct SpatialVideoPreview: View {
     let enhancementType: String
     let trimStartTime: Double?
     let trimEndTime: Double?
+    // Optional override to control height from parent views
+    let customHeight: CGFloat?
     @State private var scrollOffset: CGFloat = 0
     @StateObject private var playerManager = VideoPreviewManager()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -14,10 +16,27 @@ struct SpatialVideoPreview: View {
     private var isIPad: Bool {
         horizontalSizeClass == .regular
     }
+
+    init(
+        videoURL: URL,
+        enhancementType: String,
+        trimStartTime: Double?,
+        trimEndTime: Double?,
+        customHeight: CGFloat? = nil
+    ) {
+        self.videoURL = videoURL
+        self.enhancementType = enhancementType
+        self.trimStartTime = trimStartTime
+        self.trimEndTime = trimEndTime
+        self.customHeight = customHeight
+    }
     
     private var videoHeight: CGFloat {
-        // Emphasize the video more prominently
-        isIPad ? 520 : 420
+        if let customHeight {
+            return customHeight
+        }
+        // Default emphasis when not overridden
+        return isIPad ? 520 : 420
     }
     
     var body: some View {
@@ -217,7 +236,8 @@ struct ContextualInfoOverlay: View {
                 videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
                 enhancementType: "AI Upscale",
                 trimStartTime: 5.0,
-                trimEndTime: 15.0
+                trimEndTime: 15.0,
+                customHeight: nil
             )
             .frame(height: 400)
         }

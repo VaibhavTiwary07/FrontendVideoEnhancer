@@ -1,8 +1,10 @@
 import SwiftUI
 import OSLog
 import UIKit
+import Photos
 
 struct ExportOptionsView: View {
+    @Environment(\.diContainer) private var container
     @Binding var isPresented: Bool
     @Binding var selectedResolution: String
     @Binding var selectedFrameRate: String
@@ -23,6 +25,8 @@ struct ExportOptionsView: View {
     @State private var exportProgress: Double = 0.0
     @State private var isExportComplete: Bool = false
     @State private var exportedVideoURL: URL? = nil
+    @State private var showSavedAlert: Bool = false
+    @State private var savedAlertMessage: String = ""
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -87,6 +91,11 @@ struct ExportOptionsView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text(exportError ?? "Unknown error")
+        }
+        .alert("Saved to Photos", isPresented: $showSavedAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(savedAlertMessage)
         }
     }
     
@@ -487,7 +496,8 @@ extension ExportOptionsView {
                 Button(action: {
                     let impact = UIImpactFeedbackGenerator(style: .medium)
                     impact.impactOccurred()
-                    // Dismiss this view to return to home
+                    // Reset navigation to Home and dismiss overlay
+                    container.navigation.goToHome()
                     withAnimation(.easeOut(duration: 0.3)) {
                         isPresented = false
                     }
@@ -684,12 +694,33 @@ extension ExportOptionsView {
     
     private func saveToPhotos() {
         guard let exportedVideoURL = exportedVideoURL else { return }
-        
+
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
-        
-        // Save to Photos Library
-        UISaveVideoAtPathToSavedPhotosAlbum(exportedVideoURL.path, nil, nil, nil)
+
+        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+            switch status {
+            case .authorized, .limited:
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: exportedVideoURL)
+                }) { success, error in
+                    DispatchQueue.main.async {
+                        if success {
+                            self.savedAlertMessage = "Video saved to your Photos."
+                            self.showSavedAlert = true
+                        } else {
+                            self.exportError = error?.localizedDescription ?? "Failed to save to Photos."
+                            self.showError = true
+                        }
+                    }
+                }
+            default:
+                DispatchQueue.main.async {
+                    self.exportError = "Photos permission denied. Enable it in Settings."
+                    self.showError = true
+                }
+            }
+        }
     }
     
     private func shareVideo() {

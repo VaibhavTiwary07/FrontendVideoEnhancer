@@ -4,7 +4,7 @@ import AVFoundation
 import Photos
 import SwiftUI
 
-// MARK: - Server-backed Enhancement Service (uses ContentShree2 backend contract)
+// MARK: - Server-backed Enhancement Service (uses given Sd backend contract)
 final class ServerEnhancementService: ObservableObject, EnhancementServiceProtocol {
     // Published state
     @Published private var processingState: EnhancementProcessingState = .idle

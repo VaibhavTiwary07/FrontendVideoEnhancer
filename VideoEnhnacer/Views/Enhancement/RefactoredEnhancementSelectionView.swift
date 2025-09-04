@@ -42,6 +42,7 @@ struct RefactoredEnhancementSelectionView: View {
             
             contentView
                 .navigationBarBackButtonHidden()
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationToolbar }
         }
         .onAppear { handleViewAppearance() }
@@ -65,41 +66,36 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
-        VStack(spacing: 0) {
-            // Title at the top
-            EnhancementTitleSection(enhancementType: viewModel.enhancementType)
-                .padding(.top, 12)
-                .padding(.horizontal, 20)
-            
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 24) {
-                    // Video Preview
-                    SpatialVideoPreview(
-                        videoURL: viewModel.videoURL,
-                        enhancementType: viewModel.enhancementType.title,
-                        trimStartTime: viewModel.trimStartTime,
-                        trimEndTime: viewModel.trimEndTime
-                    )
-                    .padding(.top, 8)
-                    .padding(.bottom, 12)
-                    
-                    EnhancementOptionsView(
-                        enhancementType: viewModel.enhancementType,
-                        selectedOption: $viewModel.selectedOption,
-                        isAnalyzing: viewModel.isAnalyzing,
-                        onOptionSelected: viewModel.updateSelection
-                    )
-                   
-                    EnhancementActionView(
-                        enhancementType: viewModel.enhancementType,
-                        selectedOption: viewModel.selectedOption,
-                        canProcess: viewModel.canProcess,
-                        onProcess: viewModel.processVideo
-                    )
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 36)
+        GeometryReader { geo in
+            // Layout without scroll; fit within available height
+            VStack(spacing: 8) {
+                Spacer()
+                SpatialVideoPreview(
+                    videoURL: viewModel.videoURL,
+                    enhancementType: viewModel.enhancementType.title,
+                    trimStartTime: viewModel.trimStartTime,
+                    trimEndTime: viewModel.trimEndTime,
+                    customHeight: min(geo.size.height * 0.60, 350)
+                )
+
+                EnhancementOptionsView(
+                    enhancementType: viewModel.enhancementType,
+                    selectedOption: $viewModel.selectedOption,
+                    isAnalyzing: viewModel.isAnalyzing,
+                    onOptionSelected: viewModel.updateSelection
+                )
+
+                EnhancementActionView(
+                    enhancementType: viewModel.enhancementType,
+                    selectedOption: viewModel.selectedOption,
+                    canProcess: viewModel.canProcess,
+                    onProcess: viewModel.processVideo
+                )
+                .padding(.top, 8)
+                .padding(.bottom, 6)
             }
+            .padding(.horizontal, 16)
+            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
         }
     }
     
@@ -124,6 +120,15 @@ struct RefactoredEnhancementSelectionView: View {
                 BackButton { dismiss() }
             } else {
                 EmptyView()
+            }
+        }
+        
+        // Inline title aligned with back and close buttons
+        ToolbarItem(placement: .principal) {
+            if !viewModel.isProcessing {
+                Text(viewModel.enhancementType.title)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.accentWarm)
             }
         }
         
@@ -320,7 +325,7 @@ struct EnhancementOptionsView: View {
                 title: "Choose Enhancement Level",
                 subtitle: dynamicSubtitle
             )
-            .padding(.top, 20)
+            .padding(.top, 8)
             
             EnhancementOptionGrid(
                 options: enhancementType.options,
@@ -338,14 +343,14 @@ struct EnhancementSectionHeader: View {
     let subtitle: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 22, weight: .bold))
+                .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.accentWarm)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             Text(subtitle)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.accentWarm.opacity(0.7))
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -437,11 +442,11 @@ struct EnhancementOptionCard: View {
         }) {
             VStack(spacing: 4) {
                 Image(systemName: option.icon)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(isSelected ? .white : Color.accentWarm)
                 
                 Text(option.title)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(titleColor)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
@@ -459,7 +464,7 @@ struct EnhancementOptionCard: View {
                         )
                 }
             }
-            .frame(width: 80, height: 80)
+            .frame(width: 64, height: 64)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(cardBackground)
@@ -500,7 +505,7 @@ struct EnhancementActionView: View {
             canProcess: canProcess,
             onProcess: onProcess
         )
-        .padding(.top, 20)
+        .padding(.top, 12)
     }
 }
 
@@ -528,7 +533,7 @@ struct EnhancementProcessButton: View {
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 18)
+            .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(LinearGradient.primaryTheme)
