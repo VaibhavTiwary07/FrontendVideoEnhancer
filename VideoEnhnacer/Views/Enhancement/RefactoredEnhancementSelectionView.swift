@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - Refactored Enhancement Selection View
 /// Clean, focused view following MVVM and Single Responsibility Principle
@@ -45,6 +46,10 @@ struct RefactoredEnhancementSelectionView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationToolbar }
         }
+        // If a global go-home is requested, dismiss this screen too
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            dismiss()
+        }
         .onAppear { handleViewAppearance() }
         .onDisappear {
             viewModel.cleanup()
@@ -77,14 +82,14 @@ struct RefactoredEnhancementSelectionView: View {
                     trimEndTime: viewModel.trimEndTime,
                     customHeight: min(geo.size.height * 0.60, 350)
                 )
-
+                Spacer()
                 EnhancementOptionsView(
                     enhancementType: viewModel.enhancementType,
                     selectedOption: $viewModel.selectedOption,
                     isAnalyzing: viewModel.isAnalyzing,
                     onOptionSelected: viewModel.updateSelection
                 )
-
+                Spacer()
                 EnhancementActionView(
                     enhancementType: viewModel.enhancementType,
                     selectedOption: viewModel.selectedOption,

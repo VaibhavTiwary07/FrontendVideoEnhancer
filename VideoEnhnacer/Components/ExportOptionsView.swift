@@ -2,9 +2,11 @@ import SwiftUI
 import OSLog
 import UIKit
 import Photos
+import Combine
 
 struct ExportOptionsView: View {
     @Environment(\.diContainer) private var container
+    @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
     @Binding var selectedResolution: String
     @Binding var selectedFrameRate: String
@@ -116,8 +118,20 @@ struct ExportOptionsView: View {
                         Spacer()
                         
                         Button(action: {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                isPresented = false
+                            os_log("[ExportOptionsView] X tapped → dismiss modal, go home, close overlay", log: OSLog.default, type: .debug)
+                            // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
+                            if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
+                                top.dismiss(animated: true) {
+                                    NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+                                    container.navigation.dismissCurrentModal()
+                                    container.navigation.goToHome()
+                                    withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+                                }
+                            } else {
+                                NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+                                container.navigation.dismissCurrentModal()
+                                container.navigation.goToHome()
+                                withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                             }
                         }) {
                             Image(systemName: "xmark")
@@ -350,23 +364,17 @@ extension ExportOptionsView {
             VStack(spacing: 16) {
                 // Video Player with overlay
                 ZStack {
-                    // Video Player (enhanced video only)
+                    // Video Player (only show when export is complete)
                     if let exportedVideoURL = exportedVideoURL {
                         VideoPreviewView(videoURL: exportedVideoURL)
                             .frame(height: 250)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     } else {
-                        // Show enhanced.mp4 during export
-                        if let enhancedURL = Bundle.main.url(forResource: "enhanced", withExtension: "mp4") {
-                            VideoPreviewView(videoURL: enhancedURL)
-                                .frame(height: 250)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        } else {
-                            Rectangle()
-                                .fill(Color.black)
-                                .frame(height: 250)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
+                        // Show black loading state during export
+                        Rectangle()
+                            .fill(Color.black)
+                            .frame(height: 250)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     
                     // Circular Progress Overlay (buffering style)
@@ -496,10 +504,22 @@ extension ExportOptionsView {
                 Button(action: {
                     let impact = UIImpactFeedbackGenerator(style: .medium)
                     impact.impactOccurred()
-                    // Reset navigation to Home and dismiss overlay
-                    container.navigation.goToHome()
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        isPresented = false
+                    os_log("[ExportOptionsView] Go to Home tapped → broadcast goHome, dismiss chain", log: OSLog.default, type: .debug)
+                    // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
+                    if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
+                        top.dismiss(animated: true) {
+                            NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+                            container.navigation.dismissCurrentModal()
+                            container.navigation.goToHome()
+                            dismiss()
+                            withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+                        }
+                    } else {
+                        NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+                        container.navigation.dismissCurrentModal()
+                        container.navigation.goToHome()
+                        dismiss()
+                        withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                     }
                 }) {
                     HStack {
@@ -724,10 +744,23 @@ extension ExportOptionsView {
     }
     
     private func shareVideo() {
-        guard let exportedVideoURL = exportedVideoURL else { return }
+        guard let exportedVideoURL = exportedVideoURL else {
+            print("DEBUG: No exported video URL available for sharing")
+            return
+        }
+        
+        print("DEBUG: Attempting to share video at: \(exportedVideoURL.path)")
         
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
+        
+        // Verify file exists before sharing
+        guard FileManager.default.fileExists(atPath: exportedVideoURL.path) else {
+            print("DEBUG: Video file does not exist at path: \(exportedVideoURL.path)")
+            exportError = "Video file not found. Please try exporting again."
+            showError = true
+            return
+        }
         
         presentShareSheet(for: exportedVideoURL)
     }
@@ -742,15 +775,29 @@ extension ExportOptionsView {
     }
 
     private func presentShareSheet(for url: URL) {
+        print("DEBUG: Creating UIActivityViewController for URL: \(url.path)")
         let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
+        activityController.modalPresentationStyle = .pageSheet
+
+        DispatchQueue.main.async {
+            guard let presenter = UIHelpers.topViewController() else {
+                print("DEBUG: Could not find top view controller for presenting share sheet")
+                self.exportError = "Unable to open share sheet. Please try again."
+                self.showError = true
+                return
+            }
+            // Handle iPad popover
             if let popover = activityController.popoverPresentationController {
-                popover.sourceView = rootViewController.view
-                popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                popover.sourceView = presenter.view
+                popover.sourceRect = CGRect(x: presenter.view.bounds.midX, y: presenter.view.bounds.midY, width: 0, height: 0)
                 popover.permittedArrowDirections = []
             }
-            rootViewController.present(activityController, animated: true)
+            // If something else is being presented, present from the top-most
+            let topMost = UIHelpers.topViewController(base: presenter)
+            print("DEBUG: Presenting share sheet from top-most controller: \(String(describing: topMost))")
+            (topMost ?? presenter).present(activityController, animated: true) {
+                print("DEBUG: Share sheet presented successfully")
+            }
         }
     }
 }

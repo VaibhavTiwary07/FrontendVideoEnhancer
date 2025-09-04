@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import AVFoundation
 import AVKit
 import PhotosUI
@@ -58,28 +59,28 @@ struct VideoResultsView: View {
                     
                     HStack(spacing: 12) {
                         // Save button
-                        Button(action: saveToPhotoLibrary) {
-                            Image(systemName: "square.and.arrow.down")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 36)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(LinearGradient.primaryTheme)
-                                )
-                        }
-                        
-                        // Share button
-                        Button(action: presentShareSheet) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 40, height: 36)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(LinearGradient.primaryTheme)
-                                )
-                        }
+//                        Button(action: saveToPhotoLibrary) {
+//                            Image(systemName: "square.and.arrow.down")
+//                                .font(.system(size: 16, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .frame(width: 40, height: 36)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 10)
+//                                        .fill(LinearGradient.primaryTheme)
+//                                )
+//                        }
+//                        
+//                        // Share button
+//                        Button(action: presentShareSheet) {
+//                            Image(systemName: "square.and.arrow.up")
+//                                .font(.system(size: 16, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .frame(width: 40, height: 36)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 10)
+//                                        .fill(LinearGradient.primaryTheme)
+//                                )
+//                        }
                         
                         // Export button  
                         Button(action: { showingExportOptions = true }) {
@@ -97,13 +98,15 @@ struct VideoResultsView: View {
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-                // Player
+                // Player - Center aligned
                 currentModeView
                     .frame(height: playerHeight)
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal)
 
-                // Mode buttons
+                // Mode buttons - Center aligned
                 HStack(spacing: 12) {
+                    Spacer()
                     enhancementStyleModeButton(.original, title: "Original")
                     enhancementStyleModeButton(.compare, title: "Compare")
                     enhancementStyleModeButton(.output, title: "Enhanced")
@@ -131,6 +134,10 @@ struct VideoResultsView: View {
                     .zIndex(1)
                 }
             }
+        }
+        // Listen for a global request to go Home and dismiss this screen
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            dismiss()
         }
         .onAppear {
             // Pre-setup video players for comparison mode

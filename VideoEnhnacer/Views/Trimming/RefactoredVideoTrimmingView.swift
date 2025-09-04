@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import AVKit
 import PhotosUI
 
@@ -51,6 +52,10 @@ struct RefactoredVideoTrimmingView: View {
                 CloseButton { dismiss() }
             }
         )
+        // If a global go-home is requested, dismiss this screen too
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            dismiss()
+        }
         .onAppear { handleViewAppearance() }
         .onDisappear { handleViewDisappearance() }
         .fullScreenCover(isPresented: $navigateToEnhancement) {

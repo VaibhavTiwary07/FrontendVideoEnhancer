@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import AVFoundation
 
 struct EnhancementSelectionView: View {
@@ -310,6 +311,10 @@ struct EnhancementSelectionView: View {
                 .buttonStyle(PlainButtonStyle())
             }
         )
+        // If a global go-home is requested, dismiss this screen too
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            dismiss()
+        }
         .onAppear {
             // Debug: Log received trim values
             print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")

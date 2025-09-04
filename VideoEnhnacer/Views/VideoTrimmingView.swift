@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import AVFoundation
 import AVKit
 import UIKit
@@ -351,6 +352,10 @@ struct VideoTrimmingView: View {
         }
         .onDisappear {
             playerManager.cleanup()
+        }
+        // If a global go-home is requested, dismiss this screen too
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            dismiss()
         }
         .fullScreenCover(isPresented: $navigateToEnhancement) {
             NavigationView {
