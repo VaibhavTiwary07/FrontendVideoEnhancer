@@ -478,16 +478,18 @@ struct SectionHeader: View {
     let subtitle: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             Text(title)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundColor(.accentWarm)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
             
             Text(subtitle)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.accentWarm.opacity(0.7))
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }

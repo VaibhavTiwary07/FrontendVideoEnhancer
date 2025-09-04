@@ -89,6 +89,7 @@ struct RefactoredVideoTrimmingView: View {
                 resolution: resolutionText,
                 size: sizeText
             )
+            .padding(.top, 12)
             
             Spacer()
             
@@ -328,65 +329,65 @@ struct VideoInfoSection: View {
     let size: String
     
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             // Size
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Image(systemName: "internaldrive")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(size)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Size")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
             Divider()
                 .background(Color.white.opacity(0.3))
-                .frame(height: 60)
+                .frame(height: 44)
             
             // Total Duration
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Image(systemName: "clock")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(totalDuration)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Total Duration")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
             Divider()
                 .background(Color.white.opacity(0.3))
-                .frame(height: 60)
+                .frame(height: 44)
             
             // Resolution
-            VStack(spacing: 4) {
+            VStack(spacing: 2) {
                 Image(systemName: "rectangle.expand.vertical")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(resolution)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Resolution")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 20)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.accentWarm.opacity(0.1))
@@ -395,7 +396,7 @@ struct VideoInfoSection: View {
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
         )
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
         .padding(.horizontal, 20)
     }
 }

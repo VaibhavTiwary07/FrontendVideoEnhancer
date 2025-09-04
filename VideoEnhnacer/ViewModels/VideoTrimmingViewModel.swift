@@ -255,7 +255,7 @@ final class VideoTrimmingViewModel: ObservableObject {
             return String(format: "%d:%02d", minutes, seconds)
         }
     }
-    
+    //MARK: - VT
     // MARK: - Cleanup
     deinit {
         loadingTask?.cancel()
@@ -264,15 +264,15 @@ final class VideoTrimmingViewModel: ObservableObject {
 }
 
 // MARK: - Preview Support
-#if DEBUG
-extension VideoTrimmingViewModel {
-    static var preview: VideoTrimmingViewModel {
-        VideoTrimmingViewModel(
-            videoURL: URL(string: "https://example.com/video.mp4")!,
-            enhancementType: EnhancementType.mockAIUpscale,
-            videoProcessingService: MockVideoProcessingService(),
-            playerViewModel: VideoPlayerViewModel.preview
-        )
-    }
-}
-#endif
+//#if DEBUG
+//extension VideoTrimmingViewModel {
+//    static var preview: VideoTrimmingViewModel {
+//        VideoTrimmingViewModel(
+//            videoURL: URL(string: "https://example.com/video.mp4")!,
+//            enhancementType: EnhancementType.mockAIUpscale,
+//            videoProcessingService: MockVideoProcessingService(),
+//            playerViewModel: VideoPlayerViewModel.preview
+//        )
+//    }
+//}
+//#endif

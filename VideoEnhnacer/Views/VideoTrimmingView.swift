@@ -144,7 +144,7 @@ struct VideoTrimmingView: View {
                         }
                     }
                     
-                    // Enhanced Video info card
+                    // Enhanced Video info card (compact)
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 6) {
@@ -182,8 +182,8 @@ struct VideoTrimmingView: View {
                                 .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 20)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.accentWarm.opacity(0.1))
@@ -192,8 +192,9 @@ struct VideoTrimmingView: View {
                                     .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                             )
                     )
-                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+                    .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
                     .padding(.horizontal, 20)
+                    .padding(.top, 12)
                 }
                 .padding(.top, 20)
                 
