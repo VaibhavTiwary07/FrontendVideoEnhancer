@@ -45,13 +45,8 @@ struct RefactoredVideoTrimmingView: View {
             }
         }
         .navigationBarBackButtonHidden()
-        .navigationBarItems(
-            leading: BackButton { dismiss() },
-            trailing: HStack(spacing: 16) {
-                
-                CloseButton { dismiss() }
-            }
-        )
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar { navigationToolbar }
         // If a global go-home is requested, dismiss this screen too
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             dismiss()
@@ -111,13 +106,16 @@ struct RefactoredVideoTrimmingView: View {
         ToolbarItem(placement: .navigationBarLeading) {
             BackButton { dismiss() }
         }
-        
-//        ToolbarItem(placement: .navigationBarTrailing) {
-//            HStack(spacing: 16) {
-//                StepIndicator(currentStep: 2, totalSteps: 4)
-//                CloseButton { dismiss() }
-//            }
-//        }
+
+        ToolbarItem(placement: .principal) {
+            Text("Trim for \(viewModel.enhancementType.title)")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.accentWarm)
+        }
+
+        ToolbarItem(placement: .navigationBarTrailing) {
+            CloseButton { dismiss() }
+        }
     }
     
     // MARK: - Gestures
@@ -526,8 +524,8 @@ struct ContinueButton: View {
             onContinue()
         }) {
             HStack(spacing: 12) {
-                Image(systemName: enhancementType.icon)
-                    .font(.system(size: 20, weight: .medium))
+//                Image(systemName: enhancementType.icon)
+//                    .font(.system(size: 20, weight: .medium))
                 
                 Text("Continue to \(enhancementType.title)")
                     .font(.system(size: 18, weight: .semibold))

@@ -51,6 +51,13 @@ struct RefactoredEnhancementSelectionView: View {
             dismiss()
         }
         .onAppear { handleViewAppearance() }
+        .onAppear {
+            // If only one option exists (e.g., Face/Object or AI Color), auto-start processing
+            if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
+                // Ensure a selection exists (default is set in VM init)
+                viewModel.processVideo()
+            }
+        }
         .onDisappear {
             // Do not cleanup the shared player service here; it wipes all players, including Trimming's
             // Only clear this view's processing pipeline

@@ -325,6 +325,11 @@ struct EnhancementSelectionView: View {
             } else if let first = enhancementOptions.first {
                 selectionState.selectedOption = first.id
             }
+
+            // If this enhancement has only one option (e.g., Face/Object or AI Color), auto-start processing
+            if enhancementOptions.count == 1 {
+                processVideo()
+            }
         }
         .fullScreenCover(isPresented: $showingResults) {
             if let processedURL = processedVideoURL {

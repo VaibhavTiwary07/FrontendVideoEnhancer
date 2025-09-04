@@ -242,8 +242,8 @@ struct VideoTrimmingView: View {
                         navigateToEnhancement = true
                     }) {
                         HStack(spacing: 12) {
-                            Image(systemName: enhancementIcon)
-                                .font(.system(size: 20, weight: .medium))
+//                            Image(systemName: enhancementIcon)
+//                                .font(.system(size: 20, weight: .medium))
                             
                             Text("Continue to \(enhancementType)")
                                 .font(.system(size: 18, weight: .semibold))

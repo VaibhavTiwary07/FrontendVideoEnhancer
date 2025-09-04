@@ -323,16 +323,16 @@ extension ExportOptionsView {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 16, weight: .medium))
+//                        Text("Back")
+//                            .font(.system(size: 16, weight: .medium))
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.2))
-                    )
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(Color.white.opacity(0.2))
+//                    )
                 }
                 
                 Spacer()
@@ -343,17 +343,22 @@ extension ExportOptionsView {
                 
                 Spacer()
                 
-                // Invisible spacer to center the title
-                Button(action: {}) {
+                // Toolbar-right: Go to Home
+                Button(action: { goHomeFromFinalPage() }) {
                     HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
+                        Image(systemName: "house.fill")
                             .font(.system(size: 16, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 16, weight: .medium))
+//                        Text("Home")
+//                            .font(.system(size: 16, weight: .medium))
                     }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 12)
+//                            .fill(Color.white.opacity(0.2))
+//                    )
                 }
-                .opacity(0)
-                .disabled(true)
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)
@@ -500,46 +505,7 @@ extension ExportOptionsView {
                 .scaleEffect(isExportComplete ? 1.0 : 0.95)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
                 
-                // Go to Home button
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
-                    os_log("[ExportOptionsView] Go to Home tapped → broadcast goHome, dismiss chain", log: OSLog.default, type: .debug)
-                    // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
-                    if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
-                        top.dismiss(animated: true) {
-                            NotificationCenter.default.post(name: .goHomeRequested, object: nil)
-                            container.navigation.dismissCurrentModal()
-                            container.navigation.goToHome()
-                            dismiss()
-                            withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                        }
-                    } else {
-                        NotificationCenter.default.post(name: .goHomeRequested, object: nil)
-                        container.navigation.dismissCurrentModal()
-                        container.navigation.goToHome()
-                        dismiss()
-                        withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "house.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("Go to Home")
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.15))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                            )
-                    )
-                }
+                // Home button moved to toolbar (top-right)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 40)
@@ -547,6 +513,29 @@ extension ExportOptionsView {
         .background(Color.black)
         .onAppear {
             startFinalPageExport()
+        }
+    }
+
+    // Centralized handler for going home from the FinalPage toolbar button
+    private func goHomeFromFinalPage() {
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+        os_log("[ExportOptionsView] Home (toolbar) tapped → broadcast goHome, dismiss chain", log: OSLog.default, type: .debug)
+        // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
+        if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
+            top.dismiss(animated: true) {
+                NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+                container.navigation.dismissCurrentModal()
+                container.navigation.goToHome()
+                dismiss()
+                withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+            }
+        } else {
+            NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+            container.navigation.dismissCurrentModal()
+            container.navigation.goToHome()
+            dismiss()
+            withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
         }
     }
     
