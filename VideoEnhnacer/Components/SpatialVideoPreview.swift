@@ -16,7 +16,8 @@ struct SpatialVideoPreview: View {
     }
     
     private var videoHeight: CGFloat {
-        isIPad ? 450 : 380
+        // Emphasize the video more prominently
+        isIPad ? 520 : 420
     }
     
     var body: some View {
@@ -30,6 +31,8 @@ struct SpatialVideoPreview: View {
                     .frame(maxWidth: .infinity)
             }
         }
+        // Important: give explicit height when used inside ScrollView to avoid layout collisions
+        .frame(height: videoHeight)
         .onAppear {
             setupVideo()
         }
@@ -52,6 +55,7 @@ struct SpatialVideoPreview: View {
                 perspective: 0.5
             )
             .scaleEffect(1.0 + (abs(scrollOffset) * 0.0002))
+            .clipped()
         }
     }
     

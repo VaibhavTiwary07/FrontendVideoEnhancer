@@ -61,7 +61,7 @@ final class EnhancementSelectionViewModel: ObservableObject {
         self.videoURL = videoURL
         self.enhancementType = enhancementType
         self.trimStartTime = trimStartTime
-        self.trimEndTime = trimStartTime
+        self.trimEndTime = trimEndTime
         self.enhancementService = enhancementService
         self.videoProcessingService = videoProcessingService
         

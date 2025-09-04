@@ -296,9 +296,7 @@ final class EnhancementTypeRegistry {
             processingTime: 25.0,
             qualityImpact: 0.8,
             options: [
-                EnhancementOption(id: "low", title: "Low", description: "Subtle improvements", icon: "dial.low"),
-                EnhancementOption(id: "medium", title: "Medium", description: "Balanced enhancement", icon: getIOSCompatibleSymbol("wand.and.stars", fallback: "wand.and.stars"), isRecommended: true),
-                EnhancementOption(id: "high", title: "High", description: "Maximum enhancement", icon: "dial.high.fill")
+                EnhancementOption(id: "auto", title: "Auto", description: "Automatic enhancement", icon: getIOSCompatibleSymbol("wand.and.stars", fallback: "wand.and.stars"), isRecommended: true)
             ],
             gradientType: .yellowGray
         )
@@ -332,9 +330,7 @@ final class EnhancementTypeRegistry {
             processingTime: 15.0,
             qualityImpact: 0.6,
             options: [
-                EnhancementOption(id: "auto", title: "Auto", description: "Automatic color correction", icon: "wand.and.stars", isRecommended: true),
-                EnhancementOption(id: "vibrant", title: "Vibrant", description: "Enhanced saturation", icon: "sun.max.fill"),
-                EnhancementOption(id: "natural", title: "Natural", description: "Natural color balance", icon: "leaf.fill")
+                EnhancementOption(id: "auto", title: "Auto", description: "Automatic color correction", icon: "wand.and.stars", isRecommended: true)
             ],
             gradientType: .cyanGray
         )

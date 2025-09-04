@@ -45,6 +45,10 @@ struct RefactoredEnhancementSelectionView: View {
                 .toolbar { navigationToolbar }
         }
         .onAppear { handleViewAppearance() }
+        .onDisappear {
+            viewModel.cleanup()
+            playerViewModel.cleanup()
+        }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
         .errorAlert(error: viewModel.error) { viewModel.retryProcessing() }
         .processingOverlay(
@@ -68,7 +72,7 @@ struct RefactoredEnhancementSelectionView: View {
                 .padding(.horizontal, 20)
             
             ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 20) {
+                LazyVStack(spacing: 24) {
                     // Video Preview
                     SpatialVideoPreview(
                         videoURL: viewModel.videoURL,
@@ -76,6 +80,8 @@ struct RefactoredEnhancementSelectionView: View {
                         trimStartTime: viewModel.trimStartTime,
                         trimEndTime: viewModel.trimEndTime
                     )
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
                     
                     EnhancementOptionsView(
                         enhancementType: viewModel.enhancementType,
@@ -92,7 +98,7 @@ struct RefactoredEnhancementSelectionView: View {
                     )
                 }
                 .padding(.horizontal, 20)
-                .padding(.bottom, 30)
+                .padding(.bottom, 36)
             }
         }
     }
@@ -133,7 +139,7 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - Event Handlers
     private func handleViewAppearance() {
         print("🎭 RefactoredEnhancementSelectionView - Appeared with:")
-        print("   Enhancement: \(viewModel.enhancementType.title)")
+        print("  Enhancement: \(viewModel.enhancementType.title)")
         print("   Trim: \(viewModel.trimStartTime ?? -1) to \(viewModel.trimEndTime ?? -1)")
     }
 }
@@ -352,9 +358,21 @@ struct EnhancementOptionGrid: View {
     let selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
-    
+
+    private var columns: [GridItem] {
+        if options.count <= 1 {
+            return [GridItem(.flexible(minimum: 120), spacing: 12)]
+        }
+        // Responsive 3-column grid that wraps on small widths
+        return [
+            GridItem(.flexible(minimum: 90), spacing: 12),
+            GridItem(.flexible(minimum: 90), spacing: 12),
+            GridItem(.flexible(minimum: 90), spacing: 12)
+        ]
+    }
+
     var body: some View {
-        HStack(spacing: 12) {
+        LazyVGrid(columns: columns, alignment: .center, spacing: 12) {
             ForEach(options, id: \.id) { option in
                 EnhancementOptionCard(
                     option: option,
@@ -362,8 +380,11 @@ struct EnhancementOptionGrid: View {
                     isAnalyzing: isAnalyzing,
                     onTap: { onOptionSelected(option.id) }
                 )
+                .frame(maxWidth: .infinity)
             }
         }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, options.count <= 1 ? 40 : 0)
     }
 }
 
