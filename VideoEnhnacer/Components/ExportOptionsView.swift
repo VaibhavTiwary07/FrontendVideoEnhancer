@@ -19,6 +19,10 @@ struct ExportOptionsView: View {
     @State private var isExporting: Bool = false
     @State private var exportError: String? = nil
     @State private var showError: Bool = false
+    @State private var showFinalPage: Bool = false
+    @State private var exportProgress: Double = 0.0
+    @State private var isExportComplete: Bool = false
+    @State private var exportedVideoURL: URL? = nil
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -66,16 +70,33 @@ struct ExportOptionsView: View {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        isPresented = false
+                    if !showFinalPage {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            isPresented = false
+                        }
                     }
                 }
             
-            VStack {
-                HStack {
-                    Spacer()
-                    
-                    // Export options panel
+            if showFinalPage {
+                finalPage
+            } else {
+                exportOptionsPage
+            }
+        }
+        .alert("Export Failed", isPresented: $showError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(exportError ?? "Unknown error")
+        }
+    }
+    
+    @ViewBuilder
+    private var exportOptionsPage: some View {
+        VStack {
+            HStack {
+                Spacer()
+                
+                // Export options panel
                     VStack(spacing: 20) {
                     // Header
                     HStack {
@@ -177,8 +198,9 @@ struct ExportOptionsView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
-                        onExport()
-                        startExport()
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showFinalPage = true
+                        }
                     }) {
                         HStack {
                             Image(systemName: "square.and.arrow.up")
@@ -220,11 +242,6 @@ struct ExportOptionsView: View {
                 Spacer()
             }
         }
-        .alert("Export Failed", isPresented: $showError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(exportError ?? "Unknown error")
-        }
     }
     
     private func optionButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -264,10 +281,245 @@ struct ExportOptionsView: View {
                 )
         }
     }
-}
 
 // MARK: - Export Integration (iOS 15 friendly)
 extension ExportOptionsView {
+    @ViewBuilder
+    var finalPage: some View {
+        VStack(spacing: 0) {
+            // Header with back button
+            HStack {
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        showFinalPage = false
+                        exportProgress = 0.0
+                        isExportComplete = false
+                        exportedVideoURL = nil
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Back")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.2))
+                    )
+                }
+                
+                Spacer()
+                
+                Text("Export Preview")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                // Invisible spacer to center the title
+                Button(action: {}) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Back")
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                }
+                .opacity(0)
+                .disabled(true)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            
+            Spacer()
+            
+            // Video Player Section
+            VStack(spacing: 16) {
+                // Video Player with overlay
+                ZStack {
+                    // Video Player (enhanced video only)
+                    if let exportedVideoURL = exportedVideoURL {
+                        VideoPreviewView(videoURL: exportedVideoURL)
+                            .frame(height: 250)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        // Show enhanced.mp4 during export
+                        if let enhancedURL = Bundle.main.url(forResource: "enhanced", withExtension: "mp4") {
+                            VideoPreviewView(videoURL: enhancedURL)
+                                .frame(height: 250)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        } else {
+                            Rectangle()
+                                .fill(Color.black)
+                                .frame(height: 250)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    
+                    // Circular Progress Overlay (buffering style)
+                    if !isExportComplete {
+                        ZStack {
+                            Color.black.opacity(0.6)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            
+                            VStack(spacing: 12) {
+                                ZStack {
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 4)
+                                        .frame(width: 60, height: 60)
+                                    
+                                    Circle()
+                                        .trim(from: 0, to: exportProgress)
+                                        .stroke(
+                                            LinearGradient.primaryTheme,
+                                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                        )
+                                        .frame(width: 60, height: 60)
+                                        .rotationEffect(.degrees(-90))
+                                        .animation(.easeInOut(duration: 0.3), value: exportProgress)
+                                }
+                                
+                                Text("Exporting...")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .frame(height: 250)
+                    }
+                }
+                
+                // Video metadata chip
+                HStack(spacing: 8) {
+                    Text("\(selectedResolution)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                    
+                    Text("\(selectedFrameRate)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                    
+                    Text("\(selectedFormat)")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            // Save and Share buttons
+            VStack(spacing: 16) {
+                // Save to Photos button
+                Button(action: {
+                    saveToPhotos()
+                }) {
+                    HStack {
+                        Image(systemName: "photo.badge.plus")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Save to Photos")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(isExportComplete ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.2)))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .disabled(!isExportComplete)
+                .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+                
+                // Share button
+                Button(action: {
+                    shareVideo()
+                }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Share")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(isExportComplete ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .disabled(!isExportComplete)
+                .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+                
+                // Go to Home button
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    // Dismiss this view to return to home
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        isPresented = false
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "house.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Go to Home")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                            )
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
+        }
+        .background(Color.black)
+        .onAppear {
+            startFinalPageExport()
+        }
+    }
+    
     private func startExport() {
         guard !isExporting else { return }
         isExporting = true
@@ -389,6 +641,65 @@ extension ExportOptionsView {
             }
         }.resume()
     }
+    
+    private func startFinalPageExport() {
+        guard !isExporting else { return }
+        isExporting = true
+        exportError = nil
+        exportProgress = 0.0
+        isExportComplete = false
+        
+        // Simulate progress updates
+        let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            DispatchQueue.main.async {
+                if self.exportProgress < 1.0 {
+                    self.exportProgress += 0.02 // Increment progress
+                } else {
+                    timer.invalidate()
+                }
+            }
+        }
+
+        exportVideo(videoURL: videoURL, resolution: selectedResolution, fps: selectedFrameRate, format: selectedFormat) { result in
+            DispatchQueue.main.async {
+                progressTimer.invalidate()
+                self.exportProgress = 1.0
+                
+                switch result {
+                case .success(let tempURL):
+                    os_log("Export succeeded: %@", log: OSLog.default, type: .debug, tempURL.absoluteString)
+                    self.exportedVideoURL = tempURL
+                    self.isExportComplete = true
+                    self.onCompleted(tempURL)
+                case .failure(let error):
+                    os_log("Export failed: %@", log: OSLog.default, type: .error, error.localizedDescription)
+                    self.exportError = error.localizedDescription
+                    self.showError = true
+                    self.showFinalPage = false
+                }
+                self.isExporting = false
+            }
+        }
+    }
+    
+    private func saveToPhotos() {
+        guard let exportedVideoURL = exportedVideoURL else { return }
+        
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+        
+        // Save to Photos Library
+        UISaveVideoAtPathToSavedPhotosAlbum(exportedVideoURL.path, nil, nil, nil)
+    }
+    
+    private func shareVideo() {
+        guard let exportedVideoURL = exportedVideoURL else { return }
+        
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+        
+        presentShareSheet(for: exportedVideoURL)
+    }
 
     private func mimeType(for fileExtension: String) -> String {
         switch fileExtension.lowercased() {
@@ -420,7 +731,7 @@ extension ExportOptionsView {
         selectedFrameRate: .constant("30fps"),
         selectedFormat: .constant("MP4"),
         onExport: { },
-        videoURL: URL(fileURLWithPath: "/tmp/dummy.mp4"),
+        videoURL: Bundle.main.url(forResource: "enhanced", withExtension: "mp4") ?? URL(fileURLWithPath: "/tmp/dummy.mp4"),
         onCompleted: { _ in }
     )
 }

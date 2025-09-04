@@ -33,6 +33,13 @@ struct VideoComparisonSlider: View {
     private var playerState: VideoPlayerManager.PlayerState {
         videoPlayerManager.getPlayerState(forKey: videoKey)
     }
+    
+    private var labelTextColor: Color {
+        if let backgroundColor = backgroundColor, backgroundColor == Color.black {
+            return .white
+        }
+        return .secondaryText
+    }
 
     init(
         normalVideoName: String? = nil,
@@ -70,9 +77,15 @@ struct VideoComparisonSlider: View {
                 } else {
                 // Background (skip in compact mode)
                 if !compact {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(backgroundColor ?? Color.cardBackground)
-                        .neomorphicStyle(cornerRadius: 12, shadowRadius: 6)
+                    if let backgroundColor = backgroundColor, backgroundColor == Color.black {
+                        // Pure black background without any styling
+                        Rectangle()
+                            .fill(backgroundColor)
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(backgroundColor ?? Color.cardBackground)
+                            .neomorphicStyle(cornerRadius: 12, shadowRadius: 6)
+                    }
                 } else if let backgroundColor = backgroundColor {
                     Rectangle()
                         .fill(backgroundColor)
@@ -191,13 +204,13 @@ struct VideoComparisonSlider: View {
                         HStack {
                             Text("Before")
                                 .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.secondaryText)
+                                .foregroundColor(labelTextColor)
                             
                             Spacer()
                             
                             Text("After")
                                 .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.primaryText)
+                                .foregroundColor(labelTextColor)
                         }
                         .padding(.horizontal, 8)
                         

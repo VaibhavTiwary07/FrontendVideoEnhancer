@@ -85,7 +85,6 @@ struct RefactoredVideoTrimmingView: View {
             .padding(.top, 20)
             
             VideoInfoSection(
-                selectedDuration: viewModel.trimmedDurationFormatted,
                 totalDuration: viewModel.totalDurationFormatted,
                 resolution: resolutionText,
                 size: sizeText
@@ -321,42 +320,66 @@ struct VideoChangeButton: View {
 
 // MARK: - Video Info Section
 struct VideoInfoSection: View {
-    let selectedDuration: String
     let totalDuration: String
     let resolution: String
     let size: String
     
     var body: some View {
-        VStack(spacing: 12) {
-            HStack {
-                InfoCardItem(
-                    icon: "scissors",
-                    title: "Selected Duration",
-                    value: selectedDuration,
-                    alignment: .leading
-                )
-                Spacer()
-                InfoCardItem(
-                    icon: "clock",
-                    title: "Total Duration",
-                    value: totalDuration,
-                    alignment: .trailing
-                )
+        HStack(spacing: 20) {
+            // Size
+            VStack(spacing: 4) {
+                Image(systemName: "internaldrive")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Text(size)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.accentWarm)
+                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                
+                Text("Size")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
             }
-            HStack {
-                InfoCardItem(
-                    icon: "rectangle.expand.vertical",
-                    title: "Resolution",
-                    value: resolution,
-                    alignment: .leading
-                )
-                Spacer()
-                InfoCardItem(
-                    icon: "internaldrive",
-                    title: "Size",
-                    value: size,
-                    alignment: .trailing
-                )
+            
+            Divider()
+                .background(Color.white.opacity(0.3))
+                .frame(height: 60)
+            
+            // Total Duration
+            VStack(spacing: 4) {
+                Image(systemName: "clock")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Text(totalDuration)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.accentWarm)
+                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                
+                Text("Total Duration")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            
+            Divider()
+                .background(Color.white.opacity(0.3))
+                .frame(height: 60)
+            
+            // Resolution
+            VStack(spacing: 4) {
+                Image(systemName: "rectangle.expand.vertical")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Text(resolution)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.accentWarm)
+                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                
+                Text("Resolution")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
             }
         }
         .padding(.horizontal, 24)

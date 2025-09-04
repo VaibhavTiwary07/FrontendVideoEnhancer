@@ -55,15 +55,43 @@ struct VideoResultsView: View {
                     }
                     .foregroundColor(.white)
                     Spacer()
-                    Button(action: { showingExportOptions = true }) {
-                        Image(systemName: "arrow.down.to.line")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 36)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(LinearGradient.primaryTheme)
-                            )
+                    
+                    HStack(spacing: 12) {
+                        // Save button
+                        Button(action: saveToPhotoLibrary) {
+                            Image(systemName: "square.and.arrow.down")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 36)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(LinearGradient.primaryTheme)
+                                )
+                        }
+                        
+                        // Share button
+                        Button(action: presentShareSheet) {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 36)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(LinearGradient.primaryTheme)
+                                )
+                        }
+                        
+                        // Export button  
+                        Button(action: { showingExportOptions = true }) {
+                            Image(systemName: "arrow.down.to.line")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 36)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(LinearGradient.primaryTheme)
+                                )
+                        }
                     }
                 }
                 .padding(.horizontal)
@@ -217,6 +245,19 @@ struct VideoResultsView: View {
                     showingError = true
                 }
             }
+        }
+    }
+    
+    private func presentShareSheet() {
+        let activityController = UIActivityViewController(activityItems: [effectiveVideoURL], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            if let popover = activityController.popoverPresentationController {
+                popover.sourceView = rootViewController.view
+                popover.sourceRect = CGRect(x: rootViewController.view.bounds.midX, y: rootViewController.view.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
+            rootViewController.present(activityController, animated: true)
         }
     }
 }
