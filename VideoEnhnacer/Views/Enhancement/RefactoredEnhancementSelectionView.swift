@@ -52,8 +52,9 @@ struct RefactoredEnhancementSelectionView: View {
         }
         .onAppear { handleViewAppearance() }
         .onDisappear {
+            // Do not cleanup the shared player service here; it wipes all players, including Trimming's
+            // Only clear this view's processing pipeline
             viewModel.cleanup()
-            playerViewModel.cleanup()
         }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
         .errorAlert(error: viewModel.error) { viewModel.retryProcessing() }

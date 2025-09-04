@@ -29,12 +29,15 @@ final class DIContainer: ObservableObject {
         trimStartTime: Double? = nil,
         trimEndTime: Double? = nil
     ) -> EnhancementSelectionViewModel {
-        EnhancementSelectionViewModel(
+        // Use a fresh enhancement service instance per selection session to avoid leaking
+        // previous processing state (prevents stale Results from auto-presenting).
+        let freshEnhancementService: EnhancementServiceProtocol = ServerEnhancementService()
+        return EnhancementSelectionViewModel(
             videoURL: videoURL,
             enhancementType: enhancementType,
             trimStartTime: trimStartTime,
             trimEndTime: trimEndTime,
-            enhancementService: enhancementService,
+            enhancementService: freshEnhancementService,
             videoProcessingService: videoProcessingService
         )
     }

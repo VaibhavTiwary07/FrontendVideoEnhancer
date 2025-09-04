@@ -232,6 +232,10 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func cleanup() {
         currentTask?.cancel()
         currentTask = nil
+        // Ensure any in-flight server processing is cancelled to avoid late emissions
+        Task { [weak self] in
+            await self?.enhancementService.cancelProcessing()
+        }
         cancellables.removeAll()
     }
     
