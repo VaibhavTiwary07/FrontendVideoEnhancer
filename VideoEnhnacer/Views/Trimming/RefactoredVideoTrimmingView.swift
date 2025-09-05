@@ -62,6 +62,7 @@ struct RefactoredVideoTrimmingView: View {
                     trimEndTime: viewModel.trimEndTime
                 )
             }
+            .navigationViewStyle(StackNavigationViewStyle())
         }
         .gesture(swipeToGoBackGesture)
         .sheet(isPresented: $showingVideoPicker) {
@@ -183,21 +184,20 @@ struct VideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            ZStack {
-                VideoPlayerView(playerViewModel: playerViewModel)
-                    .frame(height: isIPad ? 400 : 320)
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
-                    .padding(.horizontal, 20)
-                
-                VideoChangeButton { 
-                    onChangeVideo()
+            VideoPlayerView(playerViewModel: playerViewModel)
+                .frame(height: isIPad ? 420 : 320)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
+                )
+                .overlay(alignment: .topTrailing) {
+                    VideoChangeButton { onChangeVideo() }
+                        .padding(.trailing, 24)
+                        .padding(.top, 12)
                 }
-            }
+                .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
+                .padding(.horizontal, 20)
         }
     }
 }
@@ -285,40 +285,30 @@ struct VideoChangeButton: View {
     let action: () -> Void
     
     var body: some View {
-        VStack {
-            HStack {
-                Spacer()
-                
-                Button(action: {
-                    HapticFeedbackManager.impact(.light)
-                    action()
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.system(size: 14, weight: .medium))
-                        
-                        Text("Change")
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        Capsule()
-                            .fill(LinearGradient.primaryTheme.opacity(0.9))
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
-                }
+        Button(action: {
+            HapticFeedbackManager.impact(.light)
+            action()
+        }) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 14, weight: .medium))
+                Text("Change")
+                    .font(.system(size: 14, weight: .semibold))
             }
-            .padding(.trailing, 32)
-            .padding(.top, 16)
-            
-            Spacer()
+            .foregroundColor(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                Capsule()
+                    .fill(LinearGradient.primaryTheme.opacity(0.9))
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+            )
+            .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -327,22 +317,24 @@ struct VideoInfoSection: View {
     let totalDuration: String
     let resolution: String
     let size: String
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         HStack(spacing: 16) {
             // Size
             VStack(spacing: 2) {
                 Image(systemName: "internaldrive")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(size)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Size")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
@@ -353,16 +345,16 @@ struct VideoInfoSection: View {
             // Total Duration
             VStack(spacing: 2) {
                 Image(systemName: "clock")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(totalDuration)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Total Duration")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
@@ -373,21 +365,21 @@ struct VideoInfoSection: View {
             // Resolution
             VStack(spacing: 2) {
                 Image(systemName: "rectangle.expand.vertical")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(resolution)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Resolution")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.vertical, isIPad ? 16 : 12)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.accentWarm.opacity(0.1))
@@ -396,7 +388,7 @@ struct VideoInfoSection: View {
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
         )
-        .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
+        .shadow(color: .black.opacity(0.2), radius: isIPad ? 8 : 6, x: 0, y: 3)
         .padding(.horizontal, 20)
     }
 }
@@ -443,9 +435,11 @@ struct VideoControlsSection: View {
 struct TimePresetButtons: View {
     let selectedDuration: VideoTrimmingViewModel.TimePreset
     let onPresetSelected: (VideoTrimmingViewModel.TimePreset) -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: isIPad ? 24 : 16) {
             Spacer()
             
             ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
@@ -466,6 +460,8 @@ struct TimePresetButton: View {
     let title: String
     let isSelected: Bool
     let onTap: () -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         Button(action: {
@@ -473,10 +469,10 @@ struct TimePresetButton: View {
             onTap()
         }) {
             Text(title)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: isIPad ? 18 : 16, weight: .semibold))
                 .foregroundColor(isSelected ? .white : .white.opacity(0.8))
                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                .frame(width: 80, height: 40)
+                .frame(width: isIPad ? 110 : 80, height: isIPad ? 48 : 40)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))

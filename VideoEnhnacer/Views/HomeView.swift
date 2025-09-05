@@ -33,17 +33,17 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         // Top Carousel Section (Full Width)
                         PageControlImageCarousel()
-                            .frame(height: 280)
+                            .frame(height: dynamicCarouselHeight(screenHeight: geometry.size.height))
                         
                         // Spacing between carousel and enhancement cards
                         Spacer()
-                            .frame(height: 20)
+                            .frame(height: dynamicCarouselGap(screenHeight: geometry.size.height))
                         
                         // Enhancement Cards Section
                         VStack(spacing: 16) {
                             VStack(spacing: 16) {
                                 Text("Enhancement Options")
-                                    .font(.system(size: 20, weight: .semibold))
+                                    .font(.system(size: isCompactDevice ? 20 : 26, weight: .semibold))
                                     .foregroundColor(.primaryText)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.horizontal, dynamicHorizontalPadding(screenWidth: geometry.size.width))
@@ -163,6 +163,8 @@ struct HomeView: View {
                                 .fill(Color.appBackground)
                                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
                         )
+                        .padding(.vertical, isCompactDevice ? 8 : 20)
+                        .padding(.horizontal, isCompactDevice ? 0 : 8)
                     }
                 }
             }
@@ -343,10 +345,24 @@ struct HomeView: View {
     
     private func dynamicCardSpacing(screenHeight: CGFloat) -> CGFloat {
         if isCompactDevice || screenHeight < 700 {
-            return 10 // Tighter spacing for compact devices
+            return 14
+        } else if screenHeight < 900 {
+            return 20
         } else {
-            return 16 // Standard spacing
+            return 28 // More breathing room on iPad/large screens
         }
+    }
+
+    private func dynamicCarouselHeight(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 { return 260 }
+        if screenHeight < 900 { return 320 }
+        return 380
+    }
+
+    private func dynamicCarouselGap(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 { return 16 }
+        if screenHeight < 900 { return 24 }
+        return 36
     }
     
     private func dynamicBottomPadding(screenHeight: CGFloat) -> CGFloat {

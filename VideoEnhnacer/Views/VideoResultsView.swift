@@ -105,7 +105,7 @@ struct VideoResultsView: View {
                     .padding(.horizontal)
 
                 // Mode buttons - Center aligned
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     Spacer()
                     enhancementStyleModeButton(.original, title: "Original")
                     enhancementStyleModeButton(.compare, title: "Compare")
@@ -160,6 +160,9 @@ struct VideoResultsView: View {
         }
     }
 
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
+
     private func enhancementStyleModeButton(_ target: ViewMode, title: String) -> some View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -169,17 +172,17 @@ struct VideoResultsView: View {
             let isSelected = (self.mode == target)
             VStack(spacing: 4) {
                 Image(systemName: symbolForMode(target))
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
                     .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
                 
                 Text(title)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.system(size: isIPad ? 13 : 11, weight: .bold, design: .rounded))
                     .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .frame(width: 70, height: 70)
+            .frame(width: isIPad ? 90 : 70, height: isIPad ? 90 : 70)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.08)], startPoint: .leading, endPoint: .trailing))

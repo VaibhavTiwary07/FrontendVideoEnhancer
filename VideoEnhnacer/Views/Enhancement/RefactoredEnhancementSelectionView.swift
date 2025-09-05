@@ -91,6 +91,7 @@ struct RefactoredEnhancementSelectionView: View {
                     customHeight: min(geo.size.height * 0.60, 350)
                 )
                 Spacer()
+            
                 EnhancementOptionsView(
                     enhancementType: viewModel.enhancementType,
                     selectedOption: $viewModel.selectedOption,
@@ -201,6 +202,8 @@ struct EnhancementProcessingOverlay: View {
     let progress: Double
     let processingState: EnhancementProcessingState
     let onCancel: (() -> Void)?
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         ZStack {
@@ -211,27 +214,27 @@ struct EnhancementProcessingOverlay: View {
             VStack(spacing: 24) {
                 ZStack {
                     Circle()
-                        .stroke(Color.white.opacity(0.2), lineWidth: 8)
-                        .frame(width: 120, height: 120)
+                        .stroke(Color.white.opacity(0.2), lineWidth: isIPad ? 10 : 8)
+                        .frame(width: isIPad ? 180 : 120, height: isIPad ? 180 : 120)
 
                     Circle()
                         .trim(from: 0, to: max(0.0, min(1.0, progress)))
                         .stroke(
                             LinearGradient.primaryTheme,
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                            style: StrokeStyle(lineWidth: isIPad ? 10 : 8, lineCap: .round)
                         )
-                        .frame(width: 120, height: 120)
+                        .frame(width: isIPad ? 180 : 120, height: isIPad ? 180 : 120)
                         .rotationEffect(.degrees(-90))
                         .animation(.easeInOut(duration: 0.25), value: progress)
 
                     Text("\(Int(max(0.0, min(1.0, progress)) * 100))%")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .font(.system(size: isIPad ? 30 : 24, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 }
                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
 
                 Text(statusText)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: isIPad ? 20 : 18, weight: .semibold))
                     .foregroundColor(.white)
                     .opacity(0.9)
                 
@@ -241,10 +244,10 @@ struct EnhancementProcessingOverlay: View {
                         onCancel()
                     }) {
                         Text("Cancel")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: isIPad ? 18 : 16, weight: .semibold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, isIPad ? 28 : 24)
+                            .padding(.vertical, isIPad ? 14 : 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.red.opacity(0.8))
@@ -253,7 +256,7 @@ struct EnhancementProcessingOverlay: View {
                                             .stroke(Color.white.opacity(0.3), lineWidth: 1)
                                     )
                             )
-                            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            .shadow(color: .black.opacity(0.3), radius: isIPad ? 6 : 4, x: 0, y: 2)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -314,6 +317,8 @@ struct EnhancementOptionsView: View {
     @Binding var selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     private var dynamicSubtitle: String {
         switch enhancementType.id {
@@ -333,7 +338,7 @@ struct EnhancementOptionsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: isIPad ? 20 : 16) {
             EnhancementSectionHeader(
                 title: "Choose Enhancement Level",
                 subtitle: dynamicSubtitle
@@ -354,17 +359,19 @@ struct EnhancementOptionsView: View {
 struct EnhancementSectionHeader: View {
     let title: String
     let subtitle: String
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         VStack(alignment: .center, spacing: 4) {
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: isIPad ? 22 : 18, weight: .bold))
                 .foregroundColor(.accentWarm)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
             
             Text(subtitle)
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: isIPad ? 16 : 13, weight: .medium))
                 .foregroundColor(.accentWarm.opacity(0.7))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -378,17 +385,19 @@ struct EnhancementOptionGrid: View {
     let selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
 
     private var columns: [GridItem] {
         if options.count <= 1 {
-            return [GridItem(.flexible(minimum: 120), spacing: 12)]
+            return [GridItem(.flexible(minimum: isIPad ? 200 : 140), spacing: isIPad ? 16 : 12)]
         }
-        // Responsive 3-column grid that wraps on small widths
-        return [
-            GridItem(.flexible(minimum: 90), spacing: 12),
-            GridItem(.flexible(minimum: 90), spacing: 12),
-            GridItem(.flexible(minimum: 90), spacing: 12)
-        ]
+        // Responsive grid: 4 columns on iPad, 3 on iPhone
+        if isIPad {
+            return Array(repeating: GridItem(.flexible(minimum: 120), spacing: 16), count: 4)
+        } else {
+            return Array(repeating: GridItem(.flexible(minimum: 90), spacing: 12), count: 3)
+        }
     }
 
     var body: some View {
@@ -414,6 +423,8 @@ struct EnhancementOptionCard: View {
     let isSelected: Bool
     let isAnalyzing: Bool
     let onTap: () -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     private var titleColor: Color {
         isSelected ? .white : Color.accentWarm
@@ -457,11 +468,11 @@ struct EnhancementOptionCard: View {
         }) {
             VStack(spacing: 4) {
                 Image(systemName: option.icon)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: isIPad ? 20 : 14, weight: .medium))
                     .foregroundColor(isSelected ? .white : Color.accentWarm)
                 
                 Text(option.title)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: isIPad ? 14 : 12, weight: .bold, design: .rounded))
                     .foregroundColor(titleColor)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
@@ -469,7 +480,7 @@ struct EnhancementOptionCard: View {
                 
                 if option.isRecommended {
                     Text("RECOMMENDED")
-                        .font(.system(size: 6, weight: .bold))
+                        .font(.system(size: isIPad ? 8 : 6, weight: .bold))
                         .foregroundColor(recommendedTextColor)
                         .padding(.horizontal, 3)
                         .padding(.vertical, 1)
@@ -479,7 +490,7 @@ struct EnhancementOptionCard: View {
                         )
                 }
             }
-            .frame(width: 64, height: 64)
+            .frame(width: isIPad ? 96 : 64, height: isIPad ? 96 : 64)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(cardBackground)
@@ -497,7 +508,7 @@ struct EnhancementOptionCard: View {
                     if isAnalyzing && isSelected {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(0.8)
+                            .scaleEffect(isIPad ? 1.0 : 0.8)
                     }
                 }
             )
@@ -530,6 +541,8 @@ struct EnhancementProcessButton: View {
     let selectedOption: String
     let canProcess: Bool
     let onProcess: () -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         Button(action: {
@@ -538,17 +551,17 @@ struct EnhancementProcessButton: View {
         }) {
             VStack(alignment: .center, spacing: 2) {
                 Text("Process with \(enhancementType)")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: isIPad ? 20 : 18, weight: .semibold))
                     .foregroundColor(.white)
                 
                 if !selectedOption.isEmpty {
                     Text("Using \(selectedOption.capitalized) setting")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(size: isIPad ? 16 : 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.horizontal, isIPad ? 28 : 24)
+            .padding(.vertical, isIPad ? 16 : 14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(LinearGradient.primaryTheme)
@@ -558,7 +571,7 @@ struct EnhancementProcessButton: View {
                     )
                     .shadow(
                         color: Color.black.opacity(0.15),
-                        radius: 6,
+                        radius: isIPad ? 8 : 6,
                         x: 0,
                         y: 3
                     )

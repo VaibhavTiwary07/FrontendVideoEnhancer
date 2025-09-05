@@ -14,11 +14,13 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     var progressPublisher: Published<Double>.Publisher { $progress }
     
     private let baseURL = AppConfig.baseURL
+    private let videoProcessingService: VideoProcessingProtocol
     private var pollTimer: Timer?
     private var currentTaskId: String = ""
     private let enhancementRegistry: EnhancementTypeRegistry
     
-    init(enhancementRegistry: EnhancementTypeRegistry = .shared) {
+    init(videoProcessingService: VideoProcessingProtocol = VideoProcessingService(), enhancementRegistry: EnhancementTypeRegistry = .shared) {
+        self.videoProcessingService = videoProcessingService
         self.enhancementRegistry = enhancementRegistry
     }
     
@@ -51,8 +53,18 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                 
                 do {
                     let (endpoint, includeLevel) = self.mapEndpoint(for: request.enhancementType.id)
+
+                    // Determine which URL to upload: trimmed segment if provided, else original
+                    let effectiveURL: URL
+                    if let start = request.trimStartTime, let end = request.trimEndTime, end > start {
+                        let quality = self.videoQualityFromOutputQuality(request.outputQuality)
+                        effectiveURL = try await self.videoProcessingService.trimVideo(at: url, startTime: start, endTime: end, quality: quality)
+                    } else {
+                        effectiveURL = url
+                    }
+
                     try await self.uploadVideo(
-                        videoURL: url,
+                        videoURL: effectiveURL,
                         endpoint: endpoint,
                         includeLevel: includeLevel,
                         level: self.mapLevel(for: request)
@@ -66,7 +78,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                     let (processedURL, originalURL) = try await self.fetchResult(taskId: self.currentTaskId)
                     
                     let result = EnhancementResult(
-                        originalURL: originalURL ?? url,
+                        originalURL: originalURL ?? effectiveURL,
                         processedURL: processedURL,
                         enhancementType: request.enhancementType,
                         processingTime: 0,
@@ -132,6 +144,15 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
             return nil // backend doesn’t require level
         default:
             return opt
+        }
+    }
+
+    private func videoQualityFromOutputQuality(_ outputQuality: OutputQuality) -> VideoQuality {
+        switch outputQuality {
+        case .low: return .low
+        case .medium: return .medium
+        case .high: return .high
+        case .original: return .original
         }
     }
     

@@ -109,9 +109,11 @@ struct ImageComparisonCard: View {
                         
                         // Right side - Image comparison slider with proper containment
                         sliderView(containerHeight: geometry.size.height)
-//                            .frame(width:150)
+                            .frame(minWidth: isIPad ? 200 : 120, maxWidth: isIPad ? 260 : 160)
+                            .padding(.trailing, 12)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
+                    .padding(.vertical, isIPad ? 20 : 14)
                     } // End of geometry safety check
                 }
             }
@@ -124,7 +126,7 @@ struct ImageComparisonCard: View {
                 .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
                 .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
         )
-        .frame(minHeight: 110, maxHeight: 130)
+        .frame(minHeight: isIPad ? 170 : 120, maxHeight: isIPad ? 200 : 140)
         .contentShape(RoundedRectangle(cornerRadius: 22))
         .padding(.horizontal, 20)
         .onAppear {
@@ -184,9 +186,10 @@ struct ImageComparisonCard: View {
     // MARK: - Modern Layout Calculation Methods
     
     private func textAreaWidth(totalWidth: CGFloat) -> CGFloat {
-        let sliderAreaWidth: CGFloat = 116 + 16 // slider width + trailing padding
+        let assumedSliderWidth: CGFloat = (isIPad ? 220 : 140)
+        let trailingPadding: CGFloat = 16
         let leadingPadding: CGFloat = 16
-        return max(100, totalWidth - sliderAreaWidth - leadingPadding) // Ensure minimum width
+        return max(140, totalWidth - assumedSliderWidth - leadingPadding - trailingPadding)
     }
     
     @ViewBuilder
@@ -208,15 +211,18 @@ struct ImageComparisonCard: View {
                 // Title and subtitle with left alignment
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: isIPad ? 18 : 14, weight: .bold))
+                        .font(.system(size: isIPad ? 20 : 16, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
 
                     Text(subtitle)
-                        .font(.system(size: isIPad ? 14 : 10, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
+                        .font(.system(size: isIPad ? 15 : 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.85))
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
+                        .minimumScaleFactor(0.85)
                 }
             }
             Spacer()

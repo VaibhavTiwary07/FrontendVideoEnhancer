@@ -10,7 +10,7 @@ final class DIContainer: ObservableObject {
     // MARK: - Service Properties
     private(set) lazy var videoPlayerService: VideoPlayerProtocol = VideoPlayerService()
     private(set) lazy var videoProcessingService: VideoProcessingProtocol = VideoProcessingService()
-    private(set) lazy var enhancementService: EnhancementServiceProtocol = ServerEnhancementService()
+    private(set) lazy var enhancementService: EnhancementServiceProtocol = ServerEnhancementService(videoProcessingService: videoProcessingService)
     @MainActor private(set) lazy var navigationCoordinator: AppCoordinator = AppCoordinator()
     
     // MARK: - Private Initialization (Singleton)
@@ -31,7 +31,7 @@ final class DIContainer: ObservableObject {
     ) -> EnhancementSelectionViewModel {
         // Use a fresh enhancement service instance per selection session to avoid leaking
         // previous processing state (prevents stale Results from auto-presenting).
-        let freshEnhancementService: EnhancementServiceProtocol = ServerEnhancementService()
+        let freshEnhancementService: EnhancementServiceProtocol = ServerEnhancementService(videoProcessingService: videoProcessingService)
         return EnhancementSelectionViewModel(
             videoURL: videoURL,
             enhancementType: enhancementType,
