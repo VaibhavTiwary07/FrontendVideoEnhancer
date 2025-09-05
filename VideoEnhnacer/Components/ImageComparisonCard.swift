@@ -198,9 +198,9 @@ struct ImageComparisonCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 // Icon with background
                 Image(systemName: icon)
-                    .font(.system(size: isIPad ? 32 : 24, weight: .medium))
+                    .font(.system(size: isIPad ? 40 : 24, weight: .medium))
                     .foregroundColor(.white)
-                    .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
+                    .frame(width: isIPad ? 76 : 48, height: isIPad ? 76 : 48)
                     .background(
                         Circle()
                             .fill(Color.black.opacity(0.15))
@@ -211,14 +211,14 @@ struct ImageComparisonCard: View {
                 // Title and subtitle with left alignment
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                        .font(.system(size: isIPad ? 22 : 16, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
                         .lineLimit(1)
                         .minimumScaleFactor(0.9)
 
                     Text(subtitle)
-                        .font(.system(size: isIPad ? 15 : 12, weight: .medium))
+                        .font(.system(size: isIPad ? 16 : 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.85))
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)

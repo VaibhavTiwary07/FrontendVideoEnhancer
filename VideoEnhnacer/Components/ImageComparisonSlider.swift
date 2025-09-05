@@ -93,6 +93,18 @@ final class RevealImageView: UIImageView {
         startAutoSliding()
     }
 
+    private func updateScalingMode() {
+        if aspectFit {
+            contentMode = .scaleAspectFit
+            leftImageLayer.contentsGravity = .resizeAspect
+        } else {
+            contentMode = .scaleAspectFill
+            leftImageLayer.contentsGravity = .resizeAspectFill
+        }
+        setNeedsLayout()
+        layoutIfNeeded()
+    }
+
     override var intrinsicContentSize: CGSize {
         CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
     }
@@ -214,6 +226,11 @@ final class RevealImageView: UIImageView {
         }
     }
     
+    // Controls whether images are aspectFit (no crop) or aspectFill (may crop)
+    var aspectFit: Bool = false {
+        didSet { updateScalingMode() }
+    }
+    
     deinit {
         stopAutoSliding()
     }
@@ -225,13 +242,15 @@ struct ImageComparisonSlider: UIViewRepresentable {
     @Binding var sliderValue: Double
     let onInteractionStart: (() -> Void)?
     let onInteractionEnd: (() -> Void)?
+    let aspectFit: Bool
 
-    init(beforeImageName: String = "test", afterImageName: String = "testEnhanced", sliderValue: Binding<Double>, onInteractionStart: (() -> Void)? = nil, onInteractionEnd: (() -> Void)? = nil) {
+    init(beforeImageName: String = "test", afterImageName: String = "testEnhanced", sliderValue: Binding<Double>, onInteractionStart: (() -> Void)? = nil, onInteractionEnd: (() -> Void)? = nil, aspectFit: Bool = false) {
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
         self._sliderValue = sliderValue
         self.onInteractionStart = onInteractionStart
         self.onInteractionEnd = onInteractionEnd
+        self.aspectFit = aspectFit
     }
 
     func makeUIView(context: Context) -> RevealImageView {
@@ -239,6 +258,7 @@ struct ImageComparisonSlider: UIViewRepresentable {
         view.leftImage = UIImage(named: beforeImageName)
         view.rightImage = UIImage(named: afterImageName)
         view.pct = CGFloat(sliderValue)
+        view.aspectFit = aspectFit
         view.pctChanged = { pct in
             context.coordinator.update(value: Double(pct))
         }
@@ -250,6 +270,9 @@ struct ImageComparisonSlider: UIViewRepresentable {
     func updateUIView(_ uiView: RevealImageView, context: Context) {
         uiView.leftImage = UIImage(named: beforeImageName)
         uiView.rightImage = UIImage(named: afterImageName)
+        if uiView.aspectFit != aspectFit {
+            uiView.aspectFit = aspectFit
+        }
         if abs(Double(uiView.pct) - sliderValue) > 0.001 {
             uiView.pct = CGFloat(sliderValue)
         }

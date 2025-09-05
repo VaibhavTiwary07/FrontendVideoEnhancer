@@ -17,7 +17,7 @@ struct PageControlImageCarousel: View {
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(height: 280)
+            // Height is controlled by parent container (e.g., HomeView)
             .onChange(of: currentPage) { newPage in
                 startAutoSliding(for: newPage)
             }
@@ -82,12 +82,17 @@ struct PageControlImageCarousel: View {
 
 struct CarouselCard: View {
     @Binding var sliderValue: Double
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         ImageComparisonSlider(
             beforeImageName: "test",
             afterImageName: "testEnhanced",
             sliderValue: $sliderValue,
+            onInteractionStart: nil,
+            onInteractionEnd: nil,
+            aspectFit: isIPad // Avoid cropping on iPad by fitting images
 //            touchEnabled: false
         )
         .background(
