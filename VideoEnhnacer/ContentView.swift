@@ -75,6 +75,15 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
+        // Reinitialize Home's comparison players when switching back to Home tab
+        .onChange(of: selectedTab) { newTab in
+            if newTab == 0 {
+                print("📣 ContentView: Home tab became active → notifying Home")
+                NotificationCenter.default.post(name: .homeTabBecameActive, object: nil)
+            } else {
+                print("📣 ContentView: Switched to non-Home tab index=\(newTab)")
+            }
+        }
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
             case .background:

@@ -311,6 +311,17 @@ struct VideoComparisonSlider: View {
             videoPlayerManager.debugStatus(forKey: videoKey, context: "onAppear after setViewActive")
             startAutoSlide()
         }
+        // Re-activate after tab switches to ensure visibility of video and slider
+        .onReceive(NotificationCenter.default.publisher(for: .homeTabBecameActive)) { _ in
+            print("🎯 VideoComparisonSlider received homeTabBecameActive for key: \(videoKey)")
+            isViewVisible = true
+            if let originalURL = originalURL, let enhancedURL = enhancedURL {
+                videoPlayerManager.setupVideoPlayers(forKey: videoKey, originalURL: originalURL, processedURL: enhancedURL)
+            } else if let normalVideoName = normalVideoName, let enhancedVideoName = enhancedVideoName {
+                videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
+            }
+            videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+        }
         .onDisappear {
             print("🎯 VideoComparisonSlider onDisappear for key: \(videoKey)")
             isViewVisible = false
@@ -415,30 +426,36 @@ struct VideoComparisonSlider: View {
     }
 }
 
+final class PlayerContainerView: UIView {
+    let playerLayer = AVPlayerLayer()
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        playerLayer.frame = bounds
+        print("🎥 PlayerContainerView.layoutSubviews bounds=\(bounds)")
+    }
+}
+
 struct AVPlayerUIView: UIViewRepresentable {
     let player: AVPlayer
     let videoGravity: AVLayerVideoGravity
     
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        let playerLayer = AVPlayerLayer(player: player)
-        playerLayer.videoGravity = videoGravity
-        view.layer.addSublayer(playerLayer)
-        
-        DispatchQueue.main.async {
-            playerLayer.frame = view.bounds
-        }
-        
+    func makeUIView(context: Context) -> PlayerContainerView {
+        let view = PlayerContainerView()
+        view.playerLayer.player = player
+        view.playerLayer.videoGravity = videoGravity
+        view.layer.addSublayer(view.playerLayer)
+        print("🎥 AVPlayerUIView.makeUIView created container with initial bounds=\(view.bounds) gravity=\(videoGravity.rawValue)")
         return view
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if let playerLayer = uiView.layer.sublayers?.first as? AVPlayerLayer {
-            DispatchQueue.main.async {
-                playerLayer.frame = uiView.bounds
-                playerLayer.videoGravity = videoGravity
-            }
-        }
+    func updateUIView(_ uiView: PlayerContainerView, context: Context) {
+        uiView.playerLayer.player = player
+        uiView.playerLayer.videoGravity = videoGravity
+        // Ensure layer uses latest bounds
+        uiView.setNeedsLayout()
+        uiView.layoutIfNeeded()
+        print("🎥 AVPlayerUIView.updateUIView applied player + gravity; bounds=\(uiView.bounds)")
     }
 }
 //

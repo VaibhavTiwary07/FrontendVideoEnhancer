@@ -247,6 +247,9 @@ struct ImageComparisonCard: View {
                         compact: true,
                         customKey: title
                     )
+                    .onAppear {
+                        print("🧩 ImageComparisonCard '\(title)' using URL videos; key='\(title)'\n     originalURL=\(originalURL)\n     processedURL=\(processedURL)")
+                    }
                 } else if let normal = normalVideoName, let enhanced = enhancedVideoName {
                     VideoComparisonSlider(
                         normalVideoName: normal,
@@ -257,6 +260,9 @@ struct ImageComparisonCard: View {
                         compact: true,
                         customKey: title
                     )
+                    .onAppear {
+                        print("🧩 ImageComparisonCard '\(title)' using asset videos; key='\(title)'\n     normal='\(normal)' enhanced='\(enhanced)'")
+                    }
                 } else {
                     // Fallback to image slider if inputs missing
                     ImageComparisonSlider(
@@ -264,6 +270,9 @@ struct ImageComparisonCard: View {
                         afterImageName: afterImageName,
                         sliderValue: $sliderValue
                     )
+                    .onAppear {
+                        print("🧩 ImageComparisonCard '\(title)' falling back to image slider (no video sources)")
+                    }
                 }
             } else {
                 ImageComparisonSlider(
@@ -271,6 +280,9 @@ struct ImageComparisonCard: View {
                     afterImageName: afterImageName,
                     sliderValue: $sliderValue
                 )
+                .onAppear {
+                    print("🧩 ImageComparisonCard '\(title)' using image slider (useVideoComparison=false)")
+                }
             }
         }
         .onAppear {

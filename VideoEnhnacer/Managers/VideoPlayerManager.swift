@@ -36,7 +36,11 @@ class VideoPlayerManager: ObservableObject {
     }
     
     func setupVideoPlayers(forKey key: String, normalVideoName: String, enhancedVideoName: String) {
-        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { return }
+        print("🎬 VideoPlayerManager: Setting up video players (assets) for key '\(key)' normal='\(normalVideoName)' enhanced='\(enhancedVideoName)'")
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else {
+            print("🎬 Players already loaded/loading for key '\(key)' (assets)")
+            return
+        }
         
         loadingKeys.insert(key)
         playerStates[key] = .loading
@@ -47,6 +51,7 @@ class VideoPlayerManager: ObservableObject {
                 let players = try await loadVideoPlayersAsync(normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
                 
                 await MainActor.run {
+                    print("🎬 Successfully loaded players (assets) for key '\(key)'")
                     self.playerPairs[key] = players
                     self.loadedKeys.insert(key)
                     self.loadingKeys.remove(key)
@@ -60,6 +65,7 @@ class VideoPlayerManager: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
+                    print("❌ Failed to load players (assets) for key '\(key)': \(error.localizedDescription)")
                     self.loadingKeys.remove(key)
                     self.playerStates[key] = .error(error.localizedDescription)
                 }
@@ -347,6 +353,7 @@ class VideoPlayerManager: ObservableObject {
         // Resume all loaded players to maintain continuity across tab switches
         for key in loadedKeys {
             if playerStates[key] == .ready || playerStates[key] == .paused {
+                print("🎬 Resuming active view players for key '\(key)' and ensuring sync")
                 resumePlayers(forKey: key)
                 // Re-sync players if they were playing
                 if timeSyncObservers[key] == nil {

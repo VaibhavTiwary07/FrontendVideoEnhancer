@@ -187,6 +187,11 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
+        // Ensure stabilizer and interpolation cards reinitialize after tab switches
+        .onReceive(NotificationCenter.default.publisher(for: .homeTabBecameActive)) { _ in
+            print("📣 HomeView: Received homeTabBecameActive; reinitializing comparison players")
+            reinitializeComparisonPlayers(context: "homeTabBecameActive")
+        }
         .onReceive(NotificationCenter.default.publisher(for: .homeResumeGateRequested)) { _ in
             needsResumeGate = true
             videoPlayerManager.pauseAllPlayers()
@@ -277,23 +282,7 @@ struct HomeView: View {
                 videoPlayerManager.resumeActiveViewPlayers()
                 print("🏠 HomeView onAppear: resuming players for active views")
             }
-
-            // Prewarm and reactivate Stabilizer and Frame Interpolation players with stable keys
-            if let stabOrig = Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),
-               let stabProc = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") {
-                let key = "Stabilizer"
-                videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc)
-                videoPlayerManager.setViewActive(forKey: key, isActive: true)
-                videoPlayerManager.debugStatus(forKey: key, context: "HomeView.onAppear prewarm")
-            }
-
-            if let interpOrig = Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4"),
-               let interpProc = Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4") {
-                let key = "Frame Interpolation"
-                videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: interpOrig, processedURL: interpProc)
-                videoPlayerManager.setViewActive(forKey: key, isActive: true)
-                videoPlayerManager.debugStatus(forKey: key, context: "HomeView.onAppear prewarm")
-            }
+            reinitializeComparisonPlayers(context: "HomeView.onAppear prewarm")
         }
         .onDisappear {
             isHomeViewActive = false
@@ -318,6 +307,30 @@ struct HomeView: View {
             default:
                 break
             }
+        }
+    }
+
+    // MARK: - Reinitialize video comparison players for Stabilizer and Interpolation
+    private func reinitializeComparisonPlayers(context: String) {
+        print("🔄 reinitializeComparisonPlayers invoked (context=\(context))")
+        // Stabilizer
+        if let stabOrig = Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),
+           let stabProc = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") {
+            let key = "Stabilizer"
+            print("🔄 Setting up players for \(key) from bundle URLs")
+            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc)
+            videoPlayerManager.setViewActive(forKey: key, isActive: true)
+            videoPlayerManager.debugStatus(forKey: key, context: context)
+        }
+
+        // Frame Interpolation
+        if let interpOrig = Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4"),
+           let interpProc = Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4") {
+            let key = "Frame Interpolation"
+            print("🔄 Setting up players for \(key) from bundle URLs")
+            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: interpOrig, processedURL: interpProc)
+            videoPlayerManager.setViewActive(forKey: key, isActive: true)
+            videoPlayerManager.debugStatus(forKey: key, context: context)
         }
     }
     
