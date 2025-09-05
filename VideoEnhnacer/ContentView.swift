@@ -7,13 +7,16 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct ContentView: View, AdsManager.AdsManagerDelegate {
+   
+    
     @EnvironmentObject var videoPlayerManager: VideoPlayerManager
     @StateObject var favoritesManager = FavoritesManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
     @State private var isShowingPaywall = false
     @Environment(\.scenePhase) private var scenePhase
+    @State private var didShowLaunchAd = false
     
     var body: some View {
         ZStack {
@@ -82,6 +85,39 @@ struct ContentView: View {
                 break
             }
         }
+        .onAppear {
+            AdsManager.shared.delegate = self
+        }
+    }
+    
+    // MARK: - AdsManagerDelegate
+    func adDidLoad(for adType: AdType) {
+        if adType == .launch && !didShowLaunchAd {
+            didShowLaunchAd = true
+            DispatchQueue.main.async {
+                if let rootVC = UIApplication.shared.connectedScenes
+                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                    .first {
+                        AdsManager.shared.showInterstitialAd(for: .launch, from: rootVC)
+                    }
+            }
+        }
+    }
+    
+    func adDidFailToLoad(for adType: AdType, error: any Error) {
+        
+    }
+    
+    func adWillPresent(for adType: AdType) {
+        
+    }
+    
+    func adDidDismiss(for adType: AdType) {
+        
+    }
+    
+    func adDidFailToPresent(for adType: AdType, error: any Error) {
+        
     }
 }
 

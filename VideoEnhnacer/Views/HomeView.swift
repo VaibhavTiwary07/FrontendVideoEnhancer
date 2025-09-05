@@ -124,7 +124,7 @@ struct HomeView: View {
                                         subtitle: "Reduce camera shake",
                                         gradientType: .gray,
                                         useVideoComparison: true,
-                                        originalVideoURL: Bundle.main.url(forResource: "StablilizationBefore", withExtension: "mp4"),
+                                        originalVideoURL: Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),
                                         processedVideoURL: Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4"),
                                         videoPlayerManager: videoPlayerManager
                                     ) {
@@ -188,7 +188,7 @@ struct HomeView: View {
             print("🏠 HomeView onAppear: resuming players for active views")
 
             // Prewarm and reactivate Stabilizer and Frame Interpolation players with stable keys
-            if let stabOrig = Bundle.main.url(forResource: "StablilizationBefore", withExtension: "mp4"),
+            if let stabOrig = Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),
                let stabProc = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") {
                 let key = "Stabilizer"
                 videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc)

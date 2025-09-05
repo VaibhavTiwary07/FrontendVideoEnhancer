@@ -299,9 +299,10 @@ class VideoPlayerManager: ObservableObject {
             }
         } else {
             activeViewKeys.remove(key)
-            print("🎬 Pausing players for key '\(key)'")
-            pausePlayers(forKey: key)
+            // Don't pause players when view becomes inactive - keep them playing for tab persistence
+            // Only clean up time observers to prevent unnecessary syncing
             cleanupTimeObserver(forKey: key)
+            print("🎬 View deactivated for key '\(key)' but keeping players active")
         }
     }
     
@@ -343,9 +344,14 @@ class VideoPlayerManager: ObservableObject {
     }
     
     func resumeActiveViewPlayers() {
-        for key in activeViewKeys {
+        // Resume all loaded players to maintain continuity across tab switches
+        for key in loadedKeys {
             if playerStates[key] == .ready || playerStates[key] == .paused {
                 resumePlayers(forKey: key)
+                // Re-sync players if they were playing
+                if timeSyncObservers[key] == nil {
+                    syncPlayers(forKey: key)
+                }
             }
         }
     }

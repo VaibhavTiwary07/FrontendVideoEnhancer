@@ -114,6 +114,14 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         
         currentTab = 0
         finishCurrentFlow()
+        
+        // ✅ Show Home Ad after navigation reset
+        if let rootVC = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first?.windows.first?.rootViewController {
+                
+            AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
+        }
     }
     
     func dismissCurrentModal() {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 18DE384C2E6A98D400B87663 /* GoogleMobileAds */; };
 		DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = DB755CE72E6573CF001F92A1 /* PryntTrimmerView */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */,
 				DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = VideoEnhnacer;
 			packageProductDependencies = (
 				DB755CE72E6573CF001F92A1 /* PryntTrimmerView */,
+				18DE384C2E6A98D400B87663 /* GoogleMobileAds */,
 			);
 			productName = VideoEnhnacer;
 			productReference = DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */,
+				18DE384B2E6A98D400B87663 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DB23E7F22E4C4F6000777DE1 /* Products */;
@@ -270,12 +274,12 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3LUNZ43L4D;
+				DEVELOPMENT_TEAM = 9Q363NUAF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VideoEnhnacer/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "it need is it";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "It needed it to run";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app saves enhanced videos to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to select videos for enhancement.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -291,7 +295,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.vaibhavtiwary.VideoEnhnacer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.outthinking.videoupscaler.enhancer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -313,12 +317,12 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3LUNZ43L4D;
+				DEVELOPMENT_TEAM = 9Q363NUAF6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VideoEnhnacer/Info.plist;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "it need is it";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "It needed it to run";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app saves enhanced videos to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to select videos for enhancement.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -334,7 +338,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.vaibhavtiwary.VideoEnhnacer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.outthinking.videoupscaler.enhancer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -371,6 +375,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		18DE384B2E6A98D400B87663 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.10.0;
+			};
+		};
 		DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/HHK1/PryntTrimmerView.git";
@@ -382,6 +394,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		18DE384C2E6A98D400B87663 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18DE384B2E6A98D400B87663 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
 		DB755CE72E6573CF001F92A1 /* PryntTrimmerView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */;

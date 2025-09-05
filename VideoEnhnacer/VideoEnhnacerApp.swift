@@ -10,10 +10,21 @@
 //
 
 import SwiftUI
+import GoogleMobileAds
 
 @main
 struct VideoEnhnacerApp: App {
     @StateObject private var videoPlayerManager = VideoPlayerManager()
+    
+    init() {
+            // Initialize Google Mobile Ads SDK
+            MobileAds.shared.start(completionHandler: nil)
+            
+            // Preload ads
+            AdsManager.shared.preloadAllAds()
+        }
+    
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

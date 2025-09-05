@@ -68,7 +68,27 @@ struct PaywallView: View {
                         action: { selectedPlan = .weekly }
                     )
 
-                    Button(action: { /* TODO: hook to purchase */ }) {
+                    Button(action: { /* TODO: hook to purchase */
+                        let productId = productID(for: selectedPlan)
+                            SubscriptionManager.shared.fetchProducts { products, error in
+                                if let error = error {
+                                    print("❌ Failed to fetch products: \(error.localizedDescription)")
+                                    return
+                                }
+                                guard let product = products?.first(where: { $0.productIdentifier == productId }) else {
+                                    print("❌ Product not found: \(productId)")
+                                    return
+                                }
+                                SubscriptionManager.shared.purchaseProduct(product) { success, error in
+                                    if success {
+                                        print("✅ Purchase successful for \(productId)")
+                                        isPresented = false // Close paywall on success
+                                    } else if let error = error {
+                                        print("❌ Purchase failed: \(error.localizedDescription)")
+                                    }
+                                }
+                            }
+                    }) {
                         Text("Continue")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(.black)
@@ -284,6 +304,15 @@ struct PaywallView: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func productID(for plan: Plan) -> String {
+        switch plan {
+        case .yearly:
+            return "com.outthinking.videoupscaler.enhancer.yearly"
+        case .weekly:
+            return "com.outthinking.videoupscaler.enhancer.weekly"
+        }
     }
 }
 
