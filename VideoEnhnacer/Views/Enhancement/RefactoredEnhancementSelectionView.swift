@@ -90,14 +90,18 @@ struct RefactoredEnhancementSelectionView: View {
                     trimEndTime: viewModel.trimEndTime,
                     customHeight: min(geo.size.height * 0.60, 350)
                 )
-                Spacer()
-            
-                EnhancementOptionsView(
-                    enhancementType: viewModel.enhancementType,
-                    selectedOption: $viewModel.selectedOption,
-                    isAnalyzing: viewModel.isAnalyzing,
-                    onOptionSelected: viewModel.updateSelection
-                )
+                
+            Spacer()
+                HStack {
+                    Spacer()
+                    EnhancementOptionsView(
+                        enhancementType: viewModel.enhancementType,
+                        selectedOption: $viewModel.selectedOption,
+                        isAnalyzing: viewModel.isAnalyzing,
+                        onOptionSelected: viewModel.updateSelection
+                    )
+                    Spacer()
+                }
                 Spacer()
                 EnhancementActionView(
                     enhancementType: viewModel.enhancementType,
@@ -345,12 +349,16 @@ struct EnhancementOptionsView: View {
             )
             .padding(.top, 8)
             
-            EnhancementOptionGrid(
-                options: enhancementType.options,
-                selectedOption: selectedOption,
-                isAnalyzing: isAnalyzing,
-                onOptionSelected: onOptionSelected
-            )
+            HStack {
+                Spacer()
+                EnhancementOptionGrid(
+                    options: enhancementType.options,
+                    selectedOption: selectedOption,
+                    isAnalyzing: isAnalyzing,
+                    onOptionSelected: onOptionSelected
+                )
+                Spacer()
+            }
         }
     }
 }
@@ -388,32 +396,56 @@ struct EnhancementOptionGrid: View {
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
 
-    private var columns: [GridItem] {
-        if options.count <= 1 {
-            return [GridItem(.flexible(minimum: isIPad ? 200 : 140), spacing: isIPad ? 16 : 12)]
-        }
-        // Responsive grid: 4 columns on iPad, 3 on iPhone
-        if isIPad {
-            return Array(repeating: GridItem(.flexible(minimum: 120), spacing: 16), count: 4)
-        } else {
-            return Array(repeating: GridItem(.flexible(minimum: 90), spacing: 12), count: 3)
+    private var columnsCount: Int {
+        if options.count <= 1 { return 1 }
+        return isIPad ? 4 : 3
+    }
+
+    private var rowSpacing: CGFloat { isIPad ? 16 : 12 }
+    private var itemSpacing: CGFloat { isIPad ? 16 : 12 }
+
+    private var rows: [[EnhancementOption]] {
+        guard columnsCount > 0 else { return [] }
+        return stride(from: 0, to: options.count, by: columnsCount).map { start in
+            let end = min(start + columnsCount, options.count)
+            return Array(options[start..<end])
         }
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .center, spacing: 12) {
-            ForEach(options, id: \.id) { option in
-                EnhancementOptionCard(
-                    option: option,
-                    isSelected: selectedOption == option.id,
-                    isAnalyzing: isAnalyzing,
-                    onTap: { onOptionSelected(option.id) }
-                )
-                .frame(maxWidth: .infinity)
+        VStack(spacing: rowSpacing) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                if row.count == columnsCount {
+                    // Full row: distribute items evenly across width
+                    HStack(spacing: itemSpacing) {
+                        ForEach(row, id: \.id) { option in
+                            EnhancementOptionCard(
+                                option: option,
+                                isSelected: selectedOption == option.id,
+                                isAnalyzing: isAnalyzing,
+                                onTap: { onOptionSelected(option.id) }
+                            )
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+                } else {
+                    // Partial row: center items as a block
+                    HStack(spacing: itemSpacing) {
+                        Spacer(minLength: 0)
+                        ForEach(row, id: \.id) { option in
+                            EnhancementOptionCard(
+                                option: option,
+                                isSelected: selectedOption == option.id,
+                                isAnalyzing: isAnalyzing,
+                                onTap: { onOptionSelected(option.id) }
+                            )
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, options.count <= 1 ? 40 : 0)
     }
 }
 
@@ -645,14 +677,14 @@ struct HapticFeedbackManager {
 #if DEBUG
 struct RefactoredEnhancementSelectionView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
+       
             RefactoredEnhancementSelectionView(
                 videoURL: URL(string: "https://example.com/video.mp4")!,
                 enhancementType: EnhancementType.mockAIUpscale,
                 trimStartTime: 5.0,
                 trimEndTime: 15.0
             )
-        }
+        
         .withDependencyInjection()
     }
 }

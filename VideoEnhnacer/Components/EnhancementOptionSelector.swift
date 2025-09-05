@@ -65,18 +65,48 @@ struct EnhancementOptionSelector: View {
                 }
                 .padding(.top, 20)
 
-                // Options Grid
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: isIPad ? 2 : 1), spacing: 16) {
-                    ForEach(options, id: \.id) { option in
-                        OptionCard(
-                            option: option,
-                            isSelected: selectedOption == option.id,
-                            onTap: {
-                                let impact = UIImpactFeedbackGenerator(style: .light)
-                                impact.impactOccurred()
-                                selectedOption = option.id
+                // Options Grid (centered for single, partial, and full rows)
+                Group {
+                    let columnsCount = isIPad ? max(1, min(2, options.count)) : 1
+                    let rows: [[EnhancementOption]] = stride(from: 0, to: options.count, by: columnsCount).map { start in
+                        let end = min(start + columnsCount, options.count)
+                        return Array(options[start..<end])
+                    }
+                    VStack(spacing: 16) {
+                        ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                            if row.count == columnsCount {
+                                HStack(spacing: 16) {
+                                    ForEach(row, id: \.id) { option in
+                                        OptionCard(
+                                            option: option,
+                                            isSelected: selectedOption == option.id,
+                                            onTap: {
+                                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                                impact.impactOccurred()
+                                                selectedOption = option.id
+                                            }
+                                        )
+                                        .frame(maxWidth: .infinity)
+                                    }
+                                }
+                            } else {
+                                HStack(spacing: 16) {
+                                    Spacer(minLength: 0)
+                                    ForEach(row, id: \.id) { option in
+                                        OptionCard(
+                                            option: option,
+                                            isSelected: selectedOption == option.id,
+                                            onTap: {
+                                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                                impact.impactOccurred()
+                                                selectedOption = option.id
+                                            }
+                                        )
+                                    }
+                                    Spacer(minLength: 0)
+                                }
                             }
-                        )
+                        }
                     }
                 }
                 .padding(.horizontal, 20)

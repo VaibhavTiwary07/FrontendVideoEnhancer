@@ -145,16 +145,40 @@ struct EnhancementSelectionView: View {
                             .padding(.horizontal, 20)
                             .padding(.top, adaptiveTopPadding)
                             
-                            // Enhancement options single row
-                            HStack(spacing: 12) {
-                                ForEach(enhancementOptions, id: \.id) { option in
-                                    OptionCard(
-                                        option: option,
-                                        isSelected: selectionState.selectedOption == option.id,
-                                        onTap: {
-                                            selectionState.updateSelection(option.id)
+                            // Enhancement options centered grid (handles single, partial, full rows)
+                            Group {
+                                let columnsCount = enhancementOptions.count <= 1 ? 1 : (isIPad ? 4 : 3)
+                                let rows: [[EnhancementOption]] = stride(from: 0, to: enhancementOptions.count, by: columnsCount).map { start in
+                                    let end = min(start + columnsCount, enhancementOptions.count)
+                                    return Array(enhancementOptions[start..<end])
+                                }
+                                VStack(spacing: 12) {
+                                    ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                                        if row.count == columnsCount {
+                                            HStack(spacing: 12) {
+                                                ForEach(row, id: \.id) { option in
+                                                    OptionCard(
+                                                        option: option,
+                                                        isSelected: selectionState.selectedOption == option.id,
+                                                        onTap: { selectionState.updateSelection(option.id) }
+                                                    )
+                                                    .frame(maxWidth: .infinity)
+                                                }
+                                            }
+                                        } else {
+                                            HStack(spacing: 12) {
+                                                Spacer(minLength: 0)
+                                                ForEach(row, id: \.id) { option in
+                                                    OptionCard(
+                                                        option: option,
+                                                        isSelected: selectionState.selectedOption == option.id,
+                                                        onTap: { selectionState.updateSelection(option.id) }
+                                                    )
+                                                }
+                                                Spacer(minLength: 0)
+                                            }
                                         }
-                                    )
+                                    }
                                 }
                             }
                             .padding(.horizontal, 20)
