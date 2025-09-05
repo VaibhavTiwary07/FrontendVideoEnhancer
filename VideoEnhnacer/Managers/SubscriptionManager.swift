@@ -8,6 +8,7 @@
 import StoreKit
 import Foundation
 import UIKit
+import FirebaseAnalytics
 
 // MARK: - Constants
 private let kSandboxServer = "https://sandbox.itunes.apple.com/verifyReceipt"
@@ -321,7 +322,7 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
     func getPrice(for productId: String) -> String {
         guard let product = products[productId] else {
             print("Product not found: \(productId)")
-            return productId == "com.example.yearly" ? defaultYearlyPackPrice : defaultWatermarkPackPrice
+            return productId == "com.outthinking.videoupscaler.enhancer.yearly" ? defaultYearlyPackPrice : defaultWatermarkPackPrice
         }
         
         let formatter = NumberFormatter()
@@ -426,9 +427,12 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
     
     // MARK: - Analytics
     private func logPurchaseEvent(_ productId: String) {
-        let price = getPrice(for: productId)
+        let rawPrice = getPrice(for: productId)        // Might return "$239.00" or "₹ 269.00"
         let currencyCode = getCurrencyCode(for: productId)
         var eventName = ""
+        
+        // Clean numeric value
+        let priceValue = cleanPriceString(rawPrice)
         
         Task {
             let receiptURL = Bundle.main.appStoreReceiptURL
@@ -443,21 +447,42 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
             let isInIntroOfferPeriod = firstTransaction["is_in_intro_offer_period"] as? Bool ?? false
             
             switch productId {
-            case "com.example.yearly":
+            case "com.outthinking.videoupscaler.enhancer.yearly":
                 eventName = (isTrialPeriod && isInIntroOfferPeriod) ? "yearly_trial_activated" : "purchase_yearly_subscription"
-            case "com.example.weekly":
+            case "com.outthinking.videoupscaler.enhancer.monthly":
+                eventName = "purchase_monthly_subscription"
+            case "com.outthinking.videoupscaler.enhancer.weekly":
                 eventName = "purchase_weekly_subscription"
             default:
                 eventName = "purchase_unknown"
             }
             
-//            Analytics.logEvent(eventName, parameters: [
-//                AnalyticsParameterValue: (isTrialPeriod && isInIntroOfferPeriod) ? "1" : price,
-//                AnalyticsParameterCurrency: currencyCode
-//            ])
+            // Log clean numeric price
+            Analytics.logEvent(eventName, parameters: [
+                AnalyticsParameterValue: priceValue,
+                AnalyticsParameterCurrency: currencyCode,
+                "is_trial": isTrialPeriod,
+                "is_intro_offer": isInIntroOfferPeriod
+            ])
+            
+            print("Logged purchase: \(eventName), price = \(priceValue), currency = \(currencyCode)")
         }
     }
+
     
+    private func cleanPriceString(_ price: String) -> Double {
+        // 1. Keep only digits, decimal separators (.,)
+        let allowedChars = CharacterSet(charactersIn: "0123456789.,")
+        let filtered = price.unicodeScalars.filter { allowedChars.contains($0) }
+        var cleanPrice = String(String.UnicodeScalarView(filtered))
+        
+        // 2. Replace comma with dot if needed (e.g., "239,50" → "239.50")
+        cleanPrice = cleanPrice.replacingOccurrences(of: ",", with: ".")
+        
+        // 3. Convert to Double
+        return Double(cleanPrice) ?? 0.0
+    }
+
     // MARK: - Background Tasks
     private func startBackgroundTask(taskName: String) {
         guard backgroundTask == .invalid else { return }

@@ -11,12 +11,21 @@
 
 import SwiftUI
 import GoogleMobileAds
-
+import FirebaseCore
+import FirebaseCrashlytics
+import FirebaseAnalytics
 @main
 struct VideoEnhnacerApp: App {
     @StateObject private var videoPlayerManager = VideoPlayerManager()
     
     init() {
+            // ✅ Initialize Firebase (Analytics + Crashlytics)
+            FirebaseApp.configure()
+
+            // Optional: verify Firebase modules are working
+            Analytics.logEvent("app_launch", parameters: nil)
+            // Crashlytics.crashlytics().log("VideoEnhancerApp launched")
+            
             // Initialize Google Mobile Ads SDK
             MobileAds.shared.start(completionHandler: nil)
             

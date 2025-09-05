@@ -54,7 +54,9 @@ struct HomeView: View {
                                         icon: "arrow.up.square",
                                         title: "AI Upscale",
                                         subtitle: "Enhance image resolution",
-                                        gradientType: .cyanGray
+                                        gradientType: .cyanGray,
+                                        beforeImageName: "Upscaler",
+                                        afterImageName: "Upscaler"
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Upscale",
@@ -345,11 +347,11 @@ struct HomeView: View {
     
     private func dynamicCardSpacing(screenHeight: CGFloat) -> CGFloat {
         if isCompactDevice || screenHeight < 700 {
-            return 14
+            return 20 // Increased from 14 to prevent overlapping
         } else if screenHeight < 900 {
-            return 20
+            return 24 // Increased from 20 for better separation
         } else {
-            return 28 // More breathing room on iPad/large screens
+            return 32 // Increased from 28 for more breathing room on iPad/large screens
         }
     }
 

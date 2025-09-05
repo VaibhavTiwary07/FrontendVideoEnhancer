@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 18DE384C2E6A98D400B87663 /* GoogleMobileAds */; };
 		DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = DB755CE72E6573CF001F92A1 /* PryntTrimmerView */; };
+		DB9F5DEA2E6AE77000FB44FD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DB9F5DE92E6AE77000FB44FD /* FirebaseAnalytics */; };
+		DB9F5DEC2E6AE77000FB44FD /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DB9F5DEB2E6AE77000FB44FD /* FirebaseCore */; };
+		DB9F5DEE2E6AE77000FB44FD /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = DB9F5DED2E6AE77000FB44FD /* FirebaseCrashlytics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +46,9 @@
 			files = (
 				18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */,
 				DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */,
+				DB9F5DEE2E6AE77000FB44FD /* FirebaseCrashlytics in Frameworks */,
+				DB9F5DEC2E6AE77000FB44FD /* FirebaseCore in Frameworks */,
+				DB9F5DEA2E6AE77000FB44FD /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +93,9 @@
 			packageProductDependencies = (
 				DB755CE72E6573CF001F92A1 /* PryntTrimmerView */,
 				18DE384C2E6A98D400B87663 /* GoogleMobileAds */,
+				DB9F5DE92E6AE77000FB44FD /* FirebaseAnalytics */,
+				DB9F5DEB2E6AE77000FB44FD /* FirebaseCore */,
+				DB9F5DED2E6AE77000FB44FD /* FirebaseCrashlytics */,
 			);
 			productName = VideoEnhnacer;
 			productReference = DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */;
@@ -119,6 +128,7 @@
 			packageReferences = (
 				DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */,
 				18DE384B2E6A98D400B87663 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DB23E7F22E4C4F6000777DE1 /* Products */;
@@ -391,6 +401,14 @@
 				minimumVersion = 4.0.2;
 			};
 		};
+		DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -403,6 +421,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DB755CE62E6573CF001F92A1 /* XCRemoteSwiftPackageReference "PryntTrimmerView" */;
 			productName = PryntTrimmerView;
+		};
+		DB9F5DE92E6AE77000FB44FD /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		DB9F5DEB2E6AE77000FB44FD /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		DB9F5DED2E6AE77000FB44FD /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
