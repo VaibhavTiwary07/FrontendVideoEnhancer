@@ -44,10 +44,16 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
     private var flowHistory: [NavigationFlow] = []
     private weak var delegate: NavigationCoordinatorDelegate?
     private let deepLinkHandler = DeepLinkHandler()
+    private var skipNextHomeAdOnce: Bool = false
+    private var notificationCancellables: [AnyObject] = []
     
     // MARK: - Initialization
     init(delegate: NavigationCoordinatorDelegate? = nil) {
         self.delegate = delegate
+        // Listen for a request to gate resume on Home; skip showing home ad once
+        NotificationCenter.default.addObserver(forName: .homeResumeGateRequested, object: nil, queue: .main) { [weak self] _ in
+            self?.skipNextHomeAdOnce = true
+        }
     }
     
     // MARK: - NavigationCoordinatorProtocol Implementation
@@ -115,12 +121,21 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         currentTab = 0
         finishCurrentFlow()
         
-        // ✅ Show Home Ad after navigation reset
-        if let rootVC = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first?.windows.first?.rootViewController {
-                
-            AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
+        // ✅ Show Home Ad after navigation reset unless a resume gate is requested
+        if !skipNextHomeAdOnce {
+            if let presenter = UIHelpers.topViewController() {
+                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: presenter)
+            } else if let rootVC = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .first?.windows.first(where: { $0.isKeyWindow })?.rootViewController {
+                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
+            } else {
+                print("⚠️ AppCoordinator: No presenter available for Home ad")
+            }
+        } else {
+            // Consume the one-shot skip flag
+            skipNextHomeAdOnce = false
+            print("ℹ️ AppCoordinator: Skipping Home ad due to resume gate request")
         }
     }
     

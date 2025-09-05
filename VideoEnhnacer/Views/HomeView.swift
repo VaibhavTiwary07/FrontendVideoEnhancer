@@ -183,6 +183,18 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .homeResumeGateRequested)) { _ in
+            needsResumeGate = true
+            videoPlayerManager.pauseAllPlayers()
+            if isHomeViewActive {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    showResumeOverlay = true
+                }
+                print("🏠 HomeView received resume gate request; showing overlay")
+            } else {
+                print("🏠 HomeView received resume gate request; will show overlay on appear")
+            }
+        }
         .overlay(alignment: .center) {
             if showResumeOverlay {
                 ZStack {
@@ -234,9 +246,17 @@ struct HomeView: View {
         // VideoPickerView is removed from flow; direct picking happens in cards
         .onAppear {
             isHomeViewActive = true
-            // Resume any players associated with visible comparison sliders
-            videoPlayerManager.resumeActiveViewPlayers()
-            print("🏠 HomeView onAppear: resuming players for active views")
+            if needsResumeGate {
+                videoPlayerManager.pauseAllPlayers()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    showResumeOverlay = true
+                }
+                print("🏠 HomeView onAppear: resume gate active; showing overlay")
+            } else {
+                // Resume any players associated with visible comparison sliders
+                videoPlayerManager.resumeActiveViewPlayers()
+                print("🏠 HomeView onAppear: resuming players for active views")
+            }
 
             // Prewarm and reactivate Stabilizer and Frame Interpolation players with stable keys
             if let stabOrig = Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),

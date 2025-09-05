@@ -529,6 +529,10 @@ extension ExportOptionsView {
                 container.navigation.goToHome()
                 dismiss()
                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+                // Post resume gate after navigation so HomeView can observe it
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    NotificationCenter.default.post(name: .homeResumeGateRequested, object: nil)
+                }
             }
         } else {
             NotificationCenter.default.post(name: .goHomeRequested, object: nil)
@@ -536,6 +540,10 @@ extension ExportOptionsView {
             container.navigation.goToHome()
             dismiss()
             withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+            // Post resume gate after navigation so HomeView can observe it
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                NotificationCenter.default.post(name: .homeResumeGateRequested, object: nil)
+            }
         }
     }
     
