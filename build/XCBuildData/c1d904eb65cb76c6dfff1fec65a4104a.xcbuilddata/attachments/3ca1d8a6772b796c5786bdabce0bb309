@@ -1,0 +1,4 @@
+module PryntTrimmerView {
+header "PryntTrimmerView-Swift.h"
+export *
+}

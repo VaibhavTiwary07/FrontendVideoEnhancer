@@ -195,6 +195,22 @@ struct HomeView: View {
                 print("🏠 HomeView received resume gate request; will show overlay on appear")
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .homeAdRequested)) { _ in
+            // Ensure no resume overlay remains; just show the interstitial
+            withAnimation(.easeOut(duration: 0.2)) {
+                showResumeOverlay = false
+            }
+            needsResumeGate = false
+            if let presenter = UIHelpers.topViewController() {
+                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: presenter)
+            } else if let rootVC = UIApplication.shared.connectedScenes
+                        .compactMap({ $0 as? UIWindowScene })
+                        .first?.windows.first(where: { $0.isKeyWindow })?.rootViewController {
+                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
+            } else {
+                print("⚠️ HomeView: No presenter available for Home ad")
+            }
+        }
         .overlay(alignment: .center) {
             if showResumeOverlay {
                 ZStack {

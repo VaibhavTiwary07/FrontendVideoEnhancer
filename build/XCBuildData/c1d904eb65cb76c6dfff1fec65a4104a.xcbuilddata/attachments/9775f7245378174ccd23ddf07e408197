@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/GoogleMobileAdsTarget-master.dia",
+    "emit-module-dependencies" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/GoogleMobileAdsTarget-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/GoogleMobileAdsTarget-master-emit-module.dia",
+    "swift-dependencies" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/GoogleMobileAdsTarget-master.swiftdeps"
+  },
+  "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/GoogleMobileAdsTarget/placeholder.swift" : {
+    "const-values" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.swiftconstvalues",
+    "dependencies" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.d",
+    "diagnostics" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.dia",
+    "index-unit-output-path" : "/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.o",
+    "llvm-bc" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.bc",
+    "object" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.o",
+    "swift-dependencies" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder.swiftdeps",
+    "swiftmodule" : "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-mobile-ads/build/GoogleMobileAds.build/Debug/GoogleMobileAdsTarget.build/Objects-normal/arm64/placeholder~partial.swiftmodule"
+  }
+}

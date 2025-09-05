@@ -120,23 +120,9 @@ final class AppCoordinator: NavigationCoordinatorProtocol, ObservableObject {
         
         currentTab = 0
         finishCurrentFlow()
-        
-        // ✅ Show Home Ad after navigation reset unless a resume gate is requested
-        if !skipNextHomeAdOnce {
-            if let presenter = UIHelpers.topViewController() {
-                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: presenter)
-            } else if let rootVC = UIApplication.shared.connectedScenes
-                        .compactMap({ $0 as? UIWindowScene })
-                        .first?.windows.first(where: { $0.isKeyWindow })?.rootViewController {
-                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
-            } else {
-                print("⚠️ AppCoordinator: No presenter available for Home ad")
-            }
-        } else {
-            // Consume the one-shot skip flag
-            skipNextHomeAdOnce = false
-            print("ℹ️ AppCoordinator: Skipping Home ad due to resume gate request")
-        }
+
+        // Ad presentation on Home should be requested explicitly by views (e.g., via .homeAdRequested)
+        // to avoid showing over previous overlays.
     }
     
     func dismissCurrentModal() {

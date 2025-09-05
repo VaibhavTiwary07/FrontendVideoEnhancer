@@ -118,7 +118,7 @@ struct ExportOptionsView: View {
                         Spacer()
                         
                         Button(action: {
-                            os_log("[ExportOptionsView] X tapped → dismiss modal, go home, close overlay", log: OSLog.default, type: .debug)
+                            os_log("[ExportOptionsView] X tapped → dismiss modal, go home, request Home ad", log: OSLog.default, type: .debug)
                             // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
                             if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
                                 top.dismiss(animated: true) {
@@ -126,12 +126,20 @@ struct ExportOptionsView: View {
                                     container.navigation.dismissCurrentModal()
                                     container.navigation.goToHome()
                                     withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+                                    // Ask Home/Home fallback to show the interstitial after navigation settles
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                        NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                    }
                                 }
                             } else {
                                 NotificationCenter.default.post(name: .goHomeRequested, object: nil)
                                 container.navigation.dismissCurrentModal()
                                 container.navigation.goToHome()
                                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
+                                // Ask Home/Home fallback to show the interstitial after navigation settles
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                    NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                }
                             }
                         }) {
                             Image(systemName: "xmark")
@@ -520,7 +528,7 @@ extension ExportOptionsView {
     private func goHomeFromFinalPage() {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
-        os_log("[ExportOptionsView] Home (toolbar) tapped → broadcast goHome, dismiss chain", log: OSLog.default, type: .debug)
+        os_log("[ExportOptionsView] Home (toolbar) tapped → broadcast goHome, request Home ad", log: OSLog.default, type: .debug)
         // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
         if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
             top.dismiss(animated: true) {
@@ -529,9 +537,9 @@ extension ExportOptionsView {
                 container.navigation.goToHome()
                 dismiss()
                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                // Post resume gate after navigation so HomeView can observe it
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    NotificationCenter.default.post(name: .homeResumeGateRequested, object: nil)
+                // Ask Home/Home fallback to show the interstitial after navigation settles
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                 }
             }
         } else {
@@ -540,9 +548,9 @@ extension ExportOptionsView {
             container.navigation.goToHome()
             dismiss()
             withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-            // Post resume gate after navigation so HomeView can observe it
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                NotificationCenter.default.post(name: .homeResumeGateRequested, object: nil)
+            // Ask Home/Home fallback to show the interstitial after navigation settles
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                NotificationCenter.default.post(name: .homeAdRequested, object: nil)
             }
         }
     }

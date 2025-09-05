@@ -87,6 +87,25 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
         }
         .onAppear {
             AdsManager.shared.delegate = self
+            TrackingPermissionManager.requestPermission()
+        }
+        // Ensure switching back to Home tab when a global home request is posted
+        .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
+            selectedTab = 0
+        }
+        // Fallback: if HomeView misses the ad request timing, present from root
+        .onReceive(NotificationCenter.default.publisher(for: .homeAdRequested)) { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let presenter = UIHelpers.topViewController() {
+                    AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: presenter)
+                } else if let rootVC = UIApplication.shared.connectedScenes
+                            .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                            .first {
+                    AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
+                } else {
+                    print("⚠️ ContentView: No presenter available for Home ad fallback")
+                }
+            }
         }
     }
     

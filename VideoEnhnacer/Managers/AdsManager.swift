@@ -22,6 +22,9 @@ final class AdsManager: NSObject {
     
     // Dictionary to store interstitial ads by ad type
     private var interstitials: [AdType: InterstitialAd] = [:]
+
+    // Queue requested presentations when an ad isn't ready yet
+    private var pendingPresentation: Set<AdType> = []
     
     // Ad Unit IDs (Replace with your actual AdMob Interstitial Ad Unit IDs)
     private let adUnitIDs: [AdType: String] = [
@@ -66,17 +69,27 @@ final class AdsManager: NSObject {
             ad?.fullScreenContentDelegate = self
             print("\(adType.rawValue) ad loaded successfully")
             self.delegate?.adDidLoad(for: adType)
+
+            // If a presentation was queued, attempt to present now from the current top controller
+            if self.pendingPresentation.contains(adType), let presenter = UIHelpers.topViewController(), let ad = ad {
+                self.pendingPresentation.remove(adType)
+                ad.present(from: presenter)
+            }
         }
     }
     
-    // Show interstitial ad for a specific ad type
+    // Show interstitial ad for a specific ad type. If not loaded, load then present when ready.
     func showInterstitialAd(for adType: AdType, from viewController: UIViewController) {
-        guard let interstitial = interstitials[adType] else {
-            print("\(adType.rawValue) ad not loaded")
-            return
+        // Mark presentation as pending in case we need to load or retry
+        pendingPresentation.insert(adType)
+
+        let presenter = UIHelpers.topViewController() ?? viewController
+        if let interstitial = interstitials[adType] {
+            interstitial.present(from: presenter)
+        } else {
+            print("\(adType.rawValue) ad not loaded — queuing presentation and loading")
+            loadInterstitialAd(for: adType)
         }
-        
-        interstitial.present(from: viewController)
     }
     
     // Preload all ads for all ad types
@@ -94,6 +107,8 @@ extension AdsManager: FullScreenContentDelegate {
         if let adType = interstitials.first(where: { $0.value === ad })?.key {
             print("\(adType.rawValue) ad will present")
             delegate?.adWillPresent(for: adType)
+            // Clear any pending since we're presenting now
+            pendingPresentation.remove(adType)
         }
     }
     
@@ -113,6 +128,9 @@ extension AdsManager: FullScreenContentDelegate {
         if let adType = interstitials.first(where: { $0.value === ad })?.key {
             print("\(adType.rawValue) ad failed to present: \(error.localizedDescription)")
             delegate?.adDidFailToPresent(for: adType, error: error)
+            // Remove stale ad and reload; if presentation is pending we will present after load
+            interstitials.removeValue(forKey: adType)
+            loadInterstitialAd(for: adType)
         }
     }
 }

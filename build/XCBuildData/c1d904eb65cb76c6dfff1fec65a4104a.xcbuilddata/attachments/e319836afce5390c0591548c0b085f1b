@@ -1,0 +1,4 @@
+module UserMessagingPlatformTarget {
+umbrella "/Users/vaibhavtiwary/Library/Developer/Xcode/DerivedData/VideoEnhnacer-aouxkvpafyvagpbippqotcyfpkga/SourcePackages/checkouts/swift-package-manager-google-user-messaging-platform/UserMessagingPlatformTarget/include"
+export *
+}
