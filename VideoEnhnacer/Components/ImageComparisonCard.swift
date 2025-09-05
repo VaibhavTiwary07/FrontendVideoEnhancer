@@ -100,7 +100,7 @@ struct ImageComparisonCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                     
                     // Content overlay with stable placement
-                    HStack(alignment: .center, spacing: 12) {
+                    HStack(alignment: .center, spacing: 8) {
                         // Compute reserved slider width and available text width based on total
                         let total = geometry.size.width
                         let reserved: CGFloat = {
@@ -117,8 +117,8 @@ struct ImageComparisonCard: View {
                             .frame(width: reserved, height: geometry.size.height)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, isIPad ? 14 : 12)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, isIPad ? 4 : 3)
                     } // End of geometry safety check
                 }
             }
@@ -130,7 +130,7 @@ struct ImageComparisonCard: View {
         .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
         .frame(minHeight: isIPad ? 180 : 130, maxHeight: isIPad ? 210 : 150)
         .contentShape(RoundedRectangle(cornerRadius: 22))
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
         .onAppear {
             // Auto-slide handled by slider itself
         }
@@ -230,7 +230,6 @@ struct ImageComparisonCard: View {
             Spacer()
         }
         .frame(width: availableWidth)
-        .padding(.leading, 16)
     }
     
     @ViewBuilder
