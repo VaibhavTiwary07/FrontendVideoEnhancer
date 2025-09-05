@@ -99,34 +99,36 @@ struct ImageComparisonCard: View {
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                     
-                    // Content overlay with precise positioning
-                    HStack(spacing: 0) {
-                        Spacer(minLength: 10)
-                        // Left side - Precisely centered text content
-                        textContentView(availableWidth: textAreaWidth(totalWidth: geometry.size.width))
-                        
-//                        Spacer()
-                        
-                        // Right side - Image comparison slider with proper containment
+                    // Content overlay with stable placement
+                    HStack(alignment: .center, spacing: 12) {
+                        // Compute reserved slider width and available text width based on total
+                        let total = geometry.size.width
+                        let reserved: CGFloat = {
+                            if isIPad { return min(max(total * 0.35, 200), 280) }
+                            return min(max(total * 0.42, 120), 170)
+                        }()
+                        let available = max(120, total - reserved - 32) // 16pt horizontal insets on both sides
+
+                        // Left: Text block flexes
+                        textContentView(availableWidth: available)
+
+                        // Right: Slider gets reserved width
                         sliderView(containerHeight: geometry.size.height)
-                            .frame(minWidth: isIPad ? 200 : 120, maxWidth: isIPad ? 260 : 160)
-                            .padding(.trailing, 12)
+                            .frame(width: reserved, height: geometry.size.height)
                     }
                     .frame(width: geometry.size.width, height: geometry.size.height)
-                    .padding(.vertical, isIPad ? 20 : 14)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, isIPad ? 14 : 12)
                     } // End of geometry safety check
                 }
             }
         }
         // Use a custom ButtonStyle to provide press feedback without hijacking scroll gestures
         .buttonStyle(PressableCardButtonStyle(scale: 0.98))
-        .background(
-            RoundedRectangle(cornerRadius: 22)
-                .fill(Color.white.opacity(0.95))
-                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
-                .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
-        )
-        .frame(minHeight: isIPad ? 170 : 120, maxHeight: isIPad ? 200 : 140)
+        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 2)
+        .frame(minHeight: isIPad ? 180 : 130, maxHeight: isIPad ? 210 : 150)
         .contentShape(RoundedRectangle(cornerRadius: 22))
         .padding(.horizontal, 20)
         .onAppear {
@@ -198,9 +200,9 @@ struct ImageComparisonCard: View {
             VStack(alignment: .leading, spacing: 12) {
                 // Icon with background
                 Image(systemName: icon)
-                    .font(.system(size: isIPad ? 40 : 24, weight: .medium))
+                    .font(.system(size: isIPad ? 34 : 24, weight: .medium))
                     .foregroundColor(.white)
-                    .frame(width: isIPad ? 76 : 48, height: isIPad ? 76 : 48)
+                    .frame(width: isIPad ? 60 : 48, height: isIPad ? 60 : 48)
                     .background(
                         Circle()
                             .fill(Color.black.opacity(0.15))
@@ -211,14 +213,14 @@ struct ImageComparisonCard: View {
                 // Title and subtitle with left alignment
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: isIPad ? 22 : 16, weight: .bold))
+                        .font(.system(size: isIPad ? 20 : 16, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.9)
+                        .lineLimit(isIPad ? 2 : 1)
+                        .minimumScaleFactor(0.85)
 
                     Text(subtitle)
-                        .font(.system(size: isIPad ? 16 : 12, weight: .medium))
+                        .font(.system(size: isIPad ? 15 : 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.85))
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
