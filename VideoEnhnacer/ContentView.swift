@@ -17,23 +17,29 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
     @State private var isShowingPaywall = false
     @Environment(\.scenePhase) private var scenePhase
     @State private var didShowLaunchAd = false
+    @State private var homeCarouselSegment = 0
     
     var body: some View {
         ZStack {
             // Main Content - Full Width
             VStack(spacing: 0) {
-                // Header with Hamburger Menu
-                HeaderView(isSidebarExpanded: $isSidebarExpanded, isShowingPaywall: $isShowingPaywall)
-                
-                // Content Area
+                // Content Area (header overlaid for transparent look)
                 Group {
                     switch selectedTab {
                     case 0:
-                        HomeView()
+                        HomeView(
+                            selectedCarouselSegment: $homeCarouselSegment,
+                            isSidebarExpanded: $isSidebarExpanded,
+                            isShowingPaywall: $isShowingPaywall
+                        )
                     case 1:
                         MyCreationsView()
                     default:
-                        HomeView()
+                        HomeView(
+                            selectedCarouselSegment: $homeCarouselSegment,
+                            isSidebarExpanded: $isSidebarExpanded,
+                            isShowingPaywall: $isShowingPaywall
+                        )
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

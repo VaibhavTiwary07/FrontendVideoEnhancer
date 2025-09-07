@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Binding var selectedCarouselSegment: Int
+    @Binding var isSidebarExpanded: Bool
+    @Binding var isShowingPaywall: Bool
     @State private var showVideoPropertyList = false
     @State private var selectedVideoURL: URL?
     @EnvironmentObject var videoPlayerManager: VideoPlayerManager
@@ -31,8 +34,15 @@ struct HomeView: View {
                 
                 ScrollView {
                     VStack(spacing: 0) {
+                        // Header should scroll with content
+                        HeaderView(
+                            isSidebarExpanded: $isSidebarExpanded,
+                            isShowingPaywall: $isShowingPaywall,
+                            selectedCarouselSegment: $selectedCarouselSegment
+                        )
+
                         // Top Carousel Section (Full Width)
-                        PageControlImageCarousel()
+                        PageControlImageCarousel(currentPage: $selectedCarouselSegment)
                             .frame(height: dynamicCarouselHeight(screenHeight: geometry.size.height))
                         
                         // Spacing between carousel and enhancement cards

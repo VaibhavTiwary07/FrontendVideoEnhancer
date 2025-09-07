@@ -3,6 +3,7 @@ import SwiftUI
 struct HeaderView: View {
     @Binding var isSidebarExpanded: Bool
     @Binding var isShowingPaywall: Bool
+    @Binding var selectedCarouselSegment: Int
     
     var body: some View {
         HStack {
@@ -29,18 +30,19 @@ struct HeaderView: View {
                 .frame(width: 36, height: 36)
                 .background(
                     Circle()
-                        .fill(Color.cardBackground)
-                        .neomorphicStyle(cornerRadius: 18, shadowRadius: 4)
+                        .fill(Color.white)
+                        .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
                 )
             }
-            .buttonStyle(NeomorphicHamburgerStyle())
+            .buttonStyle(PlainButtonStyle())
             
-            Spacer()
-            
-            // App Title (Optional)
-            Text("Video Enhancer")
-                .font(.system(size: 18, weight: .semibold))
+            // Carousel title placed to the right of hamburger
+            Text(titleForIndex(selectedCarouselSegment))
+                .font(.system(size: 22, weight: .heavy))
                 .foregroundColor(.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.leading, 8)
             
             Spacer()
             
@@ -62,24 +64,28 @@ struct HeaderView: View {
                 )
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(
-            Rectangle()
-                .fill(Color.cardBackground)
-                .shadow(
-                    color: Color.black.opacity(0.05),
-                    radius: 8,
-                    x: 0,
-                    y: 2
-                )
-        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color.clear)
+    }
+
+    private func titleForIndex(_ index: Int) -> String {
+        switch index {
+        case 0: return "Face Enhancer"
+        case 1: return "Upscaler"
+        case 2: return "Auto Adjustment"
+        default: return ""
+        }
     }
 }
 
 #Preview {
     VStack {
-        HeaderView(isSidebarExpanded: .constant(false), isShowingPaywall: .constant(false))
+        HeaderView(
+            isSidebarExpanded: .constant(false),
+            isShowingPaywall: .constant(false),
+            selectedCarouselSegment: .constant(0)
+        )
         Spacer()
     }
     .background(Color.appBackground)
