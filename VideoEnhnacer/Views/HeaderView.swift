@@ -39,10 +39,11 @@ struct HeaderView: View {
             // Carousel title placed to the right of hamburger
             Text(titleForIndex(selectedCarouselSegment))
                 .font(.system(size: 22, weight: .heavy))
-                .foregroundColor(.primaryText)
+                .foregroundColor(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .padding(.leading, 8)
+                .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 2)
             
             Spacer()
             
@@ -65,7 +66,7 @@ struct HeaderView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+//        .padding(.vertical, 10)
         .background(Color.clear)
     }
 

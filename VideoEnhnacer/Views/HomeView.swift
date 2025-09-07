@@ -34,16 +34,18 @@ struct HomeView: View {
                 
                 ScrollView {
                     VStack(spacing: 0) {
-                        // Header should scroll with content
-                        HeaderView(
-                            isSidebarExpanded: $isSidebarExpanded,
-                            isShowingPaywall: $isShowingPaywall,
-                            selectedCarouselSegment: $selectedCarouselSegment
-                        )
+                        // Hero section: carousel with header overlaid so image starts at top
+                        ZStack(alignment: .top) {
+                            PageControlImageCarousel(currentPage: $selectedCarouselSegment)
+                                .ignoresSafeArea(edges: .top)
 
-                        // Top Carousel Section (Full Width)
-                        PageControlImageCarousel(currentPage: $selectedCarouselSegment)
-                            .frame(height: dynamicCarouselHeight(screenHeight: geometry.size.height))
+                            HeaderView(
+                                isSidebarExpanded: $isSidebarExpanded,
+                                isShowingPaywall: $isShowingPaywall,
+                                selectedCarouselSegment: $selectedCarouselSegment
+                            )
+                            .padding(.top, 6)
+                        }
                         
                         // Spacing between carousel and enhancement cards
                         Spacer()
@@ -175,8 +177,12 @@ struct HomeView: View {
                                 .fill(Color.appBackground)
                                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
                         )
+                        // Move cards up to overlap carousel and cover page indicator
+                        
+                        .zIndex(1)
                         .padding(.vertical, isCompactDevice ? 8 : 20)
                         .padding(.horizontal, isCompactDevice ? 0 : 8)
+                        .offset(y: -100)
                     }
                 }
             }
@@ -389,6 +395,13 @@ struct HomeView: View {
         if screenHeight < 900 { return 24 }
         return 36
     }
+    
+    private func dynamicCardsOverlapOffset(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 { return 24 }
+        if screenHeight < 900 { return 32 }
+        return 40
+    }
+    
     
     private func dynamicBottomPadding(screenHeight: CGFloat) -> CGFloat {
         if isCompactDevice || screenHeight < 700 {

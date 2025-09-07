@@ -1,25 +1,30 @@
 import SwiftUI
+import UIKit
 
 struct PageControlImageCarousel: View {
     @Binding var currentPage: Int
     private let banners = ["Banner1", "Banner2", "Banner3"]
+    @State private var currentAspectRatio: CGFloat = 16.0/9.0 // width:height
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .bottom) {
-                TabView(selection: $currentPage) {
-                    ForEach(Array(banners.enumerated()), id: \.offset) { idx, name in
-                        Image(name)
-                            .resizable()
-                            .scaledToFit() // Use full image without cropping
-                            .frame(width: geo.size.width, height: geo.size.height)
-                            .tag(idx)
-                    }
+        let screenWidth = UIScreen.main.bounds.width
+        let height = screenWidth / max(currentAspectRatio, 0.1)
+
+        VStack(spacing: 0) {
+            TabView(selection: $currentPage) {
+                ForEach(Array(banners.enumerated()), id: \.offset) { idx, name in
+                    Image(name)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: screenWidth)
+                        .tag(idx)
                 }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
             }
-            .frame(width: geo.size.width, height: geo.size.height)
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
         }
+        .frame(width: screenWidth, height: height, alignment: .top)
+        .onAppear { updateAspectRatio() }
+        .onChange(of: currentPage) { _ in updateAspectRatio() }
     }
 
     private func titleForIndex(_ index: Int) -> String {
@@ -28,6 +33,17 @@ struct PageControlImageCarousel: View {
         case 1: return "Upscaler"
         case 2: return "Auto Adjustment"
         default: return ""
+        }
+    }
+
+    private func updateAspectRatio() {
+        let name = banners[currentPage]
+        if let img = UIImage(named: name) {
+            let w = img.size.width
+            let h = img.size.height
+            if w > 0, h > 0 {
+                currentAspectRatio = w / h
+            }
         }
     }
 }
