@@ -28,11 +28,7 @@ struct HeaderView: View {
                         .cornerRadius(1)
                 }
                 .frame(width: 36, height: 36)
-                .background(
-                    Circle()
-                        .fill(Color.white)
-                        .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
-                )
+                // Clear background for hamburger; keep hit area via frame
             }
             .buttonStyle(PlainButtonStyle())
             

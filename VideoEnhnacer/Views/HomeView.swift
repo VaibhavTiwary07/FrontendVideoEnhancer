@@ -36,7 +36,10 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         // Hero section: carousel with header overlaid so image starts at top
                         ZStack(alignment: .top) {
-                            PageControlImageCarousel(currentPage: $selectedCarouselSegment)
+                            PageControlImageCarousel(
+                                currentPage: $selectedCarouselSegment,
+                                dotsBottomLift: 112 // match cards' upward overlap (-100) plus small margin
+                            )
                                 .ignoresSafeArea(edges: .top)
 
                             HeaderView(
@@ -46,7 +49,6 @@ struct HomeView: View {
                             )
                             .padding(.top, 6)
                         }
-                        .zIndex(2)
                         
                         // Spacing between carousel and enhancement cards
 //                        Spacer()
@@ -178,10 +180,8 @@ struct HomeView: View {
                             )
 
                             .offset(y: -100)
-                                .zIndex(4)
 
                         }
-                                                .zIndex(3)
                         // Move cards up to overlap carousel
                         .padding(.vertical, isCompactDevice ? 8 : 20)
 //                        .padding(.horizontal, isCompactDevice ? 0 : 8)
