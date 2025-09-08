@@ -274,9 +274,28 @@ final class VideoPlayerService: VideoPlayerProtocol {
         // Setup time observer
         let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
         let timeObserver = playerPair.normal.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            guard let self = self else { return }
             let seconds = CMTimeGetSeconds(time)
-            Task {
-                await self?.updateCurrentTime(seconds)
+            Task { @MainActor in
+                await self.updateCurrentTime(seconds)
+            }
+
+            // Enforce playback within selected trim range
+            // If a valid range is set and current time reaches/exceeds trimEnd, loop back to trimStart
+            let start = playerPair.trimStart
+            let end = playerPair.trimEnd
+            if end > start {
+                // Add a small epsilon to avoid jitter at boundary
+                if seconds >= (end - 0.02) {
+                    let startTime = CMTime(seconds: start, preferredTimescale: 600)
+                    playerPair.normal.seek(to: startTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                    playerPair.enhanced.seek(to: startTime, toleranceBefore: .zero, toleranceAfter: .zero)
+                    // Continue playback only if any view is active
+                    if !self.activeViewKeys.isEmpty {
+                        playerPair.normal.play()
+                        playerPair.enhanced.play()
+                    }
+                }
             }
         }
         timeObservers[key] = timeObserver

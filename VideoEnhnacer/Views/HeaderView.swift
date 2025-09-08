@@ -15,19 +15,22 @@ struct HeaderView: View {
             }) {
                 VStack(spacing: 3) {
                     Rectangle()
-                        .fill(Color.primaryText)
+                        .fill(Color.white)
                         .frame(width: 18, height: 2)
                         .cornerRadius(1)
                     Rectangle()
-                        .fill(Color.primaryText)
+                        .fill(Color.white)
                         .frame(width: 18, height: 2)
                         .cornerRadius(1)
                     Rectangle()
-                        .fill(Color.primaryText)
+                        .fill(Color.white)
                         .frame(width: 18, height: 2)
                         .cornerRadius(1)
                 }
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+                .accessibilityLabel("Menu")
+                .accessibilityAddTraits(.isButton)
                 // Clear background for hamburger; keep hit area via frame
             }
             .buttonStyle(PlainButtonStyle())
