@@ -17,6 +17,7 @@ struct RefactoredVideoTrimmingView: View {
     
     // MARK: - State
     @State private var navigateToEnhancement = false
+    @State private var isShowingPaywall = false
     
     // MARK: - Initialization
     init(videoURL: URL, enhancementType: EnhancementType) {
@@ -72,6 +73,9 @@ struct RefactoredVideoTrimmingView: View {
                 computeMetadata()
             }
         }
+        .fullScreenCover(isPresented: $isShowingPaywall) {
+            PaywallView(isPresented: $isShowingPaywall)
+        }
     }
     
     // MARK: - Content Views
@@ -96,7 +100,8 @@ struct RefactoredVideoTrimmingView: View {
             
             VideoControlsSection(
                 viewModel: viewModel,
-                onContinue: { navigateToEnhancement = true }
+                onContinue: { navigateToEnhancement = true },
+                onRequirePaywall: { isShowingPaywall = true }
             )
             .padding(.bottom, 40)
         }
@@ -399,12 +404,14 @@ struct VideoInfoSection: View {
 struct VideoControlsSection: View {
     @ObservedObject var viewModel: VideoTrimmingViewModel
     let onContinue: () -> Void
+    let onRequirePaywall: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 30) {
             TimePresetButtons(
                 selectedDuration: viewModel.selectedDuration,
-                onPresetSelected: viewModel.updateTrimForPreset
+                onPresetSelected: viewModel.updateTrimForPreset,
+                onRequirePaywall: onRequirePaywall
             )
             .padding(.horizontal, 20)
             
@@ -435,6 +442,7 @@ struct VideoControlsSection: View {
 struct TimePresetButtons: View {
     let selectedDuration: VideoTrimmingViewModel.TimePreset
     let onPresetSelected: (VideoTrimmingViewModel.TimePreset) -> Void
+    let onRequirePaywall: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     
@@ -443,10 +451,15 @@ struct TimePresetButtons: View {
             Spacer()
             
             ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
+                let isPro = preset == .fiveMinutes
                 TimePresetButton(
                     title: preset.title,
                     isSelected: selectedDuration == preset,
-                    onTap: { onPresetSelected(preset) }
+                    showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                    onTap: { onPresetSelected(preset) },
+                    onRequirePro: isPro ? {
+                        onRequirePaywall?()
+                    } : nil
                 )
             }
             
@@ -459,14 +472,20 @@ struct TimePresetButtons: View {
 struct TimePresetButton: View {
     let title: String
     let isSelected: Bool
+    let showsProBadge: Bool
     let onTap: () -> Void
+    let onRequirePro: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
         Button(action: {
             HapticFeedbackManager.impact(.light)
-            onTap()
+            if showsProBadge {
+                onRequirePro?()
+            } else {
+                onTap()
+            }
         }) {
             Text(title)
                 .font(.system(size: isIPad ? 18 : 16, weight: .semibold))
@@ -478,6 +497,12 @@ struct TimePresetButton: View {
                         .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
                         .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                 )
+                .overlay(alignment: .topTrailing) {
+                    if showsProBadge {
+                        ProPill()
+                            .offset(x: 6, y: -6)
+                    }
+                }
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -602,6 +627,22 @@ struct InfoCardItem: View {
     }
 }
 
+
+// MARK: - Pro Badge Component
+private struct ProPill: View {
+    var body: some View {
+        Text("PRO")
+            .font(.system(size: 10, weight: .bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LinearGradient.primaryTheme)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+    }
+}
 
 // MARK: - Preview
 #if DEBUG

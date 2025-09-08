@@ -29,6 +29,9 @@ struct VideoEnhnacerApp: App {
             // Initialize Google Mobile Ads SDK
             MobileAds.shared.start(completionHandler: nil)
             
+            // Check subscription expiry on app launch
+            SubscriptionManager.shared.checkSubscriptionExpiry()
+            
             // Preload ads
             AdsManager.shared.preloadAllAds()
         }

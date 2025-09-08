@@ -148,10 +148,31 @@ final class EnhancementSelectionViewModel: ObservableObject {
     }
     
     private func setDefaultSelection() {
+        let isSubscribed = SubscriptionManager.shared.isAppSubscribed()
         if let recommended = enhancementType.options.first(where: { $0.isRecommended }) {
-            selectedOption = recommended.id
+            if !isSubscribed && isProOption(enhancementTypeId: enhancementType.id, optionId: recommended.id) {
+                if let free = enhancementType.options.first(where: { !isProOption(enhancementTypeId: enhancementType.id, optionId: $0.id) }) {
+                    selectedOption = free.id
+                } else {
+                    selectedOption = recommended.id
+                }
+            } else {
+                selectedOption = recommended.id
+            }
         } else if let first = enhancementType.options.first {
             selectedOption = first.id
+        }
+    }
+
+    // Simple gating logic to match UI badges
+    private func isProOption(enhancementTypeId: String, optionId: String) -> Bool {
+        switch enhancementTypeId {
+        case "ai_upscale":
+            return optionId == "2K" || optionId == "4K" || optionId.lowercased() == "2x" || optionId.lowercased() == "4x"
+        case "ai_denoise", "ai_auto_enhancement", "stabilizer":
+            return optionId == "medium" || optionId == "high"
+        default:
+            return false
         }
     }
     

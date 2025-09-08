@@ -13,6 +13,7 @@ struct RefactoredEnhancementSelectionView: View {
     
     // MARK: - State
     @State private var showingResults = false
+    @State private var isShowingPaywall = false
     
     // MARK: - Initialization
     init(
@@ -64,6 +65,9 @@ struct RefactoredEnhancementSelectionView: View {
             viewModel.cleanup()
         }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
+        .fullScreenCover(isPresented: $isShowingPaywall) {
+            PaywallView(isPresented: $isShowingPaywall)
+        }
         .errorAlert(error: viewModel.error) { viewModel.retryProcessing() }
         .processingOverlay(
             isPresenting: viewModel.isProcessing,
@@ -80,29 +84,32 @@ struct RefactoredEnhancementSelectionView: View {
     @ViewBuilder
     private var contentView: some View {
         GeometryReader { geo in
-            // Layout without scroll; fit within available height
             VStack(spacing: 8) {
-                Spacer()
-                SpatialVideoPreview(
-                    videoURL: viewModel.videoURL,
-                    enhancementType: viewModel.enhancementType.title,
-                    trimStartTime: viewModel.trimStartTime,
-                    trimEndTime: viewModel.trimEndTime,
-                    customHeight: min(geo.size.height * 0.60, 350)
+                // Match trimming preview style (width/height/padding)
+                VideoPreviewSection(
+                    playerViewModel: playerViewModel,
+                    enhancementType: viewModel.enhancementType,
+                    onChangeVideo: { /* no-op in enhancement screen */ }
                 )
-                
-            Spacer()
+                .padding(.top, 20)
+
+                Spacer()
+
                 HStack {
                     Spacer()
                     EnhancementOptionsView(
                         enhancementType: viewModel.enhancementType,
                         selectedOption: $viewModel.selectedOption,
                         isAnalyzing: viewModel.isAnalyzing,
-                        onOptionSelected: viewModel.updateSelection
+                        onOptionSelected: viewModel.updateSelection,
+                        onRequirePaywall: { isShowingPaywall = true }
                     )
+                    .padding(.horizontal, 16)
                     Spacer()
                 }
+
                 Spacer()
+
                 EnhancementActionView(
                     enhancementType: viewModel.enhancementType,
                     selectedOption: viewModel.selectedOption,
@@ -111,8 +118,9 @@ struct RefactoredEnhancementSelectionView: View {
                 )
                 .padding(.top, 8)
                 .padding(.bottom, 6)
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 0)
             .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
         }
     }
@@ -164,6 +172,12 @@ struct RefactoredEnhancementSelectionView: View {
         print("🎭 RefactoredEnhancementSelectionView - Appeared with:")
         print("  Enhancement: \(viewModel.enhancementType.title)")
         print("   Trim: \(viewModel.trimStartTime ?? -1) to \(viewModel.trimEndTime ?? -1)")
+        // Initialize player to mirror trimming preview behavior
+        playerViewModel.setupPlayers(originalURL: viewModel.videoURL, enhancedURL: viewModel.videoURL)
+        if let start = viewModel.trimStartTime, let end = viewModel.trimEndTime {
+            playerViewModel.setPlaybackRange(start: start, end: end)
+            playerViewModel.seek(to: start)
+        }
     }
 }
 
@@ -321,6 +335,7 @@ struct EnhancementOptionsView: View {
     @Binding var selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
+    let onRequirePaywall: () -> Void
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     
@@ -355,7 +370,9 @@ struct EnhancementOptionsView: View {
                     options: enhancementType.options,
                     selectedOption: selectedOption,
                     isAnalyzing: isAnalyzing,
-                    onOptionSelected: onOptionSelected
+                    onOptionSelected: onOptionSelected,
+                    enhancementTypeId: enhancementType.id,
+                    onRequirePaywall: onRequirePaywall
                 )
                 Spacer()
             }
@@ -393,6 +410,8 @@ struct EnhancementOptionGrid: View {
     let selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
+    let enhancementTypeId: String
+    let onRequirePaywall: () -> Void
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
 
@@ -419,11 +438,19 @@ struct EnhancementOptionGrid: View {
                     // Full row: distribute items evenly across width
                     HStack(spacing: itemSpacing) {
                         ForEach(row, id: \.id) { option in
+                            let pro = isProOption(for: enhancementTypeId, optionId: option.id)
                             EnhancementOptionCard(
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                onTap: { onOptionSelected(option.id) }
+                                showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                onTap: {
+                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
+                                        onRequirePaywall()
+                                    } else {
+                                        onOptionSelected(option.id)
+                                    }
+                                }
                             )
                             .frame(maxWidth: .infinity)
                         }
@@ -433,11 +460,19 @@ struct EnhancementOptionGrid: View {
                     HStack(spacing: itemSpacing) {
                         Spacer(minLength: 0)
                         ForEach(row, id: \.id) { option in
+                            let pro = isProOption(for: enhancementTypeId, optionId: option.id)
                             EnhancementOptionCard(
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                onTap: { onOptionSelected(option.id) }
+                                showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                onTap: {
+                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
+                                        onRequirePaywall()
+                                    } else {
+                                        onOptionSelected(option.id)
+                                    }
+                                }
                             )
                         }
                         Spacer(minLength: 0)
@@ -454,6 +489,7 @@ struct EnhancementOptionCard: View {
     let option: EnhancementOption
     let isSelected: Bool
     let isAnalyzing: Bool
+    let showsProBadge: Bool
     let onTap: () -> Void
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
@@ -544,8 +580,42 @@ struct EnhancementOptionCard: View {
                     }
                 }
             )
+            .overlay(alignment: .topTrailing) {
+                if showsProBadge {
+                    ProPill()
+                        .offset(x: 6, y: -6)
+                }
+            }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// Enhanced Pro badge component for enhancement and trimming contexts
+private struct ProPill: View {
+    var body: some View {
+        Text("PRO")
+            .font(.system(size: 10, weight: .bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LinearGradient.primaryTheme)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+    }
+}
+
+// Helper consistent with classic view
+private func isProOption(for enhancementTypeId: String, optionId: String) -> Bool {
+    switch enhancementTypeId {
+    case "ai_upscale":
+        return optionId == "2K" || optionId == "4K"
+    case "ai_denoise", "ai_auto_enhancement", "stabilizer":
+        return optionId == "medium" || optionId == "high"
+    default:
+        return false
     }
 }
 

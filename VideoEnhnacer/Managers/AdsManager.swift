@@ -44,10 +44,28 @@ final class AdsManager: NSObject {
     
     private override init() {
         super.init()
+        // Observe subscription changes to manage ad lifecycle
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSubscriptionUnlocked), name: .clearAllLocks, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleSubscriptionExpired), name: .subscriptionSessionExpired, object: nil)
+    }
+
+    @objc private func handleSubscriptionUnlocked() {
+        print("🔕 AdsManager: subscription active — clearing ads and disabling preload")
+        interstitials.removeAll()
+    }
+    
+    @objc private func handleSubscriptionExpired() {
+        print("🔔 AdsManager: subscription expired — resuming ad preload")
+        preloadAllAds()
     }
     
     // Load interstitial ad for a specific ad type
     func loadInterstitialAd(for adType: AdType) {
+        // Do not load ads if user is subscribed
+        if SubscriptionManager.shared.isAppSubscribed() {
+            print("🔕 Skipping load for \(adType.rawValue) — user is subscribed")
+            return
+        }
         guard let adUnitID = adUnitIDs[adType] else {
             print("No Ad Unit ID found for \(adType.rawValue)")
             return
@@ -72,6 +90,11 @@ final class AdsManager: NSObject {
     
     // Show interstitial ad for a specific ad type
     func showInterstitialAd(for adType: AdType, from viewController: UIViewController) {
+        // Do not show ads if user is subscribed
+        if SubscriptionManager.shared.isAppSubscribed() {
+            print("🔕 Suppressing interstitial for \(adType.rawValue) — user is subscribed")
+            return
+        }
         guard let interstitial = interstitials[adType] else {
             print("\(adType.rawValue) ad not loaded")
             return
@@ -103,6 +126,12 @@ final class AdsManager: NSObject {
     
     // Preload all ads for all ad types
     func preloadAllAds() {
+        // Do not preload ads if user is subscribed
+        if SubscriptionManager.shared.isAppSubscribed() {
+            print("🔕 Skipping preload — user is subscribed")
+            interstitials.removeAll()
+            return
+        }
         AdType.allCases.forEach { adType in
             loadInterstitialAd(for: adType)
         }
@@ -113,7 +142,8 @@ final class AdsManager: NSObject {
 extension AdsManager: FullScreenContentDelegate {
     func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
         // Find which ad type this ad belongs to
-        if let adType = interstitials.first(where: { $0.value === ad })?.key {
+        if let interAd = ad as? InterstitialAd,
+           let adType = interstitials.first(where: { $0.value === interAd })?.key {
             print("\(adType.rawValue) ad will present")
             delegate?.adWillPresent(for: adType)
         }
@@ -121,7 +151,8 @@ extension AdsManager: FullScreenContentDelegate {
     
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         // Find which ad type this ad belongs to
-        if let adType = interstitials.first(where: { $0.value === ad })?.key {
+        if let interAd = ad as? InterstitialAd,
+           let adType = interstitials.first(where: { $0.value === interAd })?.key {
             print("\(adType.rawValue) ad dismissed")
             delegate?.adDidDismiss(for: adType)
             // Remove the used ad and reload a new one
@@ -132,7 +163,8 @@ extension AdsManager: FullScreenContentDelegate {
     
     func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         // Find which ad type this ad belongs to
-        if let adType = interstitials.first(where: { $0.value === ad })?.key {
+        if let interAd = ad as? InterstitialAd,
+           let adType = interstitials.first(where: { $0.value === interAd })?.key {
             print("\(adType.rawValue) ad failed to present: \(error.localizedDescription)")
             delegate?.adDidFailToPresent(for: adType, error: error)
         }

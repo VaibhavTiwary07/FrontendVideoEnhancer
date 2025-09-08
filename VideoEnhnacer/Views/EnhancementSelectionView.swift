@@ -21,6 +21,7 @@ struct EnhancementSelectionView: View {
     @State private var showingResults = false
     @State private var processingError: String?
     @State private var showingError = false
+    @State private var isShowingPaywall = false
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -157,10 +158,18 @@ struct EnhancementSelectionView: View {
                                         if row.count == columnsCount {
                                             HStack(spacing: 12) {
                                                 ForEach(row, id: \.id) { option in
+                                                    let pro = isProOption(for: enhancementType, optionId: option.id)
                                                     OptionCard(
                                                         option: option,
                                                         isSelected: selectionState.selectedOption == option.id,
-                                                        onTap: { selectionState.updateSelection(option.id) }
+                                                        showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                                        onTap: {
+                                                            if pro && !SubscriptionManager.shared.isAppSubscribed() {
+                                                                isShowingPaywall = true
+                                                            } else {
+                                                                selectionState.updateSelection(option.id)
+                                                            }
+                                                        }
                                                     )
                                                     .frame(maxWidth: .infinity)
                                                 }
@@ -169,10 +178,18 @@ struct EnhancementSelectionView: View {
                                             HStack(spacing: 12) {
                                                 Spacer(minLength: 0)
                                                 ForEach(row, id: \.id) { option in
+                                                    let pro = isProOption(for: enhancementType, optionId: option.id)
                                                     OptionCard(
                                                         option: option,
                                                         isSelected: selectionState.selectedOption == option.id,
-                                                        onTap: { selectionState.updateSelection(option.id) }
+                                                        showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                                        onTap: {
+                                                            if pro && !SubscriptionManager.shared.isAppSubscribed() {
+                                                                isShowingPaywall = true
+                                                            } else {
+                                                                selectionState.updateSelection(option.id)
+                                                            }
+                                                        }
                                                     )
                                                 }
                                                 Spacer(minLength: 0)
@@ -263,6 +280,9 @@ struct EnhancementSelectionView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $isShowingPaywall) {
+            PaywallView(isPresented: $isShowingPaywall)
+        }
         .navigationBarBackButtonHidden()
         .navigationBarItems(
             leading: Button(action: {
@@ -343,9 +363,19 @@ struct EnhancementSelectionView: View {
             // Debug: Log received trim values
             print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
             
-            // Set default selection to recommended option
+            // Set default selection, respecting PRO gating for unsubscribed users
+            let isSubscribed = SubscriptionManager.shared.isAppSubscribed()
             if let recommended = enhancementOptions.first(where: { $0.isRecommended }) {
-                selectionState.selectedOption = recommended.id
+                if !isSubscribed && isProOption(for: enhancementType, optionId: recommended.id) {
+                    // Pick first non-PRO option
+                    if let free = enhancementOptions.first(where: { !isProOption(for: enhancementType, optionId: $0.id) }) {
+                        selectionState.selectedOption = free.id
+                    } else {
+                        selectionState.selectedOption = recommended.id
+                    }
+                } else {
+                    selectionState.selectedOption = recommended.id
+                }
             } else if let first = enhancementOptions.first {
                 selectionState.selectedOption = first.id
             }
@@ -581,6 +611,7 @@ class EnhancementSelectionState: ObservableObject {
 struct OptionCard: View {
     let option: EnhancementOption
     let isSelected: Bool
+    let showsProBadge: Bool
     let onTap: () -> Void
     
     private var titleColor: Color {
@@ -659,8 +690,42 @@ struct OptionCard: View {
             .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
             .scaleEffect(isSelected ? 1.05 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+            .overlay(alignment: .topTrailing) {
+                if showsProBadge {
+                    ProPill()
+                        .offset(x: 6, y: -6)
+                }
+            }
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// Small gradient PRO pill styled like header, without icon
+private struct ProPill: View {
+    var body: some View {
+        Text("PRO")
+            .font(.system(size: 10, weight: .bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LinearGradient.primaryTheme)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+    }
+}
+
+// Helper to determine which options are PRO-gated
+private func isProOption(for enhancementType: String, optionId: String) -> Bool {
+    switch enhancementType {
+    case "AI Upscale":
+        return optionId == "2K" || optionId == "4K"
+    case "AI Denoise", "AI Auto Enhancement", "Stabilizer":
+        return optionId == "medium" || optionId == "high"
+    default:
+        return false
     }
 }
 
