@@ -46,11 +46,12 @@ struct HomeView: View {
                             )
                             .padding(.top, 6)
                         }
+                        .zIndex(2)
                         
                         // Spacing between carousel and enhancement cards
-                        Spacer()
-                            .frame(height: dynamicCarouselGap(screenHeight: geometry.size.height))
-                        
+//                        Spacer()
+//                            .frame(height: dynamicCarouselGap(screenHeight: geometry.size.height))
+//                        
                         // Enhancement Cards Section
                         VStack(spacing: 16) {
                             VStack(spacing: 16) {
@@ -170,20 +171,21 @@ struct HomeView: View {
                                     }
                                 }
                                 .padding(.bottom, dynamicBottomPadding(screenHeight: geometry.size.height))
-                            }
+                            }.background(
+                                RoundedRectangle(cornerRadius: 32)
+                                    .fill(Color.appBackground)
+                                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
+                            )
+
+                            .offset(y: -100)
+                                .zIndex(4)
+
                         }
-                        .background(
-                            RoundedRectangle(cornerRadius: 32)
-                                .fill(Color.appBackground)
-                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
-                        )
-                        // Move cards up to overlap carousel and cover page indicator
-                        
-                        .zIndex(1)
+                                                .zIndex(3)
+                        // Move cards up to overlap carousel
                         .padding(.vertical, isCompactDevice ? 8 : 20)
-                        .padding(.horizontal, isCompactDevice ? 0 : 8)
-                        .offset(y: -100)
-                    }
+//                        .padding(.horizontal, isCompactDevice ? 0 : 8)
+                                            }
                 }
             }
             
@@ -397,9 +399,9 @@ struct HomeView: View {
     }
     
     private func dynamicCardsOverlapOffset(screenHeight: CGFloat) -> CGFloat {
-        if isCompactDevice || screenHeight < 700 { return 24 }
-        if screenHeight < 900 { return 32 }
-        return 40
+        if isCompactDevice || screenHeight < 700 { return 56 }
+        if screenHeight < 900 { return 80 }
+        return 104
     }
     
     
