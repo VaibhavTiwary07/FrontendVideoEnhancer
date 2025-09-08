@@ -127,7 +127,7 @@ struct ExportOptionsView: View {
                                     container.navigation.goToHome()
                                     withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                     // Ask Home/Home fallback to show the interstitial after navigation settles
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                                         NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                                     }
                                 }
@@ -137,7 +137,7 @@ struct ExportOptionsView: View {
                                 container.navigation.goToHome()
                                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                 // Ask Home/Home fallback to show the interstitial after navigation settles
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                                     NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                                 }
                             }
@@ -538,7 +538,7 @@ extension ExportOptionsView {
                 dismiss()
                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                 // Ask Home/Home fallback to show the interstitial after navigation settles
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                     NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                 }
             }
@@ -549,7 +549,7 @@ extension ExportOptionsView {
             dismiss()
             withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
             // Ask Home/Home fallback to show the interstitial after navigation settles
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                 NotificationCenter.default.post(name: .homeAdRequested, object: nil)
             }
         }
