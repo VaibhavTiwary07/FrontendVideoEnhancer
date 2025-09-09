@@ -18,6 +18,8 @@ struct RefactoredVideoTrimmingView: View {
     // MARK: - State
     @State private var navigateToEnhancement = false
     @State private var isShowingPaywall = false
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     // MARK: - Initialization
     init(videoURL: URL, enhancementType: EnhancementType) {
@@ -81,29 +83,47 @@ struct RefactoredVideoTrimmingView: View {
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
-        VStack(spacing: 0) {
-            VideoPreviewSection(
-                playerViewModel: viewModel.playerViewModel,
-                enhancementType: viewModel.enhancementType,
-                onChangeVideo: { showingVideoPicker = true }
-            )
-            .padding(.top, 20)
-            
-            VideoInfoSection(
-                totalDuration: viewModel.totalDurationFormatted,
-                resolution: resolutionText,
-                size: sizeText
-            )
-            .padding(.top, 12)
-            
-            Spacer()
-            
-            VideoControlsSection(
-                viewModel: viewModel,
-                onContinue: { navigateToEnhancement = true },
-                onRequirePaywall: { isShowingPaywall = true }
-            )
-            .padding(.bottom, 40)
+        ScrollView {
+            VStack(spacing: isIPad ? 12 : 0) {
+                VideoPreviewSection(
+                    playerViewModel: viewModel.playerViewModel,
+                    enhancementType: viewModel.enhancementType,
+                    onChangeVideo: { showingVideoPicker = true }
+                )
+                .padding(.top, isIPad ? 28 : (DeviceSize.isSmallPhone ? 16 : 20))
+
+                VideoInfoSection(
+                    totalDuration: viewModel.totalDurationFormatted,
+                    resolution: resolutionText,
+                    size: sizeText
+                )
+                .padding(.top, isIPad ? 16 : (DeviceSize.isSmallPhone ? 10 : 12))
+
+                // Controls
+                VideoControlsSection(
+                    viewModel: viewModel,
+                    onContinue: { navigateToEnhancement = true },
+                    onRequirePaywall: { isShowingPaywall = true },
+                    showContinueButton: !isIPad
+                )
+                .padding(.top, isIPad ? 24 : (DeviceSize.isSmallPhone ? 14 : 20))
+                .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 48 : 40))
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .overlay(alignment: .bottom) {
+            if isIPad {
+                ContinueButton(
+                    enhancementType: viewModel.enhancementType,
+                    canProceed: viewModel.canProceed,
+                    onContinue: {
+                        print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
+                        navigateToEnhancement = true
+                    }
+                )
+                .padding(.horizontal, 28)
+                .padding(.bottom, 24)
+            }
         }
     }
     
@@ -405,6 +425,7 @@ struct VideoControlsSection: View {
     @ObservedObject var viewModel: VideoTrimmingViewModel
     let onContinue: () -> Void
     let onRequirePaywall: (() -> Void)?
+    var showContinueButton: Bool = true
     
     var body: some View {
         VStack(spacing: 30) {
@@ -425,15 +446,17 @@ struct VideoControlsSection: View {
             .frame(height: 60)
             .padding(.horizontal, 20)
             
-            ContinueButton(
-                enhancementType: viewModel.enhancementType,
-                canProceed: viewModel.canProceed,
-                onContinue: {
-                    print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
-                    onContinue()
-                }
-            )
-            .padding(.horizontal, 20)
+            if showContinueButton {
+                ContinueButton(
+                    enhancementType: viewModel.enhancementType,
+                    canProceed: viewModel.canProceed,
+                    onContinue: {
+                        print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
+                        onContinue()
+                    }
+                )
+                .padding(.horizontal, 20)
+            }
         }
     }
 }

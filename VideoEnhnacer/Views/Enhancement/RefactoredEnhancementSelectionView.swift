@@ -37,15 +37,34 @@ struct RefactoredEnhancementSelectionView: View {
     }
     
     // MARK: - Body
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     var body: some View {
         ZStack {
             Color.primarySoft
                 .ignoresSafeArea()
             
-            contentView
-                .navigationBarBackButtonHidden()
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar { navigationToolbar }
+            // Scrollable content; add bottom inset for small devices and iPad overlay
+            ScrollView {
+                contentView
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 40 : 24))
+            }
+            .navigationBarBackButtonHidden()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { navigationToolbar }
+            .overlay(alignment: .bottom) {
+                if isIPad {
+                    EnhancementActionView(
+                        enhancementType: viewModel.enhancementType,
+                        selectedOption: viewModel.selectedOption,
+                        canProcess: viewModel.canProcess,
+                        onProcess: viewModel.processVideo
+                    )
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 24)
+                }
+            }
         }
         // If a global go-home is requested, dismiss this screen too
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
@@ -83,20 +102,17 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
-        GeometryReader { geo in
-            VStack(spacing: 8) {
+        VStack(spacing: 12) {
                 // Match trimming preview style (width/height/padding)
                 VideoPreviewSection(
                     playerViewModel: playerViewModel,
                     enhancementType: viewModel.enhancementType,
-                    onChangeVideo: { /* no-op in enhancement screen */ }
+                    onChangeVideo: { /* no-op in enhancement screen */ },
+//                    showChangeButton: false
                 )
-                .padding(.top, 20)
-
-                Spacer()
+                .padding(.top, isIPad ? 28 : (DeviceSize.isSmallPhone ? 16 : 20))
 
                 HStack {
-                    Spacer()
                     EnhancementOptionsView(
                         enhancementType: viewModel.enhancementType,
                         selectedOption: $viewModel.selectedOption,
@@ -105,24 +121,20 @@ struct RefactoredEnhancementSelectionView: View {
                         onRequirePaywall: { isShowingPaywall = true }
                     )
                     .padding(.horizontal, 16)
-                    Spacer()
                 }
 
-                Spacer()
-
-                EnhancementActionView(
-                    enhancementType: viewModel.enhancementType,
-                    selectedOption: viewModel.selectedOption,
-                    canProcess: viewModel.canProcess,
-                    onProcess: viewModel.processVideo
-                )
-                .padding(.top, 8)
-                .padding(.bottom, 6)
-                .padding(.horizontal, 16)
+                if !isIPad {
+                    EnhancementActionView(
+                        enhancementType: viewModel.enhancementType,
+                        selectedOption: viewModel.selectedOption,
+                        canProcess: viewModel.canProcess,
+                        onProcess: viewModel.processVideo
+                    )
+                    .padding(.top, 12)
+                    .padding(.horizontal, 16)
+                }
             }
             .padding(.horizontal, 0)
-            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
-        }
     }
     
     @ViewBuilder
