@@ -47,8 +47,9 @@ struct VideoResultsView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let playerHeight = max(360, geo.size.height * 0.78)
-            VStack(spacing: 16) {
+            let isSmall = DeviceSize.isSmallPhone
+            let playerHeight = isSmall ? max(260, geo.size.height * 0.55) : max(360, geo.size.height * 0.78)
+            VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
                 // Top bar
                 HStack {
                     Button(action: { dismiss() }) {
@@ -105,7 +106,7 @@ struct VideoResultsView: View {
                     .padding(.horizontal)
 
                 // Mode buttons - Center aligned
-                HStack(spacing: 16) {
+                HStack(spacing: DeviceSize.isSmallPhone ? 10 : 16) {
                     Spacer()
                     enhancementStyleModeButton(.original, title: "Original")
                     enhancementStyleModeButton(.compare, title: "Compare")
@@ -113,7 +114,7 @@ struct VideoResultsView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 10)
+                .padding(.bottom, DeviceSize.isSmallPhone ? 18 : 10)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Color.black.ignoresSafeArea())
@@ -172,17 +173,17 @@ struct VideoResultsView: View {
             let isSelected = (self.mode == target)
             VStack(spacing: 4) {
                 Image(systemName: symbolForMode(target))
-                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .font(.system(size: isIPad ? 20 : (DeviceSize.isSmallPhone ? 14 : 16), weight: .medium))
                     .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
                 
                 Text(title)
-                    .font(.system(size: isIPad ? 13 : 11, weight: .bold, design: .rounded))
+                    .font(.system(size: isIPad ? 13 : (DeviceSize.isSmallPhone ? 10 : 11), weight: .bold, design: .rounded))
                     .foregroundColor(isSelected ? .white : Color.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .frame(width: isIPad ? 90 : 70, height: isIPad ? 90 : 70)
+            .frame(width: isIPad ? 90 : (DeviceSize.isSmallPhone ? 64 : 70), height: isIPad ? 90 : (DeviceSize.isSmallPhone ? 64 : 70))
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.white.opacity(0.08)], startPoint: .leading, endPoint: .trailing))
