@@ -91,14 +91,14 @@ struct RefactoredVideoTrimmingView: View {
                     onChangeVideo: { showingVideoPicker = true },
                     preferredHeightIPad: 560
                 )
-                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
+                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 10 : 20))
 
                 VideoInfoSection(
                     totalDuration: viewModel.totalDurationFormatted,
                     resolution: resolutionText,
                     size: sizeText
                 )
-                .padding(.top, isIPad ? 16 : (DeviceSize.isSmallPhone ? 10 : 12))
+                .padding(.top, isIPad ? 16 : (DeviceSize.isSmallPhone ? 5 : 12))
 
                 // Controls
                 VideoControlsSection(
@@ -107,8 +107,8 @@ struct RefactoredVideoTrimmingView: View {
                     onRequirePaywall: { isShowingPaywall = true },
                     showContinueButton: !isIPad
                 )
-                .padding(.top, isIPad ? 24 : (DeviceSize.isSmallPhone ? 14 : 20))
-                .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 48 : 40))
+                .padding(.top, isIPad ? 24 : (DeviceSize.isSmallPhone ? 10 : 20))
+                .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 30 : 40))
             }
             .frame(maxWidth: .infinity)
         }
@@ -212,7 +212,7 @@ struct VideoPreviewSection: View {
     var body: some View {
         VStack(spacing: 16) {
             VideoPlayerView(playerViewModel: playerViewModel)
-                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 260 : 340))
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
@@ -348,67 +348,68 @@ struct VideoInfoSection: View {
     let size: String
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
+    private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: isSmallPhone ? 12 : 16) {
             // Size
             VStack(spacing: 2) {
                 Image(systemName: "internaldrive")
-                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(size)
-                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Size")
-                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
             Divider()
                 .background(Color.white.opacity(0.3))
-                .frame(height: 44)
+                .frame(height: isSmallPhone ? 36 : 44)
             
             // Total Duration
             VStack(spacing: 2) {
                 Image(systemName: "clock")
-                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(totalDuration)
-                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Total Duration")
-                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             
             Divider()
                 .background(Color.white.opacity(0.3))
-                .frame(height: 44)
+                .frame(height: isSmallPhone ? 36 : 44)
             
             // Resolution
             VStack(spacing: 2) {
                 Image(systemName: "rectangle.expand.vertical")
-                    .font(.system(size: isIPad ? 16 : 14, weight: .medium))
+                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                 
                 Text(resolution)
-                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
                     .foregroundColor(.accentWarm)
                     .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text("Resolution")
-                    .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, isIPad ? 16 : 12)
+        .padding(.horizontal, isSmallPhone ? 14 : 20)
+        .padding(.vertical, isIPad ? 16 : (isSmallPhone ? 8 : 10))
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.accentWarm.opacity(0.1))
@@ -418,7 +419,7 @@ struct VideoInfoSection: View {
                 )
         )
         .shadow(color: .black.opacity(0.2), radius: isIPad ? 8 : 6, x: 0, y: 3)
-        .padding(.horizontal, 20)
+        .padding(.horizontal, isSmallPhone ? 14 : 20)
     }
 }
 
@@ -430,15 +431,17 @@ struct VideoControlsSection: View {
     let onContinue: () -> Void
     let onRequirePaywall: (() -> Void)?
     var showContinueButton: Bool = true
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
-        VStack(spacing: 30) {
+        VStack(spacing: DeviceSize.isSmallPhone ? 16 : (isIPad ? 30 : 24)) {
             TimePresetButtons(
                 selectedDuration: viewModel.selectedDuration,
                 onPresetSelected: viewModel.updateTrimForPreset,
                 onRequirePaywall: onRequirePaywall
             )
-            .padding(.horizontal, 20)
+            .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
             
             VideoTrimmingSliderView(
                 startTime: $viewModel.trimStartTime,
@@ -449,7 +452,7 @@ struct VideoControlsSection: View {
                 playerViewModel: viewModel.playerViewModel
             )
             .frame(height: 60)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
             
             if showContinueButton {
                 ContinueButton(
@@ -460,10 +463,10 @@ struct VideoControlsSection: View {
                         onContinue()
                     }
                 )
-                .padding(.horizontal, 20)
-            }
+                .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
         }
     }
+}
 }
 
 // MARK: - Time Preset Buttons
