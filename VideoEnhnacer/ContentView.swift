@@ -11,7 +11,7 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
    
     
     @EnvironmentObject var videoPlayerManager: VideoPlayerManager
-    @StateObject var favoritesManager = FavoritesManager()
+    @StateObject var historyManager = HistoryManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
     @State private var isShowingPaywall = false
@@ -77,7 +77,7 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
         }
         .background(Color.appBackground)
         .animation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 0), value: isSidebarExpanded)
-        .environmentObject(favoritesManager)
+        .environmentObject(historyManager)
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }

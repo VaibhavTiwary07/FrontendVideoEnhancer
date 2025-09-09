@@ -12,6 +12,7 @@ struct VideoResultsView: View {
     let gradientType: GradientType
 
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var historyManager: HistoryManager
     @State private var mode: ViewMode = .output
     @EnvironmentObject private var videoPlayerManager: VideoPlayerManager
     @State private var isSaving = false
@@ -148,6 +149,14 @@ struct VideoResultsView: View {
             // Pre-setup video players for comparison mode
             videoPlayerManager.setupVideoPlayers(forKey: generateVideoKey(), originalURL: originalVideoURL, processedURL: processedVideoURL)
             videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
+            // Record in history after results become visible
+            let item = HistoryItem(
+                originalURL: originalVideoURL,
+                processedURL: processedVideoURL,
+                enhancementTitle: enhancementType,
+                enhancementIcon: enhancementIcon
+            )
+            historyManager.add(item)
         }
         .onDisappear {
             // Clean up video players to prevent state conflicts with other views

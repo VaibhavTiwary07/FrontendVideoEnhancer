@@ -14,6 +14,8 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - State
     @State private var showingResults = false
     @State private var isShowingPaywall = false
+    @EnvironmentObject private var historyManager: HistoryManager
+    @State private var isShowingError = false
     
     // MARK: - Initialization
     init(
@@ -91,7 +93,22 @@ struct RefactoredEnhancementSelectionView: View {
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
-        .errorAlert(error: viewModel.error) { viewModel.retryProcessing() }
+        .onChange(of: viewModel.error) { err in
+            isShowingError = (err != nil)
+        }
+        .alert("Processing Error", isPresented: $isShowingError) {
+            Button("Retry") {
+                viewModel.retryProcessing()
+                isShowingError = false
+            }
+            Button("Cancel", role: .cancel) {
+                viewModel.cancelProcessing()
+                viewModel.clearError()
+                isShowingError = false
+            }
+        } message: {
+            Text(viewModel.error?.localizedDescription ?? "Unknown error occurred")
+        }
         .processingOverlay(
             isPresenting: viewModel.isProcessing,
             progress: viewModel.progress,
@@ -99,6 +116,7 @@ struct RefactoredEnhancementSelectionView: View {
             onCancel: { viewModel.cancelProcessing() }
         )
         .onChange(of: viewModel.result) { result in
+            // Only navigate; History recording happens after ResultsView appears
             if result != nil { showingResults = true }
         }
     }

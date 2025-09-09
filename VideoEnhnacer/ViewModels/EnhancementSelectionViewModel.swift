@@ -116,6 +116,13 @@ final class EnhancementSelectionViewModel: ObservableObject {
         error = nil
         processVideo()
     }
+
+    func clearError() {
+        error = nil
+        if case .processing = processingState {
+            // keep state; external cancel stops the pipeline
+        }
+    }
     
     func resetState() {
         processingState = .idle

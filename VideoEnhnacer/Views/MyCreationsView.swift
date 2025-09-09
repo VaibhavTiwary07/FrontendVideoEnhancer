@@ -2,25 +2,10 @@ import SwiftUI
 import AVFoundation
 
 struct MyCreationsView: View {
-    @EnvironmentObject private var favoritesManager: FavoritesManager
-    @State private var selectedFilter: CreationFilter = .all
-    
-    enum CreationFilter: String, CaseIterable {
-        case all = "All"
-        case recent = "Recent"
-        case favorites = "Favorites"
-    }
-    
-    private var filteredItems: [FavoriteItem] {
-        switch selectedFilter {
-        case .all:
-            return favoritesManager.favoriteItems
-        case .recent:
-            return Array(favoritesManager.favoriteItems.prefix(10))
-        case .favorites:
-            return favoritesManager.favoriteItems
-        }
-    }
+    @EnvironmentObject private var history: HistoryManager
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
+    private var recentItems: [HistoryItem] { Array(history.items.prefix(20)) }
     
     var body: some View {
         ZStack {
@@ -28,45 +13,24 @@ struct MyCreationsView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
-                VStack(spacing: 20) {
-                    Text("My Creations")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.primaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    // Filter Tabs
-                    HStack(spacing: 12) {
-                        ForEach(CreationFilter.allCases, id: \.self) { filter in
-                            FilterTab(
-                                title: filter.rawValue,
-                                isSelected: selectedFilter == filter
-                            ) {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    selectedFilter = filter
-                                }
-                                
-                                let impact = UIImpactFeedbackGenerator(style: .light)
-                                impact.impactOccurred()
-                            }
-                        }
-                        Spacer()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                // Header (Recent only)
+                Text("Recent Creations")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
                 
                 // Content
-                if filteredItems.isEmpty {
+                if recentItems.isEmpty {
                     EmptyStateView()
                 } else {
                     ScrollView {
                         LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
+                            GridItem(.adaptive(minimum: isIPad ? 240 : 160), spacing: 16)
                         ], spacing: 16) {
-                            ForEach(filteredItems) { item in
-                                CreationCard(item: item)
+                            ForEach(recentItems) { item in
+                                HistoryCard(item: item)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -78,130 +42,78 @@ struct MyCreationsView: View {
     }
 }
 
-struct FilterTab: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(isSelected ? .white : .secondaryText)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? LinearGradient.primaryTheme : LinearGradient(colors: [Color.cardBackground], startPoint: .leading, endPoint: .trailing))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: isSelected ? 0 : 1)
-                        )
-                )
-                .scaleEffect(isSelected ? 1.0 : 0.98)
-                .shadow(
-                    color: Color.black.opacity(isSelected ? 0.08 : 0.04),
-                    radius: isSelected ? 4 : 2,
-                    x: 0,
-                    y: isSelected ? 2 : 1
-                )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
+// FilterTab removed — Recent only
 
-struct CreationCard: View {
-    let item: FavoriteItem
-    @EnvironmentObject private var favoritesManager: FavoritesManager
+struct HistoryCard: View {
+    let item: HistoryItem
     @State private var thumbnail: UIImage?
     @State private var isLoadingThumbnail = true
+    @Environment(\.horizontalSizeClass) private var hSize
+    private var isIPad: Bool { hSize == .regular }
     
     private var formattedDate: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named
-        return formatter.localizedString(for: item.dateAdded, relativeTo: Date())
+        return formatter.localizedString(for: item.date, relativeTo: Date())
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Thumbnail with video preview
+            // Thumbnail with video preview (16:9, clipped; no play overlay)
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.cardBackground)
-                    .frame(height: 120)
-                    .overlay(
-                        Group {
-                            if let thumbnail = thumbnail {
-                                Image(uiImage: thumbnail)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(height: 120)
-                                    .clipped()
-                                    .cornerRadius(12)
-                            } else if isLoadingThumbnail {
-                                LoadingThumbnailView()
-                            } else {
-                                PlaceholderThumbnailView()
-                            }
-                        }
-                    )
-                
-                // Play overlay
-                VStack {
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 28, weight: .medium))
-                        .foregroundColor(.white)
-                        .background(
-                            Circle()
-                                .fill(Color.black.opacity(0.4))
-                                .frame(width: 40, height: 40)
-                        )
-                        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                if let thumbnail = thumbnail {
+                    Image(uiImage: thumbnail)
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                } else if isLoadingThumbnail {
+                    LoadingThumbnailView()
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(16/9, contentMode: .fit)
+                } else {
+                    PlaceholderThumbnailView()
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(16/9, contentMode: .fit)
                 }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             
             // Info
-            VStack(alignment: .leading, spacing: 6) {
-                Text(item.title)
-                    .font(.system(size: 14, weight: .semibold))
+            VStack(alignment: .leading, spacing: isIPad ? 8 : 6) {
+                // Title and file name
+                Text(item.enhancementTitle)
+                    .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
                     .foregroundColor(.primaryText)
                     .lineLimit(1)
-                
-                Text(formattedDate)
-                    .font(.system(size: 12, weight: .regular))
+                Text(item.fileName)
+                    .font(.system(size: isIPad ? 12 : 11, weight: .regular))
                     .foregroundColor(.secondaryText)
-                
-                // Enhancement type if available
-                if let enhancementType = item.enhancementType {
+                    .lineLimit(1)
+
+                // Enhancement meta + when
+                HStack(spacing: 8) {
                     HStack(spacing: 6) {
-                        if let enhancementIcon = item.enhancementIcon {
-                            Image(systemName: enhancementIcon)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.8))
-                        }
-                        
-                        Text(enhancementType)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.8))
+                        Image(systemName: item.enhancementIcon)
+                            .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                            .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.85))
+
+                        Text(item.enhancementTitle)
+                            .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                            .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.85))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
                             .background(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.1))
+                                    .fill(Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.12))
                             )
-                        
-                        Spacer()
-                        
-                        // Favorite button
-                        Button(action: {
-                            favoritesManager.removeFromFavorites(item)
-                        }) {
-                            Image(systemName: "heart.fill")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(red: 1.0, green: 0.596, blue: 0.329))
-                        }
-                        .buttonStyle(PlainButtonStyle())
                     }
+
+                    Spacer()
+
+                    Text(formattedDate)
+                        .font(.system(size: isIPad ? 12 : 10, weight: .regular))
+                        .foregroundColor(.secondaryText)
                 }
             }
             .padding(.horizontal, 4)
@@ -216,15 +128,11 @@ struct CreationCard: View {
                 )
                 .shadow(
                     color: Color.black.opacity(0.06),
-                    radius: 4,
+                    radius: isIPad ? 6 : 4,
                     x: 0,
                     y: 2
                 )
         )
-        .onTapGesture {
-            // Handle video playback or preview
-            playVideo()
-        }
         .onAppear {
             loadThumbnail()
         }
@@ -235,7 +143,7 @@ struct CreationCard: View {
         
         Task {
             do {
-                let asset = AVURLAsset(url: item.videoURL)
+                let asset = AVURLAsset(url: item.processedURL)
                 let imageGenerator = AVAssetImageGenerator(asset: asset)
                 imageGenerator.appliesPreferredTrackTransform = true
                 imageGenerator.maximumSize = CGSize(width: 200, height: 120)
@@ -255,14 +163,7 @@ struct CreationCard: View {
         }
     }
     
-    private func playVideo() {
-        // Add haptic feedback
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
-        
-        // Handle video playback - this could open a video player
-        print("Playing video: \(item.title)")
-    }
+    // Intentionally no tap-to-play behavior; this view presents history only
 }
 
 struct LoadingThumbnailView: View {
@@ -337,5 +238,5 @@ struct EmptyStateView: View {
 
 #Preview {
     MyCreationsView()
-        .environmentObject(FavoritesManager())
+        .environmentObject(HistoryManager())
 }
