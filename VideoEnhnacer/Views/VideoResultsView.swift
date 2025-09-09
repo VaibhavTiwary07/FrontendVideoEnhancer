@@ -136,9 +136,13 @@ struct VideoResultsView: View {
                 }
             }
         }
-        // Listen for a global request to go Home and dismiss this screen
+        // Listen for a global request to go Home; on iOS 15 avoid per-view dismiss
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
-            dismiss()
+            if #available(iOS 16.0, *) {
+                dismiss()
+            } else {
+                // no-op on iOS 15; rely on central navigation to avoid trim view flash
+            }
         }
         .onAppear {
             // Pre-setup video players for comparison mode

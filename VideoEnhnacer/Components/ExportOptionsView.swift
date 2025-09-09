@@ -127,7 +127,9 @@ struct ExportOptionsView: View {
                                     container.navigation.goToHome()
                                     withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                     // Ask Home/Home fallback to show the interstitial after navigation settles
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                                    let delay: Double
+                                    if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                                         NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                                     }
                                 }
@@ -137,7 +139,9 @@ struct ExportOptionsView: View {
                                 container.navigation.goToHome()
                                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                 // Ask Home/Home fallback to show the interstitial after navigation settles
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                                let delay: Double
+                                if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                                     NotificationCenter.default.post(name: .homeAdRequested, object: nil)
                                 }
                             }
@@ -529,29 +533,27 @@ extension ExportOptionsView {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         os_log("[ExportOptionsView] Home (toolbar) tapped → broadcast goHome, request Home ad", log: OSLog.default, type: .debug)
-        // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
-        if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
-            top.dismiss(animated: true) {
-                NotificationCenter.default.post(name: .goHomeRequested, object: nil)
-                container.navigation.dismissCurrentModal()
-                container.navigation.goToHome()
-                dismiss()
-                withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                // Ask Home/Home fallback to show the interstitial after navigation settles
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                    NotificationCenter.default.post(name: .homeAdRequested, object: nil)
-                }
-            }
-        } else {
+        let performNavigation = {
             NotificationCenter.default.post(name: .goHomeRequested, object: nil)
             container.navigation.dismissCurrentModal()
             container.navigation.goToHome()
             dismiss()
             withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-            // Ask Home/Home fallback to show the interstitial after navigation settles
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            let delay: Double
+            if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 NotificationCenter.default.post(name: .homeAdRequested, object: nil)
             }
+        }
+
+        if #available(iOS 16.0, *) {
+            if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
+                top.dismiss(animated: true) { performNavigation() }
+            } else {
+                performNavigation()
+            }
+        } else {
+            UIHelpers.dismissAllPresented(animated: true) { performNavigation() }
         }
     }
     

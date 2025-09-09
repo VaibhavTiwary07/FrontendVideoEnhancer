@@ -50,9 +50,14 @@ struct RefactoredVideoTrimmingView: View {
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { navigationToolbar }
-        // If a global go-home is requested, dismiss this screen too
+        // If a global go-home is requested
+        // iOS 15: don't call dismiss here to avoid returning to this screen during chain dismissals
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
-            dismiss()
+            if #available(iOS 16.0, *) {
+                dismiss()
+            } else {
+                // no-op on iOS 15; AppCoordinator + ContentView will bring us home
+            }
         }
         .onAppear { handleViewAppearance() }
         .onDisappear { handleViewDisappearance() }

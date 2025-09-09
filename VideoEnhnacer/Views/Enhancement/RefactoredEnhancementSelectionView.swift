@@ -66,9 +66,13 @@ struct RefactoredEnhancementSelectionView: View {
                 }
             }
         }
-        // If a global go-home is requested, dismiss this screen too
+        // iOS 15: avoid dismiss race on goHome; rely on coordinator/ContentView to navigate
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
-            dismiss()
+            if #available(iOS 16.0, *) {
+                dismiss()
+            } else {
+                // no-op on iOS 15; navigation is handled centrally
+            }
         }
         .onAppear { handleViewAppearance() }
         .onAppear {
