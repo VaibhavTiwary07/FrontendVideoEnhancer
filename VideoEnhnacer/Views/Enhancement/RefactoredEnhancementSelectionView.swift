@@ -103,15 +103,16 @@ struct RefactoredEnhancementSelectionView: View {
     @ViewBuilder
     private var contentView: some View {
         VStack(spacing: 12) {
-                // Match trimming preview style (width/height/padding)
+                // Larger, lower preview on iPad; hide Change button via nil action
                 VideoPreviewSection(
                     playerViewModel: playerViewModel,
                     enhancementType: viewModel.enhancementType,
-                    onChangeVideo: { /* no-op in enhancement screen */ },
-//                    showChangeButton: false
+                    onChangeVideo: nil,
+                    preferredHeightIPad: 560
                 )
-                .padding(.top, isIPad ? 28 : (DeviceSize.isSmallPhone ? 16 : 20))
+                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
 
+                // Place options toward the bottom region; keep spacing compact on phones
                 HStack {
                     EnhancementOptionsView(
                         enhancementType: viewModel.enhancementType,
@@ -121,6 +122,7 @@ struct RefactoredEnhancementSelectionView: View {
                         onRequirePaywall: { isShowingPaywall = true }
                     )
                     .padding(.horizontal, 16)
+                    .padding(.top, isIPad ? 24 : 0)
                 }
 
                 if !isIPad {

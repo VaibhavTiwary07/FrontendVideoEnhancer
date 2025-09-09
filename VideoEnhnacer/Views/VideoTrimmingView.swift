@@ -231,6 +231,18 @@ struct VideoTrimmingView: View {
                     )
                     .frame(height: 60)
                     .padding(.horizontal, 20)
+                    .onChange(of: trimStartTime) { newValue in
+                        // Update preview player instantly while sliding
+                        playerManager.updateTrim(start: newValue, end: trimEndTime)
+                        if let player = playerManager.player {
+                            let start = CMTime(seconds: newValue, preferredTimescale: 600)
+                            player.seek(to: start)
+                        }
+                    }
+                    .onChange(of: trimEndTime) { newValue in
+                        // Update end boundary in real time
+                        playerManager.updateTrim(start: trimStartTime, end: newValue)
+                    }
                     
                     // Process Button
                     Button(action: {

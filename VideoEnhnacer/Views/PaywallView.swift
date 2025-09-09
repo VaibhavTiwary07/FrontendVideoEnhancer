@@ -1,130 +1,153 @@
 import SwiftUI
+import StoreKit
 
 struct PaywallView: View {
     @Binding var isPresented: Bool
-    @State private var selectedPlan: Plan = .yearly
-    
-    enum Plan { case yearly, weekly }
-    
+    @State private var selectedPlan: String? // Optional to handle initial state
+    @State private var products: [SKProduct] = []
+    @State private var isLoading: Bool = false
+    @State private var errorMessage: String?
+    @State private var showErrorAlert: Bool = false // For alert-based error display
+
     // MARK: - Dynamic Content
-    private var priceTitle: String {
-        switch selectedPlan {
-        case .yearly: return "₹ 1,549/year"
-        case .weekly: return "₹ 249/week"
-        }
+    private func priceTitle(for productId: String) -> String {
+        SubscriptionManager.shared.getPrice(for: productId)
     }
-    private var priceSubtitle: String {
-        switch selectedPlan {
-        case .yearly: return "7‑day free trial • then ₹ 1,549/yr"
-        case .weekly: return "Billed weekly"
+
+    private func priceSubtitle(for productId: String) -> String {
+        let trialDays = SubscriptionManager.shared.getTrialPeriodDays(for: productId)
+        let price = SubscriptionManager.shared.getPrice(for: productId)
+        if trialDays > 0 {
+            return "\(trialDays)-day free trial • then \(price)"
         }
+        return "Billed \(productId.contains("yearly") ? "yearly" : productId.contains("monthly") ? "monthly" : "weekly")"
     }
-    private var badgeText: String? {
-        switch selectedPlan {
-        case .yearly: return "Best Value"
-        case .weekly: return nil
-        }
+
+    private func badgeText(for productId: String) -> String? {
+        productId.contains("yearly") ? "Best Value" : nil
     }
-    
+
+    private func trialText(for productId: String) -> String? {
+        let trialDays = SubscriptionManager.shared.getTrialPeriodDays(for: productId)
+        return trialDays > 0 ? "\(trialDays)-Days Free Trial" : nil
+    }
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Top hero with parallax background image
-                ZStack(alignment: .topTrailing) {
-                    ParallaxHeader(imageName: "PaywalImage", height: 380)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                        .overlay(
-                            VStack(spacing: 8) {
-                                Text("VideoEnhacement")
-                                    .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.white)
-                                ProBadge()
+
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: 0) {
+                    // Top hero with parallax background image
+                    ZStack(alignment: .topTrailing) {
+                        ParallaxHeader(imageName: "PaywalImage", height: 380)
+                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Text("VideoEnhancement")
+                                        .font(.system(size: 24, weight: .bold))
+                                        .foregroundColor(.white)
+                                    ProBadge()
+                                }
+                            )
+                    }
+
+                    // Content container (dark gradient)
+                    VStack(alignment: .leading, spacing: 18) {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 20)
+                        } else if products.isEmpty {
+                            Text("No subscription plans available")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.7))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, 20)
+                        } else {
+                            FeatureList(foreground: .white)
+
+                            ForEach(products, id: \.productIdentifier) { product in
+                                planCard(
+                                    title: priceTitle(for: product.productIdentifier),
+                                    subtitle: nil,
+                                    trialText: trialText(for: product.productIdentifier),
+                                    showBadge: badgeText(for: product.productIdentifier) != nil,
+                                    isSelected: selectedPlan == product.productIdentifier,
+                                    action: { selectedPlan = product.productIdentifier }
+                                )
                             }
-//                            .padding(, 24)
-                        )
-                }
-                
-                // Content container (dark gradient) — overlaps header slightly and fills to bottom
-                VStack(alignment: .leading, spacing: 18) {
-                    FeatureList(foreground: .white)
 
-                    planCard(
-                        title: "₹ 1,549/year",
-                        subtitle: nil,
-                        trialText: "7‑Days Free Trial",
-                        showBadge: true,
-                        isSelected: selectedPlan == .yearly,
-                        action: { selectedPlan = .yearly }
-                    )
-
-                    planCard(
-                        title: "₹ 249/week",
-                        subtitle: nil,
-                        trialText: nil,
-                        showBadge: false,
-                        isSelected: selectedPlan == .weekly,
-                        action: { selectedPlan = .weekly }
-                    )
-
-                    Button(action: { /* TODO: hook to purchase */
-                        let productId = productID(for: selectedPlan)
-                            SubscriptionManager.shared.fetchProducts { products, error in
-                                if let error = error {
-                                    print("❌ Failed to fetch products: \(error.localizedDescription)")
+                            // Continue button and text pinned to the bottom of the scroll content
+                            Button(action: {
+                                guard let selectedPlan = selectedPlan,
+                                      let product = products.first(where: { $0.productIdentifier == selectedPlan }) else {
+                                    errorMessage = "Please select a valid plan"
+                                    showErrorAlert = true
                                     return
                                 }
-                                guard let product = products?.first(where: { $0.productIdentifier == productId }) else {
-                                    print("❌ Product not found: \(productId)")
-                                    return
-                                }
+                                isLoading = true
                                 SubscriptionManager.shared.purchaseProduct(product) { success, error in
+                                    isLoading = false
                                     if success {
-                                        print("✅ Purchase successful for \(productId)")
+                                        print("✅ Purchase successful for \(product.productIdentifier)")
                                         isPresented = false // Close paywall on success
                                     } else if let error = error {
                                         print("❌ Purchase failed: \(error.localizedDescription)")
+                                        errorMessage = error.localizedDescription
+                                        showErrorAlert = true
+                                        // Clear error after 3 seconds
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                            errorMessage = nil
+                                            showErrorAlert = false
+                                        }
                                     }
                                 }
+                            }) {
+                                Text("Continue")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.black)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 56)
+                                    .background(
+                                        LinearGradient.primaryTheme
+                                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    )
+                                    .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 6)
                             }
-                    }) {
-                        Text("Continue")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient.primaryTheme
-                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            )
-                            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 6)
-                    }
+                            .disabled(selectedPlan == nil || products.isEmpty)
+                            .padding(.top, 10)
 
-                    Text("Auto Renews 1,549/year. You can cancel anytime.")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.7))
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .padding(20)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            Color.black.opacity(0.2),
-                            Color.black.opacity(0.9)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
+                            if let selectedPlan = selectedPlan {
+                                Text("Auto Renews \(priceTitle(for: selectedPlan)). You can cancel anytime.")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.top, 8)
+                            }
+                        }
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .top)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                Color.black.opacity(0.2),
+                                Color.black.opacity(0.9)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                )
-                .padding(.top, -28) // overlap into the header
-                .zIndex(1)
+                    .padding(.top, -28) // Overlap into the header
+                }
+                .frame(maxWidth: .infinity)
+                // Add bottom padding to ensure the content is not cut off
+                .padding(.bottom, 50)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .ignoresSafeArea()
+            .ignoresSafeArea(edges: .top)
         }
-        // Global close button overlay: always on top and tappable
         .overlay(alignment: .topTrailing) {
             Button(action: { isPresented = false }) {
                 Image(systemName: "xmark")
@@ -140,108 +163,46 @@ struct PaywallView: View {
             .padding(.trailing, 16)
             .zIndex(1000)
         }
-    }
-    
-    // MARK: - Segmented Plan Toggle
-    @ViewBuilder
-    private func planToggle() -> some View {
-        HStack(spacing: 8) {
-            planPill(title: "Yearly", subtitle: "7‑day trial", isSelected: selectedPlan == .yearly) {
-                selectedPlan = .yearly
-            }
-            planPill(title: "Weekly", subtitle: nil, isSelected: selectedPlan == .weekly) {
-                selectedPlan = .weekly
+        .alert(isPresented: $showErrorAlert) {
+            Alert(
+                title: Text("Purchase Error"),
+                message: Text(errorMessage ?? "An unknown error occurred"),
+                dismissButton: .default(Text("OK")) {
+                    errorMessage = nil
+                    showErrorAlert = false
+                }
+            )
+        }
+        .onAppear {
+            isLoading = true
+            SubscriptionManager.shared.fetchProducts { products, error in
+                isLoading = false
+                if let error = error {
+                    print("❌ Failed to fetch products: \(error.localizedDescription)")
+                    errorMessage = "Failed to load subscription plans"
+                    showErrorAlert = true
+                    return
+                }
+                if let products = products, !products.isEmpty {
+                    self.products = products.sorted { product1, product2 in
+                        if product1.productIdentifier.contains("yearly") {
+                            return true
+                        } else if product2.productIdentifier.contains("yearly") {
+                            return false
+                        }
+                        return product1.productIdentifier < product2.productIdentifier
+                    }
+                    selectedPlan = self.products.first { $0.productIdentifier.contains("yearly") }?.productIdentifier ?? self.products.first?.productIdentifier
+                    print("Selected plan set to: \(selectedPlan ?? "none")")
+                } else {
+                    errorMessage = "No subscription plans available"
+                    showErrorAlert = true
+                }
             }
         }
     }
 
-    @ViewBuilder
-    private func planPill(title: String, subtitle: String?, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(title)
-                        .font(.system(size: 14, weight: .semibold))
-                    if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.clear)
-                            .overlay(
-                                LinearGradient.primaryTheme
-                                    .mask(
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .font(.system(size: 14, weight: .semibold))
-                                    )
-                            )
-                    }
-                }
-                if let subtitle = subtitle {
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity)
-            .background(
-                Group {
-                    if isSelected {
-                        LinearGradient.primaryTheme
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    } else {
-                        Color.white
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-            )
-            .foregroundColor(isSelected ? .black : .primary)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.clear : Color.black.opacity(0.08), lineWidth: 1)
-            )
-            .shadow(color: isSelected ? Color.black.opacity(0.08) : .clear, radius: 6, x: 0, y: 3)
-            .overlay(alignment: .topTrailing) {
-                if isSelected && title == "Yearly", let badge = badgeText {
-                    Text(badge)
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(
-                            LinearGradient.primaryTheme
-                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        )
-                        .offset(x: 8, y: -12)
-                }
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-    
-    // MARK: - Price Highlight
-    @ViewBuilder
-    private func priceHighlight() -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(priceTitle)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.primary)
-            Text(priceSubtitle)
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(LinearGradient.primaryTheme, lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 2)
-        )
-    }
-
+    // MARK: - Plan Card
     @ViewBuilder
     private func planCard(title: String, subtitle: String?, trialText: String?, showBadge: Bool, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -262,7 +223,6 @@ struct PaywallView: View {
                 }
                 Spacer()
                 if isSelected {
-                    // Gradient tick using app's primary orange gradient
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.clear)
@@ -299,23 +259,16 @@ struct PaywallView: View {
                             LinearGradient.primaryTheme
                                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         )
-                        .padding(6)
+                        .offset(x: 1, y: -1) // Fine-tune to align with the top-right corner
+                        .padding(0) // Remove extra padding to ensure flush alignment
                 }
             }
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
-    private func productID(for plan: Plan) -> String {
-        switch plan {
-        case .yearly:
-            return "com.outthinking.videoupscaler.enhancer.yearly"
-        case .weekly:
-            return "com.outthinking.videoupscaler.enhancer.weekly"
-        }
-    }
 }
 
+// Other supporting views (ParallaxHeader, ProBadge, FeatureList) remain unchanged
 private struct ParallaxHeader: View {
     let imageName: String
     let height: CGFloat
@@ -327,7 +280,6 @@ private struct ParallaxHeader: View {
                 let t = timeline.date.timeIntervalSinceReferenceDate
                 let width = max(geo.size.width, 1)
                 let tileWidth = width * 1.5
-                // Compute horizontal offset looping every (tileWidth) at given speed
                 let travel = CGFloat(t) * speed
                 let offset = -CGFloat(travel.truncatingRemainder(dividingBy: tileWidth))
                 
@@ -348,7 +300,6 @@ private struct ParallaxHeader: View {
                     .frame(width: width, height: height, alignment: .leading)
                     .clipped()
                     
-                    // Subtle top→bottom shading for readability
                     LinearGradient(
                         colors: [
                             Color.black.opacity(0.0),
@@ -396,7 +347,6 @@ private struct FeatureList: View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(items, id: \.self) { text in
                 HStack(spacing: 10) {
-                    // Gradient checkmark to match app theme
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.clear)
@@ -420,7 +370,7 @@ private struct FeatureList: View {
 struct PaywallView_Previews: PreviewProvider {
     static var previews: some View {
         PaywallView(isPresented: .constant(true))
-            .background(Color.appBackground)
+            .background(Color.gray.opacity(0.1))
             .preferredColorScheme(.light)
     }
 }

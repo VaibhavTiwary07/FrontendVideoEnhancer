@@ -88,9 +88,10 @@ struct RefactoredVideoTrimmingView: View {
                 VideoPreviewSection(
                     playerViewModel: viewModel.playerViewModel,
                     enhancementType: viewModel.enhancementType,
-                    onChangeVideo: { showingVideoPicker = true }
+                    onChangeVideo: { showingVideoPicker = true },
+                    preferredHeightIPad: 560
                 )
-                .padding(.top, isIPad ? 28 : (DeviceSize.isSmallPhone ? 16 : 20))
+                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
 
                 VideoInfoSection(
                     totalDuration: viewModel.totalDurationFormatted,
@@ -199,7 +200,8 @@ struct RefactoredVideoTrimmingView: View {
 struct VideoPreviewSection: View {
     let playerViewModel: VideoPlayerViewModel
     let enhancementType: EnhancementType
-    let onChangeVideo: () -> Void
+    let onChangeVideo: (() -> Void)?
+    let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
@@ -210,16 +212,18 @@ struct VideoPreviewSection: View {
     var body: some View {
         VStack(spacing: 16) {
             VideoPlayerView(playerViewModel: playerViewModel)
-                .frame(height: isIPad ? 420 : 320)
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 260 : 340))
                 .cornerRadius(20)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
                 .overlay(alignment: .topTrailing) {
-                    VideoChangeButton { onChangeVideo() }
-                        .padding(.trailing, 24)
-                        .padding(.top, 12)
+                    if let onChangeVideo {
+                        VideoChangeButton { onChangeVideo() }
+                            .padding(.trailing, 24)
+                            .padding(.top, 12)
+                    }
                 }
                 .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
                 .padding(.horizontal, 20)
@@ -441,7 +445,8 @@ struct VideoControlsSection: View {
                 endTime: $viewModel.trimEndTime,
                 duration: viewModel.videoDuration,
                 thumbnails: viewModel.thumbnails,
-                enhancementType: viewModel.enhancementType
+                enhancementType: viewModel.enhancementType,
+                playerViewModel: viewModel.playerViewModel
             )
             .frame(height: 60)
             .padding(.horizontal, 20)
@@ -538,6 +543,7 @@ struct VideoTrimmingSliderView: View {
     let duration: Double
     let thumbnails: [UIImage]
     let enhancementType: EnhancementType
+    let playerViewModel: VideoPlayerViewModel
     
     var body: some View {
         VideoTrimmingSlider(
@@ -549,10 +555,13 @@ struct VideoTrimmingSliderView: View {
             thumbnails: thumbnails
         )
         .onChange(of: startTime) { newValue in
-            print("🎚️ RefactoredVideoTrimmingView - Start time changed to: \(newValue)")
+            // Update playback range and seek to the new start for instant preview
+            playerViewModel.setPlaybackRange(start: newValue, end: endTime)
+            playerViewModel.seek(to: newValue)
         }
         .onChange(of: endTime) { newValue in
-            print("🎚️ RefactoredVideoTrimmingView - End time changed to: \(newValue)")
+            // Update playback range as end changes
+            playerViewModel.setPlaybackRange(start: startTime, end: newValue)
         }
     }
 }
