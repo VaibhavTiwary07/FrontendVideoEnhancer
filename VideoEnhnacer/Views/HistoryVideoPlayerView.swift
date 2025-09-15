@@ -5,7 +5,7 @@ struct HistoryVideoPlayerView: View {
     let item: HistoryItem
     @Environment(\.dismiss) private var dismiss
     @State private var player: AVPlayer?
-    @State private var isPlaying: Bool = true
+    @State private var isMuted: Bool = false
 
     var body: some View {
         ZStack {
@@ -23,26 +23,24 @@ struct HistoryVideoPlayerView: View {
 
             // Top bar overlay with close button and title
             VStack {
-                HStack {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-
-                    Spacer()
-
+                HStack(spacing: 16) {
                     Text(item.fileName)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.95))
                         .lineLimit(1)
                         .truncationMode(.middle)
 
-                    Spacer(minLength: 24)
+                    Spacer()
 
-                    Button(action: togglePlayback) {
-                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    Button(action: toggleMute) {
+                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    }
+
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 28, weight: .semibold))
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
@@ -56,20 +54,16 @@ struct HistoryVideoPlayerView: View {
         }
         .onAppear {
             let player = AVPlayer(url: item.processedURL)
-            player.isMuted = false
+            player.isMuted = isMuted
             self.player = player
-            self.isPlaying = true
+            player.play()
         }
     }
 
-    private func togglePlayback() {
+    private func toggleMute() {
         guard let player = player else { return }
-        if isPlaying {
-            player.pause()
-        } else {
-            player.play()
-        }
-        isPlaying.toggle()
+        isMuted.toggle()
+        player.isMuted = isMuted
     }
 }
 
@@ -82,4 +76,3 @@ struct HistoryVideoPlayerView: View {
     )
     return HistoryVideoPlayerView(item: sample)
 }
-

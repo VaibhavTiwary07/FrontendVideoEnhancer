@@ -26,18 +26,21 @@ struct MyCreationsView: View {
                 if recentItems.isEmpty {
                     EmptyStateView()
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: [
-                            GridItem(.adaptive(minimum: isIPad ? 240 : 160), spacing: 16)
-                        ], spacing: 16) {
-                            ForEach(recentItems) { item in
-                                HistoryCard(item: item) {
-                                    selectedItem = item
+                    GeometryReader { proxy in
+                        let horizontalPadding: CGFloat = 20
+                        let contentWidth: CGFloat = max(0, proxy.size.width - (horizontalPadding * 2))
+
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(recentItems) { item in
+                                    HistoryCard(item: item, onTap: {
+                                        selectedItem = item
+                                    }, cardWidth: contentWidth)
                                 }
                             }
+                            .padding(.horizontal, horizontalPadding)
+                            .padding(.top, 20)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 20)
                     }
                 }
             }
@@ -53,6 +56,7 @@ struct MyCreationsView: View {
 struct HistoryCard: View {
     let item: HistoryItem
     var onTap: () -> Void = {}
+    let cardWidth: CGFloat
     @State private var thumbnail: UIImage?
     @State private var isLoadingThumbnail = true
     @Environment(\.horizontalSizeClass) private var hSize
@@ -65,23 +69,23 @@ struct HistoryCard: View {
     }
     
     var body: some View {
+        let thumbHeight: CGFloat = cardWidth * 9.0 / 16.0
+
         VStack(alignment: .leading, spacing: 12) {
             // Thumbnail with video preview (16:9, clipped; no play overlay)
             ZStack {
                 if let thumbnail = thumbnail {
                     Image(uiImage: thumbnail)
                         .resizable()
-                        .aspectRatio(16/9, contentMode: .fill)
-                        .frame(maxWidth: .infinity)
+                        .scaledToFill()
+                        .frame(width: cardWidth, height: thumbHeight)
                         .clipped()
                 } else if isLoadingThumbnail {
                     LoadingThumbnailView()
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(16/9, contentMode: .fit)
+                        .frame(width: cardWidth, height: thumbHeight)
                 } else {
                     PlaceholderThumbnailView()
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(16/9, contentMode: .fit)
+                        .frame(width: cardWidth, height: thumbHeight)
                 }
 
                 // Play overlay
@@ -103,10 +107,14 @@ struct HistoryCard: View {
                     .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
                     .foregroundColor(.primaryText)
                     .lineLimit(1)
+                    .truncationMode(.tail)
+                    .allowsTightening(true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 Text(item.fileName)
                     .font(.system(size: isIPad ? 12 : 11, weight: .regular))
                     .foregroundColor(.secondaryText)
                     .lineLimit(1)
+                    .truncationMode(.middle)
 
                 // Enhancement meta + when
                 HStack(spacing: 8) {
@@ -135,6 +143,7 @@ struct HistoryCard: View {
             }
             .padding(.horizontal, 4)
         }
+        .frame(width: cardWidth, alignment: .topLeading)
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
@@ -257,3 +266,5 @@ struct EmptyStateView: View {
     MyCreationsView()
         .environmentObject(HistoryManager())
 }
+
+// MARK: - Helpers
