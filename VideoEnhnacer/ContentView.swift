@@ -101,6 +101,7 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
             }
         }
         .onAppear {
+            SubscriptionManager.shared.checkSubscriptionExpiry()
             AdsManager.shared.delegate = self
             TrackingPermissionManager.requestPermission()
         }

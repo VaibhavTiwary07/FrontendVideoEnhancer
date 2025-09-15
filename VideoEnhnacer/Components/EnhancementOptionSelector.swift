@@ -164,6 +164,9 @@ struct EnhancementOptionSelector: View {
             PaywallView(isPresented: $isShowingPaywall)
         }
         .onAppear {
+            // Check subscription expiry on app launch
+            SubscriptionManager.shared.checkSubscriptionExpiry()
+            
             // Select recommended option by default
             if let recommended = options.first(where: { $0.isRecommended }) {
                 selectedOption = recommended.id

@@ -16,6 +16,10 @@ import FirebaseCrashlytics
 import FirebaseAnalytics
 @main
 struct VideoEnhnacerApp: App {
+    
+    // Custom UIApplicationDelegate adapter
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @StateObject private var videoPlayerManager = VideoPlayerManager()
     
     init() {

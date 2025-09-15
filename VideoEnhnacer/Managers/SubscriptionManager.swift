@@ -300,10 +300,10 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
                 NotificationCenter.default.post(name: .closeSubscriptionView, object: nil)
                 NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
                 
-                if let error = error {
-                    self.showAlert(title: "Error", message: error.localizedDescription)
-                    return
-                }
+//                if let error = error {
+//                    self.showAlert(title: "Error", message: error.localizedDescription)
+//                    return
+//                }
                 
                 if isValid {
                     print("Subscription active")

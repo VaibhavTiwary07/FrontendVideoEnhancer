@@ -9,28 +9,29 @@ struct SplashView: View {
             
             HStack(spacing: 16) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(LinearGradient.primaryTheme)
-                        .frame(width: 96, height: 96)
-                        .shadow(color: .white.opacity(0.05), radius: 8, x: 0, y: 0)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                        )
-                    
-                    Text("AI")
-                        .font(.system(size: 44, weight: .black, design: .default))
-                        .kerning(1)
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 2)
+                    Image("splashIcon")
+//                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+//                        .fill(LinearGradient.primaryTheme)
+//                        .frame(width: 96, height: 96)
+//                        .shadow(color: .white.opacity(0.05), radius: 8, x: 0, y: 0)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+//                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+//                        )
+//
+//                    Text("AI")
+//                        .font(.system(size: 44, weight: .black, design: .default))
+//                        .kerning(1)
+//                        .foregroundColor(.white)
+//                        .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 2)
                 }
                 
                 VStack(alignment: .leading, spacing: -2) {
-                    Text("Video")
-                        .font(.system(size: 28, weight: .semibold))
+                    Text(" AI Video")
+                        .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
                     Text("Enhacer")
-                        .font(.system(size: 28, weight: .semibold))
+                        .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
                 }
             }

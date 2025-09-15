@@ -78,6 +78,7 @@ struct RefactoredEnhancementSelectionView: View {
         }
         .onAppear { handleViewAppearance() }
         .onAppear {
+            SubscriptionManager.shared.checkSubscriptionExpiry()
             // If only one option exists (e.g., Face/Object or AI Color), auto-start processing
             if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
                 // Ensure a selection exists (default is set in VM init)
@@ -196,7 +197,7 @@ struct RefactoredEnhancementSelectionView: View {
         
         ToolbarItem(placement: .navigationBarTrailing) {
             if !viewModel.isProcessing {
-                CloseButton { dismiss() }
+                CloseButton { goHomeFromToolbar() }
             } else {
                 EmptyView()
             }
@@ -213,6 +214,18 @@ struct RefactoredEnhancementSelectionView: View {
         if let start = viewModel.trimStartTime, let end = viewModel.trimEndTime {
             playerViewModel.setPlaybackRange(start: start, end: end)
             playerViewModel.seek(to: start)
+        }
+    }
+
+    private func goHomeFromToolbar() {
+        HapticFeedbackManager.impact(.medium)
+        NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+        if #available(iOS 16.0, *) {
+            container.navigation.goToHome()
+        } else {
+            UIHelpers.dismissAllPresented(animated: true) {
+                container.navigation.goToHome()
+            }
         }
     }
 }

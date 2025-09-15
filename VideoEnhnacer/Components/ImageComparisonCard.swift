@@ -297,10 +297,11 @@ struct ImageComparisonCard: View {
         }
         .mask(
             LinearGradient(
-                colors: [
-                    Color.white.opacity(0.2),
-                    Color.white.opacity(1.0)
-                ],
+                stops: [
+                              .init(color: Color.white.opacity(0.0), location: 0.0),
+                              .init(color: Color.white.opacity(1.0), location: 0.60),
+                              .init(color: Color.white.opacity(1.0), location: 1.0)
+                          ],
                 startPoint: .leading,
                 endPoint: .trailing
             )

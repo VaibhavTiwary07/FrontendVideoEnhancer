@@ -288,6 +288,7 @@ struct HomeView: View {
         }
         // VideoPickerView is removed from flow; direct picking happens in cards
         .onAppear {
+            SubscriptionManager.shared.checkSubscriptionExpiry()
             isHomeViewActive = true
             if needsResumeGate {
                 videoPlayerManager.pauseAllPlayers()

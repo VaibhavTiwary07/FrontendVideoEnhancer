@@ -311,16 +311,15 @@ struct VideoPickerView: View {
     
     @available(iOS 16.0, *)
     private func loadVideo(from item: PhotosPickerItem) {
-        item.loadTransferable(type: VideoTransferable.self) { result in
-            switch result {
-            case .success(let video):
-                if let video = video {
+        Task {
+            do {
+                if let originalURL = try await item.loadOriginalVideo() {
                     DispatchQueue.main.async {
-                        self.selectedVideoURL = video.url
+                        self.selectedVideoURL = originalURL
                     }
                 }
-            case .failure(let error):
-                print("Error loading video: \(error)")
+            } catch {
+                print("Error loading original video: \(error)")
             }
         }
     }
@@ -472,6 +471,40 @@ struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
         }
     }
 }
+
+@available(iOS 16.0, *)
+extension PhotosPickerItem {
+    func loadOriginalVideo() async throws -> URL? {
+        guard let identifier = self.itemIdentifier else { return nil }
+        
+        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+        guard let asset = assets.firstObject else { return nil }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let resources = PHAssetResource.assetResources(for: asset)
+            
+            // Pick the full-quality movie resource
+            guard let resource = resources.first(where: { $0.type == .video }) else {
+                continuation.resume(returning: nil)
+                return
+            }
+            
+            let fileURL = URL.documentsDirectory.appendingPathComponent("video_\(UUID().uuidString).mov")
+            
+            let options = PHAssetResourceRequestOptions()
+            options.isNetworkAccessAllowed = true  // allow iCloud download
+            
+            PHAssetResourceManager.default().writeData(for: resource, toFile: fileURL, options: options) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: fileURL)
+                }
+            }
+        }
+    }
+}
+
 
 #Preview {
     VideoPickerView(

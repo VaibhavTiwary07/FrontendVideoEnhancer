@@ -15,7 +15,7 @@ struct ExportOptionsView: View {
     let videoURL: URL
     let onCompleted: (URL) -> Void
     
-    private let resolutionOptions = ["720p", "1080p"]
+    private let resolutionOptions = ["original", "2x","4x"]
     private let frameRateOptions = ["30fps", "60fps"]
     private let formatOptions = ["MP4", "3GP", "AVI"]
 

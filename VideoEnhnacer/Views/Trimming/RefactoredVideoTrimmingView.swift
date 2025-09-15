@@ -59,7 +59,10 @@ struct RefactoredVideoTrimmingView: View {
                 // no-op on iOS 15; AppCoordinator + ContentView will bring us home
             }
         }
-        .onAppear { handleViewAppearance() }
+        .onAppear {
+            SubscriptionManager.shared.checkSubscriptionExpiry()
+            handleViewAppearance()
+        }
         .onDisappear { handleViewDisappearance() }
         .fullScreenCover(isPresented: $navigateToEnhancement) {
             NavigationView {
@@ -147,7 +150,7 @@ struct RefactoredVideoTrimmingView: View {
         }
 
         ToolbarItem(placement: .navigationBarTrailing) {
-            CloseButton { dismiss() }
+            CloseButton { goHomeFromToolbar() }
         }
     }
     
@@ -171,6 +174,18 @@ struct RefactoredVideoTrimmingView: View {
     
     private func handleViewDisappearance() {
         viewModel.cleanup()
+    }
+
+    private func goHomeFromToolbar() {
+        HapticFeedbackManager.impact(.medium)
+        NotificationCenter.default.post(name: .goHomeRequested, object: nil)
+        if #available(iOS 16.0, *) {
+            container.navigation.goToHome()
+        } else {
+            UIHelpers.dismissAllPresented(animated: true) {
+                container.navigation.goToHome()
+            }
+        }
     }
 
     private func computeMetadata() {

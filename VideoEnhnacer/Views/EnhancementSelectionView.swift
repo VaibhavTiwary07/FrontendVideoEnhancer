@@ -360,6 +360,7 @@ struct EnhancementSelectionView: View {
             dismiss()
         }
         .onAppear {
+            SubscriptionManager.shared.checkSubscriptionExpiry()
             // Debug: Log received trim values
             print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
             

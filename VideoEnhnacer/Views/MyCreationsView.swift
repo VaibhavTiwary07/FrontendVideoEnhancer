@@ -6,6 +6,7 @@ struct MyCreationsView: View {
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     private var recentItems: [HistoryItem] { Array(history.items.prefix(20)) }
+    @State private var selectedItem: HistoryItem?
     
     var body: some View {
         ZStack {
@@ -30,7 +31,9 @@ struct MyCreationsView: View {
                             GridItem(.adaptive(minimum: isIPad ? 240 : 160), spacing: 16)
                         ], spacing: 16) {
                             ForEach(recentItems) { item in
-                                HistoryCard(item: item)
+                                HistoryCard(item: item) {
+                                    selectedItem = item
+                                }
                             }
                         }
                         .padding(.horizontal, 20)
@@ -39,6 +42,9 @@ struct MyCreationsView: View {
                 }
             }
         }
+        .fullScreenCover(item: $selectedItem) { item in
+            HistoryVideoPlayerView(item: item)
+        }
     }
 }
 
@@ -46,6 +52,7 @@ struct MyCreationsView: View {
 
 struct HistoryCard: View {
     let item: HistoryItem
+    var onTap: () -> Void = {}
     @State private var thumbnail: UIImage?
     @State private var isLoadingThumbnail = true
     @Environment(\.horizontalSizeClass) private var hSize
@@ -76,8 +83,18 @@ struct HistoryCard: View {
                         .frame(maxWidth: .infinity)
                         .aspectRatio(16/9, contentMode: .fit)
                 }
+
+                // Play overlay
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: isIPad ? 42 : 36, weight: .regular))
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 2)
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap()
+            }
             
             // Info
             VStack(alignment: .leading, spacing: isIPad ? 8 : 6) {
@@ -163,7 +180,7 @@ struct HistoryCard: View {
         }
     }
     
-    // Intentionally no tap-to-play behavior; this view presents history only
+    // Tapping the card presents a full-screen player for the processed video
 }
 
 struct LoadingThumbnailView: View {
