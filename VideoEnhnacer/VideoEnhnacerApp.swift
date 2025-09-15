@@ -21,6 +21,7 @@ struct VideoEnhnacerApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @StateObject private var videoPlayerManager = VideoPlayerManager()
+    @StateObject private var resumeController = ForegroundResumeController()
     
     init() {
             // ✅ Initialize Firebase (Analytics + Crashlytics)
@@ -45,6 +46,7 @@ struct VideoEnhnacerApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(videoPlayerManager)
+                .environmentObject(resumeController)
         }
     }
 }

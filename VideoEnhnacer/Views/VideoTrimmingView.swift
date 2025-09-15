@@ -272,6 +272,11 @@ struct VideoTrimmingView: View {
             }
         }
         .navigationBarBackButtonHidden()
+        .onReceive(NotificationCenter.default.publisher(for: .resumeContentRequested)) { _ in
+            if let player = playerManager.player {
+                player.play()
+            }
+        }
         .gesture(
             DragGesture()
                 .onEnded { value in

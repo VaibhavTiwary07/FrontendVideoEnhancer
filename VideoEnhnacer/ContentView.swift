@@ -11,12 +11,14 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
    
     
     @EnvironmentObject var videoPlayerManager: VideoPlayerManager
+    @EnvironmentObject var resumeController: ForegroundResumeController
     @StateObject var historyManager = HistoryManager()
     @State private var selectedTab = 0
     @State private var isSidebarExpanded = false // Start collapsed by default
     @State private var isShowingPaywall = false
     @Environment(\.scenePhase) private var scenePhase
     @State private var didShowLaunchAd = false
+    @State private var pendingLaunchAd = false
     @State private var homeCarouselSegment = 0
     
     var body: some View {
@@ -94,8 +96,9 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
             switch newPhase {
             case .background:
                 videoPlayerManager.pauseAllPlayers()
+                resumeController.onEnterBackground()
             case .active:
-                videoPlayerManager.resumeActiveViewPlayers()
+                resumeController.onEnterForeground()
             default:
                 break
             }
@@ -108,6 +111,11 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
         // Ensure switching back to Home tab when a global home request is posted
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             selectedTab = 0
+        }
+        // Resume overlay tapped → show ad then resume
+        .onReceive(NotificationCenter.default.publisher(for: .resumeOverlayTapped)) { _ in
+            print("ad diagnose: ContentView received resumeOverlayTapped; delegating to resumeController")
+            resumeController.handleResumeTapped(videoPlayerManager: videoPlayerManager)
         }
         // Fallback: if HomeView misses the ad request timing, present from root
         .onReceive(NotificationCenter.default.publisher(for: .homeAdRequested)) { _ in
@@ -123,18 +131,35 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
                 }
             }
         }
+        // Splash hidden → if launch ad loaded and not shown, present it once
+        .onReceive(NotificationCenter.default.publisher(for: .splashDidHide)) { _ in
+            guard pendingLaunchAd && !didShowLaunchAd else { return }
+            pendingLaunchAd = false
+            didShowLaunchAd = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if let rootVC = UIApplication.shared.connectedScenes
+                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                    .first {
+                    AdsManager.shared.showInterstitialAd(for: .launch, from: rootVC)
+                }
+            }
+        }
     }
     
     // MARK: - AdsManagerDelegate
     func adDidLoad(for adType: AdType) {
         if adType == .launch && !didShowLaunchAd {
-            didShowLaunchAd = true
-            DispatchQueue.main.async {
-                if let rootVC = UIApplication.shared.connectedScenes
-                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
-                    .first {
+            if resumeController.coldStart {
+                pendingLaunchAd = true
+            } else {
+                didShowLaunchAd = true
+                DispatchQueue.main.async {
+                    if let rootVC = UIApplication.shared.connectedScenes
+                        .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                        .first {
                         AdsManager.shared.showInterstitialAd(for: .launch, from: rootVC)
                     }
+                }
             }
         }
     }

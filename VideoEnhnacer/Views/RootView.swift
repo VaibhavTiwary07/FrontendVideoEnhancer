@@ -13,6 +13,12 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
+        .onChange(of: showSplash) { isShowing in
+            if isShowing == false {
+                // Signal that splash has fully hidden
+                NotificationCenter.default.post(name: .splashDidHide, object: nil)
+            }
+        }
         .onAppear {
             // Keep splash for a brief, polished intro
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
@@ -27,4 +33,3 @@ struct RootView: View {
 #Preview {
     RootView()
 }
-

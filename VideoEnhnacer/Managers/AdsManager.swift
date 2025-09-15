@@ -30,6 +30,9 @@ final class AdsManager: NSObject {
     // Track retry attempts to prevent infinite loops
     private var retryAttempts: [AdType: Int] = [:]
     
+    // Suppress non-resume ad presentations during resume flow
+    var suppressNonResumeAdPresentations: Bool = false
+    
     // Ad Unit IDs (Replace with your actual AdMob Interstitial Ad Unit IDs)
     private let adUnitIDs: [AdType: String] = [
         .launch: "ca-app-pub-8572140050384873/6247483535", // Test ID for launch
@@ -76,20 +79,21 @@ final class AdsManager: NSObject {
             print("No Ad Unit ID found for \(adType.rawValue)")
             return
         }
+        print("ad diagnose: load request adType=\(adType.rawValue) adUnitID=\(adUnitID)")
         
         let request = Request()
         InterstitialAd.load(with: adUnitID, request: request) { [weak self] ad, error in
             guard let self = self else { return }
             
             if let error = error {
-                print("Failed to load \(adType.rawValue) ad: \(error.localizedDescription)")
+                print("ad diagnose: load failed adType=\(adType.rawValue) adUnitID=\(adUnitID) error=\(error.localizedDescription)")
                 self.delegate?.adDidFailToLoad(for: adType, error: error)
                 return
             }
             
             self.interstitials[adType] = ad
             ad?.fullScreenContentDelegate = self
-            print("\(adType.rawValue) ad loaded successfully")
+            print("ad diagnose: loaded adType=\(adType.rawValue) adUnitID=\(adUnitID)")
             self.delegate?.adDidLoad(for: adType)
         }
     }
@@ -99,6 +103,11 @@ final class AdsManager: NSObject {
         // Do not show ads if user is subscribed
         if SubscriptionManager.shared.isAppSubscribed() {
             print("🔕 Suppressing interstitial for \(adType.rawValue) — user is subscribed")
+            return
+        }
+        // Gate other ad types while resume flow is active
+        if suppressNonResumeAdPresentations && adType != .resumeButtonClick {
+            print("ad diagnose: suppressed present adType=\(adType.rawValue) due to active resume flow")
             return
         }
         
@@ -111,7 +120,7 @@ final class AdsManager: NSObject {
         
         // Avoid attempting to present while another interstitial is on screen
         if isPresenting {
-            print("⏭️ Skipping present for \(adType.rawValue) — an interstitial is already presenting")
+            print("ad diagnose: present skipped — already presenting adType=\(adType.rawValue)")
             return
         }
         
@@ -120,7 +129,7 @@ final class AdsManager: NSObject {
               viewController.presentedViewController == nil &&
               !viewController.isBeingDismissed &&
               !viewController.isBeingPresented else {
-            print("⚠️ Cannot present \(adType.rawValue) ad - view controller not ready (window: \(viewController.view.window != nil), presented: \(viewController.presentedViewController != nil), dismissing: \(viewController.isBeingDismissed), presenting: \(viewController.isBeingPresented)). Retrying...")
+            print("ad diagnose: vc not ready adType=\(adType.rawValue) window=\(viewController.view.window != nil) presented=\(viewController.presentedViewController != nil) dismissing=\(viewController.isBeingDismissed) presenting=\(viewController.isBeingPresented) retry=\(retryCount+1)")
             
             // Reset presenting flag since we're not actually presenting
             isPresenting = false
@@ -131,7 +140,7 @@ final class AdsManager: NSObject {
                     .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
                     .first {
                     let properTopVC = self.findTopViewController(from: topVC)
-                    print("🔄 Retrying \(adType.rawValue) ad (attempt \(retryCount + 1)) with top VC: \(String(describing: type(of: properTopVC)))")
+                    print("ad diagnose: retry present adType=\(adType.rawValue) attempt=\(retryCount+1) topVC=\(String(describing: type(of: properTopVC)))")
                     self.showInterstitialAd(for: adType, from: properTopVC, retryCount: retryCount + 1)
                 }
             }
@@ -139,7 +148,18 @@ final class AdsManager: NSObject {
         }
         
         guard let interstitial = interstitials[adType] else {
-            print("\(adType.rawValue) ad not loaded")
+            if let unit = adUnitIDs[adType] { print("ad diagnose: not loaded adType=\(adType.rawValue) adUnitID=\(unit) — loading & retry") }
+            else { print("ad diagnose: not loaded adType=\(adType.rawValue) — no adUnitID") }
+            loadInterstitialAd(for: adType)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                if let topVC = UIApplication.shared.connectedScenes
+                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                    .first {
+                    let properTopVC = self.findTopViewController(from: topVC)
+                    print("ad diagnose: retry after load adType=\(adType.rawValue) topVC=\(String(describing: type(of: properTopVC)))")
+                    self.showInterstitialAd(for: adType, from: properTopVC, retryCount: retryCount + 1)
+                }
+            }
             return
         }
         guard let adUnitID = adUnitIDs[adType] else {
@@ -152,7 +172,7 @@ final class AdsManager: NSObject {
                         let currency = adValue.currencyCode
                         let precision = adValue.precision.rawValue
                         
-                        print("📊 Paid revenue for \(adType.rawValue): \(value) \(currency) | precision=\(precision)")
+                        print("ad diagnose: paid event adType=\(adType.rawValue) adUnitID=\(adUnitID) value=\(value) currency=\(currency) precision=\(precision)")
                         // Log as single consolidated event
                         Analytics.logEvent("Ad_Impression", parameters: [
                             "adunitid": adUnitID,
@@ -166,13 +186,13 @@ final class AdsManager: NSObject {
                     }
         // Set guard prior to present to prevent near-simultaneous duplicate presents
         isPresenting = true
-        print("📱 Presenting \(adType.rawValue) ad from \(String(describing: type(of: viewController)))")
+        print("ad diagnose: presenting adType=\(adType.rawValue) adUnitID=\(adUnitID) from=\(String(describing: type(of: viewController)))")
         interstitial.present(from: viewController)
         
         // Safety timeout to reset presenting flag if ad doesn't trigger callbacks
         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
             if self.isPresenting {
-                print("⏰ Timeout: Resetting isPresenting flag for stuck \(adType.rawValue) ad")
+                print("ad diagnose: timeout reset isPresenting adType=\(adType.rawValue)")
                 self.isPresenting = false
             }
         }
@@ -212,7 +232,7 @@ extension AdsManager: FullScreenContentDelegate {
         // Find which ad type this ad belongs to
         if let interAd = ad as? InterstitialAd,
            let adType = interstitials.first(where: { $0.value === interAd })?.key {
-            print("\(adType.rawValue) ad will present")
+            print("ad diagnose: will present adType=\(adType.rawValue)")
             isPresenting = true
             delegate?.adWillPresent(for: adType)
         }
@@ -222,8 +242,9 @@ extension AdsManager: FullScreenContentDelegate {
         // Find which ad type this ad belongs to
         if let interAd = ad as? InterstitialAd,
            let adType = interstitials.first(where: { $0.value === interAd })?.key {
-            print("\(adType.rawValue) ad dismissed")
+            print("ad diagnose: dismissed adType=\(adType.rawValue)")
             delegate?.adDidDismiss(for: adType)
+            NotificationCenter.default.post(name: .adsManagerDidDismissAd, object: adType)
             // Remove the used ad and reload a new one
             interstitials.removeValue(forKey: adType)
             isPresenting = false
@@ -235,7 +256,7 @@ extension AdsManager: FullScreenContentDelegate {
         // Find which ad type this ad belongs to
         if let interAd = ad as? InterstitialAd,
            let adType = interstitials.first(where: { $0.value === interAd })?.key {
-            print("\(adType.rawValue) ad failed to present: \(error.localizedDescription)")
+            print("ad diagnose: fail to present adType=\(adType.rawValue) error=\(error.localizedDescription)")
             delegate?.adDidFailToPresent(for: adType, error: error)
             // Remove stale ad instance and attempt to reload a fresh one
             interstitials.removeValue(forKey: adType)
@@ -243,7 +264,7 @@ extension AdsManager: FullScreenContentDelegate {
             
             // If failure was due to view hierarchy issues, attempt retry with proper view controller
             if error.localizedDescription.contains("window hierarchy") {
-                print("⚠️ Retrying \(adType.rawValue) ad presentation due to view hierarchy issue...")
+                print("ad diagnose: retry due to window hierarchy adType=\(adType.rawValue)")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.loadInterstitialAd(for: adType)
                     // Retry presentation after ad loads
@@ -251,13 +272,16 @@ extension AdsManager: FullScreenContentDelegate {
                         if let topVC = UIApplication.shared.connectedScenes
                             .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
                             .first {
-                            self.showInterstitialAd(for: adType, from: self.findTopViewController(from: topVC))
+                            let vc = self.findTopViewController(from: topVC)
+                            print("ad diagnose: retry after fail adType=\(adType.rawValue) topVC=\(String(describing: type(of: vc)))")
+                            self.showInterstitialAd(for: adType, from: vc)
                         }
                     }
                 }
             } else {
                 loadInterstitialAd(for: adType)
             }
+            NotificationCenter.default.post(name: .adsManagerDidFailToPresent, object: adType, userInfo: ["error": error.localizedDescription])
         }
     }
 }
