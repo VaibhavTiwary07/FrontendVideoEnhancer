@@ -33,6 +33,9 @@ final class AdsManager: NSObject {
     // Suppress non-resume ad presentations during resume flow
     var suppressNonResumeAdPresentations: Bool = false
     
+    // Queue for pending ad presentation intents when suppressed or busy (deduped)
+    private var pendingPresentationQueue: [AdType] = []
+    
     // Ad Unit IDs (Replace with your actual AdMob Interstitial Ad Unit IDs)
     private let adUnitIDs: [AdType: String] = [
         .launch: "ca-app-pub-8572140050384873/6247483535", // Test ID for launch
@@ -107,7 +110,10 @@ final class AdsManager: NSObject {
         }
         // Gate other ad types while resume flow is active
         if suppressNonResumeAdPresentations && adType != .resumeButtonClick {
-            print("ad diagnose: suppressed present adType=\(adType.rawValue) due to active resume flow")
+            if !pendingPresentationQueue.contains(adType) {
+                pendingPresentationQueue.append(adType)
+            }
+            print("ad diagnose: deferred present adType=\(adType.rawValue) due to active resume flow (enqueued)")
             return
         }
         
@@ -120,7 +126,13 @@ final class AdsManager: NSObject {
         
         // Avoid attempting to present while another interstitial is on screen
         if isPresenting {
-            print("ad diagnose: present skipped — already presenting adType=\(adType.rawValue)")
+            // Defer lower-priority requests if a presentation is underway
+            if adType != .resumeButtonClick && !pendingPresentationQueue.contains(adType) {
+                pendingPresentationQueue.append(adType)
+                print("ad diagnose: deferred present adType=\(adType.rawValue) because another ad is presenting (enqueued)")
+            } else {
+                print("ad diagnose: present skipped — already presenting adType=\(adType.rawValue)")
+            }
             return
         }
         
@@ -224,6 +236,39 @@ final class AdsManager: NSObject {
         }
         return viewController
     }
+    
+    // Drain any pending presentations (e.g., after resume flow completes)
+    func processPendingQueue() {
+        // Nothing to do if blocked or empty
+        if isPresenting || suppressNonResumeAdPresentations { return }
+        guard let next = pendingPresentationQueue.first else { return }
+
+        // Try after a short grace delay to avoid transition collisions
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if self.isPresenting || self.suppressNonResumeAdPresentations {
+                // Retry later if still blocked
+                self.processPendingQueue()
+                return
+            }
+
+            // Verify we still have the same next intent
+            guard !self.pendingPresentationQueue.isEmpty else { return }
+            let intent = self.pendingPresentationQueue.removeFirst()
+
+            if let topVC = UIApplication.shared.connectedScenes
+                .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                .first {
+                let properTopVC = self.findTopViewController(from: topVC)
+                self.showInterstitialAd(for: intent, from: properTopVC)
+            } else if let presenter = UIHelpers.topViewController() {
+                self.showInterstitialAd(for: intent, from: presenter)
+            } else {
+                // If no presenter now, push back and retry soon
+                self.pendingPresentationQueue.insert(intent, at: 0)
+                self.processPendingQueue()
+            }
+        }
+    }
 }
 
 // MARK: - GADFullScreenContentDelegate
@@ -249,6 +294,8 @@ extension AdsManager: FullScreenContentDelegate {
             interstitials.removeValue(forKey: adType)
             isPresenting = false
             loadInterstitialAd(for: adType)
+            // If we just finished the resume flow, allow queued intents to proceed
+            if adType == .resumeButtonClick { self.processPendingQueue() }
         }
     }
     
@@ -282,6 +329,8 @@ extension AdsManager: FullScreenContentDelegate {
                 loadInterstitialAd(for: adType)
             }
             NotificationCenter.default.post(name: .adsManagerDidFailToPresent, object: adType, userInfo: ["error": error.localizedDescription])
+            // If resume failed to present, unblock and try any queued intents
+            if adType == .resumeButtonClick { self.processPendingQueue() }
         }
     }
 }

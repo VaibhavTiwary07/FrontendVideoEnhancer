@@ -10,8 +10,7 @@ struct HomeView: View {
     @State private var isHomeViewActive = false
     @State private var selectedEnhancement: Enhancement?
     @Environment(\.scenePhase) private var scenePhase
-    @State private var showResumeOverlay = false
-    @State private var needsResumeGate = false
+    // Resume overlay is handled centrally by ForegroundResumeController
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
@@ -210,97 +209,16 @@ struct HomeView: View {
             print("📣 HomeView: Received homeTabBecameActive; reinitializing comparison players")
             reinitializeComparisonPlayers(context: "homeTabBecameActive")
         }
-        .onReceive(NotificationCenter.default.publisher(for: .homeResumeGateRequested)) { _ in
-            needsResumeGate = true
-            videoPlayerManager.pauseAllPlayers()
-            if isHomeViewActive {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    showResumeOverlay = true
-                }
-                print("🏠 HomeView received resume gate request; showing overlay")
-            } else {
-                print("🏠 HomeView received resume gate request; will show overlay on appear")
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .homeAdRequested)) { _ in
-            // Ensure no resume overlay remains; just show the interstitial
-            withAnimation(.easeOut(duration: 0.2)) {
-                showResumeOverlay = false
-            }
-            needsResumeGate = false
-            if let presenter = UIHelpers.topViewController() {
-                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: presenter)
-            } else if let rootVC = UIApplication.shared.connectedScenes
-                        .compactMap({ $0 as? UIWindowScene })
-                        .first?.windows.first(where: { $0.isKeyWindow })?.rootViewController {
-                AdsManager.shared.showInterstitialAd(for: .homeButtonClick, from: rootVC)
-            } else {
-                print("⚠️ HomeView: No presenter available for Home ad")
-            }
-        }
-        .overlay(alignment: .center) {
-            if showResumeOverlay {
-                ZStack {
-                    Color.black.opacity(0.45)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-
-                    VStack(spacing: 16) {
-                        Image(systemName: "play.circle.fill")
-                            .font(.system(size: 44, weight: .bold))
-                            .foregroundColor(.white)
-
-                        Text("Welcome Back")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
-
-                        Text("Tap resume to continue")
-                            .font(.system(size: 14, weight: .regular))
-                            .foregroundColor(.white.opacity(0.85))
-
-                        Button(action: handleResumeTapped) {
-                            Text("Resume")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 24)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(LinearGradient.primaryTheme)
-                                )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.black.opacity(0.85))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(LinearGradient.primaryTheme.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                    .padding(.horizontal, 24)
-                    .transition(.scale.combined(with: .opacity))
-                }
-                .zIndex(2)
-            }
-        }
+        // Resume gating overlay removed; ForegroundResumeController owns it
+        // Home ad is presented centrally (ContentView fallback); avoid duplicate presents here
+        // Removed in-view overlay to avoid duplicate resume UI
         // VideoPickerView is removed from flow; direct picking happens in cards
         .onAppear {
             SubscriptionManager.shared.checkSubscriptionExpiry()
             isHomeViewActive = true
-            if needsResumeGate {
-                videoPlayerManager.pauseAllPlayers()
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    showResumeOverlay = true
-                }
-                print("🏠 HomeView onAppear: resume gate active; showing overlay")
-            } else {
-                // Resume any players associated with visible comparison sliders
-                videoPlayerManager.resumeActiveViewPlayers()
-                print("🏠 HomeView onAppear: resuming players for active views")
-            }
+            // Resume any players associated with visible comparison sliders
+            videoPlayerManager.resumeActiveViewPlayers()
+            print("🏠 HomeView onAppear: resuming players for active views")
             reinitializeComparisonPlayers(context: "HomeView.onAppear prewarm")
         }
         .onDisappear {
@@ -310,19 +228,12 @@ struct HomeView: View {
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
             case .background:
-                // Gate resume behind overlay when returning
-                needsResumeGate = true
                 videoPlayerManager.pauseAllPlayers()
-                print("🏠 HomeView scenePhase → background; pausing and setting resume gate")
+                print("🏠 HomeView scenePhase → background; pausing players")
             case .active:
-                if isHomeViewActive && needsResumeGate {
-                    // Ensure nothing plays behind the overlay
-                    videoPlayerManager.pauseAllPlayers()
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        showResumeOverlay = true
-                    }
-                    print("🏠 HomeView scenePhase → active; showing resume overlay")
-                }
+                // ResumeController will manage any resume ad/overlay; keep players in sync
+                videoPlayerManager.resumeActiveViewPlayers()
+                print("🏠 HomeView scenePhase → active; resuming players")
             default:
                 break
             }
@@ -424,21 +335,7 @@ struct HomeView: View {
         }
     }
 
-    private func handleResumeTapped() {
-        // Try to show interstitial ad for resume event; if not loaded, proceed anyway
-        if let presenter = UIHelpers.topViewController() {
-            AdsManager.shared.showInterstitialAd(for: .resumeButtonClick, from: presenter)
-        } else {
-            print("⚠️ Unable to find presenter for resume ad; continuing without ad")
-        }
-
-        withAnimation(.easeOut(duration: 0.25)) {
-            showResumeOverlay = false
-        }
-        needsResumeGate = false
-        videoPlayerManager.resumeActiveViewPlayers()
-        print("🏠 Resume tapped → ad requested, players resumed")
-    }
+    // Resume interactions are handled centrally; no in-view resume tap logic here
 }
 
 

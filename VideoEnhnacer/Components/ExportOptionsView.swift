@@ -29,6 +29,8 @@ struct ExportOptionsView: View {
     @State private var exportedVideoURL: URL? = nil
     @State private var showSavedAlert: Bool = false
     @State private var savedAlertMessage: String = ""
+    // One-shot guard to prevent duplicate Home ad intents during navigation
+    @State private var homeAdIntentPosted: Bool = false
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -127,10 +129,13 @@ struct ExportOptionsView: View {
                                     container.navigation.goToHome()
                                     withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                     // Ask Home/Home fallback to show the interstitial after navigation settles
-                                    let delay: Double
-                                    if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                        NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                    if !homeAdIntentPosted {
+                                        homeAdIntentPosted = true
+                                        let delay: Double
+                                        if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                            NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                        }
                                     }
                                 }
                             } else {
@@ -139,10 +144,13 @@ struct ExportOptionsView: View {
                                 container.navigation.goToHome()
                                 withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
                                 // Ask Home/Home fallback to show the interstitial after navigation settles
-                                let delay: Double
-                                if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                    NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                if !homeAdIntentPosted {
+                                    homeAdIntentPosted = true
+                                    let delay: Double
+                                    if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                        NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                                    }
                                 }
                             }
                         }) {
@@ -539,10 +547,13 @@ extension ExportOptionsView {
             container.navigation.goToHome()
             dismiss()
             withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-            let delay: Double
-            if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+            if !homeAdIntentPosted {
+                homeAdIntentPosted = true
+                let delay: Double
+                if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    NotificationCenter.default.post(name: .homeAdRequested, object: nil)
+                }
             }
         }
 

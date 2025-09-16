@@ -81,6 +81,11 @@ final class ForegroundResumeController: ObservableObject {
             self.cleanupAdObservers()
             self.markAdShown()
             AdsManager.shared.suppressNonResumeAdPresentations = false
+            AdsManager.shared.processPendingQueue()
+            // Second pass after transitions settle
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                AdsManager.shared.processPendingQueue()
+            }
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
         adFailObserver = NotificationCenter.default.addObserver(forName: .adsManagerDidFailToPresent, object: nil, queue: .main) { [weak self] note in
@@ -88,6 +93,11 @@ final class ForegroundResumeController: ObservableObject {
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
+            AdsManager.shared.processPendingQueue()
+            // Second pass after transitions settle
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                AdsManager.shared.processPendingQueue()
+            }
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
 
@@ -105,6 +115,10 @@ final class ForegroundResumeController: ObservableObject {
                 // If no presenter, just resume content
                 print("ad diagnose: no presenter available for resumeButtonClick; resuming content without ad")
                 AdsManager.shared.suppressNonResumeAdPresentations = false
+                AdsManager.shared.processPendingQueue()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    AdsManager.shared.processPendingQueue()
+                }
                 self.resumeAll(videoPlayerManager: videoPlayerManager)
             }
         }
