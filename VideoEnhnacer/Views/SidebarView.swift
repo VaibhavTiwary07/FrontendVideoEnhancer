@@ -39,14 +39,14 @@ struct SidebarView: View {
                     showingProjects = true
                 }
                 
-                SidebarMenuItem(
-                    icon: "heart",
-                    title: "Favorites"
-                ) {
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    showingFavorites = true
-                }
+//                SidebarMenuItem(
+//                    icon: "heart",
+//                    title: "Favorites"
+//                ) {
+//                    let impact = UIImpactFeedbackGenerator(style: .light)
+//                    impact.impactOccurred()
+//                    showingFavorites = true
+//                }
                 
                 SidebarMenuItem(
                     icon: "questionmark.circle",

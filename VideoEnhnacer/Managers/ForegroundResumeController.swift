@@ -13,6 +13,7 @@ final class ForegroundResumeController: ObservableObject {
 
     private var adDismissObserver: NSObjectProtocol?
     private var adFailObserver: NSObjectProtocol?
+    private var adTimeoutObserver: NSObjectProtocol?
 
     // Overlay window
     private var overlayWindow: UIWindow?
@@ -21,6 +22,7 @@ final class ForegroundResumeController: ObservableObject {
     deinit {
         if let ob = adDismissObserver { NotificationCenter.default.removeObserver(ob) }
         if let ob = adFailObserver { NotificationCenter.default.removeObserver(ob) }
+        if let ob = adTimeoutObserver { NotificationCenter.default.removeObserver(ob) }
     }
     
     init() {
@@ -100,6 +102,18 @@ final class ForegroundResumeController: ObservableObject {
             }
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
+        // Timeout fallback: treat like a fail → release and resume
+        adTimeoutObserver = NotificationCenter.default.addObserver(forName: .adsManagerDidTimeout, object: nil, queue: .main) { [weak self] note in
+            guard let self = self else { return }
+            if let t = note.object as? AdType, t != .resumeButtonClick { return }
+            self.cleanupAdObservers()
+            AdsManager.shared.suppressNonResumeAdPresentations = false
+            AdsManager.shared.processPendingQueue()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                AdsManager.shared.processPendingQueue()
+            }
+            self.resumeAll(videoPlayerManager: videoPlayerManager)
+        }
 
         // Present ad after a short settle delay to let UI stabilize
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -135,8 +149,10 @@ final class ForegroundResumeController: ObservableObject {
     private func cleanupAdObservers() {
         if let ob = adDismissObserver { NotificationCenter.default.removeObserver(ob) }
         if let ob = adFailObserver { NotificationCenter.default.removeObserver(ob) }
+        if let ob = adTimeoutObserver { NotificationCenter.default.removeObserver(ob) }
         adDismissObserver = nil
         adFailObserver = nil
+        adTimeoutObserver = nil
     }
 
     private func markAdShown() {

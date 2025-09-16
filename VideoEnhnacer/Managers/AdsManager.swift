@@ -205,7 +205,22 @@ final class AdsManager: NSObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
             if self.isPresenting {
                 print("ad diagnose: timeout reset isPresenting adType=\(adType.rawValue)")
+                // Release presentation lock and clean stale interstitial
                 self.isPresenting = false
+                // Remove stale ad and trigger a reload for future attempts
+                self.interstitials.removeValue(forKey: adType)
+                self.loadInterstitialAd(for: adType)
+                // Notify listeners about timeout for targeted recovery flows
+                NotificationCenter.default.post(name: .adsManagerDidTimeout, object: adType)
+                // If resume flow timed out, unblock and drain queued intents
+                if adType == .resumeButtonClick {
+                    self.suppressNonResumeAdPresentations = false
+                    self.processPendingQueue()
+                    // Second pass after transitions settle
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        self.processPendingQueue()
+                    }
+                }
             }
         }
     }

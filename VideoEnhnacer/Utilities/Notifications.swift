@@ -13,4 +13,5 @@ extension Notification.Name {
     // Ads
     static let adsManagerDidDismissAd = Notification.Name("AdsManagerDidDismissAd")
     static let adsManagerDidFailToPresent = Notification.Name("AdsManagerDidFailToPresent")
+    static let adsManagerDidTimeout = Notification.Name("AdsManagerDidTimeout")
 }
