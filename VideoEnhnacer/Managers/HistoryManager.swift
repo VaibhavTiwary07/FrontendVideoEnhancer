@@ -44,6 +44,11 @@ final class HistoryManager: ObservableObject {
         save()
     }
     
+    func remove(_ item: HistoryItem) {
+        items.removeAll { $0.id == item.id }
+        save()
+    }
+    
     private func save() {
         do {
             let data = try JSONEncoder().encode(items)
@@ -63,4 +68,3 @@ final class HistoryManager: ObservableObject {
         }
     }
 }
-

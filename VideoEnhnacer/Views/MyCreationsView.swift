@@ -33,9 +33,17 @@ struct MyCreationsView: View {
                         ScrollView {
                             LazyVStack(spacing: 16) {
                                 ForEach(recentItems) { item in
-                                    HistoryCard(item: item, onTap: {
-                                        selectedItem = item
-                                    }, cardWidth: contentWidth)
+                                    HistoryCard(
+                                        item: item,
+                                        onTap: { selectedItem = item },
+                                        cardWidth: contentWidth,
+                                        showDelete: true,
+                                        onDelete: {
+                                            // Dismiss if this card is currently presented
+                                            if selectedItem?.id == item.id { selectedItem = nil }
+                                            history.remove(item)
+                                        }
+                                    )
                                 }
                             }
                             .padding(.horizontal, horizontalPadding)
@@ -57,8 +65,11 @@ struct HistoryCard: View {
     let item: HistoryItem
     var onTap: () -> Void = {}
     let cardWidth: CGFloat
+    var showDelete: Bool = false
+    var onDelete: (() -> Void)? = nil
     @State private var thumbnail: UIImage?
     @State private var isLoadingThumbnail = true
+    @State private var showDeleteConfirm = false
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     
@@ -159,6 +170,31 @@ struct HistoryCard: View {
                     y: 2
                 )
         )
+        .overlay(alignment: .topTrailing) {
+            if showDelete {
+                Button(action: { showDeleteConfirm = true }) {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: isIPad ? 16 : 14, weight: .bold))
+                        .foregroundColor(.red)
+                        .padding(10)
+                        .background(
+                            Circle()
+                                .fill(Color.white.opacity(0.9))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        )
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(8)
+                .accessibilityLabel("Delete item")
+            }
+        }
+        .alert("Delete this item?", isPresented: $showDeleteConfirm) {
+            Button("Delete", role: .destructive) { onDelete?() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This removes the item from Recent.")
+        }
         .onAppear {
             loadThumbnail()
         }

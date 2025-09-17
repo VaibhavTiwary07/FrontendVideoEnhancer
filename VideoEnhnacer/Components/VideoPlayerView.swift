@@ -4,18 +4,21 @@ import AVKit
 
 struct VideoPreviewView: View {
     let videoURL: URL
+    // Allow callers to control aspect behavior similar to Results screen
+    var videoGravity: AVLayerVideoGravity = .resizeAspect
     @StateObject private var playerManager = VideoPreviewManager()
+    
+    init(videoURL: URL, videoGravity: AVLayerVideoGravity = .resizeAspect) {
+        self.videoURL = videoURL
+        self.videoGravity = videoGravity
+    }
     
     var body: some View {
         ZStack {
             if let player = playerManager.player {
-                VideoPlayer(player: player)
-                    .onAppear {
-                        player.play()
-                    }
-                    .onDisappear {
-                        player.pause()
-                    }
+                AVPlayerUIView(player: player, videoGravity: videoGravity)
+                    .onAppear { player.play() }
+                    .onDisappear { player.pause() }
             } else {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.gray.opacity(0.3))
@@ -104,10 +107,10 @@ class VideoPreviewManager: ObservableObject {
         cleanup()
     }
 }
-
-#Preview {
-    VideoPreviewView(videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!)
-        .frame(height: 200)
-        .padding()
-        .background(Color.black)
-}
+//
+//#Preview {
+//    VideoPreviewView(videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!, videoGravity: .resizeAspect)
+//        .frame(height: 200)
+//        .padding()
+//        .background(Color.black)
+//}

@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import UIKit
 
 struct PaywallView: View {
     @Binding var isPresented: Bool
@@ -36,124 +37,135 @@ struct PaywallView: View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
 
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(spacing: 0) {
-                    // Top hero with parallax background image
-                    ZStack(alignment: .topTrailing) {
-                        ParallaxHeader(imageName: "PaywalImage", height: 380)
+            // Ensure the scroll content fills full height (fixes iPad bottom gap)
+            GeometryReader { proxy in
+                let isPad: Bool = UIDevice.current.userInterfaceIdiom == .pad
+                let headerHeight: CGFloat = isPad ? max(460, proxy.size.height * 0.36) : 380
+                let titleFontSize: CGFloat = isPad ? 32 : 24
+                let contentPadding: CGFloat = isPad ? 28 : 20
+                let buttonFontSize: CGFloat = isPad ? 22 : 18
+                let buttonHeight: CGFloat = isPad ? 64 : 56
+                let footerFontSize: CGFloat = isPad ? 14 : 12
+
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(spacing: 0) {
+                        // Top hero with parallax background image
+                        ZStack(alignment: .topTrailing) {
+                            ParallaxHeader(imageName: "PaywalImage", height: headerHeight)
                             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                             .overlay(
                                 VStack(spacing: 8) {
                                     Text("VideoEnhancement")
-                                        .font(.system(size: 24, weight: .bold))
+                                        .font(.system(size: titleFontSize, weight: .bold))
                                         .foregroundColor(.white)
                                     ProBadge()
                                 }
                             )
-                    }
+                        }
 
-                    // Content container (dark gradient)
-                    VStack(alignment: .leading, spacing: 18) {
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 20)
-                        } else if products.isEmpty {
-                            Text("No subscription plans available")
-                                .font(.system(size: 14))
-                                .foregroundColor(.white.opacity(0.7))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, 20)
-                        } else {
-                            FeatureList(foreground: .white)
-
-                            ForEach(products, id: \.productIdentifier) { product in
-                                planCard(
-                                    title: priceTitle(for: product.productIdentifier),
-                                    subtitle: nil,
-                                    trialText: trialText(for: product.productIdentifier),
-                                    showBadge: badgeText(for: product.productIdentifier) != nil,
-                                    isSelected: selectedPlan == product.productIdentifier,
-                                    action: { selectedPlan = product.productIdentifier }
-                                )
-                            }
-
-                            // Continue button and text pinned to the bottom of the scroll content
-                            Button(action: {
-                                guard let selectedPlan = selectedPlan,
-                                      let product = products.first(where: { $0.productIdentifier == selectedPlan }) else {
-                                    errorMessage = "Please select a valid plan"
-                                    showErrorAlert = true
-                                    return
-                                }
-                                isLoading = true
-                                SubscriptionManager.shared.purchaseProduct(product) { success, error in
-                                    isLoading = false
-                                    if success {
-                                        print("✅ Purchase successful for \(product.productIdentifier)")
-                                        isPresented = false // Close paywall on success
-                                    } else if let error = error {
-                                        print("❌ Purchase failed: \(error.localizedDescription)")
-                                        errorMessage = error.localizedDescription
-                                        showErrorAlert = true
-                                        // Clear error after 3 seconds
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                            errorMessage = nil
-                                            showErrorAlert = false
-                                        }
-                                    }
-                                }
-                            }) {
-                                Text("Continue")
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.black)
+                        // Content container (dark gradient)
+                        VStack(alignment: .leading, spacing: 18) {
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 56)
-                                    .background(
-                                        LinearGradient.primaryTheme
-                                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                    )
-                                    .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 6)
-                            }
-                            .disabled(selectedPlan == nil || products.isEmpty)
-                            .padding(.top, 10)
-
-                            if let selectedPlan = selectedPlan {
-                                Text("Auto Renews \(priceTitle(for: selectedPlan)). You can cancel anytime.")
-                                    .font(.system(size: 12))
+                                    .padding(.vertical, 20)
+                            } else if products.isEmpty {
+                                Text("No subscription plans available")
+                                    .font(.system(size: 14))
                                     .foregroundColor(.white.opacity(0.7))
                                     .frame(maxWidth: .infinity, alignment: .center)
-                                    .padding(.top, 8)
+                                    .padding(.vertical, 20)
+                            } else {
+                                FeatureList(foreground: .white)
+
+                                ForEach(products, id: \.productIdentifier) { product in
+                                    planCard(
+                                        title: priceTitle(for: product.productIdentifier),
+                                        subtitle: nil,
+                                        trialText: trialText(for: product.productIdentifier),
+                                        showBadge: badgeText(for: product.productIdentifier) != nil,
+                                        isSelected: selectedPlan == product.productIdentifier,
+                                        action: { selectedPlan = product.productIdentifier }
+                                    )
+                                }
+
+                                // Continue button and text pinned to the bottom of the scroll content
+                                Button(action: {
+                                    guard let selectedPlan = selectedPlan,
+                                          let product = products.first(where: { $0.productIdentifier == selectedPlan }) else {
+                                        errorMessage = "Please select a valid plan"
+                                        showErrorAlert = true
+                                        return
+                                    }
+                                    isLoading = true
+                                    SubscriptionManager.shared.purchaseProduct(product) { success, error in
+                                        isLoading = false
+                                        if success {
+                                            print("✅ Purchase successful for \(product.productIdentifier)")
+                                            isPresented = false // Close paywall on success
+                                        } else if let error = error {
+                                            print("❌ Purchase failed: \(error.localizedDescription)")
+                                            errorMessage = error.localizedDescription
+                                            showErrorAlert = true
+                                            // Clear error after 3 seconds
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                                errorMessage = nil
+                                                showErrorAlert = false
+                                            }
+                                        }
+                                    }
+                                }) {
+                                    Text("Continue")
+                                        .font(.system(size: buttonFontSize, weight: .bold))
+                                        .foregroundColor(.black)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: buttonHeight)
+                                        .background(
+                                            LinearGradient.primaryTheme
+                                                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                        )
+                                        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 6)
+                                }
+                                .disabled(selectedPlan == nil || products.isEmpty)
+                                .padding(.top, 10)
+
+                                if let selectedPlan = selectedPlan {
+                                    Text("Auto Renews \(priceTitle(for: selectedPlan)). You can cancel anytime.")
+                                        .font(.system(size: footerFontSize))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .frame(maxWidth: .infinity, alignment: .center)
+                                        .padding(.top, 8)
+                                }
                             }
                         }
-                    }
-                    .padding(20)
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .background(
-                        LinearGradient(
-                            colors: [
-                                Color.black.opacity(0.2),
-                                Color.black.opacity(0.9)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
+                        .padding(contentPadding)
+                        .frame(maxWidth: .infinity, alignment: .top)
+                        // Ensure the gradient area fills remaining screen space below the header
+                        .frame(minHeight: max(proxy.size.height - headerHeight, 0), alignment: .top)
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    Color.black.opacity(0.2),
+                                    Color.black.opacity(0.9)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-                    .padding(.top, -28) // Overlap into the header
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
-                // Add bottom padding to ensure the content is not cut off
-                .padding(.bottom, 50)
+                .ignoresSafeArea(edges: .top)
             }
-            .ignoresSafeArea(edges: .top)
         }
         .overlay(alignment: .topTrailing) {
             Button(action: { isPresented = false }) {
+                let isPad = UIDevice.current.userInterfaceIdiom == .pad
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: isPad ? 18 : 16, weight: .semibold))
                     .foregroundColor(.white)
-                    .frame(width: 36, height: 36)
+                    .frame(width: isPad ? 40 : 36, height: isPad ? 40 : 36)
                     .background(Color.black.opacity(0.35))
                     .clipShape(Circle())
                     .contentShape(Circle())
@@ -206,40 +218,46 @@ struct PaywallView: View {
     @ViewBuilder
     private func planCard(title: String, subtitle: String?, trialText: String?, showBadge: Bool, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
+            let isPad = UIDevice.current.userInterfaceIdiom == .pad
+            let titleSize: CGFloat = isPad ? 20 : 16
+            let subSize: CGFloat = isPad ? 15 : 13
+            let iconSize: CGFloat = isPad ? 26 : 22
+            let cardPadding: CGFloat = isPad ? 20 : 16
+
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: titleSize, weight: .semibold))
                         .foregroundColor(.white)
                     if let trialText = trialText {
                         Text(trialText)
-                            .font(.system(size: 13))
+                            .font(.system(size: subSize))
                             .foregroundColor(.white.opacity(0.75))
                     } else if let subtitle = subtitle, !subtitle.isEmpty {
                         Text(subtitle)
-                            .font(.system(size: 13))
+                            .font(.system(size: subSize))
                             .foregroundColor(.white.opacity(0.75))
                     }
                 }
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: iconSize, weight: .semibold))
                         .foregroundColor(.clear)
                         .overlay(
                             LinearGradient.primaryTheme
                                 .mask(
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 22, weight: .semibold))
+                                        .font(.system(size: iconSize, weight: .semibold))
                                 )
                         )
                 } else {
                     Image(systemName: "circle")
                         .foregroundColor(.white.opacity(0.5))
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: iconSize, weight: .semibold))
                 }
             }
-            .padding(16)
+            .padding(cardPadding)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.black.opacity(0.3))
@@ -251,7 +269,7 @@ struct PaywallView: View {
             .overlay(alignment: .topTrailing) {
                 if showBadge {
                     Text("Save more than 80%")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: isPad ? 12 : 10, weight: .bold))
                         .foregroundColor(.black)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -319,11 +337,12 @@ private struct ParallaxHeader: View {
 
 private struct ProBadge: View {
     var body: some View {
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
         Text("Pro")
-            .font(.system(size: 12, weight: .bold))
+            .font(.system(size: isPad ? 14 : 12, weight: .bold))
             .foregroundColor(.black)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.horizontal, isPad ? 12 : 10)
+            .padding(.vertical, isPad ? 6 : 5)
             .background(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(Color.white)
@@ -344,22 +363,25 @@ private struct FeatureList: View {
         "All voice variations unlocked"
     ]
     var body: some View {
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+        let iconSize: CGFloat = isPad ? 20 : 16
+        let textSize: CGFloat = isPad ? 17 : 15
         VStack(alignment: .leading, spacing: 12) {
             ForEach(items, id: \.self) { text in
                 HStack(spacing: 10) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: iconSize, weight: .semibold))
                         .foregroundColor(.clear)
                         .overlay(
                             LinearGradient.primaryTheme
                                 .mask(
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.system(size: iconSize, weight: .semibold))
                                 )
                         )
                     Text(text)
                         .foregroundColor(foreground)
-                        .font(.system(size: 15))
+                        .font(.system(size: textSize))
                 }
             }
         }
