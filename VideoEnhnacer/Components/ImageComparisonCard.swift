@@ -30,6 +30,19 @@ struct ImageComparisonCard: View {
         horizontalSizeClass == .regular
     }
 
+
+    private var isAssetIcon: Bool {
+        UIImage(named: icon) != nil
+    }
+
+    private var iconImage: Image {
+        if isAssetIcon {
+            return Image(icon).renderingMode(.original)
+        } else {
+            return Image(systemName: icon)
+        }
+    }
+
     init(icon: String,
          title: String,
          subtitle: String,
@@ -103,11 +116,15 @@ struct ImageComparisonCard: View {
                     HStack(alignment: .center, spacing: 8) {
                         // Compute reserved slider width and available text width based on total
                         let total = geometry.size.width
-                        let reserved: CGFloat = {
-                            if isIPad { return min(max(total * 0.35, 200), 280) }
-                            return min(max(total * 0.42, 120), 170)
-                        }()
-                        let available = max(120, total - reserved - 32) // 16pt horizontal insets on both sides
+                        let minimumTextWidth: CGFloat = isIPad ? 150 : 110
+                        let horizontalPadding: CGFloat = 32 // 16pt horizontal insets on both sides
+                        let targetSliderWidth = total * 0.6
+                        let minimumSliderWidth: CGFloat = isIPad ? 260 : 150
+                        let maximumSliderWidth = max(0, total - minimumTextWidth - horizontalPadding)
+                        let reserved = maximumSliderWidth > 0
+                            ? min(max(targetSliderWidth, minimumSliderWidth), maximumSliderWidth)
+                            : 0
+                        let available = max(minimumTextWidth, total - reserved - horizontalPadding)
 
                         // Left: Text block flexes
                         textContentView(availableWidth: available)
@@ -198,18 +215,19 @@ struct ImageComparisonCard: View {
     private func textContentView(availableWidth: CGFloat) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 12) {
-                // Icon with background
-                Image(systemName: icon)
-                    .font(.system(size: isIPad ? 34 : 24, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(width: isIPad ? 60 : 48, height: isIPad ? 60 : 48)
-                    .background(
-                        Circle()
-                            .fill(Color.black.opacity(0.15))
-                            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-                    )
-                
+                // Icon uses asset when available, falling back to SF symbol
+                if isAssetIcon {
+                    iconImage
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: isIPad ? 60 : 48, height: isIPad ? 60 : 48)
+                } else {
+                    iconImage
+                        .font(.system(size: isIPad ? 34 : 24, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: isIPad ? 60 : 48, height: isIPad ? 60 : 48)
+                }
+
                 // Title and subtitle with left alignment
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -478,7 +496,7 @@ private struct PressableCardButtonStyle: ButtonStyle {
 #Preview {
     VStack(spacing: 20) {
         ImageComparisonCard(
-            icon: "arrow.up.square",
+            icon: "upscalerIcon",
             title: "AI Upscale",
             subtitle: "Enhance image resolution",
             gradientType: .redPink,
@@ -489,7 +507,7 @@ private struct PressableCardButtonStyle: ButtonStyle {
         }
         
         ImageComparisonCard(
-            icon: "waveform.path",
+            icon: "DenoiseIcon",
             title: "AI Denoise",
             subtitle: "Remove grain and noise",
             gradientType: .purpleGray,

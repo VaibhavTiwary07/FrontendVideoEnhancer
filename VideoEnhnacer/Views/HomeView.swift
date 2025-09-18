@@ -65,7 +65,7 @@ struct HomeView: View {
                                 
                                 VStack(spacing: dynamicCardSpacing(screenHeight: geometry.size.height)) {
                                     ImageComparisonCard(
-                                        icon: "arrow.up.square",
+                                        icon: "upscalerIcon",
                                         title: "AI Upscale",
                                         subtitle: "Enhance image resolution",
                                         gradientType: .cyanGray,
@@ -74,26 +74,26 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Upscale",
-                                            icon: "arrow.up.square",
+                                            icon: "upscalerIcon",
                                             gradientType: .cyanGray
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
+                                        icon: "faceAndObjectEnhacer",
                                         title: "Face & Object Enhancer",
                                         subtitle: "Improve facial features",
                                         gradientType: .redPink
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Face & Object Enhancer",
-                                            icon: getIOSCompatibleSymbol("face.smiling", fallback: "person.crop.circle"),
+                                            icon: "faceAndObjectEnhacer",
                                             gradientType: .redPink
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "waveform.path",
+                                        icon: "DenoiseIcon",
                                         title: "AI Denoise",
                                         subtitle: "Remove grain and noise",
                                         gradientType: .pinkGray,
@@ -102,13 +102,13 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Denoise",
-                                            icon: "waveform.path",
+                                            icon: "DenoiseIcon",
                                             gradientType: .pinkGray
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "paintpalette.fill",
+                                        icon: "AIColorisationIcon",
                                         title: "AI Color",
                                         subtitle: "Color correction",
                                         gradientType: .yellowGray,
@@ -117,13 +117,13 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Color",
-                                            icon: "paintpalette.fill",
+                                            icon: "AIColorisationIcon",
                                             gradientType: .yellowGray
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "wand.and.stars",
+                                        icon: "autoAdjustmentIcon",
                                         title: "AI Auto Enhancement",
                                         subtitle: "One-click improvements",
                                         gradientType: .purpleGray,
@@ -132,13 +132,13 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "AI Auto Enhancement",
-                                            icon: "wand.and.stars",
+                                            icon: "autoAdjustmentIcon",
                                             gradientType: .purpleGray
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: "gyroscope",
+                                        icon: "stabalizerIcon",
                                         title: "Stabilizer",
                                         subtitle: "Reduce camera shake",
                                         gradientType: .gray,
@@ -149,13 +149,13 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Stabilizer",
-                                            icon: "gyroscope",
+                                            icon: "stabalizerIcon",
                                             gradientType: .gray
                                         )
                                     }
                                     
                                     ImageComparisonCard(
-                                        icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
+                                        icon: "interpolationIcon",
                                         title: "Frame Interpolation",
                                         subtitle: "Smooth motion",
                                         gradientType: .cyanGray,
@@ -166,7 +166,7 @@ struct HomeView: View {
                                     ) {
                                         selectedEnhancement = Enhancement(
                                             type: "Frame Interpolation",
-                                            icon: getIOSCompatibleSymbol("timer.circle.fill", fallback: "timer"),
+                                            icon: "interpolationIcon",
                                             gradientType: .cyanGray
                                         )
                                     }
@@ -327,14 +327,6 @@ struct HomeView: View {
         }
     }
     
-    private func getIOSCompatibleSymbol(_ preferredSymbol: String, fallback: String) -> String {
-        if #available(iOS 16.0, *) {
-            return preferredSymbol
-        } else {
-            return fallback
-        }
-    }
-
     // Resume interactions are handled centrally; no in-view resume tap logic here
 }
 
