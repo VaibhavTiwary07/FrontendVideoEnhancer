@@ -213,8 +213,10 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func textContentView(availableWidth: CGFloat) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 12) {
+        HStack(alignment: .top) {
+            Spacer(minLength: 0)
+
+            VStack(alignment: .center, spacing: isIPad ? 16 : 12) {
                 // Icon uses asset when available, falling back to SF symbol
                 if isAssetIcon {
                     iconImage
@@ -228,24 +230,15 @@ struct ImageComparisonCard: View {
                         .frame(width: isIPad ? 60 : 48, height: isIPad ? 60 : 48)
                 }
 
-                // Title and subtitle with left alignment
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: isIPad ? 20 : 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(isIPad ? 2 : 1)
-                        .minimumScaleFactor(0.85)
-
-                    Text(subtitle)
-                        .font(.system(size: isIPad ? 15 : 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.85))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.85)
-                }
+                Text(title)
+                    .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
+
+            Spacer(minLength: 0)
         }
         .frame(width: availableWidth)
     }
