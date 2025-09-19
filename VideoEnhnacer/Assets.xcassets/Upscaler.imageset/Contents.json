@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Untitled design.png",
+      "filename" : "Group 347.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Group 347@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Group 347@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

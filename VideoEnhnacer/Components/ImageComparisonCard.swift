@@ -245,45 +245,42 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
+        let canUseURLVideos = useVideoComparison && videoPlayerManager != nil && originalVideoURL != nil && processedVideoURL != nil
+        let canUseAssetVideos = useVideoComparison && videoPlayerManager != nil && normalVideoName != nil && enhancedVideoName != nil
+        let showsImageSlider = !canUseURLVideos && !canUseAssetVideos
+
         ZStack {
-            if useVideoComparison, let manager = videoPlayerManager {
-                // Prefer URL-based videos if provided, else fall back to asset names
-                if let originalURL = originalVideoURL, let processedURL = processedVideoURL {
-                    VideoComparisonSlider(
-                        normalVideoName: nil,
-                        enhancedVideoName: nil,
-                        originalURL: originalURL,
-                        enhancedURL: processedURL,
-                        videoPlayerManager: manager,
-                        compact: true,
-                        customKey: title
-                    )
-                    .onAppear {
-                        print("🧩 ImageComparisonCard '\(title)' using URL videos; key='\(title)'\n     originalURL=\(originalURL)\n     processedURL=\(processedURL)")
-                    }
-                } else if let normal = normalVideoName, let enhanced = enhancedVideoName {
-                    VideoComparisonSlider(
-                        normalVideoName: normal,
-                        enhancedVideoName: enhanced,
-                        originalURL: nil,
-                        enhancedURL: nil,
-                        videoPlayerManager: manager,
-                        compact: true,
-                        customKey: title
-                    )
-                    .onAppear {
-                        print("🧩 ImageComparisonCard '\(title)' using asset videos; key='\(title)'\n     normal='\(normal)' enhanced='\(enhanced)'")
-                    }
-                } else {
-                    // Fallback to image slider if inputs missing
-                    ImageComparisonSlider(
-                        beforeImageName: beforeImageName,
-                        afterImageName: afterImageName,
-                        sliderValue: $sliderValue
-                    )
-                    .onAppear {
-                        print("🧩 ImageComparisonCard '\(title)' falling back to image slider (no video sources)")
-                    }
+            if canUseURLVideos,
+               let manager = videoPlayerManager,
+               let originalURL = originalVideoURL,
+               let processedURL = processedVideoURL {
+                VideoComparisonSlider(
+                    normalVideoName: nil,
+                    enhancedVideoName: nil,
+                    originalURL: originalURL,
+                    enhancedURL: processedURL,
+                    videoPlayerManager: manager,
+                    compact: true,
+                    customKey: title
+                )
+                .onAppear {
+                    print("🧩 ImageComparisonCard '\(title)' using URL videos; key='\(title)'\n     originalURL=\(originalURL)\n     processedURL=\(processedURL)")
+                }
+            } else if canUseAssetVideos,
+                      let manager = videoPlayerManager,
+                      let normal = normalVideoName,
+                      let enhanced = enhancedVideoName {
+                VideoComparisonSlider(
+                    normalVideoName: normal,
+                    enhancedVideoName: enhanced,
+                    originalURL: nil,
+                    enhancedURL: nil,
+                    videoPlayerManager: manager,
+                    compact: true,
+                    customKey: title
+                )
+                .onAppear {
+                    print("🧩 ImageComparisonCard '\(title)' using asset videos; key='\(title)'\n     normal='\(normal)' enhanced='\(enhanced)'")
                 }
             } else {
                 ImageComparisonSlider(
@@ -292,7 +289,11 @@ struct ImageComparisonCard: View {
                     sliderValue: $sliderValue
                 )
                 .onAppear {
-                    print("🧩 ImageComparisonCard '\(title)' using image slider (useVideoComparison=false)")
+                    if useVideoComparison {
+                        print("🧩 ImageComparisonCard '\(title)' falling back to image slider (no video sources)")
+                    } else {
+                        print("🧩 ImageComparisonCard '\(title)' using image slider (useVideoComparison=false)")
+                    }
                 }
             }
         }
@@ -309,16 +310,58 @@ struct ImageComparisonCard: View {
         .mask(
             LinearGradient(
                 stops: [
-                              .init(color: Color.white.opacity(0.0), location: 0.0),
-                              .init(color: Color.white.opacity(1.0), location: 0.60),
-                              .init(color: Color.white.opacity(1.0), location: 1.0)
-                          ],
+                    .init(color: Color.white.opacity(0.0), location: 0.0),
+                    .init(color: Color.white.opacity(1.0), location: 0.60),
+                    .init(color: Color.white.opacity(1.0), location: 1.0)
+                ],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         )
+        .overlay {
+            if showsImageSlider {
+                GeometryReader { geometry in
+                    let width = geometry.size.width
+                    let height = geometry.size.height
+                    let verticalOffset: CGFloat = isIPad ? 16 : 12
+                    let padding: CGFloat = isIPad ? 28 : 20
+
+                    let crossFadeWidth: Double = 0.22
+                    let lowerBound = max(0.0, 0.5 - crossFadeWidth)
+                    let upperBound = min(1.0, 0.5 + crossFadeWidth)
+                    let rawProgress = (sliderValue - lowerBound) / (upperBound - lowerBound)
+                    let clampedProgress = min(max(rawProgress, 0), 1)
+                    let beforeOpacity = max(0, 1 - clampedProgress)
+                    let afterOpacity = max(0, clampedProgress)
+
+                    let handleX = width * CGFloat(sliderValue)
+                    let labelOffset: CGFloat = isIPad ? 48 : 34
+                    let beforeX = max(padding, min(handleX - labelOffset, width - padding))
+                    let afterX = min(width - padding, max(handleX + labelOffset, padding))
+
+                    ZStack {
+                        Text("Before")
+                            .font(.system(size: isIPad ? 18 : 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.45), radius: 3, x: 0, y: 1)
+                            .opacity(beforeOpacity)
+                            .position(x: beforeX,
+                                      y: height - verticalOffset)
+
+                        Text("After")
+                            .font(.system(size: isIPad ? 18 : 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.45), radius: 3, x: 0, y: 1)
+                            .opacity(afterOpacity)
+                            .position(x: afterX,
+                                      y: height - verticalOffset)
+                    }
+                    .frame(width: width, height: height)
+                }
+                .allowsHitTesting(false)
+            }
+        }
         .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
-//        .frame(width: 150)
     }
 
     // MARK: - Custom shape for rounding selected corners
