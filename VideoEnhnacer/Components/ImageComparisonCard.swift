@@ -8,6 +8,7 @@ struct ImageComparisonCard: View {
     let title: String
     let subtitle: String
     let gradientType: GradientType
+    let showsSlider: Bool
     let beforeImageName: String
     let afterImageName: String
     // Optional video comparison
@@ -47,6 +48,7 @@ struct ImageComparisonCard: View {
          title: String,
          subtitle: String,
          gradientType: GradientType,
+         showsSlider: Bool = true,
          beforeImageName: String = "test",
          afterImageName: String = "testEnhanced",
          useVideoComparison: Bool = false,
@@ -60,6 +62,7 @@ struct ImageComparisonCard: View {
         self.title = title
         self.subtitle = subtitle
         self.gradientType = gradientType
+        self.showsSlider = showsSlider
         self.beforeImageName = beforeImageName
         self.afterImageName = afterImageName
         self.useVideoComparison = useVideoComparison
@@ -245,11 +248,19 @@ struct ImageComparisonCard: View {
     
     @ViewBuilder
     private func sliderView(containerHeight: CGFloat) -> some View {
+        if showsSlider {
+            sliderContent(containerHeight: containerHeight)
+        } else {
+            staticPreviewImage(width :.infinity,height: containerHeight)
+        }
+    }
+
+    private func sliderContent(containerHeight _: CGFloat) -> some View {
         let canUseURLVideos = useVideoComparison && videoPlayerManager != nil && originalVideoURL != nil && processedVideoURL != nil
         let canUseAssetVideos = useVideoComparison && videoPlayerManager != nil && normalVideoName != nil && enhancedVideoName != nil
         let showsImageSlider = !canUseURLVideos && !canUseAssetVideos
 
-        ZStack {
+        return ZStack {
             if canUseURLVideos,
                let manager = videoPlayerManager,
                let originalURL = originalVideoURL,
@@ -362,6 +373,49 @@ struct ImageComparisonCard: View {
             }
         }
         .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
+    }
+
+    private func staticPreviewImage(width: CGFloat, height: CGFloat) -> some View {
+        ZStack {
+            if let uiImage = UIImage(named: beforeImageName) {
+                let cardImage = Image(uiImage: uiImage)
+
+                // Background blurred image
+                cardImage
+                    .resizable()
+                    .frame(width: width, height: height)
+                    .blur(radius: isIPad ? 28 : 16)
+                    .opacity(0.65)
+
+                // Main image - stretches to fill exact dimensions
+                cardImage
+                    .resizable()
+                    .frame(width: width, height: height)
+            } else {
+                // Placeholder when no image
+                ZStack {
+                    Color.white.opacity(0.12)
+                    Image(systemName: "photo")
+                        .font(.system(size: isIPad ? 46 : 34, weight: .light))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .frame(width: width, height: height)
+            }
+        }
+        .frame(width: width, height: height)
+        .clipped()
+        .clipShape(RoundedCornerShape(radius: 20, corners: [.topRight, .bottomRight]))
+        .mask(
+            LinearGradient(
+                stops: [
+                    .init(color: Color.white.opacity(0.0), location: 0.0),
+                    .init(color: Color.white.opacity(1.0), location: 0.60),
+                    .init(color: Color.white.opacity(1.0), location: 1.0)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
     }
 
     // MARK: - Custom shape for rounding selected corners

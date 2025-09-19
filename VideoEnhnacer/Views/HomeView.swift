@@ -69,6 +69,7 @@ struct HomeView: View {
                                         title: "AI Upscale",
                                         subtitle: "Enhance image resolution",
                                         gradientType: .cyanGray,
+                                        showsSlider: false,
                                         beforeImageName: "Upscaler",
                                         afterImageName: "Upscaler"
                                     ) {
