@@ -24,6 +24,7 @@ struct ImageComparisonCard: View {
     @State private var showingVideoPicker = false
     @State private var selectedVideoURL: URL?
     @State private var navigateToTrimming = false
+    @State private var showingPermissionAlert = false
     @StateObject private var permissionManager = PermissionManager()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
@@ -186,6 +187,14 @@ struct ImageComparisonCard: View {
                 }
             }
         }
+        .alert("Photos Access Required", isPresented: $showingPermissionAlert) {
+            Button("Open Settings") {
+                permissionManager.openAppSettings()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
+        }
     }
     
     // MARK: - Card Tap Handler
@@ -197,11 +206,13 @@ struct ImageComparisonCard: View {
                 await permissionManager.requestPhotoLibraryPermission()
                 if permissionManager.canAccessPhotoLibrary {
                     showingVideoPicker = true
+                } else {
+                    showingPermissionAlert = true
                 }
             }
         } else {
-            // Fallback to original action if permission denied
-            action()
+            // Permission was denied, show settings alert
+            showingPermissionAlert = true
         }
     }
     

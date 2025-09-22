@@ -137,6 +137,12 @@ struct VideoResultsView: View {
                 }
             }
         }
+        .onChange(of: showingExportOptions) { isShowing in
+            // Pause video playback when export options are shown
+            if isShowing {
+                videoPlayerManager.pauseAllPlayers()
+            }
+        }
         // Listen for a global request to go Home; on iOS 15 avoid per-view dismiss
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             if #available(iOS 16.0, *) {

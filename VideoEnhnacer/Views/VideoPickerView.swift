@@ -12,6 +12,7 @@ struct VideoPickerView: View {
     @State private var navigateToTrimming = false
     @StateObject private var permissionManager = PermissionManager()
     @State private var showingPermissionAlert = false
+    @State private var showingSettingsAlert = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     private var isSmallScreen: Bool {
@@ -246,7 +247,7 @@ struct VideoPickerView: View {
                                     
                                     if permissionManager.isPermissionDenied {
                                         Button("Open Settings") {
-                                            permissionManager.openAppSettings()
+                                            showingSettingsAlert = true
                                         }
                                         .buttonStyle(GradientButtonStyle())
                                     }
@@ -280,6 +281,18 @@ struct VideoPickerView: View {
         })
         .onAppear {
             permissionManager.checkCurrentStatus()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            // Re-check permissions when user returns from Settings
+            permissionManager.checkCurrentStatus()
+        }
+        .alert("Photos Access Required", isPresented: $showingSettingsAlert) {
+            Button("Open Settings") {
+                permissionManager.openAppSettings()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
             if #available(iOS 16.0, *) {

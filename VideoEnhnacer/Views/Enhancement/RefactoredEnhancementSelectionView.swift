@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import AVKit
 
 // MARK: - Refactored Enhancement Selection View
 /// Clean, focused view following MVVM and Single Responsibility Principle
@@ -120,6 +121,12 @@ struct RefactoredEnhancementSelectionView: View {
             // Only navigate; History recording happens after ResultsView appears
             if result != nil { showingResults = true }
         }
+        .onChange(of: viewModel.isProcessing) { isProcessing in
+            // Pause video playback when processing starts
+            if isProcessing {
+                playerViewModel.pause()
+            }
+        }
     }
     
     // MARK: - Content Views
@@ -127,7 +134,7 @@ struct RefactoredEnhancementSelectionView: View {
     private var contentView: some View {
         VStack(spacing: 12) {
                 // Larger, lower preview on iPad; hide Change button via nil action
-                VideoPreviewSection(
+                EnhancementVideoPreviewSection(
                     playerViewModel: playerViewModel,
                     enhancementType: viewModel.enhancementType,
                     onChangeVideo: nil,
@@ -225,6 +232,129 @@ struct RefactoredEnhancementSelectionView: View {
         } else {
             UIHelpers.dismissAllPresented(animated: true) {
                 container.navigation.goToHome()
+            }
+        }
+    }
+}
+
+// MARK: - Enhancement Video Preview Section
+private struct EnhancementVideoPreviewSection: View {
+    let playerViewModel: VideoPlayerViewModel
+    let enhancementType: EnhancementType
+    let onChangeVideo: (() -> Void)?
+    let preferredHeightIPad: CGFloat?
+    
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isMuted: Bool = true
+    
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            EnhancementVideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
+                .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
+                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
+                )
+                .overlay(alignment: .topLeading) {
+                    Button(action: toggleMute) {
+                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .font(.system(size: DeviceSize.isSmallPhone ? 18 : 22, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(DeviceSize.isSmallPhone ? 8 : 10)
+                            .background(
+                                Circle()
+                                    .fill(Color.black.opacity(0.4))
+                            )
+                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    }
+                    .padding(.leading, DeviceSize.isSmallPhone ? 12 : 16)
+                    .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
+                }
+                .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
+                .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
+        }
+    }
+    
+    private func toggleMute() {
+        isMuted.toggle()
+        playerViewModel.setMuted(isMuted)
+    }
+}
+
+// MARK: - Enhancement Video Player View
+private struct EnhancementVideoPlayerView: View {
+    @ObservedObject var playerViewModel: VideoPlayerViewModel
+    @Binding var isMuted: Bool
+    
+    var body: some View {
+        Group {
+            if let player = playerViewModel.normalPlayer {
+                VideoPlayer(player: player)
+                    .onAppear {
+                        playerViewModel.setActive(true)
+                        playerViewModel.setMuted(isMuted)
+                        playerViewModel.play()
+                    }
+                    .onDisappear {
+                        playerViewModel.setActive(false)
+                    }
+            } else if playerViewModel.isLoading {
+                EnhancementVideoLoadingPlaceholder()
+            } else if let error = playerViewModel.error {
+                EnhancementVideoErrorPlaceholder(error: error)
+            }
+        }
+    }
+}
+
+// MARK: - Enhancement Video Loading Placeholder
+private struct EnhancementVideoLoadingPlaceholder: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.gray.opacity(0.3))
+            
+            VStack(spacing: 12) {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.2)
+                
+                Text("Loading video...")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+            }
+        }
+    }
+}
+
+// MARK: - Enhancement Video Error Placeholder
+private struct EnhancementVideoErrorPlaceholder: View {
+    let error: VideoPlayerError
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.red.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
+            
+            VStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.red)
+                
+                Text(error.localizedDescription)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.red.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
             }
         }
     }
@@ -743,19 +873,9 @@ struct BackButton: View {
             HapticFeedbackManager.impact(.light)
             action()
         }) {
-            HStack(spacing: 8) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .medium))
-//                Text("Back")
-//                    .font(.system(size: 17, weight: .medium))
-            }
-            .foregroundColor(.accentWarm)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.accentWarm.opacity(0.1))
-            )
+            Image(systemName: "chevron.left")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.white)
         }
     }
 }

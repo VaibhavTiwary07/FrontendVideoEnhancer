@@ -23,9 +23,9 @@ struct HistoryVideoPlayerView: View {
 
             // Top bar overlay with close button and title
             VStack {
-                HStack(spacing: 16) {
+                HStack(spacing: DeviceSize.isSmallPhone ? 8 : 16) {
                     Text(item.fileName)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(size: DeviceSize.isSmallPhone ? 12 : 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.95))
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -34,20 +34,20 @@ struct HistoryVideoPlayerView: View {
 
                     Button(action: toggleMute) {
                         Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: DeviceSize.isSmallPhone ? 20 : 24, weight: .semibold))
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
                     }
 
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28, weight: .semibold))
+                            .font(.system(size: DeviceSize.isSmallPhone ? 24 : 28, weight: .semibold))
                             .foregroundColor(.white)
                             .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
+                .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 16)
+                .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
 
                 Spacer()
             }
@@ -55,6 +55,7 @@ struct HistoryVideoPlayerView: View {
         .onAppear {
             let player = AVPlayer(url: item.processedURL)
             player.isMuted = isMuted
+            player.allowsExternalPlayback = false
             self.player = player
             player.play()
         }

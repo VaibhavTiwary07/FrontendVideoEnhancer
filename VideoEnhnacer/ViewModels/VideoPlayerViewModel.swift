@@ -97,6 +97,11 @@ final class VideoPlayerViewModel: ObservableObject {
         videoPlayerService.setPlaybackRange(start: start, end: end, forKey: key)
     }
     
+    func setMuted(_ muted: Bool) {
+        normalPlayer?.isMuted = muted
+        enhancedPlayer?.isMuted = muted
+    }
+    
     func cleanup() {
         videoPlayerService.cleanup()
         cancellables.removeAll()

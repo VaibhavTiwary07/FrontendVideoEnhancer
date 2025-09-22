@@ -93,6 +93,8 @@ class VideoPlayerManager: ObservableObject {
                 let enhancedPlayer = AVPlayer(url: processedURL)
                 normalPlayer.isMuted = true
                 enhancedPlayer.isMuted = true
+                normalPlayer.allowsExternalPlayback = false
+                enhancedPlayer.allowsExternalPlayback = false
                 
                 // Preload by ensuring asset is playable
                 try await preload(player: normalPlayer)
@@ -151,6 +153,8 @@ class VideoPlayerManager: ObservableObject {
                 
                 normalPlayer.isMuted = true
                 enhancedPlayer.isMuted = true
+                normalPlayer.allowsExternalPlayback = false
+                enhancedPlayer.allowsExternalPlayback = false
                 
                 // Preload the videos
                 let group = DispatchGroup()

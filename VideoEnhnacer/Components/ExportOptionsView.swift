@@ -242,6 +242,7 @@ struct ExportOptionsView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
+                        // Video is already paused when export options appear
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showFinalPage = true
                         }

@@ -64,6 +64,8 @@ final class VideoPlayerService: VideoPlayerProtocol {
             let enhancedPlayer = AVPlayer(url: enhancedURL)
             normalPlayer.isMuted = true
             enhancedPlayer.isMuted = true
+            normalPlayer.allowsExternalPlayback = false
+            enhancedPlayer.allowsExternalPlayback = false
             try await preloadPlayers([normalPlayer, enhancedPlayer])
             let pair = PlayerPair(normal: normalPlayer, enhanced: enhancedPlayer)
             playerPairs[key] = pair
@@ -200,6 +202,8 @@ final class VideoPlayerService: VideoPlayerProtocol {
                     // Configure players
                     normalPlayer.isMuted = true
                     enhancedPlayer.isMuted = true
+                    normalPlayer.allowsExternalPlayback = false
+                    enhancedPlayer.allowsExternalPlayback = false
                     
                     // Preload the videos
                     try await self.preloadPlayers([normalPlayer, enhancedPlayer])

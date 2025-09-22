@@ -213,7 +213,7 @@ enum EnhancementProcessingState: Equatable {
 enum ProcessingPhase: String, Equatable {
     case initialization = "Initializing..."
     case analysis = "Analyzing video..."
-    case enhancement = "Applying enhancements..."
+    case enhancement = "Enhancing video..."
     case export = "Exporting video..."
     case finalization = "Finalizing..."
     

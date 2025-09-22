@@ -49,6 +49,9 @@ class VideoPreviewManager: ObservableObject {
         
         // Mute audio for seamless experience
         player?.isMuted = true
+        
+        // Disable AirPlay for all video players
+        player?.allowsExternalPlayback = false
 
         // Set up looping to startTime when reaching endTime or video end
         NotificationCenter.default.addObserver(

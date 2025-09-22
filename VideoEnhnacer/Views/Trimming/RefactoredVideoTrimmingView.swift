@@ -92,7 +92,7 @@ struct RefactoredVideoTrimmingView: View {
     @ViewBuilder
     private var contentView: some View {
         ScrollView {
-            VStack(spacing: isIPad ? 12 : 0) {
+            VStack(spacing: isIPad ? 12 : (DeviceSize.isSmallPhone ? 4 : 8)) {
                 VideoPreviewSection(
                     playerViewModel: viewModel.playerViewModel,
                     enhancementType: viewModel.enhancementType,
@@ -224,6 +224,7 @@ struct VideoPreviewSection: View {
     let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isMuted: Bool = true
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -233,21 +234,41 @@ struct VideoPreviewSection: View {
         VStack(spacing: 16) {
             VideoPlayerView(playerViewModel: playerViewModel)
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
-                .cornerRadius(20)
+                .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
+                .overlay(alignment: .topLeading) {
+                    Button(action: toggleMute) {
+                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .font(.system(size: DeviceSize.isSmallPhone ? 18 : 22, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(DeviceSize.isSmallPhone ? 8 : 10)
+                            .background(
+                                Circle()
+                                    .fill(Color.black.opacity(0.4))
+                            )
+                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    }
+                    .padding(.leading, DeviceSize.isSmallPhone ? 12 : 16)
+                    .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
+                }
                 .overlay(alignment: .topTrailing) {
                     if let onChangeVideo {
                         VideoChangeButton { onChangeVideo() }
-                            .padding(.trailing, 24)
-                            .padding(.top, 12)
+                            .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 24)
+                            .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
                     }
                 }
-                .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
-                .padding(.horizontal, 20)
+                .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
+                .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
+    }
+    
+    private func toggleMute() {
+        isMuted.toggle()
+        playerViewModel.setMuted(isMuted)
     }
 }
 
@@ -338,15 +359,15 @@ struct VideoChangeButton: View {
             HapticFeedbackManager.impact(.light)
             action()
         }) {
-            HStack(spacing: 6) {
+            HStack(spacing: DeviceSize.isSmallPhone ? 4 : 6) {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: DeviceSize.isSmallPhone ? 12 : 14, weight: .medium))
                 Text("Change")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: DeviceSize.isSmallPhone ? 12 : 14, weight: .semibold))
             }
             .foregroundColor(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, DeviceSize.isSmallPhone ? 10 : 12)
+            .padding(.vertical, DeviceSize.isSmallPhone ? 6 : 8)
             .background(
                 Capsule()
                     .fill(LinearGradient.primaryTheme.opacity(0.9))
@@ -528,6 +549,7 @@ struct TimePresetButton: View {
     let onRequirePro: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
+    private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
         Button(action: {
@@ -539,10 +561,10 @@ struct TimePresetButton: View {
             }
         }) {
             Text(title)
-                .font(.system(size: isIPad ? 18 : 16, weight: .semibold))
+                .font(.system(size: isIPad ? 18 : (isSmallPhone ? 14 : 16), weight: .semibold))
                 .foregroundColor(isSelected ? .white : .white.opacity(0.8))
                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                .frame(width: isIPad ? 110 : 80, height: isIPad ? 48 : 40)
+                .frame(width: isIPad ? 110 : (isSmallPhone ? 70 : 80), height: isIPad ? 48 : (isSmallPhone ? 36 : 40))
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))

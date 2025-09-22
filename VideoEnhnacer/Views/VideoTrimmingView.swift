@@ -296,19 +296,9 @@ struct VideoTrimmingView: View {
                     impact.impactOccurred()
                     dismiss()
                 }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .medium))
-//                        Text("Back")
-//                            .font(.system(size: 17, weight: .medium))
-                    }
-                    .foregroundColor(.accentWarm)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.accentWarm.opacity(0.1))
-                    )
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.white)
                 }
             }
             

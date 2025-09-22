@@ -445,6 +445,10 @@ struct AVPlayerUIView: UIViewRepresentable {
         view.playerLayer.player = player
         view.playerLayer.videoGravity = videoGravity
         view.layer.addSublayer(view.playerLayer)
+        
+        // Disable AirPlay for all video players
+        player.allowsExternalPlayback = false
+        
         print("🎥 AVPlayerUIView.makeUIView created container with initial bounds=\(view.bounds) gravity=\(videoGravity.rawValue)")
         return view
     }
@@ -452,6 +456,10 @@ struct AVPlayerUIView: UIViewRepresentable {
     func updateUIView(_ uiView: PlayerContainerView, context: Context) {
         uiView.playerLayer.player = player
         uiView.playerLayer.videoGravity = videoGravity
+        
+        // Disable AirPlay for all video players
+        player.allowsExternalPlayback = false
+        
         // Ensure layer uses latest bounds
         uiView.setNeedsLayout()
         uiView.layoutIfNeeded()

@@ -56,7 +56,27 @@ class PermissionManager: ObservableObject {
         }
         
         if UIApplication.shared.canOpenURL(settingsUrl) {
-            UIApplication.shared.open(settingsUrl)
+            UIApplication.shared.open(settingsUrl, options: [:]) { success in
+                if !success {
+                    print("Failed to open app settings")
+                }
+            }
+        }
+    }
+    
+    func requestPermissionWithSettingsAlert() async -> Bool {
+        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        
+        if currentStatus == .denied {
+            // Permission was previously denied, need to go to settings
+            return false
+        } else if currentStatus == .notDetermined {
+            // First time request
+            await requestPhotoLibraryPermission()
+            return canAccessPhotoLibrary
+        } else {
+            // Already has permission
+            return canAccessPhotoLibrary
         }
     }
     
@@ -67,7 +87,7 @@ class PermissionManager: ObservableObject {
         case .restricted:
             return "Photo library access is restricted on this device"
         case .denied:
-            return "Photo library access was denied. Please enable it in Settings to select videos for enhancement."
+            return "Photos access was denied. Tap 'Open Settings' below to enable access for video selection."
         case .authorized:
             return "Full photo library access granted"
         case .limited:

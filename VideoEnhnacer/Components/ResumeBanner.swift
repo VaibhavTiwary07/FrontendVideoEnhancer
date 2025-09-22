@@ -5,9 +5,9 @@ struct ResumeBanner: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "play.circle.fill")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundColor(.white)
+            Image(systemName: "play.circle")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundColor(.white.opacity(0.8))
 
             Text("Resume")
                 .font(.system(size: 16, weight: .semibold))

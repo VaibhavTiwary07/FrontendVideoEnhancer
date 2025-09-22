@@ -30,7 +30,7 @@ struct SplashView: View {
                     Text(" AI Video")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                    Text("Enhacer")
+                    Text("Enhancer")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
                 }
