@@ -432,6 +432,8 @@ extension ExportOptionsView {
                         .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .disabled(!isExportComplete)
+                .opacity(isExportComplete ? 1.0 : 0.4)
                 Spacer()
                 Text("Export Preview")
                     .font(.system(size: 18, weight: .semibold))
@@ -444,6 +446,8 @@ extension ExportOptionsView {
                         .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .disabled(!isExportComplete)
+                .opacity(isExportComplete ? 1.0 : 0.4)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
@@ -498,6 +502,7 @@ extension ExportOptionsView {
             .background(.ultraThinMaterial)
         }
         .onAppear { startFinalPageExport() }
+        .allowsHitTesting(isExportComplete)
     }
 
     // Centralized handler for going home from the FinalPage toolbar button

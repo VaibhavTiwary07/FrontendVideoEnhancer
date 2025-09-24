@@ -138,6 +138,11 @@ struct RefactoredEnhancementSelectionView: View {
                 playerViewModel.pause()
             }
         }
+        .onChange(of: viewModel.processingState) { state in
+            if isOverlayActive(state) {
+                playerViewModel.pause()
+            }
+        }
     }
     
     // MARK: - Content Views
@@ -248,6 +253,15 @@ struct RefactoredEnhancementSelectionView: View {
             onShowResults(result)
         } else {
             showingResults = true
+        }
+    }
+
+    private func isOverlayActive(_ state: EnhancementProcessingState) -> Bool {
+        switch state {
+        case .preparing, .processing:
+            return true
+        default:
+            return false
         }
     }
 
