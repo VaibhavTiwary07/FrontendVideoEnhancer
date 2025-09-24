@@ -23,7 +23,7 @@ struct HistoryVideoPlayerView: View {
         }
         .safeAreaInset(edge: .top) {
             HistoryPlayerTopBar(
-                fileName: item.fileName,
+                fileName: item.displayName,
                 isMuted: isMuted,
                 onToggleMute: toggleMute,
                 onClose: { dismiss() }

@@ -70,6 +70,9 @@ struct HistoryCard: View {
     @State private var thumbnail: UIImage?
     @State private var isLoadingThumbnail = true
     @State private var showDeleteConfirm = false
+    @State private var isRenaming = false
+    @State private var renameText: String = ""
+    @EnvironmentObject private var historyManager: HistoryManager
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     
@@ -121,7 +124,7 @@ struct HistoryCard: View {
                     .truncationMode(.tail)
                     .allowsTightening(true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Text(item.fileName)
+                Text(item.displayName)
                     .font(.system(size: isIPad ? 12 : 11, weight: .regular))
                     .foregroundColor(.secondaryText)
                     .lineLimit(1)
@@ -171,29 +174,44 @@ struct HistoryCard: View {
                 )
         )
         .overlay(alignment: .topTrailing) {
-            if showDelete {
-                Button(action: { showDeleteConfirm = true }) {
-                    Image(systemName: "trash.fill")
-                        .font(.system(size: isIPad ? 16 : 14, weight: .bold))
-                        .foregroundColor(.red)
-                        .padding(10)
-                        .background(
-                            Circle()
-                                .fill(Color.white.opacity(0.9))
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-                        )
-                        .contentShape(Circle())
+            Menu {
+                Button {
+                    renameText = item.displayName
+                    isRenaming = true
+                } label: {
+                    Label("Rename", systemImage: "pencil")
                 }
-                .buttonStyle(.plain)
-                .padding(8)
-                .accessibilityLabel("Delete item")
+
+                if showDelete {
+                    Button(role: .destructive) {
+                        showDeleteConfirm = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: isIPad ? 18 : 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(
+                        Circle()
+                            .fill(Color.black.opacity(0.35))
+                            .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+                    )
             }
+            .padding(8)
         }
         .alert("Delete this item?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) { onDelete?() }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This removes the item from Recent.")
+        }
+        .sheet(isPresented: $isRenaming) {
+            RenameHistoryItemSheet(initialName: renameText) { newName in
+                historyManager.rename(item, to: newName)
+            }
         }
         .onAppear {
             loadThumbnail()
@@ -304,3 +322,42 @@ struct EmptyStateView: View {
 }
 
 // MARK: - Helpers
+
+private struct RenameHistoryItemSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+    let onSave: (String) -> Void
+
+    init(initialName: String, onSave: @escaping (String) -> Void) {
+        _name = State(initialValue: initialName)
+        self.onSave = onSave
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Name")) {
+                    TextField("Enter a name", text: $name)
+                        .textInputAutocapitalization(.words)
+                        .disableAutocorrection(true)
+                }
+            }
+            .navigationTitle("Rename")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        guard !trimmed.isEmpty else { return }
+                        onSave(trimmed)
+                        dismiss()
+                    }
+                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+    }
+}
