@@ -162,20 +162,17 @@ struct ImageComparisonCard: View {
             permissionManager.checkCurrentStatus()
         }
         .sheet(isPresented: $showingVideoPicker) {
-            InlineUIKitVideoPicker { url in
-                // Capture selection and let onChange(of: showingVideoPicker)
-                // perform the navigation after the sheet fully dismisses
-                selectedVideoURL = url
-                showingVideoPicker = false
-            }
-        }
-        .onChange(of: showingVideoPicker) { isPresented in
-            if !isPresented, selectedVideoURL != nil {
-                // Defer a tick to ensure sheet dismissal completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            InlineUIKitVideoPicker(
+                onVideoSelected: { url in
+                    selectedVideoURL = url
+                    showingVideoPicker = false
                     navigateToTrimming = true
+                },
+                onCancelled: {
+                    selectedVideoURL = nil
+                    showingVideoPicker = false
                 }
-            }
+            )
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
             if let videoURL = selectedVideoURL {
@@ -200,12 +197,14 @@ struct ImageComparisonCard: View {
         if permissionManager.canAccessPhotoLibrary {
             // Clear any stale selection so cancel does not reuse previous video
             selectedVideoURL = nil
+            navigateToTrimming = false
             showingVideoPicker = true
         } else if permissionManager.needsPermissionRequest {
             Task {
                 await permissionManager.requestPhotoLibraryPermission()
                 if permissionManager.canAccessPhotoLibrary {
                     selectedVideoURL = nil
+                    navigateToTrimming = false
                     showingVideoPicker = true
                 } else {
                     showingPermissionAlert = true
@@ -549,7 +548,8 @@ struct ImageComparisonCard: View {
 // MARK: - UIKit Video Picker for Direct Selection
 struct InlineUIKitVideoPicker: UIViewControllerRepresentable {
     let onVideoSelected: (URL) -> Void
-    
+    let onCancelled: () -> Void
+
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
@@ -562,25 +562,34 @@ struct InlineUIKitVideoPicker: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(onVideoSelected: onVideoSelected)
+        Coordinator(onVideoSelected: onVideoSelected, onCancelled: onCancelled)
     }
-    
+
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         let onVideoSelected: (URL) -> Void
-        
-        init(onVideoSelected: @escaping (URL) -> Void) {
+        let onCancelled: () -> Void
+
+        init(onVideoSelected: @escaping (URL) -> Void, onCancelled: @escaping () -> Void) {
             self.onVideoSelected = onVideoSelected
+            self.onCancelled = onCancelled
         }
-        
+
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let url = info[.mediaURL] as? URL {
-                onVideoSelected(url)
+                picker.dismiss(animated: true) {
+                    self.onVideoSelected(url)
+                }
+            } else {
+                picker.dismiss(animated: true) {
+                    self.onCancelled()
+                }
             }
-            picker.dismiss(animated: true)
         }
-        
+
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
+            picker.dismiss(animated: true) {
+                self.onCancelled()
+            }
         }
     }
 }

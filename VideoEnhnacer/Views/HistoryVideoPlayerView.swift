@@ -12,7 +12,7 @@ struct HistoryVideoPlayerView: View {
             Color.black.ignoresSafeArea()
 
             if let player = player {
-                VideoPlayer(player: player)
+                PlainPlayerView(player: player)
                     .ignoresSafeArea()
                     .onAppear { player.play() }
                     .onDisappear { player.pause() }
@@ -20,37 +20,14 @@ struct HistoryVideoPlayerView: View {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
             }
-
-            // Top bar overlay with close button and title
-            VStack {
-                HStack(spacing: DeviceSize.isSmallPhone ? 8 : 16) {
-                    Text(item.fileName)
-                        .font(.system(size: DeviceSize.isSmallPhone ? 12 : 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.95))
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-
-                    Spacer()
-
-                    Button(action: toggleMute) {
-                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: DeviceSize.isSmallPhone ? 20 : 24, weight: .semibold))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: DeviceSize.isSmallPhone ? 24 : 28, weight: .semibold))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-                }
-                .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 16)
-                .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
-
-                Spacer()
-            }
+        }
+        .safeAreaInset(edge: .top) {
+            HistoryPlayerTopBar(
+                fileName: item.fileName,
+                isMuted: isMuted,
+                onToggleMute: toggleMute,
+                onClose: { dismiss() }
+            )
         }
         .onAppear {
             let player = AVPlayer(url: item.processedURL)
@@ -65,6 +42,86 @@ struct HistoryVideoPlayerView: View {
         guard let player = player else { return }
         isMuted.toggle()
         player.isMuted = isMuted
+    }
+}
+
+private struct HistoryPlayerTopBar: View {
+    let fileName: String
+    let isMuted: Bool
+    let onToggleMute: () -> Void
+    let onClose: () -> Void
+    @Environment(\.horizontalSizeClass) private var hSize
+
+    private var isCompact: Bool { hSize == .compact || DeviceSize.isSmallPhone }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onClose) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: isCompact ? 24 : 28, weight: .semibold))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 1)
+            }
+            .accessibilityLabel("Close")
+
+            Text(fileName)
+                .font(.system(size: isCompact ? 13 : 15, weight: .medium))
+                .foregroundColor(.white.opacity(0.95))
+                .lineLimit(1)
+                .truncationMode(.middle)
+
+            Spacer(minLength: 8)
+
+            Button(action: onToggleMute) {
+                Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    .font(.system(size: isCompact ? 20 : 24, weight: .semibold))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 1)
+            }
+            .accessibilityLabel(isMuted ? "Unmute" : "Mute")
+        }
+        .padding(.horizontal, isCompact ? 16 : 20)
+        .padding(.vertical, isCompact ? 10 : 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color.black.opacity(0.75), Color.black.opacity(0.0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .ignoresSafeArea()
+        )
+    }
+}
+
+private struct PlainPlayerView: UIViewRepresentable {
+    let player: AVPlayer
+
+    func makeUIView(context: Context) -> PlayerContainerView {
+        let view = PlayerContainerView()
+        view.playerLayer.player = player
+        view.playerLayer.videoGravity = .resizeAspect
+        return view
+    }
+
+    func updateUIView(_ uiView: PlayerContainerView, context: Context) {
+        if uiView.playerLayer.player !== player {
+            uiView.playerLayer.player = player
+        }
+    }
+
+    final class PlayerContainerView: UIView {
+        override static var layerClass: AnyClass { AVPlayerLayer.self }
+
+        var playerLayer: AVPlayerLayer {
+            guard let layer = self.layer as? AVPlayerLayer else {
+                fatalError("Expected AVPlayerLayer")
+            }
+            return layer
+        }
     }
 }
 
