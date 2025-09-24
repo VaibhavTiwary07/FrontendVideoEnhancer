@@ -25,6 +25,7 @@ struct RefactoredVideoTrimmingView: View {
     @State private var isShowingPaywall = false
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
+    private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     // MARK: - Initialization
     init(
@@ -100,37 +101,56 @@ struct RefactoredVideoTrimmingView: View {
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
+        .safeAreaInset(edge: .bottom) {
+            if isSmallPhone, !viewModel.isLoadingVideo, viewModel.error == nil {
+                ContinueButton(
+                    enhancementType: viewModel.enhancementType,
+                    canProceed: viewModel.canProceed,
+                    onContinue: handleContinueAction
+                )
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+                .background(
+                    Color.primarySoft.opacity(0.95)
+                        .ignoresSafeArea()
+                )
+                .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: -2)
+            }
+        }
     }
     
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
         ScrollView {
-            VStack(spacing: isIPad ? 12 : (DeviceSize.isSmallPhone ? 4 : 8)) {
+            VStack(spacing: isIPad ? 12 : (isSmallPhone ? 6 : 8)) {
                 VideoPreviewSection(
                     playerViewModel: viewModel.playerViewModel,
                     enhancementType: viewModel.enhancementType,
                     onChangeVideo: { showingVideoPicker = true },
                     preferredHeightIPad: 560
                 )
-                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 10 : 20))
+                .padding(.top, isIPad ? 36 : (isSmallPhone ? 12 : 20))
 
-                VideoInfoSection(
-                    totalDuration: viewModel.totalDurationFormatted,
-                    resolution: resolutionText,
-                    size: sizeText
-                )
-                .padding(.top, isIPad ? 16 : (DeviceSize.isSmallPhone ? 5 : 12))
+                if !isSmallPhone {
+                    VideoInfoSection(
+                        totalDuration: viewModel.totalDurationFormatted,
+                        resolution: resolutionText,
+                        size: sizeText
+                    )
+                    .padding(.top, isIPad ? 16 : 12)
+                }
 
                 // Controls
                 VideoControlsSection(
                     viewModel: viewModel,
                     onContinue: handleContinueAction,
                     onRequirePaywall: { isShowingPaywall = true },
-                    showContinueButton: !isIPad
+                    showContinueButton: !isIPad && !isSmallPhone
                 )
-                .padding(.top, isIPad ? 24 : (DeviceSize.isSmallPhone ? 10 : 20))
-                .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 30 : 40))
+                .padding(.top, isIPad ? 24 : (isSmallPhone ? 12 : 20))
+                .padding(.bottom, isIPad ? 120 : (isSmallPhone ? 90 : 40))
             }
             .frame(maxWidth: .infinity)
         }
@@ -270,9 +290,9 @@ struct VideoPreviewSection: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
             VideoPlayerView(playerViewModel: playerViewModel)
-                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 200 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
@@ -431,75 +451,82 @@ struct VideoInfoSection: View {
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
-        HStack(spacing: isSmallPhone ? 12 : 16) {
-            // Size
-            VStack(spacing: 2) {
-                Image(systemName: "internaldrive")
-                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Text(size)
-                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
-                    .foregroundColor(.accentWarm)
-                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                
-                Text("Size")
-                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-            }
-            
-            Divider()
-                .background(Color.white.opacity(0.3))
-                .frame(height: isSmallPhone ? 36 : 44)
-            
-            // Total Duration
-            VStack(spacing: 2) {
-                Image(systemName: "clock")
-                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Text(totalDuration)
-                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
-                    .foregroundColor(.accentWarm)
-                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                
-                Text("Total Duration")
-                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-            }
-            
-            Divider()
-                .background(Color.white.opacity(0.3))
-                .frame(height: isSmallPhone ? 36 : 44)
-            
-            // Resolution
-            VStack(spacing: 2) {
-                Image(systemName: "rectangle.expand.vertical")
-                    .font(.system(size: isIPad ? 16 : (isSmallPhone ? 12 : 14), weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Text(resolution)
-                    .font(.system(size: isIPad ? 20 : (isSmallPhone ? 14 : 16), weight: .bold))
-                    .foregroundColor(.accentWarm)
-                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
-                
-                Text("Resolution")
-                    .font(.system(size: isIPad ? 12 : (isSmallPhone ? 10 : 11), weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
+        infoCard {
+            if isSmallPhone {
+                VStack(spacing: 10) {
+                    compactMetric(icon: "internaldrive", label: "Size", value: size)
+                    Divider().background(Color.white.opacity(0.15))
+                    compactMetric(icon: "clock", label: "Total Duration", value: totalDuration)
+                    Divider().background(Color.white.opacity(0.15))
+                    compactMetric(icon: "rectangle.expand.vertical", label: "Resolution", value: resolution)
+                }
+            } else {
+                HStack(spacing: isIPad ? 20 : 16) {
+                    metric(icon: "internaldrive", value: size, label: "Size")
+                    divider
+                    metric(icon: "clock", value: totalDuration, label: "Total Duration")
+                    divider
+                    metric(icon: "rectangle.expand.vertical", value: resolution, label: "Resolution")
+                }
             }
         }
-        .padding(.horizontal, isSmallPhone ? 14 : 20)
-        .padding(.vertical, isIPad ? 16 : (isSmallPhone ? 8 : 10))
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.accentWarm.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
-                )
-        )
-        .shadow(color: .black.opacity(0.2), radius: isIPad ? 8 : 6, x: 0, y: 3)
-        .padding(.horizontal, isSmallPhone ? 14 : 20)
+    }
+
+    private func infoCard<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        content()
+            .padding(.horizontal, isSmallPhone ? 14 : 20)
+            .padding(.vertical, isIPad ? 16 : (isSmallPhone ? 10 : 12))
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.accentWarm.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
+                    )
+            )
+            .shadow(color: .black.opacity(0.2), radius: isIPad ? 8 : 6, x: 0, y: 3)
+            .padding(.horizontal, isSmallPhone ? 14 : 20)
+    }
+
+    private var divider: some View {
+        Divider()
+            .background(Color.white.opacity(0.2))
+            .frame(height: isIPad ? 46 : 40)
+    }
+
+    private func metric(icon: String, value: String, label: String) -> some View {
+        VStack(spacing: 2) {
+            Image(systemName: icon)
+                .font(.system(size: isIPad ? 16 : 14, weight: .medium))
+                .foregroundColor(.white.opacity(0.8))
+
+            Text(value)
+                .font(.system(size: isIPad ? 20 : 16, weight: .bold))
+                .foregroundColor(.accentWarm)
+                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+
+            Text(label)
+                .font(.system(size: isIPad ? 12 : 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.6))
+        }
+    }
+
+    private func compactMetric(icon: String, label: String, value: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white.opacity(0.75))
+
+            Text(label)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white.opacity(0.7))
+
+            Spacer()
+
+            Text(value)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.accentWarm)
+        }
     }
 }
 
@@ -513,15 +540,16 @@ struct VideoControlsSection: View {
     var showContinueButton: Bool = true
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
+    private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
-        VStack(spacing: DeviceSize.isSmallPhone ? 16 : (isIPad ? 30 : 24)) {
+        VStack(spacing: isSmallPhone ? 14 : (isIPad ? 30 : 24)) {
             TimePresetButtons(
                 selectedDuration: viewModel.selectedDuration,
                 onPresetSelected: viewModel.updateTrimForPreset,
                 onRequirePaywall: onRequirePaywall
             )
-            .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
+            .padding(.horizontal, isSmallPhone ? 12 : 20)
             
             VideoTrimmingSliderView(
                 startTime: $viewModel.trimStartTime,
@@ -531,8 +559,8 @@ struct VideoControlsSection: View {
                 enhancementType: viewModel.enhancementType,
                 playerViewModel: viewModel.playerViewModel
             )
-            .frame(height: 60)
-            .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
+            .frame(height: isSmallPhone ? 52 : 60)
+            .padding(.horizontal, isSmallPhone ? 12 : 20)
             
             if showContinueButton {
                 ContinueButton(
@@ -540,7 +568,7 @@ struct VideoControlsSection: View {
                     canProceed: viewModel.canProceed,
                     onContinue: onContinue
                 )
-                .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
+                .padding(.horizontal, isSmallPhone ? 12 : 20)
             }
         }
     }
@@ -555,23 +583,45 @@ struct TimePresetButtons: View {
     private var isIPad: Bool { hSize == .regular }
     
     var body: some View {
-        HStack(spacing: isIPad ? 24 : 16) {
-            Spacer()
-            
-            ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
-                let isPro = preset == .fiveMinutes
-                TimePresetButton(
-                    title: preset.title,
-                    isSelected: selectedDuration == preset,
-                    showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
-                    onTap: { onPresetSelected(preset) },
-                    onRequirePro: isPro ? {
-                        onRequirePaywall?()
-                    } : nil
-                )
+        if DeviceSize.isSmallPhone {
+            HStack(spacing: 16) {
+                Spacer(minLength: 0)
+
+                ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
+                    let isPro = preset == .fiveMinutes
+                    TimePresetButton(
+                        title: preset.title,
+                        isSelected: selectedDuration == preset,
+                        showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                        onTap: { onPresetSelected(preset) },
+                        onRequirePro: isPro ? {
+                            onRequirePaywall?()
+                        } : nil
+                    )
+                    .frame(width: 120)
+                }
+
+                Spacer(minLength: 0)
             }
-            
-            Spacer()
+        } else {
+            HStack(spacing: isIPad ? 24 : 16) {
+                Spacer()
+
+                ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
+                    let isPro = preset == .fiveMinutes
+                    TimePresetButton(
+                        title: preset.title,
+                        isSelected: selectedDuration == preset,
+                        showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                        onTap: { onPresetSelected(preset) },
+                        onRequirePro: isPro ? {
+                            onRequirePaywall?()
+                        } : nil
+                    )
+                }
+
+                Spacer()
+            }
         }
     }
 }
@@ -600,7 +650,7 @@ struct TimePresetButton: View {
                 .font(.system(size: isIPad ? 18 : (isSmallPhone ? 14 : 16), weight: .semibold))
                 .foregroundColor(isSelected ? .white : .white.opacity(0.8))
                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                .frame(width: isIPad ? 110 : (isSmallPhone ? 70 : 80), height: isIPad ? 48 : (isSmallPhone ? 36 : 40))
+                .frame(width: isIPad ? 110 : (isSmallPhone ? 120 : 80), height: isIPad ? 48 : (isSmallPhone ? 44 : 40))
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
