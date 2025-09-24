@@ -179,12 +179,10 @@ struct ImageComparisonCard: View {
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
             if let videoURL = selectedVideoURL {
-                NavigationView {
-                    RefactoredVideoTrimmingView(
-                        videoURL: videoURL,
-                        enhancementType: resolvedEnhancementType()
-                    )
-                }
+                VideoEnhancementModalView(
+                    videoURL: videoURL,
+                    enhancementType: resolvedEnhancementType()
+                )
             }
         }
         .alert("Photos Access Required", isPresented: $showingPermissionAlert) {

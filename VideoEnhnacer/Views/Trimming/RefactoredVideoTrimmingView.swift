@@ -10,6 +10,11 @@ struct RefactoredVideoTrimmingView: View {
     @State private var sizeText: String = "—"
     @State private var showingVideoPicker = false
     
+    // MARK: - Callbacks
+    private let onBack: (() -> Void)?
+    private let onClose: (() -> Void)?
+    private let onContinue: ((URL, Double, Double) -> Void)?
+    
     // MARK: - Dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container
@@ -22,7 +27,16 @@ struct RefactoredVideoTrimmingView: View {
     private var isIPad: Bool { hSize == .regular }
     
     // MARK: - Initialization
-    init(videoURL: URL, enhancementType: EnhancementType) {
+    init(
+        videoURL: URL,
+        enhancementType: EnhancementType,
+        onBack: (() -> Void)? = nil,
+        onClose: (() -> Void)? = nil,
+        onContinue: ((URL, Double, Double) -> Void)? = nil
+    ) {
+        self.onBack = onBack
+        self.onClose = onClose
+        self.onContinue = onContinue
         let container = DIContainer.shared
         let trimmingViewModel = container.makeVideoTrimmingViewModel(
             videoURL: videoURL,
@@ -111,7 +125,7 @@ struct RefactoredVideoTrimmingView: View {
                 // Controls
                 VideoControlsSection(
                     viewModel: viewModel,
-                    onContinue: { navigateToEnhancement = true },
+                    onContinue: handleContinueAction,
                     onRequirePaywall: { isShowingPaywall = true },
                     showContinueButton: !isIPad
                 )
@@ -125,10 +139,7 @@ struct RefactoredVideoTrimmingView: View {
                 ContinueButton(
                     enhancementType: viewModel.enhancementType,
                     canProceed: viewModel.canProceed,
-                    onContinue: {
-                        print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
-                        navigateToEnhancement = true
-                    }
+                    onContinue: handleContinueAction
                 )
                 .padding(.horizontal, 28)
                 .padding(.bottom, 24)
@@ -140,7 +151,7 @@ struct RefactoredVideoTrimmingView: View {
     @ToolbarContentBuilder
     private var navigationToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            BackButton { dismiss() }
+            BackButton { handleBackAction() }
         }
 
         ToolbarItem(placement: .principal) {
@@ -150,7 +161,7 @@ struct RefactoredVideoTrimmingView: View {
         }
 
         ToolbarItem(placement: .navigationBarTrailing) {
-            CloseButton { goHomeFromToolbar() }
+            CloseButton { handleCloseAction() }
         }
     }
     
@@ -159,13 +170,41 @@ struct RefactoredVideoTrimmingView: View {
         DragGesture()
             .onEnded { value in
                 if value.startLocation.x < 50 && value.translation.width > 100 {
-                    HapticFeedbackManager.impact(.light)
-                    dismiss()
+                    handleBackAction()
                 }
             }
     }
     
     // MARK: - Event Handlers
+    private func handleBackAction() {
+        if let onBack {
+            HapticFeedbackManager.impact(.light)
+            onBack()
+        } else {
+            HapticFeedbackManager.impact(.light)
+            dismiss()
+        }
+    }
+
+    private func handleCloseAction() {
+        if let onClose {
+            HapticFeedbackManager.impact(.medium)
+            onClose()
+        } else {
+            goHomeFromToolbar()
+        }
+    }
+
+    private func handleContinueAction() {
+        guard viewModel.canProceed else { return }
+        HapticFeedbackManager.impact(.medium)
+        if let onContinue {
+            onContinue(viewModel.videoURL, viewModel.trimStartTime, viewModel.trimEndTime)
+        } else {
+            navigateToEnhancement = true
+        }
+    }
+
     private func handleViewAppearance() {
         viewModel.loadVideo()
         print("🎬 RefactoredVideoTrimmingView - Appeared for \(viewModel.enhancementType.title)")
@@ -499,15 +538,12 @@ struct VideoControlsSection: View {
                 ContinueButton(
                     enhancementType: viewModel.enhancementType,
                     canProceed: viewModel.canProceed,
-                    onContinue: {
-                        print("🎬 RefactoredVideoTrimmingView - Continuing with trim: \(viewModel.trimStartTime) to \(viewModel.trimEndTime)")
-                        onContinue()
-                    }
+                    onContinue: onContinue
                 )
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 14 : 20)
+            }
         }
     }
-}
 }
 
 // MARK: - Time Preset Buttons

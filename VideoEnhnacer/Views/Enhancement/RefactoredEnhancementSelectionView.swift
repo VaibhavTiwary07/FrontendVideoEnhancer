@@ -18,15 +18,25 @@ struct RefactoredEnhancementSelectionView: View {
     @EnvironmentObject private var historyManager: HistoryManager
     @State private var isShowingError = false
     
+    private let onBack: (() -> Void)?
+    private let onClose: (() -> Void)?
+    private let onShowResults: ((EnhancementResult) -> Void)?
+    
     // MARK: - Initialization
     init(
         videoURL: URL,
         enhancementType: EnhancementType,
         trimStartTime: Double? = nil,
-        trimEndTime: Double? = nil
+        trimEndTime: Double? = nil,
+        onBack: (() -> Void)? = nil,
+        onClose: (() -> Void)? = nil,
+        onShowResults: ((EnhancementResult) -> Void)? = nil
     ) {
+        self.onBack = onBack
+        self.onClose = onClose
+        self.onShowResults = onShowResults
         let container = DIContainer.shared
-        
+
         let enhancementViewModel = container.makeEnhancementSelectionViewModel(
             videoURL: videoURL,
             enhancementType: enhancementType,
@@ -34,7 +44,7 @@ struct RefactoredEnhancementSelectionView: View {
             trimEndTime: trimEndTime
         )
         self._viewModel = StateObject(wrappedValue: enhancementViewModel)
-        
+
         let playerVM = container.makeVideoPlayerViewModel()
         self._playerViewModel = StateObject(wrappedValue: playerVM)
     }
@@ -72,7 +82,11 @@ struct RefactoredEnhancementSelectionView: View {
         // iOS 15: avoid dismiss race on goHome; rely on coordinator/ContentView to navigate
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             if #available(iOS 16.0, *) {
-                dismiss()
+                if let onClose {
+                    onClose()
+                } else {
+                    dismiss()
+                }
             } else {
                 // no-op on iOS 15; navigation is handled centrally
             }
@@ -117,10 +131,7 @@ struct RefactoredEnhancementSelectionView: View {
             processingState: viewModel.processingState,
             onCancel: { viewModel.cancelProcessing() }
         )
-        .onChange(of: viewModel.result) { result in
-            // Only navigate; History recording happens after ResultsView appears
-            if result != nil { showingResults = true }
-        }
+        .onChange(of: viewModel.result, perform: handleResultChange)
         .onChange(of: viewModel.isProcessing) { isProcessing in
             // Pause video playback when processing starts
             if isProcessing {
@@ -187,7 +198,7 @@ struct RefactoredEnhancementSelectionView: View {
     private var navigationToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             if !viewModel.isProcessing {
-                BackButton { dismiss() }
+                BackButton { handleBackAction() }
             } else {
                 EmptyView()
             }
@@ -204,7 +215,7 @@ struct RefactoredEnhancementSelectionView: View {
         
         ToolbarItem(placement: .navigationBarTrailing) {
             if !viewModel.isProcessing {
-                CloseButton { goHomeFromToolbar() }
+                CloseButton { handleCloseAction() }
             } else {
                 EmptyView()
             }
@@ -212,6 +223,34 @@ struct RefactoredEnhancementSelectionView: View {
     }
     
     // MARK: - Event Handlers
+    private func handleBackAction() {
+        if let onBack {
+            HapticFeedbackManager.impact(.light)
+            onBack()
+        } else {
+            HapticFeedbackManager.impact(.light)
+            dismiss()
+        }
+    }
+
+    private func handleCloseAction() {
+        if let onClose {
+            HapticFeedbackManager.impact(.medium)
+            onClose()
+        } else {
+            goHomeFromToolbar()
+        }
+    }
+
+    private func handleResultChange(_ result: EnhancementResult?) {
+        guard let result else { return }
+        if let onShowResults {
+            onShowResults(result)
+        } else {
+            showingResults = true
+        }
+    }
+
     private func handleViewAppearance() {
         print("🎭 RefactoredEnhancementSelectionView - Appeared with:")
         print("  Enhancement: \(viewModel.enhancementType.title)")

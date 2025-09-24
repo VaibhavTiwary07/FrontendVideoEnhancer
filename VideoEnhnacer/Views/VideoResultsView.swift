@@ -11,6 +11,27 @@ struct VideoResultsView: View {
     let enhancementIcon: String
     let gradientType: GradientType
 
+    private let onBack: (() -> Void)?
+    private let onClose: (() -> Void)?
+
+    init(
+        originalVideoURL: URL,
+        processedVideoURL: URL,
+        enhancementType: String,
+        enhancementIcon: String,
+        gradientType: GradientType,
+        onBack: (() -> Void)? = nil,
+        onClose: (() -> Void)? = nil
+    ) {
+        self.originalVideoURL = originalVideoURL
+        self.processedVideoURL = processedVideoURL
+        self.enhancementType = enhancementType
+        self.enhancementIcon = enhancementIcon
+        self.gradientType = gradientType
+        self.onBack = onBack
+        self.onClose = onClose
+    }
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var historyManager: HistoryManager
     @State private var mode: ViewMode = .output
@@ -53,13 +74,25 @@ struct VideoResultsView: View {
             VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
                 // Top bar
                 HStack {
-                    Button(action: { dismiss() }) {
+                    Button(action: handleBackAction) {
                         Image(systemName: "chevron.left")
                     }
                     .foregroundColor(.white)
                     Spacer()
                     
                     HStack(spacing: 12) {
+                        if onClose != nil {
+                            Button(action: handleCloseAction) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 40, height: 36)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white.opacity(0.12))
+                                    )
+                            }
+                        }
                         // Save button
 //                        Button(action: saveToPhotoLibrary) {
 //                            Image(systemName: "square.and.arrow.down")
@@ -146,7 +179,7 @@ struct VideoResultsView: View {
         // Listen for a global request to go Home; on iOS 15 avoid per-view dismiss
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             if #available(iOS 16.0, *) {
-                dismiss()
+                handleCloseAction()
             } else {
                 // no-op on iOS 15; rely on central navigation to avoid trim view flash
             }
@@ -259,6 +292,24 @@ struct VideoResultsView: View {
 
     private var effectiveVideoURL: URL {
         return exportedVideoURL ?? processedVideoURL
+    }
+
+    private func handleBackAction() {
+        HapticFeedbackManager.impact(.light)
+        if let onBack {
+            onBack()
+        } else {
+            dismiss()
+        }
+    }
+
+    private func handleCloseAction() {
+        HapticFeedbackManager.impact(.medium)
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
+        }
     }
 
     private func saveToPhotoLibrary() {
