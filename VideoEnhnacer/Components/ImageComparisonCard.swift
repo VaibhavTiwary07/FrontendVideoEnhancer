@@ -198,11 +198,14 @@ struct ImageComparisonCard: View {
     // MARK: - Card Tap Handler
     private func handleCardTap() {
         if permissionManager.canAccessPhotoLibrary {
+            // Clear any stale selection so cancel does not reuse previous video
+            selectedVideoURL = nil
             showingVideoPicker = true
         } else if permissionManager.needsPermissionRequest {
             Task {
                 await permissionManager.requestPhotoLibraryPermission()
                 if permissionManager.canAccessPhotoLibrary {
+                    selectedVideoURL = nil
                     showingVideoPicker = true
                 } else {
                     showingPermissionAlert = true
