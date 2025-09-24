@@ -6,7 +6,6 @@ import Combine
 /// Defines the contract for video player operations following Dependency Inversion Principle
 protocol VideoPlayerProtocol: AnyObject {
     // MARK: - Published Properties
-    var playerStatePublisher: Published<VideoPlayerState>.Publisher { get }
     var currentTimePublisher: Published<Double>.Publisher { get }
     
     // MARK: - Player Management
@@ -27,6 +26,7 @@ protocol VideoPlayerProtocol: AnyObject {
     
     // MARK: - State Management
     func getPlayerState(forKey key: String) -> VideoPlayerState
+    func getPlayerStatePublisher(forKey key: String) -> AnyPublisher<VideoPlayerState, Never>
 }
 
 // MARK: - Video Player State

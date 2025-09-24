@@ -77,8 +77,8 @@ struct RefactoredEnhancementSelectionView: View {
                 // no-op on iOS 15; navigation is handled centrally
             }
         }
-        .onAppear { handleViewAppearance() }
-        .onAppear {
+        .onAppear { 
+            handleViewAppearance()
             SubscriptionManager.shared.checkSubscriptionExpiry()
             // If only one option exists (e.g., Face/Object or AI Color), auto-start processing
             if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
@@ -215,12 +215,26 @@ struct RefactoredEnhancementSelectionView: View {
     private func handleViewAppearance() {
         print("🎭 RefactoredEnhancementSelectionView - Appeared with:")
         print("  Enhancement: \(viewModel.enhancementType.title)")
-        print("   Trim: \(viewModel.trimStartTime ?? -1) to \(viewModel.trimEndTime ?? -1)")
-        // Initialize player to mirror trimming preview behavior
+        print("  Video URL: \(viewModel.videoURL)")
+        print("  Video URL lastPathComponent: \(viewModel.videoURL.lastPathComponent)")
+        print("  Trim: \(viewModel.trimStartTime ?? -1) to \(viewModel.trimEndTime ?? -1)")
+        print("  PlayerViewModel current state: \(playerViewModel.playerState)")
+        print("  PlayerViewModel isLoading: \(playerViewModel.isLoading)")
+        
+        // Initialize player immediately to avoid "No player available" state
+        print("  🚀 Starting player setup immediately...")
         playerViewModel.setupPlayers(originalURL: viewModel.videoURL, enhancedURL: viewModel.videoURL)
+        
+        // Apply trim settings after a brief delay to ensure player is being set up
         if let start = viewModel.trimStartTime, let end = viewModel.trimEndTime {
-            playerViewModel.setPlaybackRange(start: start, end: end)
-            playerViewModel.seek(to: start)
+            print("  📐 Will apply trim range: \(start)s to \(end)s")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.playerViewModel.setPlaybackRange(start: start, end: end)
+                self.playerViewModel.seek(to: start)
+                print("  ✅ Trim range applied and seeked to start")
+            }
+        } else {
+            print("  ℹ️ No trim range to apply")
         }
     }
 
@@ -238,7 +252,7 @@ struct RefactoredEnhancementSelectionView: View {
 }
 
 // MARK: - Enhancement Video Preview Section
-private struct EnhancementVideoPreviewSection: View {
+struct EnhancementVideoPreviewSection: View {
     let playerViewModel: VideoPlayerViewModel
     let enhancementType: EnhancementType
     let onChangeVideo: (() -> Void)?
@@ -246,6 +260,11 @@ private struct EnhancementVideoPreviewSection: View {
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var isMuted: Bool = true
+    
+    // Debug tracking
+    private let debugId = UUID().uuidString.prefix(8)
+    @State private var viewAppearCount = 0
+    @State private var viewDisappearCount = 0
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -278,42 +297,118 @@ private struct EnhancementVideoPreviewSection: View {
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
+        .onAppear {
+            viewAppearCount += 1
+            print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - onAppear #\(viewAppearCount)")
+            print("  Enhancement: \(enhancementType.title)")
+            print("  IsIPad: \(isIPad)")
+            print("  Frame height: \(isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))")
+            print("  PlayerViewModel available: \(playerViewModel != nil)")
+            print("  Player state: \(playerViewModel.playerState)")
+            print("  Player loading: \(playerViewModel.isLoading)")
+            print("  Player error: \(playerViewModel.error?.localizedDescription ?? "none")")
+            print("  Normal player available: \(playerViewModel.normalPlayer != nil)")
+            print("  Enhanced player available: \(playerViewModel.enhancedPlayer != nil)")
+            print("  Is playable: \(playerViewModel.isPlayable)")
+            
+            // Monitor player state changes
+            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+                print("📺 EnhancementVideoPreviewSection[🆔 \(self.debugId)] - Status check:")
+                print("  Player state: \(self.playerViewModel.playerState)")
+                print("  Loading: \(self.playerViewModel.isLoading)")
+                print("  Normal player: \(self.playerViewModel.normalPlayer != nil ? "✅" : "❌")")
+                print("  Error: \(self.playerViewModel.error?.localizedDescription ?? "none")")
+                
+                // Stop monitoring once player is ready or error occurs
+                if self.playerViewModel.normalPlayer != nil || self.playerViewModel.error != nil {
+                    timer.invalidate()
+                    print("📺 EnhancementVideoPreviewSection[🆔 \(self.debugId)] - Stopping status monitoring")
+                }
+            }
+        }
+        .onDisappear {
+            viewDisappearCount += 1
+            print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - onDisappear #\(viewDisappearCount)")
+        }
     }
     
     private func toggleMute() {
         isMuted.toggle()
+        print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - toggleMute(\(isMuted))")
         playerViewModel.setMuted(isMuted)
     }
 }
 
 // MARK: - Enhancement Video Player View
-private struct EnhancementVideoPlayerView: View {
+struct EnhancementVideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
     @Binding var isMuted: Bool
+    
+    // Debug tracking
+    private let debugId = UUID().uuidString.prefix(8)
+    @State private var viewAppearCount = 0
+    @State private var viewDisappearCount = 0
     
     var body: some View {
         Group {
             if let player = playerViewModel.normalPlayer {
                 VideoPlayer(player: player)
                     .onAppear {
+                        viewAppearCount += 1
+                        print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onAppear #\(viewAppearCount)")
+                        print("  Player available: true")
+                        print("  Setting active and starting playback...")
                         playerViewModel.setActive(true)
                         playerViewModel.setMuted(isMuted)
                         playerViewModel.play()
                     }
                     .onDisappear {
+                        viewDisappearCount += 1
+                        print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onDisappear #\(viewDisappearCount)")
+                        print("  Setting inactive...")
                         playerViewModel.setActive(false)
                     }
-            } else if playerViewModel.isLoading {
-                EnhancementVideoLoadingPlaceholder()
             } else if let error = playerViewModel.error {
                 EnhancementVideoErrorPlaceholder(error: error)
+                    .onAppear {
+                        print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Showing error placeholder")
+                        print("  Error: \(error)")
+                        print("  Player state: \(playerViewModel.playerState)")
+                    }
+            } else if playerViewModel.isLoading || playerViewModel.playerState == .loading {
+                EnhancementVideoLoadingPlaceholder()
+                    .onAppear {
+                        print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Showing loading placeholder")
+                        print("  Loading: \(playerViewModel.isLoading)")
+                        print("  Player state: \(playerViewModel.playerState)")
+                        print("  Normal player: \(playerViewModel.normalPlayer != nil ? "available" : "not available")")
+                    }
+            } else {
+                // Fallback state - show loading instead of "No player available"
+                EnhancementVideoLoadingPlaceholder()
+                    .onAppear {
+                        print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Fallback to loading state")
+                        print("  Player available: \(playerViewModel.normalPlayer != nil)")
+                        print("  Loading: \(playerViewModel.isLoading)")
+                        print("  Error: \(playerViewModel.error?.localizedDescription ?? "none")")
+                        print("  Player state: \(playerViewModel.playerState)")
+                        print("  ⚠️ This may indicate a timing issue - showing loading as fallback")
+                    }
             }
+        }
+        .onAppear {
+            print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - onAppear")
+            print("  Player available: \(playerViewModel.normalPlayer != nil)")
+            print("  Loading: \(playerViewModel.isLoading)")
+            print("  Error: \(playerViewModel.error?.localizedDescription ?? "none")")
+            print("  Player state: \(playerViewModel.playerState)")
+            print("  Muted: \(isMuted)")
         }
     }
 }
 
 // MARK: - Enhancement Video Loading Placeholder
-private struct EnhancementVideoLoadingPlaceholder: View {
+struct EnhancementVideoLoadingPlaceholder: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
@@ -333,7 +428,7 @@ private struct EnhancementVideoLoadingPlaceholder: View {
 }
 
 // MARK: - Enhancement Video Error Placeholder
-private struct EnhancementVideoErrorPlaceholder: View {
+struct EnhancementVideoErrorPlaceholder: View {
     let error: VideoPlayerError
     
     var body: some View {

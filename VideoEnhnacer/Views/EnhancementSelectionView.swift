@@ -23,6 +23,12 @@ struct EnhancementSelectionView: View {
     @State private var showingError = false
     @State private var isShowingPaywall = false
     
+    // Debug tracking
+    private let debugId = UUID().uuidString.prefix(8)
+    @State private var viewAppearCount = 0
+    @State private var viewDisappearCount = 0
+    @State private var videoPlayerVisibleCount = 0
+    
     private var isIPad: Bool {
         horizontalSizeClass == .regular
     }
@@ -126,6 +132,14 @@ struct EnhancementSelectionView: View {
                         )
                         .id("header")
                         .padding(.top, 20)
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .onAppear {
+                                        print("📐 EnhancementSelectionView[\(debugId)] - HeaderSection frame: \(geo.size)")
+                                    }
+                            }
+                        )
                         
                         // Spatial video preview
                         SpatialVideoPreview(
@@ -136,6 +150,26 @@ struct EnhancementSelectionView: View {
                         )
                         .frame(height: adaptivePreviewHeight)
                         .padding(.top, 20)
+                        .onAppear {
+                            videoPlayerVisibleCount += 1
+                            print("📺 EnhancementSelectionView[\(debugId)] - SpatialVideoPreview appeared #\(videoPlayerVisibleCount)")
+                            print("  Frame height: \(adaptivePreviewHeight)")
+                        }
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .onAppear {
+                                        print("📐 EnhancementSelectionView[\(debugId)] - SpatialVideoPreview frame: \(geo.size)")
+                                        print("  Expected height: \(adaptivePreviewHeight)")
+                                    }
+                                    .onChange(of: geo.size) { newSize in
+                                        print("📐 EnhancementSelectionView[\(debugId)] - SpatialVideoPreview frame changed: \(newSize)")
+                                        if newSize.height != adaptivePreviewHeight {
+                                            print("  ⚠️ Height mismatch! Expected: \(adaptivePreviewHeight), Actual: \(newSize.height)")
+                                        }
+                                    }
+                            }
+                        )
                         
                         // Enhancement options section
                         VStack(spacing: 16) {
@@ -350,31 +384,53 @@ struct EnhancementSelectionView: View {
             dismiss()
         }
         .onAppear {
+            viewAppearCount += 1
+            print("🎭 EnhancementSelectionView[\(debugId)] - onAppear #\(viewAppearCount)")
+            print("  Enhancement: \(enhancementType)")
+            print("  Video URL: \(videoURL.lastPathComponent)")
+            print("  Trim: \(trimStartTime ?? -1)s to \(trimEndTime ?? -1)s")
+            print("  IsIPad: \(isIPad)")
+            print("  Adaptive height: \(adaptivePreviewHeight)")
+            print("  Options count: \(enhancementOptions.count)")
+            
             SubscriptionManager.shared.checkSubscriptionExpiry()
-            // Debug: Log received trim values
-            print("🎭 EnhancementSelectionView - Received trimStartTime: \(trimStartTime ?? -1), trimEndTime: \(trimEndTime ?? -1)")
             
             // Set default selection, respecting PRO gating for unsubscribed users
             let isSubscribed = SubscriptionManager.shared.isAppSubscribed()
+            print("  User subscribed: \(isSubscribed)")
+            
             if let recommended = enhancementOptions.first(where: { $0.isRecommended }) {
+                print("  Found recommended option: \(recommended.title)")
                 if !isSubscribed && isProOption(for: enhancementType, optionId: recommended.id) {
+                    print("  Recommended is PRO, looking for free option")
                     // Pick first non-PRO option
                     if let free = enhancementOptions.first(where: { !isProOption(for: enhancementType, optionId: $0.id) }) {
                         selectionState.selectedOption = free.id
+                        print("  Selected free option: \(free.title)")
                     } else {
                         selectionState.selectedOption = recommended.id
+                        print("  No free option, using recommended: \(recommended.title)")
                     }
                 } else {
                     selectionState.selectedOption = recommended.id
+                    print("  Selected recommended option: \(recommended.title)")
                 }
             } else if let first = enhancementOptions.first {
                 selectionState.selectedOption = first.id
+                print("  No recommended, selected first option: \(first.title)")
             }
 
             // If this enhancement has only one option (e.g., Face/Object or AI Color), auto-start processing
             if enhancementOptions.count == 1 {
+                print("  Auto-starting processing for single option")
                 processVideo()
             }
+            
+            print("  onAppear completed")
+        }
+        .onDisappear {
+            viewDisappearCount += 1
+            print("🎭 EnhancementSelectionView[\(debugId)] - onDisappear #\(viewDisappearCount)")
         }
         .fullScreenCover(isPresented: $showingResults) {
             if let processedURL = processedVideoURL {

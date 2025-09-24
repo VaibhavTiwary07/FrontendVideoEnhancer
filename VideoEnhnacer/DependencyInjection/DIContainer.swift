@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import AVFoundation
+import Combine
 
 // MARK: - Dependency Injection Container
 /// Central container for managing dependencies following Dependency Inversion Principle
@@ -191,32 +192,52 @@ final class MockDIContainer: ObservableObject {
 
 // MARK: - Mock Services
 final class MockVideoPlayerService: VideoPlayerProtocol {
-    @Published private var playerState: VideoPlayerState = .idle
     @Published private var currentTime: Double = 0
     
-    var playerStatePublisher: Published<VideoPlayerState>.Publisher { $playerState }
     var currentTimePublisher: Published<Double>.Publisher { $currentTime }
     
+    // Per-key state tracking for mock
+    private var keyStates: [String: VideoPlayerState] = [:]
+    private var keyStateSubjects: [String: CurrentValueSubject<VideoPlayerState, Never>] = [:]
+    
     func setupPlayers(key: String, normalVideoName: String, enhancedVideoName: String) async throws {
-        playerState = .loading
+        keyStates[key] = .loading
+        keyStateSubjects[key]?.send(.loading)
         try await Task.sleep(nanoseconds: 1_000_000_000)
-        playerState = .ready
+        keyStates[key] = .ready
+        keyStateSubjects[key]?.send(.ready)
     }
     func setupPlayers(key: String, originalURL: URL, enhancedURL: URL) async throws {
-        playerState = .loading
+        keyStates[key] = .loading
+        keyStateSubjects[key]?.send(.loading)
         try await Task.sleep(nanoseconds: 500_000_000)
-        playerState = .ready
+        keyStates[key] = .ready
+        keyStateSubjects[key]?.send(.ready)
     }
     
     func setActiveView(forKey key: String, isActive: Bool) {}
     func cleanup() {}
-    func play(forKey key: String) async { playerState = .playing }
-    func pause(forKey key: String) { playerState = .paused }
+    func play(forKey key: String) async { 
+        keyStates[key] = .playing
+        keyStateSubjects[key]?.send(.playing)
+    }
+    func pause(forKey key: String) { 
+        keyStates[key] = .paused
+        keyStateSubjects[key]?.send(.paused)
+    }
     func seek(to time: Double, forKey key: String) async { currentTime = time }
     func setPlaybackRange(start: Double, end: Double, forKey key: String) {}
     func getNormalPlayer(forKey key: String) -> AVPlayer? { nil }
     func getEnhancedPlayer(forKey key: String) -> AVPlayer? { nil }
-    func getPlayerState(forKey key: String) -> VideoPlayerState { playerState }
+    func getPlayerState(forKey key: String) -> VideoPlayerState { 
+        return keyStates[key] ?? .idle
+    }
+    func getPlayerStatePublisher(forKey key: String) -> AnyPublisher<VideoPlayerState, Never> {
+        if keyStateSubjects[key] == nil {
+            keyStateSubjects[key] = CurrentValueSubject<VideoPlayerState, Never>(.idle)
+        }
+        return keyStateSubjects[key]!.eraseToAnyPublisher()
+    }
 }
 
 final class MockVideoProcessingService: VideoProcessingProtocol {
