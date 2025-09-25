@@ -227,6 +227,14 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     
                     // Set output URL
                     let outputURL = self.generateOutputURL(for: url, suffix: "_trimmed")
+                    if self.fileManager.fileExists(atPath: outputURL.path) {
+                        do {
+                            try self.fileManager.removeItem(at: outputURL)
+                        } catch {
+                            continuation.resume(throwing: VideoProcessingError.exportFailed("Could not clear previous trimmed file"))
+                            return
+                        }
+                    }
                     exportSession.outputURL = outputURL
                     exportSession.outputFileType = .mp4
                     
@@ -335,6 +343,14 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     }
                     
                     let outputURL = self.generateOutputURL(for: url, suffix: "_compressed")
+                    if self.fileManager.fileExists(atPath: outputURL.path) {
+                        do {
+                            try self.fileManager.removeItem(at: outputURL)
+                        } catch {
+                            continuation.resume(throwing: VideoProcessingError.exportFailed("Could not clear previous compressed file"))
+                            return
+                        }
+                    }
                     exportSession.outputURL = outputURL
                     exportSession.outputFileType = .mp4
                     
@@ -380,8 +396,16 @@ final class VideoProcessingService: VideoProcessingProtocol {
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
                         return
                     }
-                    
+
                     let outputURL = self.generateOutputURL(for: url, suffix: "_converted", extension: format.fileExtension)
+                    if self.fileManager.fileExists(atPath: outputURL.path) {
+                        do {
+                            try self.fileManager.removeItem(at: outputURL)
+                        } catch {
+                            continuation.resume(throwing: VideoProcessingError.exportFailed("Could not clear previous converted file"))
+                            return
+                        }
+                    }
                     exportSession.outputURL = outputURL
                     exportSession.outputFileType = format.avFileType
                     
