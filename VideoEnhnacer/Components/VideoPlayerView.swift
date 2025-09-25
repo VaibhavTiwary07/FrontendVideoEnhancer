@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import AVKit
+import UIKit
 
 struct VideoPreviewView: View {
     let videoURL: URL
@@ -17,8 +18,8 @@ struct VideoPreviewView: View {
         ZStack {
             if let player = playerManager.player {
                 AVPlayerUIView(player: player, videoGravity: videoGravity)
-                    .onAppear { player.play() }
-                    .onDisappear { player.pause() }
+                    .onAppear { playerManager.startPlayback() }
+                    .onDisappear { playerManager.pausePlayback() }
             } else {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.gray.opacity(0.3))
@@ -44,12 +45,22 @@ class VideoPreviewManager: ObservableObject {
     private var timeObserver: Any?
     private var startTime: Double = 0
     private var endTime: Double?
+    private var lifecycleObservers: [NSObjectProtocol] = []
+    private var shouldResumeAfterInterruption: Bool = false
+    private var pendingResume: Bool = false
+    private var isVisible: Bool = false
+    private var awaitingAdResume: Bool = false
+    private var resumeFallbackWorkItem: DispatchWorkItem?
     
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
     private var setupCallCount = 0
     private var cleanupCallCount = 0
     private var retryCount = 0
+
+    init() {
+        registerLifecycleObservers()
+    }
     
     func setupPlayer(with url: URL) {
         setupCallCount += 1
@@ -138,6 +149,25 @@ class VideoPreviewManager: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
+    func startPlayback() {
+        print("🎮 VideoPreviewManager[\(debugId)] - startPlayback()")
+        isVisible = true
+        shouldResumeAfterInterruption = true
+        pendingResume = false
+        player?.play()
+    }
+
+    func pausePlayback() {
+        print("🎮 VideoPreviewManager[\(debugId)] - pausePlayback()")
+        isVisible = false
+        shouldResumeAfterInterruption = false
+        pendingResume = false
+        awaitingAdResume = false
+        resumeFallbackWorkItem?.cancel()
+        resumeFallbackWorkItem = nil
+        player?.pause()
+    }
     
     func retrySetup(with url: URL) {
         retryCount += 1
@@ -198,11 +228,8 @@ class VideoPreviewManager: ObservableObject {
         print("🎮 VideoPreviewManager[\(debugId)] - cleanup() call #\(cleanupCallCount)")
         print("  Player exists before cleanup: \(player != nil)")
         print("  TimeObserver exists: \(timeObserver != nil)")
-        
-        if let player = player {
-            player.pause()
-            print("  Player paused")
-        }
+
+        pausePlayback()
         
         if let timeObserver = timeObserver {
             player?.removeTimeObserver(timeObserver)
@@ -213,13 +240,107 @@ class VideoPreviewManager: ObservableObject {
         player = nil
         print("  Player set to nil")
         
-        NotificationCenter.default.removeObserver(self)
-        print("  NotificationCenter observers removed")
         print("  Cleanup completed")
     }
     
     deinit {
+        for observer in lifecycleObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        lifecycleObservers.removeAll()
         cleanup()
+    }
+
+    // MARK: - Lifecycle Handling
+    private func registerLifecycleObservers() {
+        let center = NotificationCenter.default
+
+        let didEnterBackground = center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.handleDidEnterBackground()
+        }
+        lifecycleObservers.append(didEnterBackground)
+
+        let appReturned = center.addObserver(forName: .appReturnedToForeground, object: nil, queue: .main) { [weak self] _ in
+            self?.handleAppReturnedToForeground()
+        }
+        lifecycleObservers.append(appReturned)
+
+        let resumeRequested = center.addObserver(forName: .resumeContentRequested, object: nil, queue: .main) { [weak self] _ in
+            self?.handleResumeContentRequested()
+        }
+        lifecycleObservers.append(resumeRequested)
+
+        let didBecomeActive = center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.handleDidBecomeActive()
+        }
+        lifecycleObservers.append(didBecomeActive)
+    }
+
+    private func handleDidEnterBackground() {
+        guard isVisible else { return }
+        print("🎮 VideoPreviewManager[\(debugId)] - didEnterBackground")
+        if let player = player {
+            if player.rate != 0 {
+                shouldResumeAfterInterruption = true
+            }
+            player.pause()
+        }
+        pendingResume = false
+    }
+
+    private func handleAppReturnedToForeground() {
+        guard isVisible else { return }
+        print("🎮 VideoPreviewManager[\(debugId)] - appReturnedToForeground")
+        if shouldResumeAfterInterruption {
+            pendingResume = true
+            awaitingAdResume = AdsManager.shared.suppressNonResumeAdPresentations
+            if awaitingAdResume {
+                scheduleResumeFallback()
+            } else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.resumeIfNeeded()
+                }
+            }
+        }
+    }
+
+    private func handleResumeContentRequested() {
+        guard isVisible else { return }
+        print("🎮 VideoPreviewManager[\(debugId)] - resumeContentRequested")
+        awaitingAdResume = false
+        resumeFallbackWorkItem?.cancel()
+        resumeFallbackWorkItem = nil
+        resumeIfNeeded()
+    }
+
+    private func handleDidBecomeActive() {
+        guard isVisible else { return }
+        print("🎮 VideoPreviewManager[\(debugId)] - didBecomeActive")
+        guard shouldResumeAfterInterruption && !pendingResume else { return }
+        pendingResume = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.resumeIfNeeded()
+        }
+    }
+
+    private func resumeIfNeeded() {
+        guard pendingResume, shouldResumeAfterInterruption, isVisible else { return }
+        guard !awaitingAdResume else { return }
+        pendingResume = false
+        awaitingAdResume = false
+        player?.play()
+        print("🎮 VideoPreviewManager[\(debugId)] - resumed playback")
+    }
+
+    private func scheduleResumeFallback() {
+        resumeFallbackWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            self.awaitingAdResume = false
+            self.resumeIfNeeded()
+        }
+        resumeFallbackWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0, execute: workItem)
     }
 }
 //
