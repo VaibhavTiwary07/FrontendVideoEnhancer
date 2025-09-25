@@ -8,6 +8,7 @@ class VideoPlayerManager: ObservableObject {
     private var loadedKeys: Set<String> = []
     private var loadingKeys: Set<String> = []
     private var activeViewKeys: Set<String> = []
+    private var playerMuteStates: [String: Bool] = [:]
     
     // Published states for UI updates
     @Published private var playerStates: [String: PlayerState] = [:]
@@ -52,6 +53,10 @@ class VideoPlayerManager: ObservableObject {
                 
                 await MainActor.run {
                     print("🎬 Successfully loaded players (assets) for key '\(key)'")
+                    let muteState = self.playerMuteStates[key] ?? true
+                    players.normal.isMuted = muteState
+                    players.enhanced.isMuted = muteState
+                    self.playerMuteStates[key] = muteState
                     self.playerPairs[key] = players
                     self.loadedKeys.insert(key)
                     self.loadingKeys.remove(key)
@@ -91,8 +96,9 @@ class VideoPlayerManager: ObservableObject {
             do {
                 let normalPlayer = AVPlayer(url: originalURL)
                 let enhancedPlayer = AVPlayer(url: processedURL)
-                normalPlayer.isMuted = true
-                enhancedPlayer.isMuted = true
+                let muteState = self.playerMuteStates[key] ?? true
+                normalPlayer.isMuted = muteState
+                enhancedPlayer.isMuted = muteState
                 normalPlayer.allowsExternalPlayback = false
                 enhancedPlayer.allowsExternalPlayback = false
                 
@@ -105,6 +111,7 @@ class VideoPlayerManager: ObservableObject {
                     self.playerPairs[key] = (normal: normalPlayer, enhanced: enhancedPlayer)
                     self.loadedKeys.insert(key)
                     self.loadingKeys.remove(key)
+                    self.playerMuteStates[key] = muteState
                     self.playerStates[key] = .ready
                     self.syncPlayers(forKey: key)
                     if self.activeViewKeys.contains(key) {
@@ -150,9 +157,6 @@ class VideoPlayerManager: ObservableObject {
                 
                 let normalPlayer = AVPlayer(url: normalURL)
                 let enhancedPlayer = AVPlayer(url: enhancedURL)
-                
-                normalPlayer.isMuted = true
-                enhancedPlayer.isMuted = true
                 normalPlayer.allowsExternalPlayback = false
                 enhancedPlayer.allowsExternalPlayback = false
                 
@@ -329,6 +333,7 @@ class VideoPlayerManager: ObservableObject {
         loadingKeys.remove(key)
         activeViewKeys.remove(key)
         playerStates.removeValue(forKey: key)
+        playerMuteStates.removeValue(forKey: key)
     }
     
     func pausePlayers(forKey key: String) {
@@ -352,7 +357,7 @@ class VideoPlayerManager: ObservableObject {
         }
         activeViewKeys.removeAll()
     }
-    
+
     func resumeActiveViewPlayers() {
         // Resume all loaded players to maintain continuity across tab switches
         for key in loadedKeys {
@@ -365,6 +370,24 @@ class VideoPlayerManager: ObservableObject {
                 }
             }
         }
+    }
+
+    func setMuted(_ muted: Bool, forKey key: String) {
+        playerMuteStates[key] = muted
+        if let pair = playerPairs[key] {
+            pair.normal.isMuted = muted
+            pair.enhanced.isMuted = muted
+        }
+    }
+
+    func toggleMute(forKey key: String) -> Bool {
+        let newValue = !(playerMuteStates[key] ?? true)
+        setMuted(newValue, forKey: key)
+        return newValue
+    }
+
+    func isMuted(forKey key: String) -> Bool {
+        playerMuteStates[key] ?? true
     }
     
     init() {

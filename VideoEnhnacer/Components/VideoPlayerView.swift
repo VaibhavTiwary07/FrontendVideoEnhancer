@@ -7,19 +7,48 @@ struct VideoPreviewView: View {
     let videoURL: URL
     // Allow callers to control aspect behavior similar to Results screen
     var videoGravity: AVLayerVideoGravity = .resizeAspect
+    private let showsMuteToggle: Bool
+    private let startMuted: Bool
+    private let externalMuteBinding: Binding<Bool>?
     @StateObject private var playerManager = VideoPreviewManager()
     
-    init(videoURL: URL, videoGravity: AVLayerVideoGravity = .resizeAspect) {
+    init(
+        videoURL: URL,
+        videoGravity: AVLayerVideoGravity = .resizeAspect,
+        showsMuteToggle: Bool = false,
+        muteBinding: Binding<Bool>? = nil,
+        startMuted: Bool = true
+    ) {
         self.videoURL = videoURL
         self.videoGravity = videoGravity
+        self.showsMuteToggle = showsMuteToggle
+        self.externalMuteBinding = muteBinding
+        self.startMuted = startMuted
     }
     
     var body: some View {
         ZStack {
             if let player = playerManager.player {
-                AVPlayerUIView(player: player, videoGravity: videoGravity)
-                    .onAppear { playerManager.startPlayback() }
-                    .onDisappear { playerManager.pausePlayback() }
+                let muteBinding = makeMuteBinding()
+                ZStack(alignment: .topTrailing) {
+                    AVPlayerUIView(player: player, videoGravity: videoGravity)
+                        .onAppear { playerManager.startPlayback() }
+                        .onDisappear { playerManager.pausePlayback() }
+
+                    if showsMuteToggle {
+                        Button(action: {
+                            muteBinding.wrappedValue.toggle()
+                        }) {
+                            Image(systemName: muteBinding.wrappedValue ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Circle().fill(Color.black.opacity(0.35)))
+                        }
+                        .accessibilityLabel(muteBinding.wrappedValue ? "Unmute" : "Mute")
+                        .padding(12)
+                    }
+                }
             } else {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.gray.opacity(0.3))
@@ -30,11 +59,34 @@ struct VideoPreviewView: View {
             }
         }
         .onAppear {
+            let initialMute = externalMuteBinding?.wrappedValue ?? startMuted
+            playerManager.setMuted(initialMute)
             playerManager.setupPlayer(with: videoURL)
         }
         .onDisappear {
             playerManager.cleanup()
         }
+        .onChange(of: externalMuteBinding?.wrappedValue ?? playerManager.isMuted) { newValue in
+            playerManager.setMuted(newValue)
+        }
+    }
+
+    private func makeMuteBinding() -> Binding<Bool> {
+        if let external = externalMuteBinding {
+            return Binding<Bool>(
+                get: { external.wrappedValue },
+                set: { newValue in
+                    external.wrappedValue = newValue
+                    playerManager.setMuted(newValue)
+                }
+            )
+        }
+        return Binding<Bool>(
+            get: { playerManager.isMuted },
+            set: { newValue in
+                playerManager.setMuted(newValue)
+            }
+        )
     }
 }
 
@@ -42,6 +94,7 @@ class VideoPreviewManager: ObservableObject {
     @Published var player: AVPlayer?
     @Published var hasError: Bool = false
     @Published var errorMessage: String?
+    @Published private(set) var isMuted: Bool = true
     private var timeObserver: Any?
     private var startTime: Double = 0
     private var endTime: Double?
@@ -122,8 +175,8 @@ class VideoPreviewManager: ObservableObject {
                 }
             }
             
-            // Mute audio for seamless experience
-            player?.isMuted = true
+            // Apply current mute preference
+            player?.isMuted = isMuted
             
             // Disable AirPlay for all video players
             player?.allowsExternalPlayback = false
@@ -155,6 +208,7 @@ class VideoPreviewManager: ObservableObject {
         isVisible = true
         shouldResumeAfterInterruption = true
         pendingResume = false
+        player?.isMuted = isMuted
         player?.play()
     }
 
@@ -167,6 +221,15 @@ class VideoPreviewManager: ObservableObject {
         resumeFallbackWorkItem?.cancel()
         resumeFallbackWorkItem = nil
         player?.pause()
+    }
+
+    func setMuted(_ muted: Bool) {
+        if isMuted == muted {
+            player?.isMuted = muted
+            return
+        }
+        isMuted = muted
+        player?.isMuted = muted
     }
     
     func retrySetup(with url: URL) {
@@ -328,6 +391,7 @@ class VideoPreviewManager: ObservableObject {
         guard !awaitingAdResume else { return }
         pendingResume = false
         awaitingAdResume = false
+        player?.isMuted = isMuted
         player?.play()
         print("🎮 VideoPreviewManager[\(debugId)] - resumed playback")
     }

@@ -45,6 +45,7 @@ struct VideoResultsView: View {
     @State private var selectedFrameRate = "30fps"
     @State private var selectedFormat = "MP4"
     @State private var exportedVideoURL: URL? = nil
+    @State private var isMuted = true
 
     enum ViewMode { case original, compare, output }
     
@@ -52,18 +53,31 @@ struct VideoResultsView: View {
     private var currentModeView: some View {
         switch mode {
         case .original:
-            VideoPreviewView(videoURL: originalVideoURL)
-        case .compare:
-            VideoComparisonSlider(
-                normalVideoName: nil,
-                enhancedVideoName: nil,
-                originalURL: originalVideoURL,
-                enhancedURL: processedVideoURL,
-                videoPlayerManager: videoPlayerManager,
-                backgroundColor: Color.black
+            VideoPreviewView(
+                videoURL: originalVideoURL,
+                showsMuteToggle: true,
+                muteBinding: $isMuted
             )
+        case .compare:
+            ZStack(alignment: .topTrailing) {
+                VideoComparisonSlider(
+                    normalVideoName: nil,
+                    enhancedVideoName: nil,
+                    originalURL: originalVideoURL,
+                    enhancedURL: processedVideoURL,
+                    videoPlayerManager: videoPlayerManager,
+                    backgroundColor: Color.black
+                )
+
+                muteToggleButton
+                    .padding(16)
+            }
         case .output:
-            VideoPreviewView(videoURL: processedVideoURL)
+            VideoPreviewView(
+                videoURL: processedVideoURL,
+                showsMuteToggle: true,
+                muteBinding: $isMuted
+            )
         }
     }
 
@@ -188,6 +202,7 @@ struct VideoResultsView: View {
             // Pre-setup video players for comparison mode
             videoPlayerManager.setupVideoPlayers(forKey: generateVideoKey(), originalURL: originalVideoURL, processedURL: processedVideoURL)
             videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
+            videoPlayerManager.setMuted(isMuted, forKey: generateVideoKey())
             // Record in history after results become visible
             let item = HistoryItem(
                 originalURL: originalVideoURL,
@@ -201,6 +216,9 @@ struct VideoResultsView: View {
             // Clean up video players to prevent state conflicts with other views
             videoPlayerManager.cleanupPlayersForKey(generateVideoKey())
         }
+        .onChange(of: isMuted) { muted in
+            videoPlayerManager.setMuted(muted, forKey: generateVideoKey())
+        }
         .alert("Save Error", isPresented: $showingError) {
             Button("OK") { }
         } message: {
@@ -211,6 +229,19 @@ struct VideoResultsView: View {
         } message: {
             Text("Video has been saved to your photo library")
         }
+    }
+
+    private var muteToggleButton: some View {
+        Button(action: {
+            isMuted.toggle()
+        }) {
+            Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(10)
+                .background(Circle().fill(Color.black.opacity(0.35)))
+        }
+        .accessibilityLabel(isMuted ? "Unmute" : "Mute")
     }
 
     @Environment(\.horizontalSizeClass) private var hSize

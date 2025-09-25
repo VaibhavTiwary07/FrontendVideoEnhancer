@@ -32,6 +32,7 @@ struct ExportOptionsView: View {
     @State private var savedAlertMessage: String = ""
     // One-shot guard to prevent duplicate Home ad intents during navigation
     @State private var homeAdIntentPosted: Bool = false
+    @State private var finalPreviewMuted: Bool = true
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -332,30 +333,36 @@ extension ExportOptionsView {
     @ViewBuilder
     var finalPage: some View {
         GeometryReader { geo in
+            let isSmall = DeviceSize.isSmallPhone
+            let playerHeight = isSmall ? max(220, geo.size.height * 0.48) : max(340, geo.size.height * 0.68)
+            let gravity: AVLayerVideoGravity = isSmall ? .resizeAspectFill : .resizeAspect
+            let bottomPadding = max(20, geo.safeAreaInsets.bottom + (isSmall ? 12 : 20))
+
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: 16) {
-                    let isSmall = DeviceSize.isSmallPhone
-                    let playerHeight = isSmall ? max(240, geo.size.height * 0.52) : max(360, geo.size.height * 0.72)
-                    let gravity: AVLayerVideoGravity = isSmall ? .resizeAspectFill : .resizeAspect
-
+                VStack(spacing: isSmall ? 12 : 16) {
                     ZStack {
                         if let exportedVideoURL = exportedVideoURL {
-                            VideoPreviewView(videoURL: exportedVideoURL, videoGravity: gravity)
-                                .frame(height: playerHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            VideoPreviewView(
+                                videoURL: exportedVideoURL,
+                                videoGravity: gravity,
+                                showsMuteToggle: true,
+                                muteBinding: $finalPreviewMuted
+                            )
+                            .frame(height: playerHeight)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                         } else {
                             Rectangle()
                                 .fill(Color.black)
                                 .frame(height: playerHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
 
                         if !isExportComplete {
                             ZStack {
                                 Color.black.opacity(0.6)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .clipShape(RoundedRectangle(cornerRadius: 14))
                                 VStack(spacing: 12) {
                                     ZStack {
                                         Circle()
@@ -379,7 +386,7 @@ extension ExportOptionsView {
                             .frame(height: playerHeight)
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, isSmall ? 16 : 20)
 
                     HStack(spacing: 8) {
                         Text("\(selectedResolution)")
@@ -410,9 +417,59 @@ extension ExportOptionsView {
                                     .fill(Color.white.opacity(0.2))
                             )
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, isSmall ? 16 : 20)
 
-                    Spacer(minLength: 0)
+                    Spacer(minLength: isSmall ? 8 : 16)
+
+                    VStack(spacing: 12) {
+                        Button(action: { saveToPhotos() }) {
+                            HStack {
+                                Image(systemName: "photo.badge.plus").font(.system(size: 16, weight: .semibold))
+                                Text("Save to Photos").font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(isExportComplete ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.2)))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                        }
+                        .disabled(!isExportComplete)
+                        .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+
+                        Button(action: { shareVideo() }) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up").font(.system(size: 16, weight: .semibold))
+                                Text("Share").font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(isExportComplete ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                        }
+                        .disabled(!isExportComplete)
+                        .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+                    }
+                    .padding(.horizontal, isSmall ? 16 : 20)
+                    .padding(.vertical, 14)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(.horizontal, isSmall ? 12 : 24)
+                    .padding(.bottom, bottomPadding)
                 }
             }
         }
@@ -424,6 +481,7 @@ extension ExportOptionsView {
                         exportProgress = 0.0
                         isExportComplete = false
                         exportedVideoURL = nil
+                        finalPreviewMuted = true
                     }
                 }) {
                     Image(systemName: "chevron.left")
@@ -452,54 +510,6 @@ extension ExportOptionsView {
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
             .background(Color.clear)
-        }
-        .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 12) {
-                Button(action: { saveToPhotos() }) {
-                    HStack {
-                        Image(systemName: "photo.badge.plus").font(.system(size: 16, weight: .semibold))
-                        Text("Save to Photos").font(.system(size: 16, weight: .semibold))
-                    }
-                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(isExportComplete ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.2)))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                }
-                .disabled(!isExportComplete)
-                .scaleEffect(isExportComplete ? 1.0 : 0.95)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
-
-                Button(action: { shareVideo() }) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up").font(.system(size: 16, weight: .semibold))
-                        Text("Share").font(.system(size: 16, weight: .semibold))
-                    }
-                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(isExportComplete ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                }
-                .disabled(!isExportComplete)
-                .scaleEffect(isExportComplete ? 1.0 : 0.95)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-            .background(.ultraThinMaterial)
         }
         .onAppear { startFinalPageExport() }
         .allowsHitTesting(isExportComplete)
@@ -665,6 +675,7 @@ extension ExportOptionsView {
         exportError = nil
         exportProgress = 0.0
         isExportComplete = false
+        finalPreviewMuted = true
         
         // Simulate progress updates
         let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
