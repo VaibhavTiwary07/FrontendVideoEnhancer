@@ -27,6 +27,7 @@ struct HomeView: View {
     
     var body: some View {
         GeometryReader { geometry in
+            let cardsOverlapOffset = dynamicCardsOverlapOffset(screenHeight: geometry.size.height)
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()
@@ -179,7 +180,7 @@ struct HomeView: View {
                                     .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
                             )
 
-                            .offset(y: -100)
+                            .padding(.top, -cardsOverlapOffset)
 
                         }
                         // Move cards up to overlap carousel
@@ -320,11 +321,11 @@ struct HomeView: View {
     
     private func dynamicBottomPadding(screenHeight: CGFloat) -> CGFloat {
         if isCompactDevice || screenHeight < 700 {
-            return 60 // Less bottom padding for small screens
+            return 28 // Tighten spacing on compact layouts
         } else if screenHeight < 800 {
-            return 80 // Medium padding
+            return 36 // Moderate spacing for mid-size screens
         } else {
-            return 100 // Original padding for larger screens
+            return 48 // Comfortable breathing room on larger displays
         }
     }
     

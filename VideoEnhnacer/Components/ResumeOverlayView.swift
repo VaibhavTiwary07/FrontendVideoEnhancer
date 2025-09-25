@@ -10,9 +10,12 @@ struct ResumeOverlayView: View {
                 .transition(.opacity)
 
             VStack(spacing: 16) {
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 44, weight: .bold))
-                    .foregroundColor(.white)
+                Button(action: onResume) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: 44, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .buttonStyle(PlainButtonStyle())
 
                 Text("Welcome Back")
                     .font(.system(size: 20, weight: .semibold))
