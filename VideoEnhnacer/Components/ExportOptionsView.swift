@@ -466,8 +466,8 @@ extension ExportOptionsView {
                     }
                     .padding(.horizontal, isSmall ? 16 : 20)
                     .padding(.vertical, 14)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+//                    .background(.ultraThinMaterial)
+//                    .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.horizontal, isSmall ? 12 : 24)
                     .padding(.bottom, bottomPadding)
                 }

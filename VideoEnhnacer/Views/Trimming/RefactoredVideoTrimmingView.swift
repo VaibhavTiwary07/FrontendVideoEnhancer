@@ -108,9 +108,9 @@ struct RefactoredVideoTrimmingView: View {
                     canProceed: viewModel.canProceed,
                     onContinue: handleContinueAction
                 )
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 12)
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
+                .padding(.bottom, 10)
                 .background(
                     Color.primarySoft.opacity(0.95)
                         .ignoresSafeArea()
@@ -123,46 +123,71 @@ struct RefactoredVideoTrimmingView: View {
     // MARK: - Content Views
     @ViewBuilder
     private var contentView: some View {
-        ScrollView {
-            VStack(spacing: isIPad ? 12 : (isSmallPhone ? 6 : 8)) {
-                VideoPreviewSection(
-                    playerViewModel: viewModel.playerViewModel,
-                    enhancementType: viewModel.enhancementType,
-                    onChangeVideo: { showingVideoPicker = true },
-                    preferredHeightIPad: 560
-                )
-                .padding(.top, isIPad ? 36 : (isSmallPhone ? 12 : 20))
+        if isSmallPhone {
+            GeometryReader { _ in
+                VStack(spacing: 12) {
+                    VideoPreviewSection(
+                        playerViewModel: viewModel.playerViewModel,
+                        enhancementType: viewModel.enhancementType,
+                        onChangeVideo: { showingVideoPicker = true },
+                        preferredHeightIPad: nil
+                    )
 
-                if !isSmallPhone {
+                    Spacer()
+
+                    VideoControlsSection(
+                        viewModel: viewModel,
+                        onContinue: handleContinueAction,
+                        onRequirePaywall: { isShowingPaywall = true },
+                        showContinueButton: false
+                    )
+                    .padding(.bottom, 12)
+                }
+                .padding(.top, 12)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: isIPad ? 12 : 8) {
+                    VideoPreviewSection(
+                        playerViewModel: viewModel.playerViewModel,
+                        enhancementType: viewModel.enhancementType,
+                        onChangeVideo: { showingVideoPicker = true },
+                        preferredHeightIPad: 560
+                    )
+                    .padding(.top, isIPad ? 36 : 20)
+
                     VideoInfoSection(
                         totalDuration: viewModel.totalDurationFormatted,
                         resolution: resolutionText,
                         size: sizeText
                     )
                     .padding(.top, isIPad ? 16 : 12)
-                }
 
-                // Controls
-                VideoControlsSection(
-                    viewModel: viewModel,
-                    onContinue: handleContinueAction,
-                    onRequirePaywall: { isShowingPaywall = true },
-                    showContinueButton: !isIPad && !isSmallPhone
-                )
-                .padding(.top, isIPad ? 24 : (isSmallPhone ? 12 : 20))
-                .padding(.bottom, isIPad ? 120 : (isSmallPhone ? 90 : 40))
+                    // Controls
+                    VideoControlsSection(
+                        viewModel: viewModel,
+                        onContinue: handleContinueAction,
+                        onRequirePaywall: { isShowingPaywall = true },
+                        showContinueButton: !isIPad
+                    )
+                    .padding(.top, isIPad ? 24 : 20)
+                    .padding(.bottom, isIPad ? 120 : 40)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, isIPad ? 28 : 20)
             }
-            .frame(maxWidth: .infinity)
-        }
-        .overlay(alignment: .bottom) {
-            if isIPad {
-                ContinueButton(
-                    enhancementType: viewModel.enhancementType,
-                    canProceed: viewModel.canProceed,
-                    onContinue: handleContinueAction
-                )
-                .padding(.horizontal, 28)
-                .padding(.bottom, 24)
+            .overlay(alignment: .bottom) {
+                if isIPad {
+                    ContinueButton(
+                        enhancementType: viewModel.enhancementType,
+                        canProceed: viewModel.canProceed,
+                        onContinue: handleContinueAction
+                    )
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 24)
+                }
             }
         }
     }
@@ -292,7 +317,7 @@ struct VideoPreviewSection: View {
     var body: some View {
         VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
             VideoPlayerView(playerViewModel: playerViewModel)
-                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 200 : 340))
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 190 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
@@ -543,14 +568,14 @@ struct VideoControlsSection: View {
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
-        VStack(spacing: isSmallPhone ? 14 : (isIPad ? 30 : 24)) {
+        let content = VStack(spacing: isSmallPhone ? 12 : (isIPad ? 30 : 24)) {
             TimePresetButtons(
                 selectedDuration: viewModel.selectedDuration,
                 onPresetSelected: viewModel.updateTrimForPreset,
                 onRequirePaywall: onRequirePaywall
             )
-            .padding(.horizontal, isSmallPhone ? 12 : 20)
-            
+            .padding(.horizontal, isSmallPhone ? 6 : 20)
+            Spacer()
             VideoTrimmingSliderView(
                 startTime: $viewModel.trimStartTime,
                 endTime: $viewModel.trimEndTime,
@@ -559,9 +584,9 @@ struct VideoControlsSection: View {
                 enhancementType: viewModel.enhancementType,
                 playerViewModel: viewModel.playerViewModel
             )
-            .frame(height: isSmallPhone ? 52 : 60)
+            .frame(height: isSmallPhone ? 46 : 60)
             .padding(.horizontal, isSmallPhone ? 12 : 20)
-            
+            Spacer()
             if showContinueButton {
                 ContinueButton(
                     enhancementType: viewModel.enhancementType,
@@ -570,6 +595,22 @@ struct VideoControlsSection: View {
                 )
                 .padding(.horizontal, isSmallPhone ? 12 : 20)
             }
+        }
+        
+        if isSmallPhone {
+            content
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.08))
+                )
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 16)
+//                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+//                )
+        } else {
+            content
         }
     }
 }
@@ -584,24 +625,23 @@ struct TimePresetButtons: View {
     
     var body: some View {
         if DeviceSize.isSmallPhone {
-            HStack(spacing: 16) {
-                Spacer(minLength: 0)
-
-                ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
-                    let isPro = preset == .fiveMinutes
-                    TimePresetButton(
-                        title: preset.title,
-                        isSelected: selectedDuration == preset,
-                        showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
-                        onTap: { onPresetSelected(preset) },
-                        onRequirePro: isPro ? {
-                            onRequirePaywall?()
-                        } : nil
-                    )
-                    .frame(width: 120)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    Spacer()
+                    ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
+                        let isPro = preset == .fiveMinutes
+                        TimePresetButton(
+                            title: preset.title,
+                            isSelected: selectedDuration == preset,
+                            showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                            onTap: { onPresetSelected(preset) },
+                            onRequirePro: isPro ? {
+                                onRequirePaywall?()
+                            } : nil
+                        )
+                    }
                 }
-
-                Spacer(minLength: 0)
+                .padding(.horizontal, 4)
             }
         } else {
             HStack(spacing: isIPad ? 24 : 16) {
@@ -647,12 +687,12 @@ struct TimePresetButton: View {
             }
         }) {
             Text(title)
-                .font(.system(size: isIPad ? 18 : (isSmallPhone ? 14 : 16), weight: .semibold))
+                .font(.system(size: isIPad ? 18 : (isSmallPhone ? 13 : 16), weight: .semibold))
                 .foregroundColor(isSelected ? .white : .white.opacity(0.8))
                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                .frame(width: isIPad ? 110 : (isSmallPhone ? 120 : 80), height: isIPad ? 48 : (isSmallPhone ? 44 : 40))
+                .frame(width: isIPad ? 110 : (isSmallPhone ? 104 : 84), height: isIPad ? 48 : (isSmallPhone ? 38 : 40))
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: isSmallPhone ? 10 : 12)
                         .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
                         .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
                 )
@@ -704,6 +744,7 @@ struct ContinueButton: View {
     let onContinue: () -> Void
     
     var body: some View {
+        let isSmall = DeviceSize.isSmallPhone
         Button(action: {
             HapticFeedbackManager.impact(.medium)
             onContinue()
@@ -712,8 +753,8 @@ struct ContinueButton: View {
 //                Image(systemName: enhancementType.icon)
 //                    .font(.system(size: 20, weight: .medium))
                 
-                Text("Continue to \(enhancementType.title)")
-                    .font(.system(size: 18, weight: .semibold))
+                Text("Continue")
+                    .font(.system(size: isSmall ? 16 : 18, weight: .semibold))
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             }

@@ -206,10 +206,10 @@ final class VideoPlayerViewModel: ObservableObject {
     func cleanup() {
         print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - cleanup()")
         print("  Key: \(key)")
-        videoPlayerService.cleanup()
+        videoPlayerService.cleanupPlayers(forKey: key)
         cancellables.removeAll()
     }
-    
+
     // MARK: - Private Methods
     private func setupBindings() {
         print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setupBindings()")
@@ -268,6 +268,10 @@ final class VideoPlayerViewModel: ObservableObject {
     }
     
     private func loadPlayers(normalVideoName: String, enhancedVideoName: String) async { }
+
+    deinit {
+        videoPlayerService.cleanupPlayers(forKey: key)
+    }
 }
 
 // MARK: - Preview Support

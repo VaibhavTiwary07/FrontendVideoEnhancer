@@ -159,7 +159,7 @@ final class VideoPlayerService: VideoPlayerProtocol {
         print("🎬 VideoPlayerService[🆔 \(debugId)] - setActiveView(key: \(key), isActive: \(isActive))")
         print("  Previous active keys: \(activeViewKeys)")
         print("  Key is loaded: \(loadedKeys.contains(key))")
-        
+
         if isActive {
             activeViewKeys.insert(key)
             print("  Added to active keys: \(activeViewKeys)")
@@ -175,35 +175,52 @@ final class VideoPlayerService: VideoPlayerProtocol {
             pause(forKey: key)
         }
     }
-    
-    func cleanup() {
-        // Pause all players
-        for (_, playerPair) in playerPairs {
+
+    func cleanupPlayers(forKey key: String) {
+        print("🎬 VideoPlayerService[🆔 \(debugId)] - cleanupPlayers(key: \(key))")
+
+        if let playerPair = playerPairs[key] {
+            print("  Player pair exists: true - pausing before cleanup")
             playerPair.normal.pause()
             playerPair.enhanced.pause()
+        } else {
+            print("  Player pair exists: false")
         }
-        
-        // Clean up all observers
-        for key in playerPairs.keys {
-            cleanupObservers(forKey: key)
+
+        cleanupObservers(forKey: key)
+
+        playerPairs.removeValue(forKey: key)
+        activeViewKeys.remove(key)
+        loadingKeys.remove(key)
+        loadedKeys.remove(key)
+
+        let previousState = keyStates.removeValue(forKey: key)
+        if let subject = keyStateSubjectsDict[key] {
+            subject.send(.idle)
+            keyStateSubjectsDict.removeValue(forKey: key)
         }
-        
-        // Clear all data
+
+        print("  Previous state: \(previousState ?? .idle)")
+        print("  Remaining keys -> loaded: \(loadedKeys), active: \(activeViewKeys)")
+    }
+
+    func cleanup() {
+        // Use cleanupPlayers to ensure per-key teardown logic remains consistent
+        let keys = Set(playerPairs.keys)
+            .union(keyStates.keys)
+            .union(activeViewKeys)
+            .union(loadingKeys)
+            .union(loadedKeys)
+        for key in keys {
+            cleanupPlayers(forKey: key)
+        }
+
         playerPairs.removeAll()
         loopObservers.removeAll()
         timeObservers.removeAll()
         activeViewKeys.removeAll()
         loadingKeys.removeAll()
         loadedKeys.removeAll()
-        
-        // Reset all key states to idle and then clear
-        Task {
-            for key in keyStates.keys {
-                await updatePlayerState(.idle, forKey: key)
-            }
-            keyStates.removeAll()
-            keyStateSubjectsDict.removeAll()
-        }
     }
     
     func play(forKey key: String) async {

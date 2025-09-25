@@ -216,7 +216,16 @@ final class MockVideoPlayerService: VideoPlayerProtocol {
     }
     
     func setActiveView(forKey key: String, isActive: Bool) {}
-    func cleanup() {}
+    func cleanupPlayers(forKey key: String) {
+        keyStates.removeValue(forKey: key)
+        keyStateSubjects[key]?.send(.idle)
+        keyStateSubjects.removeValue(forKey: key)
+    }
+    func cleanup() {
+        for key in keyStates.keys {
+            cleanupPlayers(forKey: key)
+        }
+    }
     func play(forKey key: String) async { 
         keyStates[key] = .playing
         keyStateSubjects[key]?.send(.playing)
