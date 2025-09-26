@@ -132,6 +132,12 @@ final class EnhancementService: EnhancementServiceProtocol {
             continuation.resume(returning: result)
             
         } catch {
+            if Task.isCancelled || error is CancellationError || (error as? EnhancementError) == .cancelled {
+                await updateProcessingState(.cancelled)
+                continuation.resume(throwing: EnhancementError.cancelled)
+                return
+            }
+
             let enhancementError: EnhancementError
             if let existingError = error as? EnhancementError {
                 enhancementError = existingError

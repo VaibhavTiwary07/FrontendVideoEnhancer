@@ -227,9 +227,19 @@ final class EnhancementSelectionViewModel: ObservableObject {
             }
             
         } catch let enhancementError as EnhancementError {
+            if case .cancelled = enhancementError {
+                await MainActor.run {
+                    print("🎭 EnhancementSelectionViewModel - Processing cancelled by user")
+                }
+            } else {
+                await MainActor.run {
+                    self.error = enhancementError
+                    print("🎭 EnhancementSelectionViewModel - Processing failed: \(enhancementError.localizedDescription)")
+                }
+            }
+        } catch is CancellationError {
             await MainActor.run {
-                self.error = enhancementError
-                print("🎭 EnhancementSelectionViewModel - Processing failed: \(enhancementError.localizedDescription)")
+                print("🎭 EnhancementSelectionViewModel - Processing cancelled (system cancellation)")
             }
         } catch {
             await MainActor.run {
