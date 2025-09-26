@@ -46,6 +46,7 @@ struct VideoResultsView: View {
     @State private var selectedFormat = "MP4"
     @State private var exportedVideoURL: URL? = nil
     @State private var isMuted = true
+    @State private var isPreviewPlaybackActive = true
 
     enum ViewMode { case original, compare, output }
     
@@ -56,7 +57,8 @@ struct VideoResultsView: View {
             VideoPreviewView(
                 videoURL: originalVideoURL,
                 showsMuteToggle: true,
-                muteBinding: $isMuted
+                muteBinding: $isMuted,
+                playbackBinding: $isPreviewPlaybackActive
             )
         case .compare:
             ZStack(alignment: .topTrailing) {
@@ -76,7 +78,8 @@ struct VideoResultsView: View {
             VideoPreviewView(
                 videoURL: processedVideoURL,
                 showsMuteToggle: true,
-                muteBinding: $isMuted
+                muteBinding: $isMuted,
+                playbackBinding: $isPreviewPlaybackActive
             )
         }
     }
@@ -188,6 +191,9 @@ struct VideoResultsView: View {
             // Pause video playback when export options are shown
             if isShowing {
                 videoPlayerManager.pauseAllPlayers()
+                isPreviewPlaybackActive = false
+            } else {
+                isPreviewPlaybackActive = true
             }
         }
         // Listen for a global request to go Home; on iOS 15 avoid per-view dismiss
@@ -214,6 +220,7 @@ struct VideoResultsView: View {
         }
         .onDisappear {
             // Clean up video players to prevent state conflicts with other views
+            isPreviewPlaybackActive = false
             videoPlayerManager.cleanupPlayersForKey(generateVideoKey())
         }
         .onChange(of: isMuted) { muted in

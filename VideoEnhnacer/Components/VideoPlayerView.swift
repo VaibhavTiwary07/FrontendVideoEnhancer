@@ -10,6 +10,7 @@ struct VideoPreviewView: View {
     private let showsMuteToggle: Bool
     private let startMuted: Bool
     private let externalMuteBinding: Binding<Bool>?
+    private let externalPlaybackBinding: Binding<Bool>?
     @StateObject private var playerManager = VideoPreviewManager()
     
     init(
@@ -17,12 +18,14 @@ struct VideoPreviewView: View {
         videoGravity: AVLayerVideoGravity = .resizeAspect,
         showsMuteToggle: Bool = false,
         muteBinding: Binding<Bool>? = nil,
+        playbackBinding: Binding<Bool>? = nil,
         startMuted: Bool = true
     ) {
         self.videoURL = videoURL
         self.videoGravity = videoGravity
         self.showsMuteToggle = showsMuteToggle
         self.externalMuteBinding = muteBinding
+        self.externalPlaybackBinding = playbackBinding
         self.startMuted = startMuted
     }
     
@@ -32,7 +35,7 @@ struct VideoPreviewView: View {
                 let muteBinding = makeMuteBinding()
                 ZStack(alignment: .topTrailing) {
                     AVPlayerUIView(player: player, videoGravity: videoGravity)
-                        .onAppear { playerManager.startPlayback() }
+                        .onAppear { playerManager.setPlaybackActive(currentPlaybackState) }
                         .onDisappear { playerManager.pausePlayback() }
 
                     if showsMuteToggle {
@@ -62,12 +65,16 @@ struct VideoPreviewView: View {
             let initialMute = externalMuteBinding?.wrappedValue ?? startMuted
             playerManager.setMuted(initialMute)
             playerManager.setupPlayer(with: videoURL)
+            playerManager.setPlaybackActive(currentPlaybackState)
         }
         .onDisappear {
             playerManager.cleanup()
         }
         .onChange(of: externalMuteBinding?.wrappedValue ?? playerManager.isMuted) { newValue in
             playerManager.setMuted(newValue)
+        }
+        .onChange(of: currentPlaybackState) { newValue in
+            playerManager.setPlaybackActive(newValue)
         }
     }
 
@@ -87,6 +94,10 @@ struct VideoPreviewView: View {
                 playerManager.setMuted(newValue)
             }
         )
+    }
+    
+    private var currentPlaybackState: Bool {
+        externalPlaybackBinding?.wrappedValue ?? true
     }
 }
 
@@ -221,6 +232,14 @@ class VideoPreviewManager: ObservableObject {
         resumeFallbackWorkItem?.cancel()
         resumeFallbackWorkItem = nil
         player?.pause()
+    }
+
+    func setPlaybackActive(_ isActive: Bool) {
+        if isActive {
+            startPlayback()
+        } else {
+            pausePlayback()
+        }
     }
 
     func setMuted(_ muted: Bool) {

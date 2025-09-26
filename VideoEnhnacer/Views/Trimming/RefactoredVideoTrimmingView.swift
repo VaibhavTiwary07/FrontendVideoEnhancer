@@ -314,6 +314,7 @@ struct VideoPreviewSection: View {
     let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isMuted: Bool = true
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -321,7 +322,7 @@ struct VideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
-            VideoPlayerView(playerViewModel: playerViewModel)
+            VideoPlayerView(playerViewModel: playerViewModel, isMuted: isMuted)
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 190 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
@@ -335,8 +336,19 @@ struct VideoPreviewSection: View {
                             .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
                     }
                 }
+                .overlay(alignment: .topTrailing) {
+                    MuteToggleButton(isMuted: $isMuted)
+                        .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 20)
+                        .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
+                }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
+        }
+        .onAppear {
+            playerViewModel.setMuted(isMuted)
+        }
+        .onChange(of: isMuted) { newValue in
+            playerViewModel.setMuted(newValue)
         }
     }
 }
@@ -344,6 +356,7 @@ struct VideoPreviewSection: View {
 // MARK: - Video Player View
 struct VideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
+    let isMuted: Bool
     
     var body: some View {
         Group {
@@ -351,10 +364,14 @@ struct VideoPlayerView: View {
                 VideoPlayer(player: player)
                     .onAppear {
                         playerViewModel.setActive(true)
+                        playerViewModel.setMuted(isMuted)
                         playerViewModel.play()
                     }
                     .onDisappear {
                         playerViewModel.setActive(false)
+                    }
+                    .onChange(of: isMuted) { newValue in
+                        playerViewModel.setMuted(newValue)
                     }
             } else if playerViewModel.isLoading {
                 VideoLoadingPlaceholder()
@@ -364,6 +381,7 @@ struct VideoPlayerView: View {
         }
     }
 }
+
 
 // MARK: - Video Loading Placeholder
 struct VideoLoadingPlaceholder: View {

@@ -312,6 +312,7 @@ struct EnhancementVideoPreviewSection: View {
     let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isMuted: Bool = true
     
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
@@ -324,13 +325,18 @@ struct EnhancementVideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            EnhancementVideoPlayerView(playerViewModel: playerViewModel)
+            EnhancementVideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
+                .overlay(alignment: .topTrailing) {
+                    MuteToggleButton(isMuted: $isMuted)
+                        .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 20)
+                        .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
+                }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
@@ -367,14 +373,20 @@ struct EnhancementVideoPreviewSection: View {
             viewDisappearCount += 1
             print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - onDisappear #\(viewDisappearCount)")
         }
+        .onAppear {
+            playerViewModel.setMuted(isMuted)
+        }
+        .onChange(of: isMuted) { newValue in
+            playerViewModel.setMuted(newValue)
+        }
     }
-    
 }
 
 // MARK: - Enhancement Video Player View
 struct EnhancementVideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
-    
+    @Binding var isMuted: Bool
+
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
     @State private var viewAppearCount = 0
@@ -390,7 +402,7 @@ struct EnhancementVideoPlayerView: View {
                         print("  Player available: true")
                         print("  Setting active and starting playback...")
                         playerViewModel.setActive(true)
-                        playerViewModel.setMuted(false)
+                        playerViewModel.setMuted(isMuted)
                         playerViewModel.play()
                     }
                     .onDisappear {
@@ -398,6 +410,9 @@ struct EnhancementVideoPlayerView: View {
                         print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onDisappear #\(viewDisappearCount)")
                         print("  Setting inactive...")
                         playerViewModel.setActive(false)
+                    }
+                    .onChange(of: isMuted) { newValue in
+                        playerViewModel.setMuted(newValue)
                     }
             } else if let error = playerViewModel.error {
                 EnhancementVideoErrorPlaceholder(error: error)
@@ -433,6 +448,7 @@ struct EnhancementVideoPlayerView: View {
             print("  Loading: \(playerViewModel.isLoading)")
             print("  Error: \(playerViewModel.error?.localizedDescription ?? "none")")
             print("  Player state: \(playerViewModel.playerState)")
+            print("  Muted: \(isMuted)")
         }
     }
 }
