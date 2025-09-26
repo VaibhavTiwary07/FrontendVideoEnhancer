@@ -161,6 +161,17 @@ final class VideoPlayerService: VideoPlayerProtocol {
         print("  Key is loaded: \(loadedKeys.contains(key))")
 
         if isActive {
+            // Pause any other active keys before activating this one to prevent overlapping audio
+            let otherActiveKeys = activeViewKeys.filter { $0 != key }
+            if !otherActiveKeys.isEmpty {
+                print("videoviewoverlapping VideoPlayerService: Pausing other active keys \(otherActiveKeys) before activating key '\(key)'")
+            }
+
+            for otherKey in otherActiveKeys {
+                pause(forKey: otherKey)
+                activeViewKeys.remove(otherKey)
+            }
+
             activeViewKeys.insert(key)
             print("  Added to active keys: \(activeViewKeys)")
             if loadedKeys.contains(key) {

@@ -9,20 +9,28 @@ import UIKit
 final class VideoTrimmingViewModel: ObservableObject {
     
     // MARK: - Published Properties
-    @Published var trimStartTime: Double = 0
-    @Published var trimEndTime: Double = 30
+    @Published var trimStartTime: Double = 0 {
+        didSet { enforceSubscriptionLimit() }
+    }
+    @Published var trimEndTime: Double = 30 {
+        didSet { enforceSubscriptionLimit() }
+    }
     @Published var selectedDuration: TimePreset = .thirtySeconds
     @Published private(set) var videoDuration: Double = 0
     @Published private(set) var thumbnails: [UIImage] = []
     @Published private(set) var isLoadingVideo: Bool = false
     @Published private(set) var isLoadingThumbnails: Bool = false
     @Published private(set) var error: VideoProcessingError?
+    @Published private(set) var shouldShowPaywall: Bool = false
     
     // MARK: - Private Properties
     private let videoProcessingService: VideoProcessingProtocol
     let playerViewModel: VideoPlayerViewModel
     private var cancellables = Set<AnyCancellable>()
     private var loadingTask: Task<Void, Never>?
+    private var lastValidStartTime: Double = 0
+    private var lastValidEndTime: Double = 30
+    private let freeTrimLimit: Double = 30
     
     // MARK: - Public Properties
     @Published private(set) var videoURL: URL
@@ -94,13 +102,13 @@ final class VideoTrimmingViewModel: ObservableObject {
     func updateTrimTimes(start: Double, end: Double) {
         let clampedStart = max(0, min(start, videoDuration))
         let clampedEnd = max(clampedStart + 1.0, min(end, videoDuration))
-        
+
         trimStartTime = clampedStart
         trimEndTime = clampedEnd
-        
+
         // Update player trim range
         playerViewModel.setPlaybackRange(start: clampedStart, end: clampedEnd)
-        
+
         // Seek to start time
         playerViewModel.seek(to: clampedStart)
         
@@ -122,6 +130,10 @@ final class VideoTrimmingViewModel: ObservableObject {
         trimmingReset()
         videoURL = newURL
         loadVideo()
+    }
+
+    func acknowledgePaywall() {
+        shouldShowPaywall = false
     }
     
     func cleanup() {
@@ -160,6 +172,8 @@ final class VideoTrimmingViewModel: ObservableObject {
             await MainActor.run {
                 self.videoDuration = videoInfo.duration
                 self.trimEndTime = min(selectedDuration.duration, videoInfo.duration)
+                self.lastValidStartTime = self.trimStartTime
+                self.lastValidEndTime = self.trimEndTime
                 print("🎬 VideoTrimmingViewModel - Loaded video: duration=\(videoInfo.duration)")
             }
             
@@ -244,6 +258,9 @@ final class VideoTrimmingViewModel: ObservableObject {
         isLoadingThumbnails = false
         error = nil
         playerViewModel.cleanup()
+        lastValidStartTime = 0
+        lastValidEndTime = 30
+        shouldShowPaywall = false
     }
     
     private func formatDuration(_ timeInSeconds: Double) -> String {
@@ -253,6 +270,31 @@ final class VideoTrimmingViewModel: ObservableObject {
             let minutes = Int(timeInSeconds) / 60
             let seconds = Int(timeInSeconds) % 60
             return String(format: "%d:%02d", minutes, seconds)
+        }
+    }
+
+    private func enforceSubscriptionLimit() {
+        guard !SubscriptionManager.shared.isAppSubscribed() else {
+            lastValidStartTime = trimStartTime
+            lastValidEndTime = trimEndTime
+            return
+        }
+
+        let currentDuration = trimEndTime - trimStartTime
+        if currentDuration > freeTrimLimit {
+            // Restore last valid values to keep user at free tier limit
+            if trimStartTime != lastValidStartTime {
+                trimStartTime = lastValidStartTime
+            }
+            if trimEndTime != lastValidEndTime {
+                trimEndTime = lastValidEndTime
+            }
+            if !shouldShowPaywall {
+                shouldShowPaywall = true
+            }
+        } else {
+            lastValidStartTime = trimStartTime
+            lastValidEndTime = trimEndTime
         }
     }
     //MARK: - VT

@@ -312,7 +312,6 @@ struct EnhancementVideoPreviewSection: View {
     let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var isMuted: Bool = true
     
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
@@ -325,28 +324,13 @@ struct EnhancementVideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            EnhancementVideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
+            EnhancementVideoPlayerView(playerViewModel: playerViewModel)
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
-                .overlay(alignment: .topLeading) {
-                    Button(action: toggleMute) {
-                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: DeviceSize.isSmallPhone ? 18 : 22, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(DeviceSize.isSmallPhone ? 8 : 10)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.4))
-                            )
-                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-                    .padding(.leading, DeviceSize.isSmallPhone ? 12 : 16)
-                    .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
-                }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
@@ -385,17 +369,11 @@ struct EnhancementVideoPreviewSection: View {
         }
     }
     
-    private func toggleMute() {
-        isMuted.toggle()
-        print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - toggleMute(\(isMuted))")
-        playerViewModel.setMuted(isMuted)
-    }
 }
 
 // MARK: - Enhancement Video Player View
 struct EnhancementVideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
-    @Binding var isMuted: Bool
     
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
@@ -412,7 +390,7 @@ struct EnhancementVideoPlayerView: View {
                         print("  Player available: true")
                         print("  Setting active and starting playback...")
                         playerViewModel.setActive(true)
-                        playerViewModel.setMuted(isMuted)
+                        playerViewModel.setMuted(false)
                         playerViewModel.play()
                     }
                     .onDisappear {
@@ -455,7 +433,6 @@ struct EnhancementVideoPlayerView: View {
             print("  Loading: \(playerViewModel.isLoading)")
             print("  Error: \(playerViewModel.error?.localizedDescription ?? "none")")
             print("  Player state: \(playerViewModel.playerState)")
-            print("  Muted: \(isMuted)")
         }
     }
 }

@@ -18,7 +18,19 @@ struct VideoTrimmingView: View {
     @State private var selectedDuration: TimePreset = .thirtySeconds
     @State private var navigateToEnhancement = false
     @State private var thumbnails: [UIImage] = []
+    @State private var isShowingPaywall = false
+    @State private var isAdjustingTrimInternally = false
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    private let freeTrimLimit: Double = 30
+
+    private var isSubscribed: Bool {
+        SubscriptionManager.shared.isAppSubscribed()
+    }
+
+    private var maxAllowedDuration: Double {
+        guard videoDuration > 0 else { return freeTrimLimit }
+        return isSubscribed ? videoDuration : min(videoDuration, freeTrimLimit)
+    }
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -208,8 +220,7 @@ struct VideoTrimmingView: View {
                             Button(preset.title) {
                                 let impact = UIImpactFeedbackGenerator(style: .light)
                                 impact.impactOccurred()
-                                selectedDuration = preset
-                                updateTrimForPreset(preset)
+                                handlePresetSelection(preset)
                             }
                             .buttonStyle(PresetButtonStyle(
                                 isSelected: selectedDuration == preset
@@ -231,17 +242,11 @@ struct VideoTrimmingView: View {
                     )
                     .frame(height: 60)
                     .padding(.horizontal, 20)
-                    .onChange(of: trimStartTime) { newValue in
-                        // Update preview player instantly while sliding
-                        playerManager.updateTrim(start: newValue, end: trimEndTime)
-                        if let player = playerManager.player {
-                            let start = CMTime(seconds: newValue, preferredTimescale: 600)
-                            player.seek(to: start)
-                        }
+                    .onChange(of: trimStartTime) { _ in
+                        enforceTrimLimit(seekToStart: true)
                     }
-                    .onChange(of: trimEndTime) { newValue in
-                        // Update end boundary in real time
-                        playerManager.updateTrim(start: trimStartTime, end: newValue)
+                    .onChange(of: trimEndTime) { _ in
+                        enforceTrimLimit(seekToStart: false)
                     }
                     
                     // Process Button
@@ -249,6 +254,9 @@ struct VideoTrimmingView: View {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
                         
+                        enforceTrimLimit(seekToStart: false)
+                        guard !isShowingPaywall else { return }
+
                         // Debug: Log current trim values before navigation
                         print("🎬 VideoTrimmingView - Navigating with trimStartTime: \(trimStartTime), trimEndTime: \(trimEndTime)")
                         
@@ -377,18 +385,8 @@ struct VideoTrimmingView: View {
                 )
             }
         }
-        .onChange(of: trimStartTime) { newValue in
-            print("🎬 VideoTrimmingView - trimStartTime changed to: \(newValue)")
-            playerManager.updateTrim(start: newValue, end: trimEndTime)
-            if let player = playerManager.player {
-                let time = CMTime(seconds: newValue, preferredTimescale: 600)
-                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
-                player.play()
-            }
-        }
-        .onChange(of: trimEndTime) { newValue in
-            print("🎬 VideoTrimmingView - trimEndTime changed to: \(newValue)")
-            playerManager.updateTrim(start: trimStartTime, end: newValue)
+        .fullScreenCover(isPresented: $isShowingPaywall) {
+            PaywallView(isPresented: $isShowingPaywall)
         }
     }
     
@@ -438,7 +436,94 @@ struct VideoTrimmingView: View {
 
         return images
     }
-    
+
+    private func handlePresetSelection(_ preset: TimePreset) {
+        if requiresPaywall(for: preset.duration) {
+            selectedDuration = .thirtySeconds
+            updateTrimForPreset(.thirtySeconds)
+            triggerPaywall()
+            return
+        }
+
+        selectedDuration = preset
+        updateTrimForPreset(preset)
+    }
+
+    private func enforceTrimLimit(seekToStart: Bool) {
+        if videoDuration <= 0 {
+            playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
+            if seekToStart, let player = playerManager.player {
+                let time = CMTime(seconds: trimStartTime, preferredTimescale: 600)
+                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                player.play()
+            }
+            return
+        }
+
+        if isAdjustingTrimInternally {
+            playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
+            if seekToStart, let player = playerManager.player {
+                let time = CMTime(seconds: trimStartTime, preferredTimescale: 600)
+                player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                player.play()
+            }
+            return
+        }
+
+        isAdjustingTrimInternally = true
+        defer { isAdjustingTrimInternally = false }
+
+        var adjustedStart = max(0, min(trimStartTime, videoDuration))
+        var adjustedEnd = max(adjustedStart + 0.5, min(trimEndTime, videoDuration))
+
+        if !isSubscribed {
+            let limit = maxAllowedDuration
+            let span = adjustedEnd - adjustedStart
+            if span > limit {
+                adjustedEnd = min(adjustedStart + limit, videoDuration)
+                if abs(adjustedEnd - videoDuration) < 0.001 {
+                    adjustedStart = max(0, adjustedEnd - limit)
+                }
+                if selectedDuration.duration > limit {
+                    selectedDuration = .thirtySeconds
+                }
+                triggerPaywall()
+            }
+        }
+
+        trimStartTime = adjustedStart
+        trimEndTime = max(adjustedStart + 0.5, min(adjustedEnd, videoDuration))
+
+        playerManager.updateTrim(start: trimStartTime, end: trimEndTime)
+
+        if seekToStart, let player = playerManager.player {
+            let time = CMTime(seconds: trimStartTime, preferredTimescale: 600)
+            player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+            player.play()
+        }
+    }
+
+    private func requiresPaywall(for desiredDuration: Double) -> Bool {
+        guard !isSubscribed else { return false }
+
+        let attainableDuration: Double
+        if videoDuration > 0 {
+            attainableDuration = min(desiredDuration, videoDuration)
+        } else {
+            attainableDuration = desiredDuration
+        }
+
+        return attainableDuration > maxAllowedDuration
+    }
+
+    private func triggerPaywall() {
+        guard !isSubscribed else { return }
+        if !isShowingPaywall {
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        }
+        isShowingPaywall = true
+    }
+
     private func updateTrimForPreset(_ preset: TimePreset) {
         // Quick-set helper: Set trim window to preset duration starting from current position
         // But allow further adjustment with independent handles

@@ -98,8 +98,12 @@ struct RefactoredVideoTrimmingView: View {
                 computeMetadata()
             }
         }
-        .fullScreenCover(isPresented: $isShowingPaywall) {
+        .fullScreenCover(isPresented: $isShowingPaywall, onDismiss: viewModel.acknowledgePaywall) {
             PaywallView(isPresented: $isShowingPaywall)
+        }
+        .onChange(of: viewModel.shouldShowPaywall) { shouldShow in
+            guard shouldShow else { return }
+            presentPaywall()
         }
         .safeAreaInset(edge: .bottom) {
             if isSmallPhone, !viewModel.isLoadingVideo, viewModel.error == nil {
@@ -128,7 +132,6 @@ struct RefactoredVideoTrimmingView: View {
                 VStack(spacing: 12) {
                     VideoPreviewSection(
                         playerViewModel: viewModel.playerViewModel,
-                        enhancementType: viewModel.enhancementType,
                         onChangeVideo: { showingVideoPicker = true },
                         preferredHeightIPad: nil
                     )
@@ -138,7 +141,7 @@ struct RefactoredVideoTrimmingView: View {
                     VideoControlsSection(
                         viewModel: viewModel,
                         onContinue: handleContinueAction,
-                        onRequirePaywall: { isShowingPaywall = true },
+                        onRequirePaywall: { presentPaywall() },
                         showContinueButton: false
                     )
                     .padding(.bottom, 12)
@@ -152,7 +155,6 @@ struct RefactoredVideoTrimmingView: View {
                 VStack(spacing: isIPad ? 12 : 8) {
                     VideoPreviewSection(
                         playerViewModel: viewModel.playerViewModel,
-                        enhancementType: viewModel.enhancementType,
                         onChangeVideo: { showingVideoPicker = true },
                         preferredHeightIPad: 560
                     )
@@ -169,7 +171,7 @@ struct RefactoredVideoTrimmingView: View {
                     VideoControlsSection(
                         viewModel: viewModel,
                         onContinue: handleContinueAction,
-                        onRequirePaywall: { isShowingPaywall = true },
+                        onRequirePaywall: { presentPaywall() },
                         showContinueButton: !isIPad
                     )
                     .padding(.top, isIPad ? 24 : 20)
@@ -298,17 +300,20 @@ struct RefactoredVideoTrimmingView: View {
             sizeText = "—"
         }
     }
+
+    private func presentPaywall() {
+        isShowingPaywall = true
+        viewModel.acknowledgePaywall()
+    }
 }
 
 // MARK: - Video Preview Section
 struct VideoPreviewSection: View {
     let playerViewModel: VideoPlayerViewModel
-    let enhancementType: EnhancementType
     let onChangeVideo: (() -> Void)?
     let preferredHeightIPad: CGFloat?
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var isMuted: Bool = true
     
     private var isIPad: Bool {
         horizontalSizeClass == .regular
@@ -324,35 +329,15 @@ struct VideoPreviewSection: View {
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
                 .overlay(alignment: .topLeading) {
-                    Button(action: toggleMute) {
-                        Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: DeviceSize.isSmallPhone ? 18 : 22, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(DeviceSize.isSmallPhone ? 8 : 10)
-                            .background(
-                                Circle()
-                                    .fill(Color.black.opacity(0.4))
-                            )
-                            .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-                    .padding(.leading, DeviceSize.isSmallPhone ? 12 : 16)
-                    .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
-                }
-                .overlay(alignment: .topTrailing) {
                     if let onChangeVideo {
                         VideoChangeButton { onChangeVideo() }
-                            .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 24)
+                            .padding(.leading, DeviceSize.isSmallPhone ? 16 : 24)
                             .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
                     }
                 }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
-    }
-    
-    private func toggleMute() {
-        isMuted.toggle()
-        playerViewModel.setMuted(isMuted)
     }
 }
 

@@ -313,10 +313,12 @@ class VideoPlayerManager: ObservableObject {
             }
         } else {
             activeViewKeys.remove(key)
-            // Don't pause players when view becomes inactive - keep them playing for tab persistence
-            // Only clean up time observers to prevent unnecessary syncing
+            // Pause players when the owning view disappears to prevent overlapping audio across screens
+            print("videoviewoverlapping VideoPlayerManager: Pausing players for key '\(key)' after deactivation")
+            pausePlayers(forKey: key)
+            // Clean up time observers to prevent unnecessary syncing when the view is no longer visible
             cleanupTimeObserver(forKey: key)
-            print("🎬 View deactivated for key '\(key)' but keeping players active")
+            print("🎬 View deactivated for key '\(key)' and players paused")
         }
     }
     
