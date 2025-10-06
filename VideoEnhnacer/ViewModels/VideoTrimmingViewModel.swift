@@ -18,7 +18,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     @Published var selectedDuration: TimePreset = .thirtySeconds
     @Published private(set) var videoDuration: Double = 0
     @Published private(set) var thumbnails: [UIImage] = []
-    @Published private(set) var isLoadingVideo: Bool = false
+    @Published private(set) var isLoadingVideo: Bool = true
     @Published private(set) var isLoadingThumbnails: Bool = false
     @Published private(set) var error: VideoProcessingError?
     @Published private(set) var shouldShowPaywall: Bool = false
@@ -79,19 +79,26 @@ final class VideoTrimmingViewModel: ObservableObject {
         videoProcessingService: VideoProcessingProtocol,
         playerViewModel: VideoPlayerViewModel
     ) {
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.init() - URL: \(videoURL.lastPathComponent), Type: \(enhancementType.name)")
         self.videoURL = videoURL
         self.enhancementType = enhancementType
         self.videoProcessingService = videoProcessingService
         self.playerViewModel = playerViewModel
         
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.init() - Initial state: isLoadingVideo = \(isLoadingVideo)")
+        
         setupBindings()
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.init() completed")
     }
     
     // MARK: - Public Methods
     func loadVideo() {
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.loadVideo() called")
+        print("🐞 WHITE_SCREEN_DEBUG: Current state before loading: isLoadingVideo = \(isLoadingVideo)")
         loadingTask = Task {
             await performVideoLoading()
         }
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.loadVideo() - Task created")
     }
     
     func updateTrimForPreset(_ preset: TimePreset) {
@@ -136,6 +143,7 @@ final class VideoTrimmingViewModel: ObservableObject {
         shouldShowPaywall = false
     }
     
+    
     func cleanup() {
         loadingTask?.cancel()
         playerViewModel.cleanup()
@@ -162,11 +170,16 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     private func performVideoLoading() async {
-        isLoadingVideo = true
-        error = nil
+        print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel.performVideoLoading() - START")
+        await MainActor.run {
+            isLoadingVideo = true
+            error = nil
+            print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - Set isLoadingVideo = true, error = nil")
+        }
         
         do {
             // Load video information
+            print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - Getting video info...")
             let videoInfo = try await videoProcessingService.getVideoInfo(from: videoURL)
             
             await MainActor.run {
@@ -174,35 +187,46 @@ final class VideoTrimmingViewModel: ObservableObject {
                 self.trimEndTime = min(selectedDuration.duration, videoInfo.duration)
                 self.lastValidStartTime = self.trimStartTime
                 self.lastValidEndTime = self.trimEndTime
-                print("🎬 VideoTrimmingViewModel - Loaded video: duration=\(videoInfo.duration)")
+                print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - Loaded video info: duration=\(videoInfo.duration)")
             }
             
-            // Setup video players
+            // Setup video players - ensure this is awaited properly
+            print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - Setting up video players...")
             await setupVideoPlayers()
             
             // Generate thumbnails
+            print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - Generating thumbnails...")
             await generateThumbnails()
             
             await MainActor.run {
                 self.isLoadingVideo = false
+                print("🐞 WHITE_SCREEN_DEBUG: VideoTrimmingViewModel - COMPLETED performVideoLoading, isLoadingVideo set to false")
             }
             
         } catch let processingError as VideoProcessingError {
             await MainActor.run {
                 self.error = processingError
                 self.isLoadingVideo = false
+                print("🎬 VideoTrimmingViewModel - Error in performVideoLoading: \(processingError)")
             }
         } catch {
             await MainActor.run {
                 self.error = VideoProcessingError.processingFailed(error.localizedDescription)
                 self.isLoadingVideo = false
+                print("🎬 VideoTrimmingViewModel - Generic error in performVideoLoading: \(error)")
             }
         }
     }
     
     private func setupVideoPlayers() async {
         // Use direct file URLs so trimming works with user-selected videos
-        playerViewModel.setupPlayers(originalURL: videoURL, enhancedURL: videoURL)
+        await MainActor.run {
+            print("🎬 VideoTrimmingViewModel - Setting up video players for URL: \(videoURL.lastPathComponent)")
+            playerViewModel.setupPlayers(originalURL: videoURL, enhancedURL: videoURL)
+        }
+        
+        // Wait a brief moment to allow player setup to initialize
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
     }
     
     private func generateThumbnails() async {

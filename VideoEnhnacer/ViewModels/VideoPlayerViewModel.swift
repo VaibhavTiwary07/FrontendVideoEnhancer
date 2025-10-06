@@ -11,7 +11,7 @@ final class VideoPlayerViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var playerState: VideoPlayerState = .idle
     @Published private(set) var currentTime: Double = 0
-    @Published private(set) var isLoading: Bool = false
+    @Published private(set) var isLoading: Bool = true
     @Published private(set) var error: VideoPlayerError?
     
     // MARK: - Private Properties
@@ -45,34 +45,32 @@ final class VideoPlayerViewModel: ObservableObject {
     ) {
         self.videoPlayerService = videoPlayerService
         self.key = key
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Initialized with key: \(key)")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].init() - Key: \(key)")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Initial state: isLoading = \(isLoading)")
         setupBindings()
     }
+    
     
     // MARK: - Public Methods
     func setupPlayers(normalVideoName: String, enhancedVideoName: String) {
         setupCallCount += 1
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setupPlayers(names) call #\(setupCallCount)")
-        print("  Normal video: \(normalVideoName)")
-        print("  Enhanced video: \(enhancedVideoName)")
-        print("  Key: \(key)")
-        print("  Current state: \(playerState)")
-        print("  Current loading: \(isLoading)")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].setupPlayers(names) call #\(setupCallCount)")
+        print("🐞 WHITE_SCREEN_DEBUG: Normal video: \(normalVideoName), Enhanced video: \(enhancedVideoName)")
+        print("🐞 WHITE_SCREEN_DEBUG: Key: \(key), Current state: \(playerState), Current loading: \(isLoading)")
         
         // Set loading state immediately to show loading UI
         isLoading = true
         error = nil
-        print("  ✅ Loading state set to true immediately")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = true immediately")
         
         Task { @MainActor in
             do {
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Starting video service setup...")
+                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Starting video service setup...")
                 try await videoPlayerService.setupPlayers(key: key, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Video service setup completed successfully")
-                print("  Normal player available: \(normalPlayer != nil)")
-                print("  Enhanced player available: \(enhancedPlayer != nil)")
+                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Video service setup completed successfully")
+                print("🐞 WHITE_SCREEN_DEBUG: Normal player available: \(normalPlayer != nil), Enhanced player available: \(enhancedPlayer != nil)")
                 self.isLoading = false
-                print("  ✅ Loading state set to false - setup complete")
+                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = false (setup complete)")
             } catch {
                 print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Video service setup failed: \(error)")
                 if let err = error as? VideoPlayerError {
@@ -91,19 +89,14 @@ final class VideoPlayerViewModel: ObservableObject {
 
     func setupPlayers(originalURL: URL, enhancedURL: URL) {
         setupCallCount += 1
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setupPlayers(URLs) call #\(setupCallCount)")
-        print("  Original URL: \(originalURL.lastPathComponent)")
-        print("  Enhanced URL: \(enhancedURL.lastPathComponent)")
-        print("  Original URL absolute: \(originalURL)")
-        print("  Enhanced URL absolute: \(enhancedURL)")
-        print("  Key: \(key)")
-        print("  Current state: \(playerState)")
-        print("  Current loading: \(isLoading)")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].setupPlayers(URLs) call #\(setupCallCount)")
+        print("🐞 WHITE_SCREEN_DEBUG: Original URL: \(originalURL.lastPathComponent), Enhanced URL: \(enhancedURL.lastPathComponent)")
+        print("🐞 WHITE_SCREEN_DEBUG: Key: \(key), Current state: \(playerState), Current loading: \(isLoading)")
         
         // Set loading state immediately to show loading UI
         isLoading = true
         error = nil
-        print("  ✅ Loading state set to true immediately")
+        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = true immediately")
         
         // Validate URLs
         if originalURL.isFileURL {

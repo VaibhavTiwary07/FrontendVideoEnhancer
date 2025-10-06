@@ -27,31 +27,50 @@ struct VideoEnhancementModalView: View {
     @State private var legacyTrimmedData: TrimmedVideoData?
 
     init(videoURL: URL, enhancementType: EnhancementType) {
+        print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.init() - URL: \(videoURL.lastPathComponent), Type: \(enhancementType.name)")
         self.initialVideoURL = videoURL
         self.enhancementType = enhancementType
     }
 
     var body: some View {
-        Group {
+        print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.body - Rendering body")
+        return Group {
             if #available(iOS 16.0, *) {
+//                print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView - Using iOS 16+ modern navigation")
                 modernNavigation
             } else {
+//                print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView - Using legacy navigation (iOS 15)")
                 legacyNavigation
             }
         }
         .interactiveDismissDisabled()
+        .onAppear {
+            print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.onAppear - Modal appeared with video: \(initialVideoURL.lastPathComponent)")
+        }
     }
 
     @available(iOS 16.0, *)
     private var modernNavigation: some View {
         NavigationStack(path: $path) {
             trimmingView(
-                onBack: { dismiss() },
-                onClose: { dismiss() },
-                onContinue: { presentEnhancement(with: $0) }
+                onBack: { 
+                    print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.modernNavigation.onBack called")
+                    dismiss() 
+                },
+                onClose: { 
+                    print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.modernNavigation.onClose called")
+                    dismiss() 
+                },
+                onContinue: { 
+                    print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.modernNavigation.onContinue called")
+                    presentEnhancement(with: $0) 
+                }
             )
             .navigationDestination(for: Route.self, destination: destination)
             .background(Color.primarySoft.ignoresSafeArea())
+        }
+        .onAppear {
+            print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.modernNavigation - Creating NavigationStack")
         }
     }
 
@@ -134,6 +153,10 @@ struct VideoEnhancementModalView: View {
                 onContinue(data)
             }
         )
+        .onAppear {
+            print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.trimmingView.onAppear - Trimming view appeared")
+            print("🐞 WHITE_SCREEN_DEBUG: About to create RefactoredVideoTrimmingView with URL: \(initialVideoURL.lastPathComponent)")
+        }
     }
 
     private func enhancementSelectionView(

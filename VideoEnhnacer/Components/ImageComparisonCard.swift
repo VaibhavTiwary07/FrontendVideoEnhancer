@@ -23,7 +23,6 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var showingVideoPicker = false
     @State private var selectedVideoURL: URL?
-    @State private var navigateToTrimming = false
     @State private var showingPermissionAlert = false
     @StateObject private var permissionManager = PermissionManager()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -164,22 +163,29 @@ struct ImageComparisonCard: View {
         .sheet(isPresented: $showingVideoPicker) {
             InlineUIKitVideoPicker(
                 onVideoSelected: { url in
-                    selectedVideoURL = url
+                    print("🐞 WHITE_SCREEN_DEBUG: InlineUIKitVideoPicker.onVideoSelected - URL: \(url.lastPathComponent)")
                     showingVideoPicker = false
-                    navigateToTrimming = true
+                    selectedVideoURL = url // This directly triggers fullScreenCover with item binding
+                    print("🐞 WHITE_SCREEN_DEBUG: Set selectedVideoURL - SwiftUI item binding will handle the rest")
                 },
                 onCancelled: {
-                    selectedVideoURL = nil
+                    print("🐞 WHITE_SCREEN_DEBUG: InlineUIKitVideoPicker.onCancelled")
+                    //        .toolbar { navigationToolbar } to .toolbar { navigationToolbar }                     selectedVideoURL = nil
                     showingVideoPicker = false
                 }
             )
         }
-        .fullScreenCover(isPresented: $navigateToTrimming) {
-            if let videoURL = selectedVideoURL {
-                VideoEnhancementModalView(
-                    videoURL: videoURL,
-                    enhancementType: resolvedEnhancementType()
-                )
+        .fullScreenCover(item: $selectedVideoURL) { videoURL in
+            VideoEnhancementModalView(
+                videoURL: videoURL,
+                enhancementType: resolvedEnhancementType()
+            )
+            .onAppear {
+                print("🐞 WHITE_SCREEN_DEBUG: ✅ SUPER SENIOR FIX - fullScreenCover using item binding with URL: \(videoURL.lastPathComponent)")
+                print("🐞 WHITE_SCREEN_DEBUG: Enhancement type: \(resolvedEnhancementType().name)")
+            }
+            .onDisappear {
+                print("🐞 WHITE_SCREEN_DEBUG: fullScreenCover with item binding disappeared")
             }
         }
         .alert("Photos Access Required", isPresented: $showingPermissionAlert) {
@@ -194,24 +200,31 @@ struct ImageComparisonCard: View {
     
     // MARK: - Card Tap Handler
     private func handleCardTap() {
+        print("🐞 WHITE_SCREEN_DEBUG: ImageComparisonCard.handleCardTap() - Card '\(title)' tapped")
+        print("🐞 WHITE_SCREEN_DEBUG: Current states - selectedVideoURL: \(String(describing: selectedVideoURL)), showingVideoPicker: \(showingVideoPicker)")
+        
         if permissionManager.canAccessPhotoLibrary {
+            print("🐞 WHITE_SCREEN_DEBUG: Photo library access granted")
             // Clear any stale selection so cancel does not reuse previous video
             selectedVideoURL = nil
-            navigateToTrimming = false
             showingVideoPicker = true
+            print("🐞 WHITE_SCREEN_DEBUG: Set showingVideoPicker = true")
         } else if permissionManager.needsPermissionRequest {
+            print("🐞 WHITE_SCREEN_DEBUG: Requesting photo library permission")
             Task {
                 await permissionManager.requestPhotoLibraryPermission()
                 if permissionManager.canAccessPhotoLibrary {
+                    print("🐞 WHITE_SCREEN_DEBUG: Permission granted after request")
                     selectedVideoURL = nil
-                    navigateToTrimming = false
                     showingVideoPicker = true
                 } else {
+                    print("🐞 WHITE_SCREEN_DEBUG: Permission denied after request")
                     showingPermissionAlert = true
                 }
             }
         } else {
             // Permission was denied, show settings alert
+            print("🐞 WHITE_SCREEN_DEBUG: Photo library permission denied, showing alert")
             showingPermissionAlert = true
         }
     }

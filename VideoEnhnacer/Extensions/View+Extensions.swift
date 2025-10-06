@@ -1,4 +1,10 @@
 import SwiftUI
+import Foundation
+
+// MARK: - URL Identifiable Extension (Fix for fullScreenCover item binding)
+extension URL: Identifiable {
+    public var id: String { absoluteString }
+}
 
 extension View {
     
