@@ -38,7 +38,7 @@ struct HomeView: View {
                         ZStack(alignment: .top) {
                             PageControlImageCarousel(
                                 currentPage: $selectedCarouselSegment,
-                                dotsBottomLift: 112 // match cards' upward overlap (-100) plus small margin
+                                dotsBottomLift: 70 // match cards' upward overlap (-100) plus small margin
                             )
                                 .ignoresSafeArea(edges: .top)
 
