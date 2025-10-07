@@ -304,8 +304,7 @@ struct VideoTrimmingView: View {
                     impact.impactOccurred()
                     dismiss()
                 }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .medium))
+                    BackButtonIcon()
                         .foregroundColor(.white)
                 }
             }

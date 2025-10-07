@@ -92,7 +92,7 @@ struct VideoResultsView: View {
                 // Top bar
                 HStack {
                     Button(action: handleBackAction) {
-                        Image(systemName: "chevron.left")
+                        BackButtonIcon()
                     }
                     .foregroundColor(.white)
                     Spacer()
@@ -193,6 +193,8 @@ struct VideoResultsView: View {
                 videoPlayerManager.pauseAllPlayers()
                 isPreviewPlaybackActive = false
             } else {
+                videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
+                videoPlayerManager.resumeActiveViewPlayers()
                 isPreviewPlaybackActive = true
             }
         }

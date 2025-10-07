@@ -88,6 +88,7 @@ struct RefactoredVideoTrimmingView: View {
                 }
             } else {
 //                print("🐞 WHITE_SCREEN_DEBUG: Showing contentView")
+               
                 contentView
             }
         }
@@ -161,27 +162,31 @@ struct RefactoredVideoTrimmingView: View {
     @ViewBuilder
     private var contentView: some View {
         if isSmallPhone {
-            GeometryReader { _ in
-                VStack(spacing: 12) {
-                    VideoPreviewSection(
-                        playerViewModel: viewModel.playerViewModel,
-                        onChangeVideo: { showingVideoPicker = true },
-                        preferredHeightIPad: nil
-                    )
+            GeometryReader { geo in
+                ScrollView {
+                    VStack(spacing: 12) {
+                        VideoPreviewSection(
+                            playerViewModel: viewModel.playerViewModel,
+                            onChangeVideo: { showingVideoPicker = true },
+                            preferredHeightIPad: nil
+                        )
+                        .padding(.top, 12)
 
-                    Spacer()
+                        Spacer()
 
-                    VideoControlsSection(
-                        viewModel: viewModel,
-                        onContinue: handleContinueAction,
-                        onRequirePaywall: { presentPaywall() },
-                        showContinueButton: false
-                    )
-                    .padding(.bottom, 12)
+                        VideoControlsSection(
+                            viewModel: viewModel,
+                            onContinue: handleContinueAction,
+                            onRequirePaywall: { presentPaywall() },
+                            showContinueButton: false
+                        )
+                        
+                        Spacer()
+                    }
+                    .frame(minHeight: geo.size.height)
+                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.top, 12)
-                .padding(.horizontal, 12)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         } else {
             ScrollView {
@@ -614,13 +619,18 @@ struct VideoControlsSection: View {
     
     var body: some View {
         let content = VStack(spacing: isSmallPhone ? 12 : (isIPad ? 30 : 24)) {
+            
             TimePresetButtons(
                 selectedDuration: viewModel.selectedDuration,
                 onPresetSelected: viewModel.updateTrimForPreset,
                 onRequirePaywall: onRequirePaywall
             )
             .padding(.horizontal, isSmallPhone ? 6 : 20)
-            Spacer()
+
+//            if !isSmallPhone {
+//                Spacer()
+//            }
+
             VideoTrimmingSliderView(
                 startTime: $viewModel.trimStartTime,
                 endTime: $viewModel.trimEndTime,
@@ -631,7 +641,12 @@ struct VideoControlsSection: View {
             )
             .frame(height: isSmallPhone ? 46 : 60)
             .padding(.horizontal, isSmallPhone ? 12 : 20)
-            Spacer()
+            .padding(.top, isSmallPhone ? 8 : 0)
+
+//            if !isSmallPhone {
+//                Spacer()
+//            }
+
             if showContinueButton {
                 ContinueButton(
                     enhancementType: viewModel.enhancementType,
@@ -639,6 +654,7 @@ struct VideoControlsSection: View {
                     onContinue: onContinue
                 )
                 .padding(.horizontal, isSmallPhone ? 12 : 20)
+                .padding(.top, isSmallPhone ? 8 : 0)
             }
         }
         
@@ -723,32 +739,35 @@ struct TimePresetButton: View {
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
     
     var body: some View {
-        Button(action: {
-            HapticFeedbackManager.impact(.light)
-            if showsProBadge {
-                onRequirePro?()
-            } else {
-                onTap()
-            }
-        }) {
-            Text(title)
-                .font(.system(size: isIPad ? 18 : (isSmallPhone ? 13 : 16), weight: .semibold))
-                .foregroundColor(isSelected ? .white : .white.opacity(0.8))
-                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-                .frame(width: isIPad ? 110 : (isSmallPhone ? 104 : 84), height: isIPad ? 48 : (isSmallPhone ? 38 : 40))
-                .background(
-                    RoundedRectangle(cornerRadius: isSmallPhone ? 10 : 12)
-                        .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
-                        .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                )
-                .overlay(alignment: .topTrailing) {
-                    if showsProBadge {
-                        ProPill()
-                            .offset(x: 6, y: -6)
-                    }
+        ZStack(alignment: .topTrailing) {
+            Button(action: {
+                HapticFeedbackManager.impact(.light)
+                if showsProBadge {
+                    onRequirePro?()
+                } else {
+                    onTap()
                 }
+            }) {
+                Text(title)
+                    .font(.system(size: isIPad ? 18 : (isSmallPhone ? 13 : 16), weight: .semibold))
+                    .foregroundColor(isSelected ? .white : .white.opacity(0.8))
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+                    .frame(width: isIPad ? 110 : (isSmallPhone ? 104 : 84), height: isIPad ? 48 : (isSmallPhone ? 38 : 40))
+                    .background(
+                        RoundedRectangle(cornerRadius: isSmallPhone ? 10 : 12)
+                            .fill(isSelected ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.accentWarm.opacity(0.15)))
+                            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+
+            if showsProBadge {
+                ProPill()
+                    .offset(x: 6, y: -6)
+            }
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(.top, showsProBadge ? 8 : 0)
+        .padding(.trailing, showsProBadge ? 8 : 0)
     }
 }
 

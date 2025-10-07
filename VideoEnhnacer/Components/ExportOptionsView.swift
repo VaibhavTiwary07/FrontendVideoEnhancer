@@ -484,10 +484,8 @@ extension ExportOptionsView {
                         finalPreviewMuted = true
                     }
                 }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
+                    BackButtonIcon()
                         .foregroundColor(.white)
-                        .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
                 .disabled(!isExportComplete)
