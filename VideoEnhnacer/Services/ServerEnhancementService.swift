@@ -9,6 +9,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     // Published state
     @Published private var processingState: EnhancementProcessingState = .idle
     @Published private var progress: Double = 0.0
+    @Published private(set) var currentTaskId: String = ""
     
     var processingStatePublisher: Published<EnhancementProcessingState>.Publisher { $processingState }
     var progressPublisher: Published<Double>.Publisher { $progress }
@@ -16,12 +17,9 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     private let baseURL = AppConfig.baseURL
     private let videoProcessingService: VideoProcessingProtocol
     private var pollTimer: Timer?
-    private var currentTaskId: String = ""
     private let enhancementRegistry: EnhancementTypeRegistry
-    private var activeContinuation: CheckedContinuation<EnhancementResult, Error>?
-    private var pollingContinuation: CheckedContinuation<Void, Error>?
-    private var pendingCancellationError: EnhancementError?
-    private var processingTask: Task<Void, Never>?
+    private let enhancementProgressWeight: Double = 0.8 // 80% for enhancement
+    private let downloadProgressWeight: Double = 0.2 // 20% for download
     
     init(videoProcessingService: VideoProcessingProtocol = VideoProcessingService(), enhancementRegistry: EnhancementTypeRegistry = .shared) {
         self.videoProcessingService = videoProcessingService
@@ -41,99 +39,40 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     }
     
     func cancelProcessing() async {
-        // If no task has been created yet, surface an informative failure and stop any local work.
-        guard !currentTaskId.isEmpty else {
-            let error = EnhancementError.processingFailed("No active task to cancel")
-            pendingCancellationError = error
-            await updateState(.failed(error), progress: progress)
-            await invalidatePollingTimer(resumeWith: .failure(error))
-            processingTask?.cancel()
-            return
+        await MainActor.run {
+            self.pollTimer?.invalidate()
+            self.pollTimer = nil
+            self.processingState = .cancelled
+            self.progress = 0.0
         }
-
-        guard let url = URL(string: baseURL + "/cancel/" + currentTaskId) else {
-            let error = EnhancementError.processingFailed("Cancellation failed: Invalid URL")
-            pendingCancellationError = error
-            await updateState(.failed(error), progress: progress)
-            await invalidatePollingTimer(resumeWith: .failure(error))
-            processingTask?.cancel()
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw EnhancementError.processingFailed("Cancellation failed: Invalid response")
+        
+        // Trigger cancel task for the current task
+        if !currentTaskId.isEmpty {
+            do {
+                try await cancelTask(taskId: currentTaskId)
+            } catch {
+                print("Cancel task failed: \(error.localizedDescription)")
             }
-
-            switch httpResponse.statusCode {
-            case 200:
-                pendingCancellationError = .cancelled
-                await updateState(.cancelled, progress: 0.0)
-                await invalidatePollingTimer(resumeWith: .failure(.cancelled))
-            case 404:
-                let error = EnhancementError.processingFailed("Task not found or already completed")
-                pendingCancellationError = error
-                await updateState(.failed(error), progress: progress)
-                await invalidatePollingTimer(resumeWith: .failure(error))
-            default:
-                let error = EnhancementError.processingFailed("Cancellation failed with status code: \(httpResponse.statusCode)")
-                pendingCancellationError = error
-                await updateState(.failed(error), progress: progress)
-                await invalidatePollingTimer(resumeWith: .failure(error))
-            }
-        } catch let enhancementError as EnhancementError {
-            pendingCancellationError = enhancementError
-            await updateState(.failed(enhancementError), progress: progress)
-            await invalidatePollingTimer(resumeWith: .failure(enhancementError))
-        } catch {
-            let enhancementError = EnhancementError.processingFailed("Cancellation failed: \(error.localizedDescription)")
-            pendingCancellationError = enhancementError
-            await updateState(.failed(enhancementError), progress: progress)
-            await invalidatePollingTimer(resumeWith: .failure(enhancementError))
         }
-
-        currentTaskId = ""
-        processingTask?.cancel()
     }
     
     func processVideo(at url: URL, with request: EnhancementRequest) async throws -> EnhancementResult {
         try await withCheckedThrowingContinuation { continuation in
-            guard processingTask == nil else {
-                continuation.resume(throwing: EnhancementError.processingFailed("Processing already in progress"))
-                return
-            }
-            processingTask = Task { [weak self] in
+            Task { [weak self] in
                 guard let self = self else { return }
-                self.activeContinuation = continuation
-                self.pendingCancellationError = nil
-                self.currentTaskId = ""
-
                 await self.updateState(.preparing, progress: 0.0)
-
-                defer { self.processingTask = nil }
-
+                
                 do {
                     let (endpoint, includeLevel) = self.mapEndpoint(for: request.enhancementType.id)
 
-                    // Determine which URL to upload: trimmed segment if provided, else original
+                    // Determine which URL to upload
                     let effectiveURL: URL
                     if let start = request.trimStartTime, let end = request.trimEndTime, end > start {
                         let quality = self.videoQualityFromOutputQuality(request.outputQuality)
-                        effectiveURL = try await self.videoProcessingService.trimVideo(
-                            at: url,
-                            startTime: start,
-                            endTime: end,
-                            quality: quality
-                        )
+                        effectiveURL = try await self.videoProcessingService.trimVideo(at: url, startTime: start, endTime: end, quality: quality)
                     } else {
                         effectiveURL = url
                     }
-
-                    try Task.checkCancellation()
 
                     try await self.uploadVideo(
                         videoURL: effectiveURL,
@@ -141,19 +80,14 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                         includeLevel: includeLevel,
                         level: self.mapLevel(for: request)
                     )
-
-                    try Task.checkCancellation()
-
-                    await self.updateState(.processing(phase: .analysis), progress: 0.3)
-
+                    await self.updateState(.processing(phase: .analysis), progress: 0.3 * enhancementProgressWeight)
+                    
                     // Start polling
                     try await self.pollUntilComplete(taskId: self.currentTaskId)
-
-                    try Task.checkCancellation()
-
-                    // Fetch result
+                    
+                    // Fetch result with download progress
                     let (processedURL, originalURL) = try await self.fetchResult(taskId: self.currentTaskId)
-
+                    
                     let result = EnhancementResult(
                         originalURL: originalURL ?? effectiveURL,
                         processedURL: processedURL,
@@ -170,13 +104,11 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                             ]
                         )
                     )
-
                     await self.updateState(.completed(result), progress: 1.0)
-                    self.currentTaskId = ""
-                    self.pendingCancellationError = nil
-                    self.completeProcessing(with: .success(result))
+                    continuation.resume(returning: result)
                 } catch {
-                    await self.handleProcessingFailure(error)
+                    await self.updateState(.failed(.processingFailed(error.localizedDescription)), progress: self.progress)
+                    continuation.resume(throwing: EnhancementError.processingFailed(error.localizedDescription))
                 }
             }
         }
@@ -245,7 +177,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         guard let url = URL(string: baseURL + endpoint) else { throw EnhancementError.processingFailed("Invalid URL") }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-
+        
         let boundary = "Boundary-\(UUID().uuidString)"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
@@ -277,27 +209,30 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                self.pollingContinuation = continuation
                 self.processingState = .processing(phase: .enhancement)
-                self.progress = max(self.progress, 0.3)
-
+                self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
+                
                 self.pollTimer?.invalidate()
-                self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] timer in
-                    guard let self = self else { return }
+                self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
                     guard let url = URL(string: self.baseURL + "/progress/" + taskId) else { return }
                     URLSession.shared.dataTask(with: url) { data, response, _ in
                         DispatchQueue.main.async {
                             guard let data = data,
                                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
                             let status = json["status"] as? String ?? ""
-                            let prog = json["progress"] as? Double ?? 0.0
-                            self.progress = prog
+                            let serverProgress = json["progress"] as? Double ?? 0.0
+                            // Scale server progress to enhancement phase
+                            let scaledProgress = serverProgress * self.enhancementProgressWeight
+                            self.progress = max(scaledProgress, self.progress)
                             if status == "completed" {
-                                self.invalidatePollingTimer(resumeWith: .success(()))
+                                timer.invalidate()
+                                self.pollTimer = nil
+                                continuation.resume()
                             } else if status == "failed" {
+                                timer.invalidate()
+                                self.pollTimer = nil
                                 let msg = json["error"] as? String ?? "Unknown error"
-                                let error = EnhancementError.processingFailed(msg)
-                                self.invalidatePollingTimer(resumeWith: .failure(error))
+                                continuation.resume(throwing: EnhancementError.processingFailed(msg))
                             }
                         }
                     }.resume()
@@ -307,87 +242,152 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     }
     
     private func fetchResult(taskId: String) async throws -> (URL, URL?) {
-        guard let url = URL(string: baseURL + "/result/" + taskId) else { throw EnhancementError.processingFailed("Bad result URL") }
+        guard let url = URL(string: baseURL + "/result/" + taskId) else {
+            throw EnhancementError.processingFailed("Bad result URL")
+        }
         let (data, _) = try await URLSession.shared.data(from: url)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: String]
-        guard let processedURL = json?["processed_url"] else { throw EnhancementError.processingFailed("No processed_url") }
+        guard let processedURL = json?["processed_url"] else {
+            throw EnhancementError.processingFailed("No processed_url")
+        }
+        print("processed url is \(processedURL)")
         let originalURL = json?["original_url"]
         
-        let processedLocal = try await downloadToDocuments(from: processedURL, prefix: "enhanced_video")
+        // Download processed video
+        let processedLocal = try await downloadToDocuments(taskID: taskId, prefix: "enhanced_video", baseURL: baseURL)
+        
+        // Update progress to reflect completion of processed video download
+        await MainActor.run {
+            self.progress = self.enhancementProgressWeight + (self.downloadProgressWeight / (originalURL != nil ? 2 : 1))
+        }
+        
+        // Download original video if available
         var originalLocal: URL? = nil
         if let originalURL = originalURL {
-            originalLocal = try? await downloadToDocuments(from: originalURL, prefix: "original_video")
+            originalLocal = try await downloadToDocuments(from: originalURL, prefix: "original_video")
+            // Update progress to 100% after original video download
+            await MainActor.run {
+                self.progress = 1.0
+            }
         }
+        
         return (processedLocal, originalLocal)
     }
-
+    
     private func downloadToDocuments(from path: String, prefix: String) async throws -> URL {
         guard let url = URL(string: baseURL + path) else { throw EnhancementError.processingFailed("Bad download URL") }
-        let (tempURL, _) = try await URLSession.shared.download(from: url)
-        let destURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("\(prefix)_\(UUID().uuidString).mp4")
-        try? FileManager.default.removeItem(at: destURL)
-        try FileManager.default.moveItem(at: tempURL, to: destURL)
-        return destURL
+        return try await downloadToDocuments(taskID: UUID().uuidString, prefix: prefix, baseURL: baseURL)
     }
-
-    private func completeProcessing(with result: Result<EnhancementResult, Error>) {
-        guard let continuation = activeContinuation else { return }
-        activeContinuation = nil
-        switch result {
-        case .success(let value):
-            continuation.resume(returning: value)
-        case .failure(let error):
-            continuation.resume(throwing: error)
+    
+    private func downloadToDocuments(taskID: String, prefix: String, baseURL: String) async throws -> URL {
+        guard let url = URL(string: "\(baseURL)/download/processed/\(taskID)") else {
+            throw EnhancementError.processingFailed("Invalid download URL for task ID: \(taskID)")
+        }
+        print("download to document processed _URL \(url)")
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let sessionIdentifier = "com.example.download.\(UUID().uuidString)"
+            let configuration = URLSessionConfiguration.default
+            let delegateQueue = OperationQueue()
+            delegateQueue.maxConcurrentOperationCount = 1
+            
+            let progressDelegate = DownloadProgressDelegate(
+                progressWeight: downloadProgressWeight / 2, // Split if downloading both videos
+                progressOffset: enhancementProgressWeight,
+                progressHandler: { [weak self] progress in
+                    self?.progress = progress
+                },
+                completionHandler: { [weak self] location, error in
+                    guard let self = self else { return }
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    guard let location = location else {
+                        continuation.resume(throwing: EnhancementError.processingFailed("Download failed: no location"))
+                        return
+                    }
+                    
+                    do {
+                        let destURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                            .appendingPathComponent("\(prefix)_\(UUID().uuidString).mp4")
+                        try? FileManager.default.removeItem(at: destURL)
+                        try FileManager.default.moveItem(at: location, to: destURL)
+                        continuation.resume(returning: destURL)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            )
+            
+            let session = URLSession(configuration: configuration, delegate: progressDelegate, delegateQueue: delegateQueue)
+            
+            let downloadTask = session.downloadTask(with: url)
+            downloadTask.resume()
+            
+            Task {
+                await withTaskCancellationHandler {
+                    try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 60)) // Timeout after 60 seconds
+                    session.invalidateAndCancel()
+                } onCancel: {
+                    session.invalidateAndCancel()
+                }
+            }
         }
     }
-
-    private func resumePollingContinuation(with result: Result<Void, EnhancementError>) {
-        guard let continuation = pollingContinuation else { return }
-        pollingContinuation = nil
-        switch result {
-        case .success:
-            continuation.resume()
-        case .failure(let error):
-            continuation.resume(throwing: error)
+    
+    private func cancelTask(taskId: String) async throws {
+        guard !taskId.isEmpty else { return }
+        guard let url = URL(string: baseURL + "/cancel/" + taskId) else {
+            throw EnhancementError.processingFailed("Invalid cancel URL")
         }
-    }
-
-    @MainActor
-    private func invalidatePollingTimer(resumeWith result: Result<Void, EnhancementError>? = nil) {
-        pollTimer?.invalidate()
-        pollTimer = nil
-        if let result {
-            resumePollingContinuation(with: result)
-        }
-    }
-
-    private func handleProcessingFailure(_ error: Error) async {
-        let resolvedError: EnhancementError
-
-        if let pending = pendingCancellationError {
-            resolvedError = pending
-        } else if error is CancellationError {
-            resolvedError = .cancelled
-        } else if let enhancementError = error as? EnhancementError {
-            resolvedError = enhancementError
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            await MainActor.run {
+                self.currentTaskId = ""
+            }
         } else {
-            resolvedError = .processingFailed(error.localizedDescription)
+            throw EnhancementError.processingFailed("Cancel task failed with status code: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
         }
-
-        let currentProgress = self.progress
-
-        if case .cancelled = resolvedError {
-            await updateState(.cancelled, progress: 0.0)
-        } else {
-            await updateState(.failed(resolvedError), progress: currentProgress)
-        }
-
-        await invalidatePollingTimer(resumeWith: .failure(resolvedError))
-
-        currentTaskId = ""
-
-        completeProcessing(with: .failure(resolvedError))
-        pendingCancellationError = nil
     }
 }
+
+// MARK: - Download Progress Delegate
+class DownloadProgressDelegate: NSObject, URLSessionDownloadDelegate {
+    private let progressHandler: (Double) -> Void
+    private let completionHandler: (URL?, Error?) -> Void
+    private let progressWeight: Double
+    private let progressOffset: Double
+    
+    init(progressWeight: Double, progressOffset: Double, progressHandler: @escaping (Double) -> Void, completionHandler: @escaping (URL?, Error?) -> Void) {
+        self.progressWeight = progressWeight
+        self.progressOffset = progressOffset
+        self.progressHandler = progressHandler
+        self.completionHandler = completionHandler
+        super.init()
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        let scaledProgress = progressOffset + (progress * progressWeight)
+        DispatchQueue.main.async {
+            self.progressHandler(scaledProgress)
+        }
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error = error {
+            completionHandler(nil, error)
+            return
+        }
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        completionHandler(location, nil)
+    }
+}
+

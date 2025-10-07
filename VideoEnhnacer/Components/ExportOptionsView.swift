@@ -677,11 +677,11 @@ extension ExportOptionsView {
         isExportComplete = false
         finalPreviewMuted = true
         
-        // Simulate progress updates
+        // Simulate progress updates (capped at 95%)
         let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             DispatchQueue.main.async {
-                if self.exportProgress < 1.0 {
-                    self.exportProgress += 0.02 // Increment progress
+                if self.exportProgress < 0.95 {
+                    self.exportProgress += 0.01 // Slower increment, reaches 95% in ~9.5 seconds
                 } else {
                     timer.invalidate()
                 }

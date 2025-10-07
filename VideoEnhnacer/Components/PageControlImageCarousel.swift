@@ -34,7 +34,7 @@ struct PageControlImageCarousel: View {
             .padding(.vertical, 6)
             .padding(.horizontal, 10)
             .background(Capsule().fill(Color.black.opacity(0.2)))
-            .padding(.bottom, min(10 + max(0, dotsBottomLift), max(0, height - 20)))
+            .padding(.bottom, max(10, dotsBottomLift))
         }
         .frame(width: screenWidth, height: height, alignment: .top)
         .onAppear { updateAspectRatio() }

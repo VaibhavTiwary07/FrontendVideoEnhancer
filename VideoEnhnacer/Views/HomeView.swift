@@ -38,7 +38,7 @@ struct HomeView: View {
                         ZStack(alignment: .top) {
                             PageControlImageCarousel(
                                 currentPage: $selectedCarouselSegment,
-                                dotsBottomLift: 70 // match cards' upward overlap (-100) plus small margin
+                                dotsBottomLift: dynamicDotsBottomLift(screenHeight: geometry.size.height)
                             )
                                 .ignoresSafeArea(edges: .top)
 
@@ -326,6 +326,16 @@ struct HomeView: View {
             return 36 // Moderate spacing for mid-size screens
         } else {
             return 48 // Comfortable breathing room on larger displays
+        }
+    }
+
+    private func dynamicDotsBottomLift(screenHeight: CGFloat) -> CGFloat {
+        if isCompactDevice || screenHeight < 700 {
+            return 66 // Increased lift for compact devices (iPod Touch, small iPhones)
+        } else if screenHeight < 900 {
+            return 90 // Increased lift for regular iPhones
+        } else {
+            return 120 // Increased lift for iPads and large screens
         }
     }
     
