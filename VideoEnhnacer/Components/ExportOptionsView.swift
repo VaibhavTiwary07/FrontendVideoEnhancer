@@ -120,38 +120,9 @@ struct ExportOptionsView: View {
                         Spacer()
                         
                         Button(action: {
-                            os_log("[ExportOptionsView] X tapped → dismiss modal, go home, request Home ad", log: OSLog.default, type: .debug)
-                            // If any UIKit controller is presenting (e.g., share sheet), dismiss it first
-                            if let top = UIHelpers.topViewController(), top.presentedViewController != nil {
-                                top.dismiss(animated: true) {
-                                    NotificationCenter.default.post(name: .goHomeRequested, object: nil)
-                                    container.navigation.dismissCurrentModal()
-                                    container.navigation.goToHome()
-                                    withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                                    // Ask Home/Home fallback to show the interstitial after navigation settles
-                                    if !homeAdIntentPosted {
-                                        homeAdIntentPosted = true
-                                        let delay: Double
-                                        if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                            NotificationCenter.default.post(name: .homeAdRequested, object: nil)
-                                        }
-                                    }
-                                }
-                            } else {
-                                NotificationCenter.default.post(name: .goHomeRequested, object: nil)
-                                container.navigation.dismissCurrentModal()
-                                container.navigation.goToHome()
-                                withAnimation(.easeOut(duration: 0.3)) { isPresented = false }
-                                // Ask Home/Home fallback to show the interstitial after navigation settles
-                                if !homeAdIntentPosted {
-                                    homeAdIntentPosted = true
-                                    let delay: Double
-                                    if #available(iOS 16.0, *) { delay = 0.75 } else { delay = 1.0 }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                                        NotificationCenter.default.post(name: .homeAdRequested, object: nil)
-                                    }
-                                }
+                            // Just close the export overlay - stay on results view
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                isPresented = false
                             }
                         }) {
                             Image(systemName: "xmark")
