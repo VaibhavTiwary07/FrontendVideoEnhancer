@@ -3,20 +3,41 @@ import AVFoundation
 
 struct VideoInfoCard: View {
     let videoURL: URL
+    let trimStartTime: Double?
+    let trimEndTime: Double?
     @State private var videoInfo: VideoInfoData?
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     private var isIPad: Bool {
         horizontalSizeClass == .regular
+    }
+
+    // Computed properties for trimmed duration
+    private var isTrimmed: Bool {
+        trimStartTime != nil && trimEndTime != nil
+    }
+
+    private var displayDuration: String {
+        if let start = trimStartTime, let end = trimEndTime {
+            let trimmedSeconds = end - start
+            let minutes = Int(trimmedSeconds) / 60
+            let seconds = Int(trimmedSeconds) % 60
+            return String(format: "%d:%02d", minutes, seconds)
+        }
+        return videoInfo?.formattedDuration ?? "Loading..."
+    }
+
+    private var durationLabel: String {
+        isTrimmed ? "Trimmed Duration" : "Duration"
     }
     
     var body: some View {
         HStack(spacing: 16) {
-            // Duration
+            // Duration (or Trimmed Duration)
             InfoItem(
                 icon: "clock.fill",
-                title: "Duration",
-                value: videoInfo?.formattedDuration ?? "Loading..."
+                title: durationLabel,
+                value: displayDuration
             )
             
             Divider()
@@ -142,8 +163,12 @@ struct VideoInfoData {
     ZStack {
         Color.black
             .ignoresSafeArea()
-        
-        VideoInfoCard(videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!)
-            .padding()
+
+        VideoInfoCard(
+            videoURL: URL(string: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4")!,
+            trimStartTime: 5.0,
+            trimEndTime: 25.0
+        )
+        .padding()
     }
 }

@@ -14,6 +14,7 @@ struct CustomVideoPlayerWithControls: View {
     @State private var isSeeking: Bool = false
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var timeObserver: Any?
+    @State private var showCenterButton: Bool = true
 
     private let timeObserverInterval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 
@@ -24,6 +25,8 @@ struct CustomVideoPlayerWithControls: View {
                 .onTapGesture {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showControls.toggle()
+                        // Also toggle center button visibility
+                        showCenterButton.toggle()
                     }
                     if showControls {
                         scheduleHideControls()
@@ -42,20 +45,29 @@ struct CustomVideoPlayerWithControls: View {
             }
             .opacity(showControls ? 1 : 0)
 
+            // Center Play/Pause Button
+            if showCenterButton {
+                Button(action: togglePlayPause) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.black.opacity(0.6))
+                            .frame(width: 70, height: 70)
+
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.white)
+                            .offset(x: isPlaying ? 0 : 3) // Slight offset for play icon
+                    }
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+
             // Playback Controls (Bottom)
             VStack {
                 Spacer()
 
                 if showControls {
                     HStack(spacing: 12) {
-                        // Play/Pause Button
-                        Button(action: togglePlayPause) {
-                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                .font(.system(size: DeviceSize.isSmallPhone ? 18 : 22, weight: .bold))
-                                .foregroundColor(.white)
-                                .frame(width: 36, height: 36)
-                        }
-
                         // Current Time
                         Text(formatTime(currentTime))
                             .font(.system(size: DeviceSize.isSmallPhone ? 11 : 13, weight: .medium, design: .rounded))
@@ -126,6 +138,10 @@ struct CustomVideoPlayerWithControls: View {
         .onAppear {
             print("DEBUG_PAUSE: onAppear - player.rate: \(player.rate)")
             setupPlayer()
+            // Auto-play video on load
+            player.play()
+            isPlaying = true
+            showCenterButton = false // Hide center button since we're auto-playing
             scheduleHideControls()
             print("DEBUG_PAUSE: onAppear complete - isPlaying: \(isPlaying), player.rate: \(player.rate)")
         }
@@ -165,17 +181,39 @@ struct CustomVideoPlayerWithControls: View {
         print("DEBUG_PAUSE: Initial player.rate: \(player.rate)")
 
         // Get duration
+        print("DEBUG_END_TIME: Attempting to get duration")
+        print("DEBUG_END_TIME: currentItem exists: \(player.currentItem != nil)")
         if let currentItem = player.currentItem {
             let durationValue = currentItem.duration
+            print("DEBUG_END_TIME: durationValue = \(durationValue)")
+            print("DEBUG_END_TIME: isNumeric = \(durationValue.isNumeric)")
+            print("DEBUG_END_TIME: isIndefinite = \(durationValue.isIndefinite)")
             if durationValue.isNumeric && !durationValue.isIndefinite {
                 duration = CMTimeGetSeconds(durationValue)
+                print("DEBUG_END_TIME: ✅ Duration set to: \(duration)")
+            } else {
+                print("DEBUG_END_TIME: ❌ Duration NOT set - failed conditions")
             }
+        } else {
+            print("DEBUG_END_TIME: ❌ No currentItem available")
         }
+        print("DEBUG_END_TIME: Final duration value: \(duration)")
 
         // Observe playback time - store the token for proper cleanup
         let observer = player.addPeriodicTimeObserver(forInterval: timeObserverInterval, queue: .main) { [weak player] time in
             guard let player = player, !isSeeking else { return }
             currentTime = CMTimeGetSeconds(time)
+
+            // Update duration if it's not set yet (asset loaded after setupPlayer)
+            if duration == 0 {
+                if let currentItem = player.currentItem {
+                    let durationValue = currentItem.duration
+                    if durationValue.isNumeric && !durationValue.isIndefinite {
+                        duration = CMTimeGetSeconds(durationValue)
+                        print("DEBUG_END_TIME: [Time Observer] ✅ Duration NOW set to: \(duration) seconds")
+                    }
+                }
+            }
 
             let previousIsPlaying = isPlaying
             // Update isPlaying based on player rate
@@ -191,6 +229,7 @@ struct CustomVideoPlayerWithControls: View {
 
         // Initial playing state
         isPlaying = player.rate > 0
+        showCenterButton = !isPlaying // Show center button if paused
         print("DEBUG_PAUSE: setupPlayer() complete - isPlaying set to: \(isPlaying)")
     }
 
@@ -219,6 +258,7 @@ struct CustomVideoPlayerWithControls: View {
             if !Task.isCancelled {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     showControls = false
+                    showCenterButton = false
                 }
             }
         }

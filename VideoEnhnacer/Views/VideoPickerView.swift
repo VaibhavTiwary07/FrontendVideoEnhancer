@@ -112,7 +112,7 @@ struct VideoPickerView: View {
                                     .padding(.horizontal, 20)
                                 
                                 // Video info card
-                                VideoInfoCard(videoURL: videoURL)
+                                VideoInfoCard(videoURL: videoURL, trimStartTime: nil, trimEndTime: nil)
                                     .padding(.horizontal, 20)
                             }
                             
