@@ -195,6 +195,8 @@ struct VideoResultsView: View {
                 isPreviewPlaybackActive = false
             } else {
                 isPreviewPlaybackActive = true
+                // Resume video playback when export options are dismissed
+                videoPlayerManager.resumePlayers(forKey: generateVideoKey())
             }
         }
         // Listen for a global request to go Home; on iOS 15 avoid per-view dismiss

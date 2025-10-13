@@ -100,7 +100,7 @@ struct VideoComparisonSlider: View {
                         let videoWidth = geometry.size.width
                         // Enhanced Video (Background)
                         Group {
-                            if playerState == .ready,
+                            if (playerState == .ready || playerState == .paused),
                                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
                                 AVPlayerUIView(player: enhancedPlayer, videoGravity: compact ? .resizeAspectFill : .resizeAspect)
                                     .frame(width: videoWidth, height: videoHeight)
@@ -117,7 +117,7 @@ struct VideoComparisonSlider: View {
                         
                         // Normal Video (Overlay with mask)
                         Group {
-                            if playerState == .ready,
+                            if (playerState == .ready || playerState == .paused),
                                let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
                                 AVPlayerUIView(player: normalPlayer, videoGravity: compact ? .resizeAspectFill : .resizeAspect)
                                     .frame(width: videoWidth, height: videoHeight)
@@ -128,7 +128,7 @@ struct VideoComparisonSlider: View {
                                         HStack(spacing: 0) {
                                             Rectangle()
                                                 .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)))
-                                            
+
                                             Color.clear
                                         }
                                     )
@@ -141,7 +141,7 @@ struct VideoComparisonSlider: View {
                                         HStack(spacing: 0) {
                                             Rectangle()
                                                 .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)))
-                                            
+
                                             Color.clear
                                         }
                                     )
