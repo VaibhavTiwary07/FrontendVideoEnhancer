@@ -351,20 +351,18 @@ struct FavoriteVideoCard: View {
 struct VideoPlayerFullScreenView: View {
     let videoURL: URL
     let onDismiss: () -> Void
-    
+
     @StateObject private var playerManager = VideoPreviewManager()
-    
+    @State private var isMuted: Bool = true
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            
+
             if let player = playerManager.player {
-                VideoPlayer(player: player)
-                    .onAppear {
-                        player.play()
-                    }
+                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
             }
-            
+
             VStack {
                 HStack {
                     Spacer()

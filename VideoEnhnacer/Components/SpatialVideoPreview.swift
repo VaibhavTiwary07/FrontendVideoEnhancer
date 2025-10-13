@@ -18,7 +18,8 @@ struct SpatialVideoPreview: View {
     @State private var setupCallCount = 0
     @State private var viewAppearCount = 0
     @State private var viewDisappearCount = 0
-    
+    @State private var isMuted: Bool = true
+
     private var isIPad: Bool {
         horizontalSizeClass == .regular
     }
@@ -160,12 +161,9 @@ struct SpatialVideoPreview: View {
                     .cornerRadius(8)
                 }
             } else if let player = playerManager.player {
-                VideoPlayer(player: player)
+                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(24)
-                    .onAppear {
-                        player.play()
-                    }
             } else {
                 VideoLoadingView()
             }

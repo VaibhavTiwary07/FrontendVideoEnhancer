@@ -319,11 +319,6 @@ struct EnhancementVideoPreviewSection: View {
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)
                 )
-                .overlay(alignment: .topTrailing) {
-                    MuteToggleButton(isMuted: $isMuted)
-                        .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 20)
-                        .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
-                }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
         }
@@ -382,15 +377,14 @@ struct EnhancementVideoPlayerView: View {
     var body: some View {
         Group {
             if let player = playerViewModel.normalPlayer {
-                VideoPlayer(player: player)
+                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
                     .onAppear {
                         viewAppearCount += 1
                         print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onAppear #\(viewAppearCount)")
                         print("  Player available: true")
-                        print("  Setting active and starting playback...")
+                        print("  Setting active...")
                         playerViewModel.setActive(true)
                         playerViewModel.setMuted(isMuted)
-                        playerViewModel.play()
                     }
                     .onDisappear {
                         viewDisappearCount += 1

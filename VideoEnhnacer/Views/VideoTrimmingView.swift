@@ -20,6 +20,7 @@ struct VideoTrimmingView: View {
     @State private var thumbnails: [UIImage] = []
     @State private var isShowingPaywall = false
     @State private var isAdjustingTrimInternally = false
+    @State private var isMuted: Bool = true
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     private let freeTrimLimit: Double = 30
 
@@ -84,7 +85,7 @@ struct VideoTrimmingView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         if let player = playerManager.player {
-                            VideoPlayer(player: player)
+                            CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
                                 .frame(height: adaptiveVideoHeight)
                                 .cornerRadius(20)
                                 .overlay(
@@ -93,9 +94,6 @@ struct VideoTrimmingView: View {
                                 )
                                 .shadow(color: .black.opacity(0.4), radius: 15, x: 0, y: 8)
                                 .padding(.horizontal, 20)
-                                .onAppear {
-                                    player.play()
-                                }
                         } else {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(Color.accentWarm.opacity(0.1))

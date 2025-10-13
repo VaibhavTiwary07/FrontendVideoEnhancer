@@ -62,11 +62,11 @@ class VideoPlayerManager: ObservableObject {
                     self.loadingKeys.remove(key)
                     self.playerStates[key] = .ready
                     self.syncPlayers(forKey: key)
-                    
-                    // Auto-play if view is active
-                    if self.activeViewKeys.contains(key) {
-                        self.resumePlayers(forKey: key)
-                    }
+
+                    // REMOVED AUTO-PLAY: Playback control delegated to UI
+                    // if self.activeViewKeys.contains(key) {
+                    //     self.resumePlayers(forKey: key)
+                    // }
                 }
             } catch {
                 await MainActor.run {
@@ -114,10 +114,12 @@ class VideoPlayerManager: ObservableObject {
                     self.playerMuteStates[key] = muteState
                     self.playerStates[key] = .ready
                     self.syncPlayers(forKey: key)
-                    if self.activeViewKeys.contains(key) {
-                        print("🎬 Auto-playing loaded players for active key '\(key)'")
-                        self.resumePlayers(forKey: key)
-                    }
+
+                    // REMOVED AUTO-PLAY: Playback control delegated to UI
+                    // if self.activeViewKeys.contains(key) {
+                    //     print("🎬 Auto-playing loaded players for active key '\(key)'")
+                    //     self.resumePlayers(forKey: key)
+                    // }
                 }
             } catch {
                 await MainActor.run {
@@ -245,10 +247,11 @@ class VideoPlayerManager: ObservableObject {
             queue: .main
         ) { _ in
             playerPair.normal.seek(to: .zero)
-            playerPair.normal.play()
+            // REMOVED AUTO-PLAY after loop: Let UI controls handle playback
+            // playerPair.normal.play()
         }
         observers.append(normalObserver)
-        
+
         // Loop enhanced video
         let enhancedObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
@@ -256,7 +259,8 @@ class VideoPlayerManager: ObservableObject {
             queue: .main
         ) { _ in
             playerPair.enhanced.seek(to: .zero)
-            playerPair.enhanced.play()
+            // REMOVED AUTO-PLAY after loop: Let UI controls handle playback
+            // playerPair.enhanced.play()
         }
         observers.append(enhancedObserver)
         
@@ -305,12 +309,14 @@ class VideoPlayerManager: ObservableObject {
                 syncPlayers(forKey: key)
             }
 
-            if playerStates[key] == .ready || playerStates[key] == .paused {
-                print("🎬 Resuming players for key '\(key)'")
-                resumePlayers(forKey: key)
-            } else {
-                print("🎬 Players not ready for key '\(key)', state: \(playerStates[key] ?? .loading)")
-            }
+            // REMOVED AUTO-PLAY: Playback control delegated to UI (CustomVideoPlayerWithControls)
+            // if playerStates[key] == .ready || playerStates[key] == .paused {
+            //     print("🎬 Resuming players for key '\(key)'")
+            //     resumePlayers(forKey: key)
+            // } else {
+            //     print("🎬 Players not ready for key '\(key)', state: \(playerStates[key] ?? .loading)")
+            // }
+            print("🎬 View activated for key '\(key)' - playback control delegated to UI")
         } else {
             activeViewKeys.remove(key)
             // Pause players when the owning view disappears to prevent overlapping audio across screens
@@ -361,15 +367,14 @@ class VideoPlayerManager: ObservableObject {
     }
 
     func resumeActiveViewPlayers() {
-        // Resume all loaded players to maintain continuity across tab switches
+        // REMOVED AUTO-RESUME: Playback control delegated to UI (CustomVideoPlayerWithControls)
+        // The UI controls will handle resuming playback if needed
+        print("🎬 resumeActiveViewPlayers() called - playback control delegated to UI")
+
+        // Still ensure sync observers exist for comparison views
         for key in loadedKeys {
-            if playerStates[key] == .ready || playerStates[key] == .paused {
-                print("🎬 Resuming active view players for key '\(key)' and ensuring sync")
-                resumePlayers(forKey: key)
-                // Re-sync players if they were playing
-                if timeSyncObservers[key] == nil {
-                    syncPlayers(forKey: key)
-                }
+            if timeSyncObservers[key] == nil, playerPairs[key] != nil {
+                syncPlayers(forKey: key)
             }
         }
     }

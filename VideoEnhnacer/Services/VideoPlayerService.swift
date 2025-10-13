@@ -174,12 +174,16 @@ final class VideoPlayerService: VideoPlayerProtocol {
 
             activeViewKeys.insert(key)
             print("  Added to active keys: \(activeViewKeys)")
-            if loadedKeys.contains(key) {
-                print("  Key is loaded, starting playback...")
-                Task { await play(forKey: key) }
-            } else {
-                print("  Key not loaded yet, will play when ready")
-            }
+
+            // REMOVED AUTO-PLAY: Let CustomVideoPlayerWithControls handle playback
+            // The UI controls now have exclusive control over play/pause
+            // if loadedKeys.contains(key) {
+            //     print("  Key is loaded, starting playback...")
+            //     Task { await play(forKey: key) }
+            // } else {
+            //     print("  Key not loaded yet, will play when ready")
+            // }
+            print("  Playback control delegated to UI (CustomVideoPlayerWithControls)")
         } else {
             activeViewKeys.remove(key)
             print("  Removed from active keys: \(activeViewKeys)")

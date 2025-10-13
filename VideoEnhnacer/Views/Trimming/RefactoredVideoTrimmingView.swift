@@ -369,7 +369,7 @@ struct VideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
-            VideoPlayerView(playerViewModel: playerViewModel, isMuted: isMuted)
+            VideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 190 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
@@ -382,11 +382,6 @@ struct VideoPreviewSection: View {
                             .padding(.leading, DeviceSize.isSmallPhone ? 16 : 24)
                             .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
                     }
-                }
-                .overlay(alignment: .topTrailing) {
-                    MuteToggleButton(isMuted: $isMuted)
-                        .padding(.trailing, DeviceSize.isSmallPhone ? 16 : 20)
-                        .padding(.top, DeviceSize.isSmallPhone ? 8 : 12)
                 }
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
@@ -403,16 +398,15 @@ struct VideoPreviewSection: View {
 // MARK: - Video Player View
 struct VideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
-    let isMuted: Bool
-    
+    @Binding var isMuted: Bool
+
     var body: some View {
         Group {
             if let player = playerViewModel.normalPlayer {
-                VideoPlayer(player: player)
+                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
                     .onAppear {
                         playerViewModel.setActive(true)
                         playerViewModel.setMuted(isMuted)
-                        playerViewModel.play()
                     }
                     .onDisappear {
                         playerViewModel.setActive(false)
