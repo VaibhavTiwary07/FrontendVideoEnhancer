@@ -11,23 +11,29 @@ import AdSupport
 
 final class TrackingPermissionManager {
     static func requestPermission() {
-        if #available(iOS 14, *) {
-            ATTrackingManager.requestTrackingAuthorization { status in
-                switch status {
-                case .authorized:
-                    print("Tracking authorized ✅")
-                case .denied:
-                    print("Tracking denied ❌")
-                case .notDetermined:
-                    print("Tracking not determined yet ⚠️")
-                case .restricted:
-                    print("Tracking restricted 🚫")
-                @unknown default:
-                    break
+//        // Only request ATT if GDPR consent is given
+//        if UserDefaults.standard.bool(forKey: "GDPRConsent") {
+            if #available(iOS 14, *) {
+                ATTrackingManager.requestTrackingAuthorization { status in
+                    switch status {
+                    case .authorized:
+                        print("Tracking authorized ✅")
+                    case .denied:
+                        print("Tracking denied ❌")
+                    case .notDetermined:
+                        print("Tracking not determined yet ⚠️")
+                    case .restricted:
+                        print("Tracking restricted 🚫")
+                    @unknown default:
+                        break
+                    }
                 }
+            } else {
+                print("ATT not available on this iOS version")
             }
-        } else {
-            print("ATT not available on this iOS version")
-        }
+//        } else {
+//            print("GDPR consent not given, skipping ATT request")
+//        }
     }
 }
+

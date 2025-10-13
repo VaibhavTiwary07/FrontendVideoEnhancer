@@ -16,7 +16,6 @@ struct RefactoredEnhancementSelectionView: View {
     @State private var showingResults = false
     @State private var isShowingPaywall = false
     @EnvironmentObject private var historyManager: HistoryManager
-    @State private var isShowingError = false
     
     private let onBack: (() -> Void)?
     private let onClose: (() -> Void)?
@@ -72,14 +71,13 @@ struct RefactoredEnhancementSelectionView: View {
                         enhancementType: viewModel.enhancementType,
                         selectedOption: viewModel.selectedOption,
                         canProcess: viewModel.canProcess,
-                        onProcess: viewModel.processVideo
+                        onProcess: { viewModel.processVideo() }
                     )
                     .padding(.horizontal, 28)
                     .padding(.bottom, 24)
                 }
             }
         }
-        // iOS 15: avoid dismiss race on goHome; rely on coordinator/ContentView to navigate
         .onReceive(NotificationCenter.default.publisher(for: .goHomeRequested)) { _ in
             if #available(iOS 16.0, *) {
                 if let onClose {
@@ -91,39 +89,34 @@ struct RefactoredEnhancementSelectionView: View {
                 // no-op on iOS 15; navigation is handled centrally
             }
         }
-        .onAppear { 
+        .onAppear {
             handleViewAppearance()
             SubscriptionManager.shared.checkSubscriptionExpiry()
-            // If only one option exists (e.g., Face/Object or AI Color), auto-start processing
             if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
-                // Ensure a selection exists (default is set in VM init)
                 viewModel.processVideo()
             }
         }
         .onDisappear {
-            // Do not cleanup the shared player service here; it wipes all players, including Trimming's
-            // Only clear this view's processing pipeline
             viewModel.cleanup()
         }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
-        .onChange(of: viewModel.error) { err in
-            isShowingError = (err != nil)
-        }
-        .alert("Processing Error", isPresented: $isShowingError) {
-            Button("Retry") {
-                viewModel.retryProcessing()
-                isShowingError = false
-            }
-            Button("Cancel", role: .cancel) {
-                viewModel.cancelProcessing()
-                viewModel.clearError()
-                isShowingError = false
-            }
-        } message: {
-            Text(viewModel.error?.localizedDescription ?? "Unknown error occurred")
+        .alert(isPresented: $viewModel.showAlert) {
+            Alert(
+                title: Text(viewModel.alertTitle),
+                message: Text(viewModel.alertMessage),
+                primaryButton: .default(Text("OK")) {
+                    viewModel.clearError()
+                    if viewModel.alertTitle == "Processing Complete" {
+                        viewModel.resetState()
+                    }
+                },
+                secondaryButton: viewModel.error != nil ? .default(Text("Retry")) {
+                    viewModel.retryProcessing()
+                } : .cancel()
+            )
         }
         .processingOverlay(
             isPresenting: viewModel.isProcessing,
@@ -133,7 +126,6 @@ struct RefactoredEnhancementSelectionView: View {
         )
         .onChange(of: viewModel.result, perform: handleResultChange)
         .onChange(of: viewModel.isProcessing) { isProcessing in
-            // Pause video playback when processing starts
             if isProcessing {
                 playerViewModel.pause()
             }
@@ -149,40 +141,38 @@ struct RefactoredEnhancementSelectionView: View {
     @ViewBuilder
     private var contentView: some View {
         VStack(spacing: 12) {
-                // Larger, lower preview on iPad; hide Change button via nil action
-                EnhancementVideoPreviewSection(
-                    playerViewModel: playerViewModel,
+            EnhancementVideoPreviewSection(
+                playerViewModel: playerViewModel,
+                enhancementType: viewModel.enhancementType,
+                onChangeVideo: nil,
+                preferredHeightIPad: 560
+            )
+            .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
+
+            HStack {
+                EnhancementOptionsView(
                     enhancementType: viewModel.enhancementType,
-                    onChangeVideo: nil,
-                    preferredHeightIPad: 560
+                    selectedOption: $viewModel.selectedOption,
+                    isAnalyzing: viewModel.isAnalyzing,
+                    onOptionSelected: viewModel.updateSelection,
+                    onRequirePaywall: { isShowingPaywall = true }
                 )
-                .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
-
-                // Place options toward the bottom region; keep spacing compact on phones
-                HStack {
-                    EnhancementOptionsView(
-                        enhancementType: viewModel.enhancementType,
-                        selectedOption: $viewModel.selectedOption,
-                        isAnalyzing: viewModel.isAnalyzing,
-                        onOptionSelected: viewModel.updateSelection,
-                        onRequirePaywall: { isShowingPaywall = true }
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.top, isIPad ? 24 : 0)
-                }
-
-                if !isIPad {
-                    EnhancementActionView(
-                        enhancementType: viewModel.enhancementType,
-                        selectedOption: viewModel.selectedOption,
-                        canProcess: viewModel.canProcess,
-                        onProcess: viewModel.processVideo
-                    )
-                    .padding(.top, 12)
-                    .padding(.horizontal, 16)
-                }
+                .padding(.horizontal, 16)
+                .padding(.top, isIPad ? 24 : 0)
             }
-            .padding(.horizontal, 0)
+
+            if !isIPad {
+                EnhancementActionView(
+                    enhancementType: viewModel.enhancementType,
+                    selectedOption: viewModel.selectedOption,
+                    canProcess: viewModel.canProcess,
+                    onProcess: { viewModel.processVideo() }
+                )
+                .padding(.top, 12)
+                .padding(.horizontal, 16)
+            }
+        }
+        .padding(.horizontal, 0)
     }
     
     @ViewBuilder
@@ -209,10 +199,9 @@ struct RefactoredEnhancementSelectionView: View {
             }
         }
         
-        // Inline title aligned with back and close buttons
         ToolbarItem(placement: .principal) {
             if !viewModel.isProcessing {
-                Text(viewModel.enhancementType.title)
+                Text("") // viewModel.enhancementType.title
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.accentWarm)
             }
@@ -274,11 +263,9 @@ struct RefactoredEnhancementSelectionView: View {
         print("  PlayerViewModel current state: \(playerViewModel.playerState)")
         print("  PlayerViewModel isLoading: \(playerViewModel.isLoading)")
         
-        // Initialize player immediately to avoid "No player available" state
         print("  🚀 Starting player setup immediately...")
         playerViewModel.setupPlayers(originalURL: viewModel.videoURL, enhancedURL: viewModel.videoURL)
         
-        // Apply trim settings after a brief delay to ensure player is being set up
         if let start = viewModel.trimStartTime, let end = viewModel.trimEndTime {
             print("  📐 Will apply trim range: \(start)s to \(end)s")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -660,20 +647,21 @@ struct EnhancementOptionsView: View {
     private var isIPad: Bool { hSize == .regular }
     
     private var dynamicSubtitle: String {
-        switch enhancementType.id {
-        case "ai_upscale":
-            return "Choose upscaling level"
-        case "ai_denoise":
-            return "Choose denoise strength"
-        case "ai_auto_enhancement":
-            return "Choose enhancement strength"
-        case "stabilizer":
-            return "Choose stabilization level"
-        case "frame_interpolation":
-            return "Choose interpolation rate"
-        default:
-            return "Choose enhancement level"
-        }
+//        switch enhancementType.id {
+//        case "ai_upscale":
+//            return "Choose upscaling level"
+//        case "ai_denoise":
+//            return "Choose denoise strength"
+//        case "ai_auto_enhancement":
+//            return "Choose enhancement strength"
+//        case "stabilizer":
+//            return "Choose stabilization level"
+//        case "frame_interpolation":
+//            return "Choose interpolation rate"
+//        default:
+//            return "Choose enhancement level"
+//        }
+        return "For \(enhancementType.name)"
     }
     
     var body: some View {
@@ -763,13 +751,13 @@ struct EnhancementOptionGrid: View {
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                showsProBadge: false,//pro && !SubscriptionManager.shared.isAppSubscribed()
                                 onTap: {
-                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
-                                        onRequirePaywall()
-                                    } else {
+//                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
+//                                        onRequirePaywall()
+//                                    } else {
                                         onOptionSelected(option.id)
-                                    }
+                                   // }
                                 }
                             )
                             .frame(maxWidth: .infinity)
@@ -785,13 +773,13 @@ struct EnhancementOptionGrid: View {
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                showsProBadge: false,//pro && !SubscriptionManager.shared.isAppSubscribed()
                                 onTap: {
-                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
-                                        onRequirePaywall()
-                                    } else {
+//                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
+//                                        onRequirePaywall()
+//                                    } else {
                                         onOptionSelected(option.id)
-                                    }
+                                   // }
                                 }
                             )
                         }
@@ -972,7 +960,7 @@ struct EnhancementProcessButton: View {
             onProcess()
         }) {
             VStack(alignment: .center, spacing: 2) {
-                Text("Process with \(enhancementType)")
+                Text("Process") // with \(enhancementType)
                     .font(.system(size: isIPad ? 20 : 18, weight: .semibold))
                     .foregroundColor(.white)
                 

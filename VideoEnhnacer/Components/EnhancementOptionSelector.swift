@@ -82,15 +82,15 @@ struct EnhancementOptionSelector: View {
                                         OptionCard(
                                             option: option,
                                             isSelected: selectedOption == option.id,
-                                            showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                            showsProBadge: false,//pro && !SubscriptionManager.shared.isAppSubscribed()
                                             onTap: {
                                                 let impact = UIImpactFeedbackGenerator(style: .light)
                                                 impact.impactOccurred()
-                                                if pro && !SubscriptionManager.shared.isAppSubscribed() {
-                                                    isShowingPaywall = true
-                                                } else {
+//                                                if pro && !SubscriptionManager.shared.isAppSubscribed() {
+//                                                    isShowingPaywall = true
+//                                                } else {
                                                     selectedOption = option.id
-                                                }
+                                               // }
                                             }
                                         )
                                         .frame(maxWidth: .infinity)
@@ -104,15 +104,15 @@ struct EnhancementOptionSelector: View {
                                         OptionCard(
                                             option: option,
                                             isSelected: selectedOption == option.id,
-                                            showsProBadge: pro && !SubscriptionManager.shared.isAppSubscribed(),
+                                            showsProBadge: false ,//pro && !SubscriptionManager.shared.isAppSubscribed()
                                             onTap: {
                                                 let impact = UIImpactFeedbackGenerator(style: .light)
                                                 impact.impactOccurred()
-                                                if pro && !SubscriptionManager.shared.isAppSubscribed() {
-                                                    isShowingPaywall = true
-                                                } else {
+//                                                if pro && !SubscriptionManager.shared.isAppSubscribed() {
+//                                                    isShowingPaywall = true
+//                                                } else {
                                                     selectedOption = option.id
-                                                }
+                                               // }
                                             }
                                         )
                                     }

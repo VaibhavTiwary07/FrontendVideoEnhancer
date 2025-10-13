@@ -135,10 +135,10 @@ struct RefactoredVideoTrimmingView: View {
         .fullScreenCover(isPresented: $isShowingPaywall, onDismiss: viewModel.acknowledgePaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
-        .onChange(of: viewModel.shouldShowPaywall) { shouldShow in
-            guard shouldShow else { return }
-            presentPaywall()
-        }
+//        .onChange(of: viewModel.shouldShowPaywall) { shouldShow in
+//            guard shouldShow else { return }
+//            presentPaywall()
+//        }
         .safeAreaInset(edge: .bottom) {
             if isSmallPhone, !viewModel.isLoadingVideo, viewModel.error == nil {
                 ContinueButton(
@@ -146,7 +146,7 @@ struct RefactoredVideoTrimmingView: View {
                     canProceed: viewModel.canProceed,
                     onContinue: handleContinueAction
                 )
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
                 .padding(.top, 6)
                 .padding(.bottom, 10)
                 .background(
@@ -240,7 +240,7 @@ struct RefactoredVideoTrimmingView: View {
         }
 
         ToolbarItem(placement: .principal) {
-            Text("Trim for \(viewModel.enhancementType.title)")
+            Text("Trimming") //for \(viewModel.enhancementType.title)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.accentWarm)
         }
@@ -694,11 +694,11 @@ struct TimePresetButtons: View {
                         TimePresetButton(
                             title: preset.title,
                             isSelected: selectedDuration == preset,
-                            showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                            showsProBadge: false,//isPro && !SubscriptionManager.shared.isAppSubscribed()
                             onTap: { onPresetSelected(preset) },
-                            onRequirePro: isPro ? {
-                                onRequirePaywall?()
-                            } : nil
+//                            onRequirePro: isPro ? {
+//                                onRequirePaywall?()
+//                            } : nil
                         )
                     }
                 }
@@ -713,11 +713,11 @@ struct TimePresetButtons: View {
                     TimePresetButton(
                         title: preset.title,
                         isSelected: selectedDuration == preset,
-                        showsProBadge: isPro && !SubscriptionManager.shared.isAppSubscribed(),
+                        showsProBadge: false,// isPro && !SubscriptionManager.shared.isAppSubscribed()
                         onTap: { onPresetSelected(preset) },
-                        onRequirePro: isPro ? {
-                            onRequirePaywall?()
-                        } : nil
+//                        onRequirePro: isPro ? {
+//                            onRequirePaywall?()
+//                        } : nil
                     )
                 }
 
@@ -733,7 +733,7 @@ struct TimePresetButton: View {
     let isSelected: Bool
     let showsProBadge: Bool
     let onTap: () -> Void
-    let onRequirePro: (() -> Void)?
+    //let onRequirePro: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
@@ -742,11 +742,11 @@ struct TimePresetButton: View {
         ZStack(alignment: .topTrailing) {
             Button(action: {
                 HapticFeedbackManager.impact(.light)
-                if showsProBadge {
-                    onRequirePro?()
-                } else {
+//                if showsProBadge {
+//                    onRequirePro?()
+//                } else {
                     onTap()
-                }
+                //}
             }) {
                 Text(title)
                     .font(.system(size: isIPad ? 18 : (isSmallPhone ? 13 : 16), weight: .semibold))
@@ -801,6 +801,34 @@ struct VideoTrimmingSliderView: View {
     }
 }
 
+//// MARK: - Continue Button
+//struct ContinueButton: View {
+//    let enhancementType: EnhancementType
+//    let canProceed: Bool
+//    let onContinue: () -> Void
+//    
+//    var body: some View {
+//        let isSmall = DeviceSize.isSmallPhone
+//        Button(action: {
+//            HapticFeedbackManager.impact(.medium)
+//            onContinue()
+//        }) {
+//            HStack(spacing: 12) {
+////                Image(systemName: enhancementType.icon)
+////                    .font(.system(size: 20, weight: .medium))
+//                
+//                Text("Continue")
+//                    .font(.system(size: isSmall ? 16 : 18, weight: .semibold))
+//                    .foregroundColor(.white)
+//                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+//            }
+//        }
+//        .buttonStyle(FloatingActionButtonStyle())
+//        .disabled(!canProceed)
+//        .opacity(canProceed ? 1.0 : 0.7)
+//    }
+//}
+
 // MARK: - Continue Button
 struct ContinueButton: View {
     let enhancementType: EnhancementType
@@ -808,26 +836,38 @@ struct ContinueButton: View {
     let onContinue: () -> Void
     
     var body: some View {
-        let isSmall = DeviceSize.isSmallPhone
         Button(action: {
             HapticFeedbackManager.impact(.medium)
             onContinue()
         }) {
-            HStack(spacing: 12) {
-//                Image(systemName: enhancementType.icon)
-//                    .font(.system(size: 20, weight: .medium))
-                
-                Text("Continue")
-                    .font(.system(size: isSmall ? 16 : 18, weight: .semibold))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
-            }
+            Text("Continue")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 18)
+                .frame(width: UIScreen.main.bounds.width * 0.68)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(LinearGradient.primaryTheme)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(
+                            color: Color.black.opacity(0.15),
+                            radius: 6,
+                            x: 0,
+                            y: 3
+                        )
+                )
         }
-        .buttonStyle(FloatingActionButtonStyle())
+        .buttonStyle(PlainButtonStyle())
         .disabled(!canProceed)
         .opacity(canProceed ? 1.0 : 0.7)
     }
 }
+
+
 
 // MARK: - Loading and Error Views (removed duplicate - using SpatialVideoPreview version)
 

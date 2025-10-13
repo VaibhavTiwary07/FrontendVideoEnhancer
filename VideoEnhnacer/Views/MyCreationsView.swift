@@ -226,8 +226,9 @@ struct HistoryCard: View {
                 let asset = AVURLAsset(url: item.processedURL)
                 let imageGenerator = AVAssetImageGenerator(asset: asset)
                 imageGenerator.appliesPreferredTrackTransform = true
-                imageGenerator.maximumSize = CGSize(width: 200, height: 120)
-                
+                // Use high resolution for sharp thumbnails on retina displays
+                imageGenerator.maximumSize = CGSize(width: 1200, height: 675)
+
                 let time = CMTime(seconds: 1, preferredTimescale: 60)
                 let cgImage = try imageGenerator.copyCGImage(at: time, actualTime: nil)
                 

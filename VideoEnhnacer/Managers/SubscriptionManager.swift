@@ -1,14 +1,8 @@
-//
-//  SubscriptionManager.swift
-//  VideoEnhancementApp
-//
-//  Created by apple on 03/09/25.
-//
-
 import StoreKit
 import Foundation
 import UIKit
 import FirebaseAnalytics
+import SwiftUI // Added for ObservableObject
 
 // MARK: - Constants
 private let kSandboxServer = "https://sandbox.itunes.apple.com/verifyReceipt"
@@ -42,12 +36,26 @@ private let defaultWatermarkPackTitle = "Premium Subscription"
 private let defaultWatermarkPackDescription = "Unlock all premium features"
 
 // MARK: - SubscriptionManager
-class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsRequestDelegate {
+@MainActor // Ensure UI-related updates are on main thread
+class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsRequestDelegate, ObservableObject {
     
     // MARK: - Singleton
     static let shared = SubscriptionManager()
+    // Add a flag to track StoreKit operations
+        private var isStoreKitOperationInProgress: Bool = false
+    
+    // MARK: - Observable Property for SwiftUI
+    @Published var isSubscribed: Bool { // Added for SwiftUI view updates
+        didSet {
+            // Sync with UserDefaults for compatibility
+            UserDefaults.standard.set(isSubscribed ? 1 : 0, forKey: "SubscriptionExpired")
+            UserDefaults.standard.synchronize()
+        }
+    }
     
     private override init() {
+        // Initialize isSubscribed from UserDefaults
+        self.isSubscribed = UserDefaults.standard.integer(forKey: "SubscriptionExpired") != 0
         super.init()
         SKPaymentQueue.default().add(self)
     }
@@ -114,7 +122,8 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
             completion(false, NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Purchases are disabled on this device"]))
             return
         }
-        
+        // Set flag to indicate StoreKit operation is starting
+        isStoreKitOperationInProgress = true
         guard !availableProducts.isEmpty else {
             fetchProducts { [weak self] products, error in
                 if let error = error {
@@ -125,7 +134,7 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
                     self?.purchaseCompletion = completion
                     let payment = SKPayment(product: product)
                     SKPaymentQueue.default().add(payment)
-                   // Analytics.logEvent("RemoveAds_Request", parameters: nil)
+                    // Analytics.logEvent("RemoveAds_Request", parameters: nil)
                 } else {
                     completion(false, NSError(domain: "SubscriptionManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Product not found"]))
                 }
@@ -136,13 +145,15 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
         purchaseCompletion = completion
         let payment = SKPayment(product: product)
         SKPaymentQueue.default().add(payment)
-      //  Analytics.logEvent("RemoveAds_Request", parameters: nil)
+        // Analytics.logEvent("RemoveAds_Request", parameters: nil)
     }
     
     func restorePurchases(completion: @escaping (Bool, Error?) -> Void) {
+        // Set flag to indicate StoreKit operation is starting
+        isStoreKitOperationInProgress = true
         restoreCompletion = completion
         SKPaymentQueue.default().restoreCompletedTransactions()
-      //  Analytics.logEvent("Restore_RemoveAds_Request", parameters: nil)
+        // Analytics.logEvent("Restore_RemoveAds_Request", parameters: nil)
     }
     
     // MARK: - SKPaymentTransactionObserver
@@ -153,12 +164,16 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
                 break
             case .purchased:
                 handlePurchasedTransaction(transaction)
+                isStoreKitOperationInProgress = false // Reset flag on completion
             case .failed:
                 handleFailedTransaction(transaction)
+                isStoreKitOperationInProgress = false // Reset flag on completion
             case .restored:
                 handleRestoredTransaction(transaction)
+                isStoreKitOperationInProgress = false // Reset flag on completion
             case .deferred:
                 SKPaymentQueue.default().finishTransaction(transaction)
+                isStoreKitOperationInProgress = false // Reset flag on completion
             @unknown default:
                 break
             }
@@ -170,13 +185,21 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
         NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
         restoreCompletion?(false, error)
         restoreCompletion = nil
+        isStoreKitOperationInProgress = false // Reset flag on failure
         showAlert(title: "Restore Failed", message: error.localizedDescription)
     }
     
     func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
         print("Subscriptions restored")
         checkSubscriptionExpiry()
-      //  Analytics.logEvent("Restore_RemoveAds_Completed", parameters: nil)
+        isStoreKitOperationInProgress = false // Reset flag on failure
+        showAlert(title: "Restored", message: "Subscriptions restored")
+        // Analytics.logEvent("Restore_RemoveAds_Completed", parameters: nil)
+    }
+    
+    // Helper method to check if a StoreKit operation is in progress
+    func isStoreKitActive() -> Bool {
+            return isStoreKitOperationInProgress
     }
     
     // MARK: - Transaction Handling
@@ -192,16 +215,44 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
         purchaseCompletion = nil
     }
     
+//    private func handleFailedTransaction(_ transaction: SKPaymentTransaction) {
+//        let error = transaction.error
+//        if let skError = error as? SKError, skError.code != .paymentCancelled {
+//            showAlert(title: "Error", message: skError.localizedDescription)
+//            purchaseCompletion?(false, skError)
+//        } else if error != nil {
+//            showAlert(title: "Error", message: error?.localizedDescription ?? "Something went wrong. Try again.")
+//            purchaseCompletion?(false, error)
+//        } else {
+//            purchaseCompletion?(false, nil)
+//        }
+//        SKPaymentQueue.default().finishTransaction(transaction)
+//        NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
+//        purchaseCompletion = nil
+//    }
+    
     private func handleFailedTransaction(_ transaction: SKPaymentTransaction) {
         let error = transaction.error
-        if let skError = error as? SKError, skError.code != .paymentCancelled {
-            showAlert(title: "Error", message: skError.localizedDescription)
-            purchaseCompletion?(false, skError)
-        } else if error != nil {
-            showAlert(title: "Error", message: error?.localizedDescription ?? "Something went wrong. Try again.")
-            purchaseCompletion?(false, error)
+        if let skError = error as? SKError {
+            switch skError.code {
+            case .paymentCancelled:
+                print("Purchase canceled by user")
+                purchaseCompletion?(false, nil) // No error for user cancellation
+            case .unknown:
+                print("Unknown StoreKit error: \(skError.localizedDescription)")
+                showAlert(title: "Error", message: "An unknown error occurred during the purchase. Please try again.")
+                purchaseCompletion?(false, skError)
+            default:
+                print("StoreKit error: \(skError.code), description: \(skError.localizedDescription)")
+                showAlert(title: "Error", message: skError.localizedDescription)
+                purchaseCompletion?(false, skError)
+            }
         } else {
-            purchaseCompletion?(false, nil)
+            // Handle non-SKError cases (e.g., Unhandled exception)
+            let errorMessage = error?.localizedDescription ?? "Something went wrong. Try again."
+            print("Non-StoreKit error: \(errorMessage)")
+            showAlert(title: "Error", message: errorMessage)
+            purchaseCompletion?(false, error)
         }
         SKPaymentQueue.default().finishTransaction(transaction)
         NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
@@ -275,13 +326,18 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
                     return
                 }
                 
-                let pendingRenewalInfo = jsonResponse["pending_renewal_info"] as? [[String: Any]]
-                let firstObject = pendingRenewalInfo?.first
-                let isInBillingRetryPeriod = firstObject?["is_in_billing_retry_period"] as? String == "1"
-                self.restoreExpired = !isInBillingRetryPeriod
+                // Compare expiryDate with current time
+                let currentDate = Date()
+                let isSubscriptionActive = expiryDate > currentDate
+                
+                // Print for debugging
+                print("expiresDateString: \(expiresDateString)")
+                print("expiryDate: \(expiryDate)")
+                print("currentDate: \(currentDate)")
+                print("isSubscriptionActive: \(isSubscriptionActive)")
                 
                 DispatchQueue.main.async {
-                    completion(!self.restoreExpired, self.restoreExpired ? nil : expiryDate, nil)
+                    completion(isSubscriptionActive, expiryDate, nil)
                 }
                 self.endBackgroundTask()
             } catch {
@@ -299,11 +355,6 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .closeSubscriptionView, object: nil)
                 NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
-                
-//                if let error = error {
-//                    self.showAlert(title: "Error", message: error.localizedDescription)
-//                    return
-//                }
                 
                 if isValid {
                     print("Subscription active")
@@ -386,7 +437,7 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
     
     // MARK: - Subscription Status
     func isAppSubscribed() -> Bool {
-        return UserDefaults.standard.integer(forKey: "SubscriptionExpired") != 0
+        return isSubscribed // Use published property
     }
     
     func isSessionExpired() -> Bool {
@@ -396,15 +447,17 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
     // MARK: - Feature Management
     private func lockAllFeatures() {
         print("Locking all features")
-        UserDefaults.standard.set(0, forKey: "SubscriptionExpired")
+        isSubscribed = false // Triggers SwiftUI view update
         UserDefaults.standard.set(1, forKey: "SubscriptionSessionExpired")
+        UserDefaults.standard.synchronize()
         NotificationCenter.default.post(name: .subscriptionSessionExpired, object: self)
     }
     
     private func unlockAllFeatures() {
         print("Unlocking all features")
+        isSubscribed = true // Triggers SwiftUI view update
         UserDefaults.standard.set(0, forKey: "SubscriptionSessionExpired")
-        UserDefaults.standard.set(1, forKey: "SubscriptionExpired")
+        UserDefaults.standard.synchronize()
         NotificationCenter.default.post(name: .clearAllLocks, object: nil)
         NotificationCenter.default.post(name: .hideActivityIndicator, object: nil)
     }
@@ -427,12 +480,9 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
     
     // MARK: - Analytics
     private func logPurchaseEvent(_ productId: String) {
-        let rawPrice = getPrice(for: productId)        // Might return "$239.00" or "₹ 269.00"
+        let rawPrice = getPrice(for: productId)
         let currencyCode = getCurrencyCode(for: productId)
         var eventName = ""
-        
-        // Clean numeric value
-        let priceValue = cleanPriceString(rawPrice)
         
         Task {
             let receiptURL = Bundle.main.appStoreReceiptURL
@@ -457,7 +507,8 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
                 eventName = "purchase_unknown"
             }
             
-            // Log clean numeric price
+            let priceValue = cleanPriceString(rawPrice)
+            
             Analytics.logEvent(eventName, parameters: [
                 AnalyticsParameterValue: priceValue,
                 AnalyticsParameterCurrency: currencyCode,
@@ -468,21 +519,17 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
             print("Logged purchase: \(eventName), price = \(priceValue), currency = \(currencyCode)")
         }
     }
-
     
     private func cleanPriceString(_ price: String) -> Double {
-        // 1. Keep only digits, decimal separators (.,)
         let allowedChars = CharacterSet(charactersIn: "0123456789.,")
         let filtered = price.unicodeScalars.filter { allowedChars.contains($0) }
         var cleanPrice = String(String.UnicodeScalarView(filtered))
         
-        // 2. Replace comma with dot if needed (e.g., "239,50" → "239.50")
         cleanPrice = cleanPrice.replacingOccurrences(of: ",", with: ".")
         
-        // 3. Convert to Double
         return Double(cleanPrice) ?? 0.0
     }
-
+    
     // MARK: - Background Tasks
     private func startBackgroundTask(taskName: String) {
         guard backgroundTask == .invalid else { return }
@@ -514,3 +561,4 @@ class SubscriptionManager: NSObject, SKPaymentTransactionObserver, SKProductsReq
         }
     }
 }
+

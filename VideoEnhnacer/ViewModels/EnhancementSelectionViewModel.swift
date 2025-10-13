@@ -3,10 +3,8 @@ import SwiftUI
 import Combine
 
 // MARK: - Enhancement Selection ViewModel
-/// MVVM ViewModel for enhancement selection operations following Single Responsibility Principle
 @MainActor
 final class EnhancementSelectionViewModel: ObservableObject {
-    
     // MARK: - Published Properties
     @Published var selectedOption: String = ""
     @Published private(set) var processingState: EnhancementProcessingState = .idle
@@ -14,6 +12,9 @@ final class EnhancementSelectionViewModel: ObservableObject {
     @Published private(set) var isAnalyzing: Bool = false
     @Published private(set) var error: EnhancementError?
     @Published private(set) var result: EnhancementResult?
+    @Published var showAlert: Bool = false
+    @Published var alertTitle: String = ""
+    @Published var alertMessage: String = ""
     
     // MARK: - Private Properties
     private let enhancementService: EnhancementServiceProtocol
@@ -73,16 +74,15 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func updateSelection(_ optionId: String) {
         selectedOption = optionId
         
-        // Simulate analysis feedback
         withAnimation(.easeInOut(duration: 0.3)) {
             isAnalyzing = true
         }
         
-        Task { [weak self] in
-            try await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+        Task {
+            try await Task.sleep(nanoseconds: 300_000_000)
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    self?.isAnalyzing = false
+                    self.isAnalyzing = false
                 }
             }
         }
@@ -91,12 +91,15 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func processVideo() {
         guard let option = selectedEnhancementOption else {
             error = .invalidInput("No enhancement option selected")
+            showAlert = true
+            alertTitle = "Invalid Selection"
+            alertMessage = "Please select an enhancement option."
             return
         }
         
-        // Clear previous result to prevent showing stale data
         result = nil
         error = nil
+        showAlert = false
         
         currentTask = Task { [weak self] in
             await self?.performVideoProcessing(with: option)
@@ -114,13 +117,15 @@ final class EnhancementSelectionViewModel: ObservableObject {
     
     func retryProcessing() {
         error = nil
+        showAlert = false
         processVideo()
     }
 
     func clearError() {
         error = nil
+        showAlert = false
         if case .processing = processingState {
-            // keep state; external cancel stops the pipeline
+            // Keep state; external cancel stops the pipeline
         }
     }
     
@@ -129,13 +134,13 @@ final class EnhancementSelectionViewModel: ObservableObject {
         progress = 0.0
         error = nil
         result = nil
+        showAlert = false
         selectedOption = ""
         setDefaultSelection()
     }
     
     // MARK: - Private Methods
     private func setupBindings() {
-        // Bind to enhancement service state changes
         enhancementService.processingStatePublisher
             .receive(on: DispatchQueue.main)
             .assign(to: \.processingState, on: self)
@@ -146,7 +151,22 @@ final class EnhancementSelectionViewModel: ObservableObject {
             .assign(to: \.progress, on: self)
             .store(in: &cancellables)
         
-        // Handle processing state changes
+        // Bind to alert properties
+        (enhancementService as? ServerEnhancementService)?.$showAlert
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.showAlert, on: self)
+            .store(in: &cancellables)
+        
+        (enhancementService as? ServerEnhancementService)?.$alertTitle
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.alertTitle, on: self)
+            .store(in: &cancellables)
+        
+        (enhancementService as? ServerEnhancementService)?.$alertMessage
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.alertMessage, on: self)
+            .store(in: &cancellables)
+        
         $processingState
             .sink { [weak self] state in
                 self?.handleProcessingStateChange(state)
@@ -171,7 +191,6 @@ final class EnhancementSelectionViewModel: ObservableObject {
         }
     }
 
-    // Simple gating logic to match UI badges
     private func isProOption(enhancementTypeId: String, optionId: String) -> Bool {
         switch enhancementTypeId {
         case "ai_upscale":
@@ -194,6 +213,7 @@ final class EnhancementSelectionViewModel: ObservableObject {
         case .cancelled:
             error = nil
             result = nil
+            showAlert = false
         default:
             break
         }
@@ -201,7 +221,6 @@ final class EnhancementSelectionViewModel: ObservableObject {
     
     private func performVideoProcessing(with option: EnhancementOption) async {
         do {
-            // Create enhancement request
             let request = EnhancementRequest(
                 enhancementType: enhancementType,
                 selectedOption: option,
@@ -209,23 +228,19 @@ final class EnhancementSelectionViewModel: ObservableObject {
                 trimEndTime: trimEndTime
             )
             
-            // Validate the request
             try enhancementService.validateEnhancement(request: request)
             
-            // Log processing start
             print("🎭 EnhancementSelectionViewModel - Starting processing:")
             print("   Enhancement: \(enhancementType.title)")
             print("   Option: \(option.title)")
             print("   Trim: \(trimStartTime ?? -1) to \(trimEndTime ?? -1)")
             
-            // Process the video
             let result = try await enhancementService.processVideo(at: videoURL, with: request)
             
             await MainActor.run {
                 self.result = result
                 print("🎭 EnhancementSelectionViewModel - Processing completed successfully")
             }
-            
         } catch let enhancementError as EnhancementError {
             if case .cancelled = enhancementError {
                 await MainActor.run {
@@ -270,7 +285,6 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func cleanup() {
         currentTask?.cancel()
         currentTask = nil
-        // Ensure any in-flight server processing is cancelled to avoid late emissions
         Task { [weak self] in
             await self?.enhancementService.cancelProcessing()
         }

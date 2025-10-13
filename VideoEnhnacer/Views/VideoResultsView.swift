@@ -41,7 +41,7 @@ struct VideoResultsView: View {
     @State private var showingError = false
     @State private var saveSuccess = false
     @State private var showingExportOptions = false
-    @State private var selectedResolution = "1080p"
+    @State private var selectedResolution = "original"
     @State private var selectedFrameRate = "30fps"
     @State private var selectedFormat = "MP4"
     @State private var exportedVideoURL: URL? = nil
@@ -91,10 +91,11 @@ struct VideoResultsView: View {
             VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
                 // Top bar
                 HStack {
-                    Button(action: handleBackAction) {
-                        BackButtonIcon()
-                    }
-                    .foregroundColor(.white)
+//                    Button(action: handleBackAction) {
+//                        Image(systemName: "chevron.left")
+//                    }
+//                    .foregroundColor(.white)
+                    BackButton(action: handleBackAction)
                     Spacer()
                     
                     HStack(spacing: 12) {
@@ -121,7 +122,7 @@ struct VideoResultsView: View {
 //                                        .fill(LinearGradient.primaryTheme)
 //                                )
 //                        }
-//                        
+//
 //                        // Share button
 //                        Button(action: presentShareSheet) {
 //                            Image(systemName: "square.and.arrow.up")
@@ -134,7 +135,7 @@ struct VideoResultsView: View {
 //                                )
 //                        }
                         
-                        // Export button  
+                        // Export button
                         Button(action: { showingExportOptions = true }) {
                             Image(systemName: "arrow.down.to.line")
                                 .font(.system(size: 16, weight: .semibold))
@@ -193,8 +194,6 @@ struct VideoResultsView: View {
                 videoPlayerManager.pauseAllPlayers()
                 isPreviewPlaybackActive = false
             } else {
-                videoPlayerManager.setViewActive(forKey: generateVideoKey(), isActive: true)
-                videoPlayerManager.resumeActiveViewPlayers()
                 isPreviewPlaybackActive = true
             }
         }
@@ -415,3 +414,4 @@ struct VideoResultsView_Previews: PreviewProvider {
     }
 }
 #endif
+

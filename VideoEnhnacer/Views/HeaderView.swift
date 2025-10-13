@@ -4,6 +4,7 @@ struct HeaderView: View {
     @Binding var isSidebarExpanded: Bool
     @Binding var isShowingPaywall: Bool
     @Binding var selectedCarouselSegment: Int
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
     
     var body: some View {
         HStack {
@@ -46,27 +47,28 @@ struct HeaderView: View {
             
             Spacer()
             
-            // Pro Button
-            Button(action: {
-                isShowingPaywall = true
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "crown.fill")
-                        .font(.system(size: 14, weight: .medium))
-                    Text("Pro")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-                .foregroundColor(.white)
-                .frame(width: 70, height: 36)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(LinearGradient.primaryTheme)
-                )
-            }
-        }
-        .padding(.horizontal, 16)
-//        .padding(.vertical, 10)
-        .background(Color.clear)
+            // Conditionally show Pro Button based on subscription status
+                        if !subscriptionManager.isSubscribed {
+                            Button(action: {
+                                isShowingPaywall = true
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "crown.fill")
+                                        .font(.system(size: 14, weight: .medium))
+                                    Text("Pro")
+                                        .font(.system(size: 14, weight: .semibold))
+                                }
+                                .foregroundColor(.white)
+                                .frame(width: 70, height: 36)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .fill(LinearGradient.primaryTheme)
+                                )
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .background(Color.clear)
     }
 
     private func titleForIndex(_ index: Int) -> String {
@@ -90,3 +92,4 @@ struct HeaderView: View {
     }
     .background(Color.appBackground)
 }
+

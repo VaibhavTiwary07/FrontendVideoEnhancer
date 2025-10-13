@@ -437,12 +437,12 @@ struct VideoTrimmingView: View {
     }
 
     private func handlePresetSelection(_ preset: TimePreset) {
-        if requiresPaywall(for: preset.duration) {
-            selectedDuration = .thirtySeconds
-            updateTrimForPreset(.thirtySeconds)
-            triggerPaywall()
-            return
-        }
+//        if requiresPaywall(for: preset.duration) {
+//            selectedDuration = .thirtySeconds
+//            updateTrimForPreset(.thirtySeconds)
+//            triggerPaywall()
+//            return
+//        }
 
         selectedDuration = preset
         updateTrimForPreset(preset)
@@ -475,20 +475,20 @@ struct VideoTrimmingView: View {
         var adjustedStart = max(0, min(trimStartTime, videoDuration))
         var adjustedEnd = max(adjustedStart + 0.5, min(trimEndTime, videoDuration))
 
-        if !isSubscribed {
-            let limit = maxAllowedDuration
-            let span = adjustedEnd - adjustedStart
-            if span > limit {
-                adjustedEnd = min(adjustedStart + limit, videoDuration)
-                if abs(adjustedEnd - videoDuration) < 0.001 {
-                    adjustedStart = max(0, adjustedEnd - limit)
-                }
-                if selectedDuration.duration > limit {
-                    selectedDuration = .thirtySeconds
-                }
-                triggerPaywall()
-            }
-        }
+//        if !isSubscribed {
+//            let limit = maxAllowedDuration
+//            let span = adjustedEnd - adjustedStart
+//            if span > limit {
+//                adjustedEnd = min(adjustedStart + limit, videoDuration)
+//                if abs(adjustedEnd - videoDuration) < 0.001 {
+//                    adjustedStart = max(0, adjustedEnd - limit)
+//                }
+//                if selectedDuration.duration > limit {
+//                    selectedDuration = .thirtySeconds
+//                }
+//                triggerPaywall()
+//            }
+//        }
 
         trimStartTime = adjustedStart
         trimEndTime = max(adjustedStart + 0.5, min(adjustedEnd, videoDuration))

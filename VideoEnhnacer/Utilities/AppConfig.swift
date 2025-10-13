@@ -3,5 +3,6 @@ import Foundation
 struct AppConfig {
     // Update this to your local server address/port as needed
     static let baseURL: String = "https://videoenhancer.mixapps.site/"
+    static let appID : String = "6751635297"
 }
 

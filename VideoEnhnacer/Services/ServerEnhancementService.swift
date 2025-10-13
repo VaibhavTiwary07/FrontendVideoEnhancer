@@ -1,15 +1,19 @@
 import Foundation
+import StoreKit
 import Combine
 import AVFoundation
 import Photos
 import SwiftUI
 
-// MARK: - Server-backed Enhancement Service (uses given Sd backend contract)
+// MARK: - Server-backed Enhancement Service
 final class ServerEnhancementService: ObservableObject, EnhancementServiceProtocol {
     // Published state
     @Published private var processingState: EnhancementProcessingState = .idle
     @Published private var progress: Double = 0.0
     @Published private(set) var currentTaskId: String = ""
+    @Published var showAlert: Bool = false
+    @Published var alertTitle: String = ""
+    @Published var alertMessage: String = ""
     
     var processingStatePublisher: Published<EnhancementProcessingState>.Publisher { $processingState }
     var progressPublisher: Published<Double>.Publisher { $progress }
@@ -18,8 +22,8 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     private let videoProcessingService: VideoProcessingProtocol
     private var pollTimer: Timer?
     private let enhancementRegistry: EnhancementTypeRegistry
-    private let enhancementProgressWeight: Double = 0.8 // 80% for enhancement
-    private let downloadProgressWeight: Double = 0.2 // 20% for download
+    private let enhancementProgressWeight: Double = 0.8
+    private let downloadProgressWeight: Double = 0.2
     
     init(videoProcessingService: VideoProcessingProtocol = VideoProcessingService(), enhancementRegistry: EnhancementTypeRegistry = .shared) {
         self.videoProcessingService = videoProcessingService
@@ -31,7 +35,6 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     }
     
     func validateEnhancement(request: EnhancementRequest) throws {
-        // Basic validation as in existing service
         let supported = getSupportedEnhancementTypes()
         guard supported.contains(where: { $0.id == request.enhancementType.id }) else {
             throw EnhancementError.invalidInput("Unsupported enhancement type: \(request.enhancementType.id)")
@@ -44,14 +47,17 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
             self.pollTimer = nil
             self.processingState = .cancelled
             self.progress = 0.0
+            self.showAlert = false
         }
         
-        // Trigger cancel task for the current task
         if !currentTaskId.isEmpty {
             do {
                 try await cancelTask(taskId: currentTaskId)
+                await MainActor.run {
+                    self.currentTaskId = ""
+                }
             } catch {
-                print("Cancel task failed: \(error.localizedDescription)")
+                await showErrorAlert(title: "Cancel Failed", message: "Failed to cancel task: \(error.localizedDescription)")
             }
         }
     }
@@ -65,7 +71,6 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                 do {
                     let (endpoint, includeLevel) = self.mapEndpoint(for: request.enhancementType.id)
 
-                    // Determine which URL to upload
                     let effectiveURL: URL
                     if let start = request.trimStartTime, let end = request.trimEndTime, end > start {
                         let quality = self.videoQualityFromOutputQuality(request.outputQuality)
@@ -82,10 +87,8 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                     )
                     await self.updateState(.processing(phase: .analysis), progress: 0.3 * enhancementProgressWeight)
                     
-                    // Start polling
                     try await self.pollUntilComplete(taskId: self.currentTaskId)
                     
-                    // Fetch result with download progress
                     let (processedURL, originalURL) = try await self.fetchResult(taskId: self.currentTaskId)
                     
                     let result = EnhancementResult(
@@ -105,11 +108,33 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                         )
                     )
                     await self.updateState(.completed(result), progress: 1.0)
+//                    await showSuccessAlert(title: "Processing Complete", message: "Your video has been processed successfully!")
+                    
+                    // Call show rate us panel using configManager value for rate us panel
+                    self.showRateUsPanel()
                     continuation.resume(returning: result)
                 } catch {
                     await self.updateState(.failed(.processingFailed(error.localizedDescription)), progress: self.progress)
-                    continuation.resume(throwing: EnhancementError.processingFailed(error.localizedDescription))
+                    continuation.resume(throwing: error)
                 }
+            }
+        }
+    }
+    
+    // Show the in-app review prompt
+    private func showRateUsPanel() {
+        print("Showing rate us panel")
+        let shouldShow = ConfigManager.shared.getBool(forKey: "rateus_panel")
+        if(shouldShow)
+        {
+            if let windowScene = UIApplication.shared.windows.first?.windowScene {
+                if #available(iOS 14.0, *) {
+                    SKStoreReviewController.requestReview(in: windowScene)
+                } else {
+                    SKStoreReviewController.requestReview()
+                }
+            } else {
+                print("Error: UIWindowScene is unavailable")
             }
         }
     }
@@ -118,7 +143,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     private func mapEndpoint(for enhancementId: String) -> (String, Bool) {
         switch enhancementId {
         case "ai_auto_enhancement":
-            return ("/brightness", true) // brightness is auto enhancement
+            return ("/brightness", true)
         case "ai_denoise":
             return ("/denoise", true)
         case "face_enhancer":
@@ -141,18 +166,17 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         let opt = request.selectedOption.id
         switch id {
         case "ai_auto_enhancement", "ai_denoise", "stabilizer":
-            return opt // low/medium/high
+            return opt
         case "frame_interpolation":
-            return opt // smooth/fluid
+            return opt
         case "ai_upscale":
-            // Align to backend expected values
             let mapped = opt.lowercased()
             if mapped == "1080p" || mapped == "1080" { return "1080" }
             if mapped == "2k" { return "2K" }
             if mapped == "4k" { return "4K" }
-            return "1080" // default
+            return "1080"
         case "ai_color", "face_enhancer":
-            return nil // backend doesn’t require level
+            return nil
         default:
             return opt
         }
@@ -173,99 +197,128 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         self.progress = progress
     }
     
-    private func uploadVideo(videoURL: URL, endpoint: String, includeLevel: Bool, level: String?) async throws {
-        guard let url = URL(string: baseURL + endpoint) else { throw EnhancementError.processingFailed("Invalid URL") }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        let boundary = "Boundary-\(UUID().uuidString)"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        if includeLevel, let level = level {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"level\"\r\n\r\n".data(using: .utf8)!)
-            body.append("\(level)\r\n".data(using: .utf8)!)
-        }
-        
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"video\"; filename=\"video.mp4\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: video/mp4\r\n\r\n".data(using: .utf8)!)
-        let data = try Data(contentsOf: videoURL)
-        body.append(data)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-        
-        let (respData, _) = try await URLSession.shared.data(for: request)
-        let json = try JSONSerialization.jsonObject(with: respData) as? [String: Any]
-        guard let taskId = json?["task_id"] as? String else {
-            throw EnhancementError.processingFailed("Invalid response from server")
-        }
-        self.currentTaskId = taskId
+    @MainActor
+    private func showErrorAlert(title: String, message: String) {
+        self.showAlert = true
+        self.alertTitle = title
+        self.alertMessage = message
     }
     
-    private func pollUntilComplete(taskId: String) async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.processingState = .processing(phase: .enhancement)
-                self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
-                
-                self.pollTimer?.invalidate()
-                self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
-                    guard let url = URL(string: self.baseURL + "/progress/" + taskId) else { return }
-                    URLSession.shared.dataTask(with: url) { data, response, _ in
-                        DispatchQueue.main.async {
-                            guard let data = data,
-                                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
-                            let status = json["status"] as? String ?? ""
-                            let serverProgress = json["progress"] as? Double ?? 0.0
-                            // Scale server progress to enhancement phase
-                            let scaledProgress = serverProgress * self.enhancementProgressWeight
-                            self.progress = max(scaledProgress, self.progress)
-                            if status == "completed" {
-                                timer.invalidate()
-                                self.pollTimer = nil
-                                continuation.resume()
-                            } else if status == "failed" {
-                                timer.invalidate()
-                                self.pollTimer = nil
-                                let msg = json["error"] as? String ?? "Unknown error"
-                                continuation.resume(throwing: EnhancementError.processingFailed(msg))
+    @MainActor
+    private func showSuccessAlert(title: String, message: String) {
+        self.showAlert = true
+        self.alertTitle = title
+        self.alertMessage = message
+    }
+    
+    private func uploadVideo(videoURL: URL, endpoint: String, includeLevel: Bool, level: String?) async throws {
+            guard let url = URL(string: baseURL + endpoint) else {
+                throw EnhancementError.processingFailed("Invalid URL")
+            }
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            
+            let boundary = "Boundary-\(UUID().uuidString)"
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            var body = Data()
+            if includeLevel, let level = level {
+                body.append("--\(boundary)\r\n".data(using: .utf8)!)
+                body.append("Content-Disposition: form-data; name=\"level\"\r\n\r\n".data(using: .utf8)!)
+                body.append("\(level)\r\n".data(using: .utf8)!)
+            }
+            
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"video\"; filename=\"video.mp4\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: video/mp4\r\n\r\n".data(using: .utf8)!)
+            let data = try Data(contentsOf: videoURL)
+            body.append(data)
+            body.append("\r\n".data(using: .utf8)!)
+            body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            request.httpBody = body
+            
+            let (respData, response) = try await URLSession.shared.data(for: request)
+            
+            // Check for 503 responses
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 503 {
+                guard let json = try JSONSerialization.jsonObject(with: respData) as? [String: String],
+                      let error = json["error"],
+                      let status = json["status"] else {
+                    throw EnhancementError.processingFailed("Invalid 503 response from server")
+                }
+                // Show "Server Busy" alert for both "busy" and "insufficient_memory" statuses
+                await showErrorAlert(title: "Server Busy", message: "Server busy, please try again after some time")
+                throw EnhancementError.processingFailed(error)
+            }
+            
+            guard let json = try JSONSerialization.jsonObject(with: respData) as? [String: Any],
+                  let taskId = json["task_id"] as? String else {
+                throw EnhancementError.processingFailed("Invalid response from server")
+            }
+            await MainActor.run {
+                self.currentTaskId = taskId
+            }
+        }
+        
+        private func pollUntilComplete(taskId: String) async throws {
+            try await withCheckedThrowingContinuation { continuation in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.processingState = .processing(phase: .enhancement)
+                    self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
+                    
+                    self.pollTimer?.invalidate()
+                    self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
+                        guard let url = URL(string: self.baseURL + "/progress/" + taskId) else { return }
+                        URLSession.shared.dataTask(with: url) { data, response, _ in
+                            DispatchQueue.main.async {
+                                guard let data = data,
+                                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                                      let status = json["status"] as? String else { return }
+                                
+                                let serverProgress = json["progress"] as? Double ?? 0.0
+                                let scaledProgress = serverProgress * self.enhancementProgressWeight
+                                self.progress = max(scaledProgress, self.progress)
+                                
+                                if status == "completed" {
+                                    timer.invalidate()
+                                    self.pollTimer = nil
+                                    continuation.resume()
+                                } else if status == "failed" {
+                                    timer.invalidate()
+                                    self.pollTimer = nil
+                                    let errorMsg = json["error"] as? String ?? "Unknown error"
+                                    // Show "Server Busy" alert for all failures, including memory-related errors
+                                    self.showErrorAlert(title: "Server Busy", message: "Server busy, please try again after some time")
+                                    continuation.resume(throwing: EnhancementError.processingFailed(errorMsg))
+                                }
                             }
-                        }
-                    }.resume()
+                        }.resume()
+                    }
                 }
             }
         }
-    }
     
     private func fetchResult(taskId: String) async throws -> (URL, URL?) {
         guard let url = URL(string: baseURL + "/result/" + taskId) else {
             throw EnhancementError.processingFailed("Bad result URL")
         }
         let (data, _) = try await URLSession.shared.data(from: url)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: String]
-        guard let processedURL = json?["processed_url"] else {
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: String],
+              let processedURL = json["processed_url"] else {
             throw EnhancementError.processingFailed("No processed_url")
         }
-        print("processed url is \(processedURL)")
-        let originalURL = json?["original_url"]
+        let originalURL = json["original_url"]
         
-        // Download processed video
         let processedLocal = try await downloadToDocuments(taskID: taskId, prefix: "enhanced_video", baseURL: baseURL)
         
-        // Update progress to reflect completion of processed video download
         await MainActor.run {
             self.progress = self.enhancementProgressWeight + (self.downloadProgressWeight / (originalURL != nil ? 2 : 1))
         }
         
-        // Download original video if available
         var originalLocal: URL? = nil
         if let originalURL = originalURL {
             originalLocal = try await downloadToDocuments(from: originalURL, prefix: "original_video")
-            // Update progress to 100% after original video download
             await MainActor.run {
                 self.progress = 1.0
             }
@@ -283,7 +336,6 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         guard let url = URL(string: "\(baseURL)/download/processed/\(taskID)") else {
             throw EnhancementError.processingFailed("Invalid download URL for task ID: \(taskID)")
         }
-        print("download to document processed _URL \(url)")
         
         return try await withCheckedThrowingContinuation { continuation in
             let sessionIdentifier = "com.example.download.\(UUID().uuidString)"
@@ -292,7 +344,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
             delegateQueue.maxConcurrentOperationCount = 1
             
             let progressDelegate = DownloadProgressDelegate(
-                progressWeight: downloadProgressWeight / 2, // Split if downloading both videos
+                progressWeight: downloadProgressWeight / 2,
                 progressOffset: enhancementProgressWeight,
                 progressHandler: { [weak self] progress in
                     self?.progress = progress
@@ -327,7 +379,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
             
             Task {
                 await withTaskCancellationHandler {
-                    try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 60)) // Timeout after 60 seconds
+                    try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 60))
                     session.invalidateAndCancel()
                 } onCancel: {
                     session.invalidateAndCancel()
@@ -355,7 +407,6 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         }
     }
 }
-
 // MARK: - Download Progress Delegate
 class DownloadProgressDelegate: NSObject, URLSessionDownloadDelegate {
     private let progressHandler: (Double) -> Void
@@ -390,4 +441,5 @@ class DownloadProgressDelegate: NSObject, URLSessionDownloadDelegate {
         completionHandler(location, nil)
     }
 }
+
 

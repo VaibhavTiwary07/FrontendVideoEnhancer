@@ -18,7 +18,7 @@ struct ExportOptionsView: View {
     
     private let resolutionOptions = ["original", "2x","4x"]
     private let frameRateOptions = ["30fps", "60fps"]
-    private let formatOptions = ["MP4", "3GP", "AVI"]
+    private let formatOptions = ["MP4", "MOV"]
 
     // Local export state
     @State private var isExporting: Bool = false
@@ -32,7 +32,6 @@ struct ExportOptionsView: View {
     @State private var savedAlertMessage: String = ""
     // One-shot guard to prevent duplicate Home ad intents during navigation
     @State private var homeAdIntentPosted: Bool = false
-    @State private var finalPreviewMuted: Bool = true
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -46,15 +45,14 @@ struct ExportOptionsView: View {
         // Format multipliers
         switch selectedFormat {
         case "MP4": formatMultiplier = 1.0
-        case "3GP": formatMultiplier = 0.4
-        case "AVI": formatMultiplier = 1.5
+        case "MOV": formatMultiplier = 1.2
         default: formatMultiplier = 1.0
         }
         
         // Resolution multipliers
         switch selectedResolution {
-        case "720p": resolutionMultiplier = 0.6
-        case "1080p": resolutionMultiplier = 1.0
+        case "4x": resolutionMultiplier = 4.0
+        case "2x": resolutionMultiplier = 2.0
         default: resolutionMultiplier = 1.0
         }
         
@@ -243,7 +241,6 @@ struct ExportOptionsView: View {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
-                        // Video is already paused when export options appear
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showFinalPage = true
                         }
@@ -333,36 +330,30 @@ extension ExportOptionsView {
     @ViewBuilder
     var finalPage: some View {
         GeometryReader { geo in
-            let isSmall = DeviceSize.isSmallPhone
-            let playerHeight = isSmall ? max(220, geo.size.height * 0.48) : max(340, geo.size.height * 0.68)
-            let gravity: AVLayerVideoGravity = isSmall ? .resizeAspectFill : .resizeAspect
-            let bottomPadding = max(20, geo.safeAreaInsets.bottom + (isSmall ? 12 : 20))
-
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: isSmall ? 12 : 16) {
+                VStack(spacing: 16) {
+                    let isSmall = DeviceSize.isSmallPhone
+                    let playerHeight = isSmall ? max(240, geo.size.height * 0.52) : max(360, geo.size.height * 0.72)
+                    let gravity: AVLayerVideoGravity = isSmall ? .resizeAspectFill : .resizeAspect
+
                     ZStack {
                         if let exportedVideoURL = exportedVideoURL {
-                            VideoPreviewView(
-                                videoURL: exportedVideoURL,
-                                videoGravity: gravity,
-                                showsMuteToggle: true,
-                                muteBinding: $finalPreviewMuted
-                            )
-                            .frame(height: playerHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            VideoPreviewView(videoURL: exportedVideoURL, videoGravity: gravity)
+                                .frame(height: playerHeight)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         } else {
                             Rectangle()
                                 .fill(Color.black)
                                 .frame(height: playerHeight)
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
 
                         if !isExportComplete {
                             ZStack {
                                 Color.black.opacity(0.6)
-                                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                                 VStack(spacing: 12) {
                                     ZStack {
                                         Circle()
@@ -386,7 +377,7 @@ extension ExportOptionsView {
                             .frame(height: playerHeight)
                         }
                     }
-                    .padding(.horizontal, isSmall ? 16 : 20)
+                    .padding(.horizontal, 20)
 
                     HStack(spacing: 8) {
                         Text("\(selectedResolution)")
@@ -417,59 +408,9 @@ extension ExportOptionsView {
                                     .fill(Color.white.opacity(0.2))
                             )
                     }
-                    .padding(.horizontal, isSmall ? 16 : 20)
+                    .padding(.horizontal, 20)
 
-                    Spacer(minLength: isSmall ? 8 : 16)
-
-                    VStack(spacing: 12) {
-                        Button(action: { saveToPhotos() }) {
-                            HStack {
-                                Image(systemName: "photo.badge.plus").font(.system(size: 16, weight: .semibold))
-                                Text("Save to Photos").font(.system(size: 16, weight: .semibold))
-                            }
-                            .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(isExportComplete ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.2)))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
-                        .disabled(!isExportComplete)
-                        .scaleEffect(isExportComplete ? 1.0 : 0.95)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
-
-                        Button(action: { shareVideo() }) {
-                            HStack {
-                                Image(systemName: "square.and.arrow.up").font(.system(size: 16, weight: .semibold))
-                                Text("Share").font(.system(size: 16, weight: .semibold))
-                            }
-                            .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(isExportComplete ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
-                        .disabled(!isExportComplete)
-                        .scaleEffect(isExportComplete ? 1.0 : 0.95)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
-                    }
-                    .padding(.horizontal, isSmall ? 16 : 20)
-                    .padding(.vertical, 14)
-//                    .background(.ultraThinMaterial)
-//                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .padding(.horizontal, isSmall ? 12 : 24)
-                    .padding(.bottom, bottomPadding)
+                    Spacer(minLength: 0)
                 }
             }
         }
@@ -481,15 +422,14 @@ extension ExportOptionsView {
                         exportProgress = 0.0
                         isExportComplete = false
                         exportedVideoURL = nil
-                        finalPreviewMuted = true
                     }
                 }) {
-                    BackButtonIcon()
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
+                        .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
-                .disabled(!isExportComplete)
-                .opacity(isExportComplete ? 1.0 : 0.4)
                 Spacer()
                 Text("Export Preview")
                     .font(.system(size: 18, weight: .semibold))
@@ -502,15 +442,60 @@ extension ExportOptionsView {
                         .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
-                .disabled(!isExportComplete)
-                .opacity(isExportComplete ? 1.0 : 0.4)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
             .background(Color.clear)
         }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 12) {
+                Button(action: { saveToPhotos() }) {
+                    HStack {
+                        Image(systemName: "photo.badge.plus").font(.system(size: 16, weight: .semibold))
+                        Text("Save to Photos").font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(isExportComplete ? AnyShapeStyle(LinearGradient.primaryTheme) : AnyShapeStyle(Color.white.opacity(0.2)))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .disabled(!isExportComplete)
+                .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+
+                Button(action: { shareVideo() }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up").font(.system(size: 16, weight: .semibold))
+                        Text("Share").font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(isExportComplete ? .white : .white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(isExportComplete ? Color.white.opacity(0.2) : Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .disabled(!isExportComplete)
+                .scaleEffect(isExportComplete ? 1.0 : 0.95)
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isExportComplete)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            //.background(.ultraThinMaterial)
+        }
         .onAppear { startFinalPageExport() }
-        .allowsHitTesting(isExportComplete)
     }
 
     // Centralized handler for going home from the FinalPage toolbar button
@@ -673,13 +658,12 @@ extension ExportOptionsView {
         exportError = nil
         exportProgress = 0.0
         isExportComplete = false
-        finalPreviewMuted = true
         
-        // Simulate progress updates (capped at 95%)
+        // Simulate progress updates
         let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             DispatchQueue.main.async {
-                if self.exportProgress < 0.95 {
-                    self.exportProgress += 0.01 // Slower increment, reaches 95% in ~9.5 seconds
+                if self.exportProgress < 1.0 {
+                    self.exportProgress += 0.02 // Increment progress
                 } else {
                     timer.invalidate()
                 }
@@ -764,8 +748,7 @@ extension ExportOptionsView {
     private func mimeType(for fileExtension: String) -> String {
         switch fileExtension.lowercased() {
         case "mp4": return "video/mp4"
-        case "3gp": return "video/3gpp"
-        case "avi": return "video/x-msvideo"
+        case "mov": return "video/mov"
         default: return "application/octet-stream"
         }
     }
@@ -801,7 +784,7 @@ extension ExportOptionsView {
 #Preview {
     ExportOptionsView(
         isPresented: .constant(true),
-        selectedResolution: .constant("1080p"),
+        selectedResolution: .constant("original"),
         selectedFrameRate: .constant("30fps"),
         selectedFormat: .constant("MP4"),
         onExport: { },
@@ -809,3 +792,4 @@ extension ExportOptionsView {
         onCompleted: { _ in }
     )
 }
+

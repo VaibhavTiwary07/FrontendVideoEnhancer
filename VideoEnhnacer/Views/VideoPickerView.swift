@@ -454,6 +454,7 @@ struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
+        picker.allowsEditing = false // Disable editing/trimming
         picker.mediaTypes = ["public.movie"]
         picker.allowsEditing = false
         return picker

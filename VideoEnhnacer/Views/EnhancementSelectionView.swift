@@ -602,7 +602,7 @@ struct ProcessButton: View {
     var body: some View {
         Button(action: onProcess) {
             VStack(alignment: .center, spacing: 2) {
-                Text("Process with \(enhancementType)")
+                Text("Process")// with \(enhancementType)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
                 
@@ -614,6 +614,7 @@ struct ProcessButton: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 18)
+            .frame(width: UIScreen.main.bounds.width * 0.68)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(LinearGradient.primaryTheme)

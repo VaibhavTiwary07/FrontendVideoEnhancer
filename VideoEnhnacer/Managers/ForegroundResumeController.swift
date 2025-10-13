@@ -3,9 +3,6 @@ import UIKit
 
 final class ForegroundResumeController: ObservableObject {
     @Published var showResumeBanner: Bool = false
-    private(set) var didShowResumeAdThisActivation: Bool = false
-    private var lastResumeAdTimestamp: Date?
-    private let resumeAdCooldown: TimeInterval = 180 // 3 minutes
     
     // Cold start + resume gating
     @Published private(set) var coldStart: Bool = true
@@ -15,14 +12,15 @@ final class ForegroundResumeController: ObservableObject {
     private var adFailObserver: NSObjectProtocol?
     private var adTimeoutObserver: NSObjectProtocol?
 
+    // Prevent multiple simultaneous ad requests
+    private var isResumeAdInProgress: Bool = false
+
     // Overlay window
     private var overlayWindow: UIWindow?
     private var overlayHost: UIViewController?
 
     deinit {
-        if let ob = adDismissObserver { NotificationCenter.default.removeObserver(ob) }
-        if let ob = adFailObserver { NotificationCenter.default.removeObserver(ob) }
-        if let ob = adTimeoutObserver { NotificationCenter.default.removeObserver(ob) }
+        cleanupAdObservers()
     }
     
     init() {
@@ -33,15 +31,17 @@ final class ForegroundResumeController: ObservableObject {
     }
 
     func onEnterBackground() {
-        // Reset per-activation guards
-        didShowResumeAdThisActivation = false
+        // Reset state
         showResumeBanner = false
         hideOverlayWindow()
         print("ad diagnose: entered background; reset resume guards")
         hasEverEnteredBackground = true
+        // Reset ad state
+        isResumeAdInProgress = false
+        cleanupAdObservers()
     }
 
-    func onEnterForeground() {
+    @MainActor func onEnterForeground() {
         // Notify observers
         NotificationCenter.default.post(name: .appReturnedToForeground, object: nil)
         // If cold start or we have not been backgrounded yet, do not show resume overlay
@@ -57,7 +57,13 @@ final class ForegroundResumeController: ObservableObject {
         print("ad diagnose: foreground; showing resume overlay")
     }
 
-    func handleResumeTapped(videoPlayerManager: VideoPlayerManager) {
+    @MainActor func handleResumeTapped(videoPlayerManager: VideoPlayerManager) {
+        // Prevent multiple simultaneous ad requests
+        guard !isResumeAdInProgress else {
+            print("ad diagnose: resume ad already in progress, ignoring tap")
+            return
+        }
+        
         // Close overlay to avoid double taps
         showResumeBanner = false
         hideOverlayWindow()
@@ -65,34 +71,38 @@ final class ForegroundResumeController: ObservableObject {
 
         // If subscribed, skip ad and resume immediately
         if SubscriptionManager.shared.isAppSubscribed() {
+            print("ad diagnose: user subscribed, skipping ad")
             resumeAll(videoPlayerManager: videoPlayerManager)
             return
         }
 
-        // Guard one ad per activation and respect cooldown
-        let now = Date()
-        if didShowResumeAdThisActivation || (lastResumeAdTimestamp != nil && now.timeIntervalSince(lastResumeAdTimestamp!) < resumeAdCooldown) {
-            resumeAll(videoPlayerManager: videoPlayerManager)
-            return
-        }
+        // MARK AD IN PROGRESS
+        isResumeAdInProgress = true
+        print("ad diagnose: proceeding with resume ad presentation")
+
+        // Clean up any existing observers first
+        cleanupAdObservers()
 
         // Observe ad dismissal or failure to resume afterwards (only handle resume ad)
         adDismissObserver = NotificationCenter.default.addObserver(forName: .adsManagerDidDismissAd, object: nil, queue: .main) { [weak self] note in
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
+            print("ad diagnose: resume ad dismissed")
             self.cleanupAdObservers()
-            self.markAdShown()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
             // Second pass after transitions settle
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 AdsManager.shared.processPendingQueue()
             }
+            self.isResumeAdInProgress = false // RESET FLAG
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
+        
         adFailObserver = NotificationCenter.default.addObserver(forName: .adsManagerDidFailToPresent, object: nil, queue: .main) { [weak self] note in
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
+            print("ad diagnose: resume ad failed to present")
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
@@ -100,18 +110,22 @@ final class ForegroundResumeController: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 AdsManager.shared.processPendingQueue()
             }
+            self.isResumeAdInProgress = false // RESET FLAG
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
+        
         // Timeout fallback: treat like a fail → release and resume
         adTimeoutObserver = NotificationCenter.default.addObserver(forName: .adsManagerDidTimeout, object: nil, queue: .main) { [weak self] note in
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
+            print("ad diagnose: resume ad timeout")
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 AdsManager.shared.processPendingQueue()
             }
+            self.isResumeAdInProgress = false // RESET FLAG
             self.resumeAll(videoPlayerManager: videoPlayerManager)
         }
 
@@ -133,6 +147,7 @@ final class ForegroundResumeController: ObservableObject {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                     AdsManager.shared.processPendingQueue()
                 }
+                self.isResumeAdInProgress = false // RESET FLAG
                 self.resumeAll(videoPlayerManager: videoPlayerManager)
             }
         }
@@ -147,17 +162,18 @@ final class ForegroundResumeController: ObservableObject {
     }
 
     private func cleanupAdObservers() {
-        if let ob = adDismissObserver { NotificationCenter.default.removeObserver(ob) }
-        if let ob = adFailObserver { NotificationCenter.default.removeObserver(ob) }
-        if let ob = adTimeoutObserver { NotificationCenter.default.removeObserver(ob) }
-        adDismissObserver = nil
-        adFailObserver = nil
-        adTimeoutObserver = nil
-    }
-
-    private func markAdShown() {
-        didShowResumeAdThisActivation = true
-        lastResumeAdTimestamp = Date()
+        if let ob = adDismissObserver {
+            NotificationCenter.default.removeObserver(ob)
+            adDismissObserver = nil
+        }
+        if let ob = adFailObserver {
+            NotificationCenter.default.removeObserver(ob)
+            adFailObserver = nil
+        }
+        if let ob = adTimeoutObserver {
+            NotificationCenter.default.removeObserver(ob)
+            adTimeoutObserver = nil
+        }
     }
 
     // MARK: - Overlay Window Management

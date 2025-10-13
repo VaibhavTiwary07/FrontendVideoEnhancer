@@ -4,15 +4,32 @@ import UIKit
 
 struct PaywallView: View {
     @Binding var isPresented: Bool
-    @State private var selectedPlan: String? // Optional to handle initial state
+    @State private var selectedPlan: String?
     @State private var products: [SKProduct] = []
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
-    @State private var showErrorAlert: Bool = false // For alert-based error display
+    @State private var showErrorAlert: Bool = false
+
+    // MARK: - Remote Configuration
+    private var configValue: Int {
+        // Replace with your actual remote config retrieval logic
+        // e.g., RemoteConfigManager.shared.configValue
+        //return 1 // Default for demonstration; replace with actual config fetch
+        return ConfigManager.shared.getInt(forKey: "subscription_mode")
+    }
 
     // MARK: - Dynamic Content
     private func priceTitle(for productId: String) -> String {
-        SubscriptionManager.shared.getPrice(for: productId)
+        let price = SubscriptionManager.shared.getPrice(for: productId)
+        // Append /Yearly, /Monthly, or /Weekly based on productIdentifier
+        if productId.contains("yearly") {
+            return "\(price)/Yearly"
+        } else if productId.contains("monthly") {
+            return "\(price)/Monthly"
+        } else if productId.contains("weekly") {
+            return "\(price)/Weekly"
+        }
+        return price // Fallback in case no identifier matches
     }
 
     private func priceSubtitle(for productId: String) -> String {
@@ -37,7 +54,6 @@ struct PaywallView: View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
 
-            // Ensure the scroll content fills full height (fixes iPad bottom gap)
             GeometryReader { proxy in
                 let isPad: Bool = UIDevice.current.userInterfaceIdiom == .pad
                 let headerHeight: CGFloat = isPad ? max(460, proxy.size.height * 0.36) : 380
@@ -49,21 +65,19 @@ struct PaywallView: View {
 
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack(spacing: 0) {
-                        // Top hero with parallax background image
                         ZStack(alignment: .topTrailing) {
                             ParallaxHeader(imageName: "PaywalImage", height: headerHeight)
-                            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                            .overlay(
-                                VStack(spacing: 8) {
-                                    Text("VideoEnhancement")
-                                        .font(.system(size: titleFontSize, weight: .bold))
-                                        .foregroundColor(.white)
-                                    ProBadge()
-                                }
-                            )
+                                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                                .overlay(
+                                    VStack(spacing: 8) {
+                                        Text("VideoEnhancement")
+                                            .font(.system(size: titleFontSize, weight: .bold))
+                                            .foregroundColor(.white)
+                                        ProBadge()
+                                    }
+                                )
                         }
 
-                        // Content container (dark gradient)
                         VStack(alignment: .leading, spacing: 18) {
                             if isLoading {
                                 ProgressView()
@@ -90,7 +104,6 @@ struct PaywallView: View {
                                     )
                                 }
 
-                                // Continue button and text pinned to the bottom of the scroll content
                                 Button(action: {
                                     guard let selectedPlan = selectedPlan,
                                           let product = products.first(where: { $0.productIdentifier == selectedPlan }) else {
@@ -103,12 +116,11 @@ struct PaywallView: View {
                                         isLoading = false
                                         if success {
                                             print("✅ Purchase successful for \(product.productIdentifier)")
-                                            isPresented = false // Close paywall on success
+                                            isPresented = false
                                         } else if let error = error {
                                             print("❌ Purchase failed: \(error.localizedDescription)")
                                             errorMessage = error.localizedDescription
                                             showErrorAlert = true
-                                            // Clear error after 3 seconds
                                             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                                                 errorMessage = nil
                                                 showErrorAlert = false
@@ -141,7 +153,6 @@ struct PaywallView: View {
                         }
                         .padding(contentPadding)
                         .frame(maxWidth: .infinity, alignment: .top)
-                        // Ensure the gradient area fills remaining screen space below the header
                         .frame(minHeight: max(proxy.size.height - headerHeight, 0), alignment: .top)
                         .background(
                             LinearGradient(
@@ -196,7 +207,21 @@ struct PaywallView: View {
                     return
                 }
                 if let products = products, !products.isEmpty {
-                    self.products = products.sorted { product1, product2 in
+                    // Filter products based on remote configuration
+                    let filteredProducts: [SKProduct]
+                    switch configValue {
+                    case 2: // Yearly only
+                        filteredProducts = products.filter { $0.productIdentifier.contains("yearly") }
+                    case 3: // Weekly only
+                        filteredProducts = products.filter { $0.productIdentifier.contains("weekly") }
+                    case 1: // Weekly and Monthly (default)
+                        filteredProducts = products.filter { $0.productIdentifier.contains("weekly") || $0.productIdentifier.contains("monthly") }
+                    default: // Fallback to default (Weekly and Monthly)
+                        filteredProducts = products.filter { $0.productIdentifier.contains("weekly") || $0.productIdentifier.contains("monthly") }
+                    }
+
+                    // Sort filtered products (yearly first if present, then by identifier)
+                    self.products = filteredProducts.sorted { product1, product2 in
                         if product1.productIdentifier.contains("yearly") {
                             return true
                         } else if product2.productIdentifier.contains("yearly") {
@@ -204,6 +229,8 @@ struct PaywallView: View {
                         }
                         return product1.productIdentifier < product2.productIdentifier
                     }
+
+                    // Set default selected plan
                     selectedPlan = self.products.first { $0.productIdentifier.contains("yearly") }?.productIdentifier ?? self.products.first?.productIdentifier
                     print("Selected plan set to: \(selectedPlan ?? "none")")
                 } else {
@@ -277,8 +304,8 @@ struct PaywallView: View {
                             LinearGradient.primaryTheme
                                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         )
-                        .offset(x: 1, y: -1) // Fine-tune to align with the top-right corner
-                        .padding(0) // Remove extra padding to ensure flush alignment
+                        .offset(x: 1, y: -1)
+                        .padding(0)
                 }
             }
         }

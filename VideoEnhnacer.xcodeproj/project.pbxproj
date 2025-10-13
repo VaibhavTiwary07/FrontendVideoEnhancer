@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		186675C02E72822D00F0AA0D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 186675BF2E72822D00F0AA0D /* GoogleService-Info.plist */; };
+		180FE1F82E96711B000D2951 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 180FE1F72E96711B000D2951 /* FirebaseRemoteConfig */; };
+		1896F9902E9CD02D00FCC809 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1896F98F2E9CD02D00FCC809 /* GoogleService-Info.plist */; };
 		18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 18DE384C2E6A98D400B87663 /* GoogleMobileAds */; };
 		DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = DB755CE72E6573CF001F92A1 /* PryntTrimmerView */; };
 		DB9F5DEA2E6AE77000FB44FD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DB9F5DE92E6AE77000FB44FD /* FirebaseAnalytics */; };
@@ -16,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		186675BF2E72822D00F0AA0D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1896F98F2E9CD02D00FCC809 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoEnhnacer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -49,6 +50,7 @@
 				18DE384D2E6A98D400B87663 /* GoogleMobileAds in Frameworks */,
 				DB755CE82E6573CF001F92A1 /* PryntTrimmerView in Frameworks */,
 				DB9F5DEE2E6AE77000FB44FD /* FirebaseCrashlytics in Frameworks */,
+				180FE1F82E96711B000D2951 /* FirebaseRemoteConfig in Frameworks */,
 				DB9F5DEC2E6AE77000FB44FD /* FirebaseCore in Frameworks */,
 				DB9F5DEA2E6AE77000FB44FD /* FirebaseAnalytics in Frameworks */,
 			);
@@ -60,7 +62,7 @@
 		DB23E7E82E4C4F6000777DE1 = {
 			isa = PBXGroup;
 			children = (
-				186675BF2E72822D00F0AA0D /* GoogleService-Info.plist */,
+				1896F98F2E9CD02D00FCC809 /* GoogleService-Info.plist */,
 				DB23E7F32E4C4F6000777DE1 /* VideoEnhnacer */,
 				DB23E7F22E4C4F6000777DE1 /* Products */,
 			);
@@ -101,6 +103,7 @@
 				DB9F5DE92E6AE77000FB44FD /* FirebaseAnalytics */,
 				DB9F5DEB2E6AE77000FB44FD /* FirebaseCore */,
 				DB9F5DED2E6AE77000FB44FD /* FirebaseCrashlytics */,
+				180FE1F72E96711B000D2951 /* FirebaseRemoteConfig */,
 			);
 			productName = VideoEnhnacer;
 			productReference = DB23E7F12E4C4F6000777DE1 /* VideoEnhnacer.app */;
@@ -150,7 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				186675C02E72822D00F0AA0D /* GoogleService-Info.plist in Resources */,
+				1896F9902E9CD02D00FCC809 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,9 +329,9 @@
 				CODE_SIGN_ENTITLEMENTS = VideoEnhnacer/VideoEnhnacer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 3LUNZ43L4D;
+				DEVELOPMENT_TEAM = 9Q363NUAF6;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -351,7 +354,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.vaibhav.videoupscaler.enhancer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.outthinking.videoupscaler.enhancer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -373,8 +376,8 @@
 				CODE_SIGN_ENTITLEMENTS = VideoEnhnacer/VideoEnhnacer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3LUNZ43L4D;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = 9Q363NUAF6;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -397,7 +400,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.vaibhav.videoupscaler.enhancer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.outthinking.videoupscaler.enhancer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
@@ -462,6 +465,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		180FE1F72E96711B000D2951 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DB9F5DE82E6AE77000FB44FD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
 		18DE384C2E6A98D400B87663 /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 18DE384B2E6A98D400B87663 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
