@@ -161,9 +161,15 @@ struct SpatialVideoPreview: View {
                     .cornerRadius(8)
                 }
             } else if let player = playerManager.player {
-                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
-                    .aspectRatio(contentMode: .fit)
-                    .cornerRadius(24)
+                CustomVideoPlayerWithControls(
+                    player: player,
+                    isMuted: $isMuted,
+                    videoGravity: .resizeAspect,
+                    trimStart: nil,
+                    trimEnd: nil
+                )
+                .aspectRatio(contentMode: .fit)
+                .cornerRadius(24)
             } else {
                 VideoLoadingView()
             }

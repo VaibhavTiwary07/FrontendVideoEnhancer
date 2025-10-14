@@ -398,17 +398,23 @@ struct VideoPlayerView: View {
     var body: some View {
         Group {
             if let player = playerViewModel.normalPlayer {
-                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
-                    .onAppear {
-                        playerViewModel.setActive(true)
-                        playerViewModel.setMuted(isMuted)
-                    }
-                    .onDisappear {
-                        playerViewModel.setActive(false)
-                    }
-                    .onChange(of: isMuted) { newValue in
-                        playerViewModel.setMuted(newValue)
-                    }
+                CustomVideoPlayerWithControls(
+                    player: player,
+                    isMuted: $isMuted,
+                    videoGravity: .resizeAspect,
+                    trimStart: nil,
+                    trimEnd: nil
+                )
+                .onAppear {
+                    playerViewModel.setActive(true)
+                    playerViewModel.setMuted(isMuted)
+                }
+                .onDisappear {
+                    playerViewModel.setActive(false)
+                }
+                .onChange(of: isMuted) { newValue in
+                    playerViewModel.setMuted(newValue)
+                }
             } else if playerViewModel.isLoading {
                 VideoLoadingPlaceholder()
             } else if let error = playerViewModel.error {

@@ -309,6 +309,13 @@ struct VideoComparisonSlider: View {
             
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
             videoPlayerManager.debugStatus(forKey: videoKey, context: "onAppear after setViewActive")
+
+            // If players are already ready, start playing immediately
+            if playerState == .ready || playerState == .paused {
+                print("🎯 Players already ready on appear - auto-playing")
+                videoPlayerManager.resumePlayers(forKey: videoKey)
+            }
+
             startAutoSlide()
         }
         // Re-activate after tab switches to ensure visibility of video and slider
@@ -321,6 +328,12 @@ struct VideoComparisonSlider: View {
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
             }
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
+
+            // Auto-play after tab switch if players are ready
+            if playerState == .ready || playerState == .paused {
+                print("🎯 Auto-playing after tab switch")
+                videoPlayerManager.resumePlayers(forKey: videoKey)
+            }
         }
         .onDisappear {
             print("🎯 VideoComparisonSlider onDisappear for key: \(videoKey)")
@@ -337,7 +350,12 @@ struct VideoComparisonSlider: View {
             if state == .ready && isViewVisible {
                 print("🎯 Re-activating players after state change")
                 videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
-                videoPlayerManager.debugStatus(forKey: videoKey, context: "onChange -> ready, after setViewActive")
+
+                // AUTO-PLAY: Comparison mode needs videos to play immediately
+                print("🎯 Auto-playing comparison videos")
+                videoPlayerManager.resumePlayers(forKey: videoKey)
+
+                videoPlayerManager.debugStatus(forKey: videoKey, context: "onChange -> ready, after setViewActive and play")
             }
         }
     }

@@ -6,6 +6,8 @@ struct CustomVideoPlayerWithControls: View {
     let player: AVPlayer
     @Binding var isMuted: Bool
     let videoGravity: AVLayerVideoGravity
+    let trimStart: Double?
+    let trimEnd: Double?
 
     @State private var isPlaying: Bool = false
     @State private var currentTime: Double = 0
@@ -17,6 +19,21 @@ struct CustomVideoPlayerWithControls: View {
     @State private var showCenterButton: Bool = true
 
     private let timeObserverInterval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+
+    // Computed properties for display
+    private var displayDuration: Double {
+        if let start = trimStart, let end = trimEnd {
+            return end - start
+        }
+        return duration
+    }
+
+    private var displayCurrentTime: Double {
+        if let start = trimStart {
+            return max(0, currentTime - start)
+        }
+        return currentTime
+    }
 
     var body: some View {
         ZStack {
@@ -69,7 +86,7 @@ struct CustomVideoPlayerWithControls: View {
                 if showControls {
                     HStack(spacing: 12) {
                         // Current Time
-                        Text(formatTime(currentTime))
+                        Text(formatTime(displayCurrentTime))
                             .font(.system(size: DeviceSize.isSmallPhone ? 11 : 13, weight: .medium, design: .rounded))
                             .foregroundColor(.white)
                             .monospacedDigit()
@@ -101,11 +118,22 @@ struct CustomVideoPlayerWithControls: View {
                                     .onChanged { value in
                                         isSeeking = true
                                         let newProgress = min(max(0, value.location.x / geometry.size.width), 1)
-                                        currentTime = newProgress * duration
+                                        if let start = trimStart, let end = trimEnd {
+                                            // Map progress to trim range
+                                            currentTime = start + (newProgress * (end - start))
+                                        } else {
+                                            currentTime = newProgress * duration
+                                        }
                                     }
                                     .onEnded { value in
                                         let newProgress = min(max(0, value.location.x / geometry.size.width), 1)
-                                        let seekTime = newProgress * duration
+                                        let seekTime: Double
+                                        if let start = trimStart, let end = trimEnd {
+                                            // Map progress to trim range
+                                            seekTime = start + (newProgress * (end - start))
+                                        } else {
+                                            seekTime = newProgress * duration
+                                        }
                                         player.seek(to: CMTime(seconds: seekTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))) { _ in
                                             isSeeking = false
                                         }
@@ -116,7 +144,7 @@ struct CustomVideoPlayerWithControls: View {
                         .frame(height: 44)
 
                         // Duration
-                        Text(formatTime(duration))
+                        Text(formatTime(displayDuration))
                             .font(.system(size: DeviceSize.isSmallPhone ? 11 : 13, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.8))
                             .monospacedDigit()
@@ -170,6 +198,12 @@ struct CustomVideoPlayerWithControls: View {
     // MARK: - Computed Properties
 
     private var progress: Double {
+        if let start = trimStart, let end = trimEnd {
+            let trimDuration = end - start
+            guard trimDuration > 0 else { return 0 }
+            let elapsed = currentTime - start
+            return max(0, min(1, elapsed / trimDuration))
+        }
         guard duration > 0 else { return 0 }
         return currentTime / duration
     }
@@ -282,7 +316,9 @@ struct CustomVideoPlayerWithControls: View {
     return CustomVideoPlayerWithControls(
         player: player,
         isMuted: .constant(true),
-        videoGravity: .resizeAspect
+        videoGravity: .resizeAspect,
+        trimStart: nil,
+        trimEnd: nil
     )
     .frame(height: 300)
     .background(Color.black)

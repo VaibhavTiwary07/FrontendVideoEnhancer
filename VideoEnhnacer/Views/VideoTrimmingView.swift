@@ -85,9 +85,15 @@ struct VideoTrimmingView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         if let player = playerManager.player {
-                            CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
-                                .frame(height: adaptiveVideoHeight)
-                                .cornerRadius(20)
+                            CustomVideoPlayerWithControls(
+                                player: player,
+                                isMuted: $isMuted,
+                                videoGravity: .resizeAspect,
+                                trimStart: nil,
+                                trimEnd: nil
+                            )
+                            .frame(height: adaptiveVideoHeight)
+                            .cornerRadius(20)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20)
                                         .stroke(Color.accentWarm.opacity(0.2), lineWidth: 1)

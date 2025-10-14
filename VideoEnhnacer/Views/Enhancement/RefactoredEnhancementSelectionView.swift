@@ -145,7 +145,9 @@ struct RefactoredEnhancementSelectionView: View {
                 playerViewModel: playerViewModel,
                 enhancementType: viewModel.enhancementType,
                 onChangeVideo: nil,
-                preferredHeightIPad: 560
+                preferredHeightIPad: 560,
+                trimStart: viewModel.trimStartTime,
+                trimEnd: viewModel.trimEndTime
             )
             .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
 
@@ -297,7 +299,9 @@ struct EnhancementVideoPreviewSection: View {
     let enhancementType: EnhancementType
     let onChangeVideo: (() -> Void)?
     let preferredHeightIPad: CGFloat?
-    
+    let trimStart: Double?
+    let trimEnd: Double?
+
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var isMuted: Bool = true
     
@@ -312,7 +316,12 @@ struct EnhancementVideoPreviewSection: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            EnhancementVideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
+            EnhancementVideoPlayerView(
+                playerViewModel: playerViewModel,
+                isMuted: $isMuted,
+                trimStart: trimStart,
+                trimEnd: trimEnd
+            )
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
@@ -368,16 +377,24 @@ struct EnhancementVideoPreviewSection: View {
 struct EnhancementVideoPlayerView: View {
     @ObservedObject var playerViewModel: VideoPlayerViewModel
     @Binding var isMuted: Bool
+    let trimStart: Double?
+    let trimEnd: Double?
 
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
     @State private var viewAppearCount = 0
     @State private var viewDisappearCount = 0
-    
+
     var body: some View {
         Group {
             if let player = playerViewModel.normalPlayer {
-                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
+                CustomVideoPlayerWithControls(
+                    player: player,
+                    isMuted: $isMuted,
+                    videoGravity: .resizeAspect,
+                    trimStart: trimStart,
+                    trimEnd: trimEnd
+                )
                     .onAppear {
                         viewAppearCount += 1
                         print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onAppear #\(viewAppearCount)")

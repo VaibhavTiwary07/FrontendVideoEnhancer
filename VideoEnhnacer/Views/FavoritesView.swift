@@ -360,7 +360,13 @@ struct VideoPlayerFullScreenView: View {
             Color.black.ignoresSafeArea()
 
             if let player = playerManager.player {
-                CustomVideoPlayerWithControls(player: player, isMuted: $isMuted, videoGravity: .resizeAspect)
+                CustomVideoPlayerWithControls(
+                    player: player,
+                    isMuted: $isMuted,
+                    videoGravity: .resizeAspect,
+                    trimStart: nil,
+                    trimEnd: nil
+                )
             }
 
             VStack {
