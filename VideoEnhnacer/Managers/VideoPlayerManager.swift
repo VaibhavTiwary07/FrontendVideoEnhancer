@@ -55,7 +55,8 @@ class VideoPlayerManager: ObservableObject {
                     print("🎬 Successfully loaded players (assets) for key '\(key)'")
                     let muteState = self.playerMuteStates[key] ?? true
                     players.normal.isMuted = muteState
-                    players.enhanced.isMuted = muteState
+                    // Always mute enhanced player to prevent double audio in comparison mode
+                    players.enhanced.isMuted = true
                     self.playerMuteStates[key] = muteState
                     self.playerPairs[key] = players
                     self.loadedKeys.insert(key)
@@ -98,7 +99,8 @@ class VideoPlayerManager: ObservableObject {
                 let enhancedPlayer = AVPlayer(url: processedURL)
                 let muteState = self.playerMuteStates[key] ?? true
                 normalPlayer.isMuted = muteState
-                enhancedPlayer.isMuted = muteState
+                // Always mute enhanced player to prevent double audio in comparison mode
+                enhancedPlayer.isMuted = true
                 normalPlayer.allowsExternalPlayback = false
                 enhancedPlayer.allowsExternalPlayback = false
                 
@@ -272,7 +274,8 @@ class VideoPlayerManager: ObservableObject {
             guard let self = self else { return }
             let enhancedTime = playerPair.enhanced.currentTime()
             let diff = abs(CMTimeGetSeconds(enhancedTime) - CMTimeGetSeconds(time))
-            if diff > 0.05 {
+            // Relaxed threshold from 0.05 to 0.15 seconds to reduce stuttering
+            if diff > 0.15 {
                 playerPair.enhanced.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
             }
         }
@@ -382,8 +385,10 @@ class VideoPlayerManager: ObservableObject {
     func setMuted(_ muted: Bool, forKey key: String) {
         playerMuteStates[key] = muted
         if let pair = playerPairs[key] {
+            // Only mute/unmute the normal player (which has audio)
             pair.normal.isMuted = muted
-            pair.enhanced.isMuted = muted
+            // Enhanced player stays muted to prevent double audio
+            pair.enhanced.isMuted = true
         }
     }
 
