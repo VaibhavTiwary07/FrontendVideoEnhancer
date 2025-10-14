@@ -9,19 +9,16 @@ struct PaywallView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State private var showErrorAlert: Bool = false
+    @State private var showProcessingPanel: Bool = false
 
     // MARK: - Remote Configuration
     private var configValue: Int {
-        // Replace with your actual remote config retrieval logic
-        // e.g., RemoteConfigManager.shared.configValue
-        //return 1 // Default for demonstration; replace with actual config fetch
         return ConfigManager.shared.getInt(forKey: "subscription_mode")
     }
 
     // MARK: - Dynamic Content
     private func priceTitle(for productId: String) -> String {
         let price = SubscriptionManager.shared.getPrice(for: productId)
-        // Append /Yearly, /Monthly, or /Weekly based on productIdentifier
         if productId.contains("yearly") {
             return "\(price)/Yearly"
         } else if productId.contains("monthly") {
@@ -29,7 +26,7 @@ struct PaywallView: View {
         } else if productId.contains("weekly") {
             return "\(price)/Weekly"
         }
-        return price // Fallback in case no identifier matches
+        return price
     }
 
     private func priceSubtitle(for productId: String) -> String {
@@ -112,8 +109,10 @@ struct PaywallView: View {
                                         return
                                     }
                                     isLoading = true
+                                    showProcessingPanel = true
                                     SubscriptionManager.shared.purchaseProduct(product) { success, error in
                                         isLoading = false
+                                        showProcessingPanel = false
                                         if success {
                                             print("✅ Purchase successful for \(product.productIdentifier)")
                                             isPresented = false
@@ -169,6 +168,41 @@ struct PaywallView: View {
                 }
                 .ignoresSafeArea(edges: .top)
             }
+
+            // Processing Panel
+            if showProcessingPanel {
+                Color.black.opacity(0.8).ignoresSafeArea()
+                VStack(spacing: 20) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                    Text("Processing Purchase...")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                }
+                .padding(20)
+                .frame(width: 300, height: 200)
+                .background(Color.black.opacity(0.9))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(radius: 10)
+                .overlay(alignment: .topTrailing) {
+                    Button(action: {
+                        showProcessingPanel = false
+                        isLoading = false
+                        // Note: This does not cancel the actual purchase process
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 36, height: 36)
+                            .background(Color.black.opacity(0.35))
+                            .clipShape(Circle())
+                            .contentShape(Circle())
+                    }
+                    .padding(.top, 8)
+                    .padding(.trailing, 8)
+                }
+            }
         }
         .overlay(alignment: .topTrailing) {
             Button(action: { isPresented = false }) {
@@ -185,6 +219,7 @@ struct PaywallView: View {
             .padding(.top, 16)
             .padding(.trailing, 16)
             .zIndex(1000)
+            .disabled(showProcessingPanel)
         }
         .alert(isPresented: $showErrorAlert) {
             Alert(
@@ -207,20 +242,18 @@ struct PaywallView: View {
                     return
                 }
                 if let products = products, !products.isEmpty {
-                    // Filter products based on remote configuration
                     let filteredProducts: [SKProduct]
                     switch configValue {
-                    case 2: // Yearly only
+                    case 2:
                         filteredProducts = products.filter { $0.productIdentifier.contains("yearly") }
-                    case 3: // Weekly only
+                    case 3:
                         filteredProducts = products.filter { $0.productIdentifier.contains("weekly") }
-                    case 1: // Weekly and Monthly (default)
+                    case 1:
                         filteredProducts = products.filter { $0.productIdentifier.contains("weekly") || $0.productIdentifier.contains("monthly") }
-                    default: // Fallback to default (Weekly and Monthly)
+                    default:
                         filteredProducts = products.filter { $0.productIdentifier.contains("weekly") || $0.productIdentifier.contains("monthly") }
                     }
 
-                    // Sort filtered products (yearly first if present, then by identifier)
                     self.products = filteredProducts.sorted { product1, product2 in
                         if product1.productIdentifier.contains("yearly") {
                             return true
@@ -230,7 +263,6 @@ struct PaywallView: View {
                         return product1.productIdentifier < product2.productIdentifier
                     }
 
-                    // Set default selected plan
                     selectedPlan = self.products.first { $0.productIdentifier.contains("yearly") }?.productIdentifier ?? self.products.first?.productIdentifier
                     print("Selected plan set to: \(selectedPlan ?? "none")")
                 } else {
@@ -313,12 +345,12 @@ struct PaywallView: View {
     }
 }
 
-// Other supporting views (ParallaxHeader, ProBadge, FeatureList) remain unchanged
+// Other supporting views remain unchanged
 private struct ParallaxHeader: View {
     let imageName: String
     let height: CGFloat
-    private let speed: CGFloat = 20 // px/sec
-    
+    private let speed: CGFloat = 20
+
     var body: some View {
         GeometryReader { geo in
             TimelineView(.animation) { timeline in
