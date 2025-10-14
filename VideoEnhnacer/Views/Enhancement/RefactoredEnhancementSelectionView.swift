@@ -134,6 +134,11 @@ struct RefactoredEnhancementSelectionView: View {
                 playerViewModel.pause()
             }
         }
+        .onChange(of: viewModel.isShowingPaywall) { isShowing in
+            if isShowing {
+                playerViewModel.pause()
+            }
+        }
     }
     
     // MARK: - Content Views

@@ -131,17 +131,19 @@ struct SidebarView: View {
         }
     }
     
-    // Show the in-app review prompt
     private func showRateUsPanel() {
         print("Showing rate us panel")
-        if let windowScene = UIApplication.shared.windows.first?.windowScene {
-            if #available(iOS 14.0, *) {
-                SKStoreReviewController.requestReview(in: windowScene)
+        // Ensure UI-related code runs on the main thread
+        DispatchQueue.main.async {
+            if let windowScene = UIApplication.shared.windows.first?.windowScene {
+                if #available(iOS 14.0, *) {
+                    SKStoreReviewController.requestReview(in: windowScene)
+                } else {
+                    SKStoreReviewController.requestReview()
+                }
             } else {
-                SKStoreReviewController.requestReview()
+                print("Error: UIWindowScene is unavailable")
             }
-        } else {
-            print("Error: UIWindowScene is unavailable")
         }
     }
     

@@ -135,6 +135,11 @@ struct RefactoredVideoTrimmingView: View {
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
+        .onChange(of: isShowingPaywall) { isShowing in
+            if isShowing {
+                viewModel.playerViewModel.pause()
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             if isSmallPhone, !viewModel.isLoadingVideo, viewModel.error == nil {
                 ContinueButton(
