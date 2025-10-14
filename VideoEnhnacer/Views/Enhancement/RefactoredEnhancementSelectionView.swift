@@ -14,7 +14,6 @@ struct RefactoredEnhancementSelectionView: View {
     
     // MARK: - State
     @State private var showingResults = false
-    @State private var isShowingPaywall = false
     @EnvironmentObject private var historyManager: HistoryManager
     
     private let onBack: (() -> Void)?
@@ -71,7 +70,7 @@ struct RefactoredEnhancementSelectionView: View {
                         enhancementType: viewModel.enhancementType,
                         selectedOption: viewModel.selectedOption,
                         canProcess: viewModel.canProcess,
-                        onProcess: { viewModel.processVideo() }
+                        onProcess: { viewModel.checkAndProcessVideo() }
                     )
                     .padding(.horizontal, 28)
                     .padding(.bottom, 24)
@@ -93,15 +92,15 @@ struct RefactoredEnhancementSelectionView: View {
             handleViewAppearance()
             SubscriptionManager.shared.checkSubscriptionExpiry()
             if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
-                viewModel.processVideo()
+                viewModel.checkAndProcessVideo()
             }
         }
         .onDisappear {
             viewModel.cleanup()
         }
         .fullScreenCover(isPresented: $showingResults) { resultsView }
-        .fullScreenCover(isPresented: $isShowingPaywall) {
-            PaywallView(isPresented: $isShowingPaywall)
+        .fullScreenCover(isPresented: $viewModel.isShowingPaywall) {
+            PaywallView(isPresented: $viewModel.isShowingPaywall)
         }
         .alert(isPresented: $viewModel.showAlert) {
             Alert(
@@ -157,7 +156,7 @@ struct RefactoredEnhancementSelectionView: View {
                     selectedOption: $viewModel.selectedOption,
                     isAnalyzing: viewModel.isAnalyzing,
                     onOptionSelected: viewModel.updateSelection,
-                    onRequirePaywall: { isShowingPaywall = true }
+                    onRequirePaywall: { viewModel.isShowingPaywall = true }
                 )
                 .padding(.horizontal, 16)
                 .padding(.top, isIPad ? 24 : 0)
@@ -168,7 +167,7 @@ struct RefactoredEnhancementSelectionView: View {
                     enhancementType: viewModel.enhancementType,
                     selectedOption: viewModel.selectedOption,
                     canProcess: viewModel.canProcess,
-                    onProcess: { viewModel.processVideo() }
+                    onProcess: { viewModel.checkAndProcessVideo() }
                 )
                 .padding(.top, 12)
                 .padding(.horizontal, 16)
@@ -762,13 +761,9 @@ struct EnhancementOptionGrid: View {
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                showsProBadge: false,//pro && !SubscriptionManager.shared.isAppSubscribed()
+                                showsProBadge: false,
                                 onTap: {
-//                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
-//                                        onRequirePaywall()
-//                                    } else {
-                                        onOptionSelected(option.id)
-                                   // }
+                                    onOptionSelected(option.id)
                                 }
                             )
                             .frame(maxWidth: .infinity)
@@ -784,13 +779,9 @@ struct EnhancementOptionGrid: View {
                                 option: option,
                                 isSelected: selectedOption == option.id,
                                 isAnalyzing: isAnalyzing,
-                                showsProBadge: false,//pro && !SubscriptionManager.shared.isAppSubscribed()
+                                showsProBadge: false,
                                 onTap: {
-//                                    if pro && !SubscriptionManager.shared.isAppSubscribed() {
-//                                        onRequirePaywall()
-//                                    } else {
-                                        onOptionSelected(option.id)
-                                   // }
+                                    onOptionSelected(option.id)
                                 }
                             )
                         }

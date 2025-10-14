@@ -2,6 +2,29 @@ import Foundation
 import SwiftUI
 import Combine
 
+// MARK: - Operation Tracker
+class OperationTracker: ObservableObject {
+    @Published var operationCount: Int = 0
+    private let userDefaultsKey = "EnhancementOperationCount"
+
+    init() {
+        self.operationCount = UserDefaults.standard.integer(forKey: userDefaultsKey)
+        print("📊 OperationTracker initialized with operationCount: \(self.operationCount)")
+    }
+
+    func incrementOperationCount() {
+        operationCount += 1
+        UserDefaults.standard.set(operationCount, forKey: userDefaultsKey)
+        print("📊 Operation count incremented to: \(operationCount)")
+    }
+
+    func resetOperationCount() {
+        operationCount = 0
+        UserDefaults.standard.set(0, forKey: userDefaultsKey)
+        print("📊 Operation count reset to 0")
+    }
+}
+
 // MARK: - Enhancement Selection ViewModel
 @MainActor
 final class EnhancementSelectionViewModel: ObservableObject {
@@ -15,10 +38,12 @@ final class EnhancementSelectionViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var alertTitle: String = ""
     @Published var alertMessage: String = ""
-    
+    @Published var isShowingPaywall: Bool = false
+
     // MARK: - Private Properties
     private let enhancementService: EnhancementServiceProtocol
     private let videoProcessingService: VideoProcessingProtocol
+    private let operationTracker: OperationTracker
     private var cancellables = Set<AnyCancellable>()
     private var currentTask: Task<Void, Never>?
     
@@ -49,7 +74,11 @@ final class EnhancementSelectionViewModel: ObservableObject {
     var dynamicSubtitle: String {
         generateDynamicSubtitle(for: enhancementType)
     }
-    
+
+    private var noOfOperations: Int {
+        ConfigManager.shared.getInt(forKey: "nooperations")
+    }
+
     // MARK: - Initialization
     init(
         videoURL: URL,
@@ -57,7 +86,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
         trimStartTime: Double? = nil,
         trimEndTime: Double? = nil,
         enhancementService: EnhancementServiceProtocol,
-        videoProcessingService: VideoProcessingProtocol
+        videoProcessingService: VideoProcessingProtocol,
+        operationTracker: OperationTracker = OperationTracker()
     ) {
         self.videoURL = videoURL
         self.enhancementType = enhancementType
@@ -65,7 +95,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
         self.trimEndTime = trimEndTime
         self.enhancementService = enhancementService
         self.videoProcessingService = videoProcessingService
-        
+        self.operationTracker = operationTracker
+
         setupBindings()
         setDefaultSelection()
     }
@@ -73,11 +104,11 @@ final class EnhancementSelectionViewModel: ObservableObject {
     // MARK: - Public Methods
     func updateSelection(_ optionId: String) {
         selectedOption = optionId
-        
+
         withAnimation(.easeInOut(duration: 0.3)) {
             isAnalyzing = true
         }
-        
+
         Task {
             try await Task.sleep(nanoseconds: 300_000_000)
             await MainActor.run {
@@ -87,7 +118,21 @@ final class EnhancementSelectionViewModel: ObservableObject {
             }
         }
     }
-    
+
+    func checkAndProcessVideo() {
+        if SubscriptionManager.shared.isAppSubscribed() {
+            print("✅ User is subscribed, proceeding with processing")
+            processVideo()
+        } else if operationTracker.operationCount < noOfOperations {
+            print("✅ Operation count (\(operationTracker.operationCount)) is within limit (\(noOfOperations))")
+            operationTracker.incrementOperationCount()
+            processVideo()
+        } else {
+            print("🚫 Operation limit (\(noOfOperations)) exceeded with \(operationTracker.operationCount) operations")
+            isShowingPaywall = true
+        }
+    }
+
     func processVideo() {
         guard let option = selectedEnhancementOption else {
             error = .invalidInput("No enhancement option selected")

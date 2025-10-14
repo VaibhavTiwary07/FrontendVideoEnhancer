@@ -39,7 +39,8 @@ final class DIContainer: ObservableObject {
             trimStartTime: trimStartTime,
             trimEndTime: trimEndTime,
             enhancementService: freshEnhancementService,
-            videoProcessingService: videoProcessingService
+            videoProcessingService: videoProcessingService,
+            operationTracker: OperationTracker()
         )
     }
     
@@ -171,7 +172,8 @@ final class MockDIContainer: ObservableObject {
             trimStartTime: trimStartTime,
             trimEndTime: trimEndTime,
             enhancementService: enhancementService,
-            videoProcessingService: videoProcessingService
+            videoProcessingService: videoProcessingService,
+            operationTracker: OperationTracker()
         )
     }
     
