@@ -132,13 +132,9 @@ struct RefactoredVideoTrimmingView: View {
                 computeMetadata()
             }
         }
-        .fullScreenCover(isPresented: $isShowingPaywall, onDismiss: viewModel.acknowledgePaywall) {
+        .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
-//        .onChange(of: viewModel.shouldShowPaywall) { shouldShow in
-//            guard shouldShow else { return }
-//            presentPaywall()
-//        }
         .safeAreaInset(edge: .bottom) {
             if isSmallPhone, !viewModel.isLoadingVideo, viewModel.error == nil {
                 ContinueButton(
@@ -350,7 +346,6 @@ struct RefactoredVideoTrimmingView: View {
 
     private func presentPaywall() {
         isShowingPaywall = true
-        viewModel.acknowledgePaywall()
     }
 }
 
@@ -631,7 +626,8 @@ struct VideoControlsSection: View {
                 duration: viewModel.videoDuration,
                 thumbnails: viewModel.thumbnails,
                 enhancementType: viewModel.enhancementType,
-                playerViewModel: viewModel.playerViewModel
+                playerViewModel: viewModel.playerViewModel,
+                viewModel: viewModel
             )
             .frame(height: isSmallPhone ? 46 : 60)
             .padding(.horizontal, isSmallPhone ? 12 : 20)
@@ -684,15 +680,11 @@ struct TimePresetButtons: View {
                 HStack(spacing: 12) {
                     Spacer()
                     ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
-                        let isPro = preset == .fiveMinutes
                         TimePresetButton(
                             title: preset.title,
                             isSelected: selectedDuration == preset,
-                            showsProBadge: false,//isPro && !SubscriptionManager.shared.isAppSubscribed()
-                            onTap: { onPresetSelected(preset) },
-//                            onRequirePro: isPro ? {
-//                                onRequirePaywall?()
-//                            } : nil
+                            showsProBadge: false,
+                            onTap: { onPresetSelected(preset) }
                         )
                     }
                 }
@@ -703,15 +695,11 @@ struct TimePresetButtons: View {
                 Spacer()
 
                 ForEach(VideoTrimmingViewModel.TimePreset.allCases, id: \.title) { preset in
-                    let isPro = preset == .fiveMinutes
                     TimePresetButton(
                         title: preset.title,
                         isSelected: selectedDuration == preset,
-                        showsProBadge: false,// isPro && !SubscriptionManager.shared.isAppSubscribed()
-                        onTap: { onPresetSelected(preset) },
-//                        onRequirePro: isPro ? {
-//                            onRequirePaywall?()
-//                        } : nil
+                        showsProBadge: false,
+                        onTap: { onPresetSelected(preset) }
                     )
                 }
 
@@ -727,20 +715,15 @@ struct TimePresetButton: View {
     let isSelected: Bool
     let showsProBadge: Bool
     let onTap: () -> Void
-    //let onRequirePro: (() -> Void)?
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
-    
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Button(action: {
                 HapticFeedbackManager.impact(.light)
-//                if showsProBadge {
-//                    onRequirePro?()
-//                } else {
-                    onTap()
-                //}
+                onTap()
             }) {
                 Text(title)
                     .font(.system(size: isIPad ? 18 : (isSmallPhone ? 13 : 16), weight: .semibold))
@@ -773,7 +756,8 @@ struct VideoTrimmingSliderView: View {
     let thumbnails: [UIImage]
     let enhancementType: EnhancementType
     let playerViewModel: VideoPlayerViewModel
-    
+    @ObservedObject var viewModel: VideoTrimmingViewModel
+
     var body: some View {
         VideoTrimmingSlider(
             startTime: $startTime,
@@ -787,10 +771,26 @@ struct VideoTrimmingSliderView: View {
             // Update playback range and seek to the new start for instant preview
             playerViewModel.setPlaybackRange(start: newValue, end: endTime)
             playerViewModel.seek(to: newValue)
+
+            // Auto-select preset based on duration
+            let duration = endTime - newValue
+            if duration > 30 {
+                viewModel.selectedDuration = .fiveMinutes
+            } else {
+                viewModel.selectedDuration = .thirtySeconds
+            }
         }
         .onChange(of: endTime) { newValue in
             // Update playback range as end changes
             playerViewModel.setPlaybackRange(start: startTime, end: newValue)
+
+            // Auto-select preset based on duration
+            let duration = newValue - startTime
+            if duration > 30 {
+                viewModel.selectedDuration = .fiveMinutes
+            } else {
+                viewModel.selectedDuration = .thirtySeconds
+            }
         }
     }
 }
