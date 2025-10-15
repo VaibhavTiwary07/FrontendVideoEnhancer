@@ -457,6 +457,7 @@ struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
         picker.allowsEditing = false // Disable editing/trimming
         picker.mediaTypes = ["public.movie"]
         picker.allowsEditing = false
+        picker.videoQuality = .typeHigh
         return picker
     }
     

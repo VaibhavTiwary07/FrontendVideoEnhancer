@@ -151,7 +151,10 @@ struct RefactoredEnhancementSelectionView: View {
                 onChangeVideo: nil,
                 preferredHeightIPad: 560,
                 trimStart: viewModel.trimStartTime,
-                trimEnd: viewModel.trimEndTime
+                trimEnd: viewModel.trimEndTime,
+                isProcessing: viewModel.isProcessing,
+                isShowingPaywall: viewModel.isShowingPaywall,
+                processingState: viewModel.processingState
             )
             .padding(.top, isIPad ? 36 : (DeviceSize.isSmallPhone ? 16 : 20))
 
@@ -305,6 +308,9 @@ struct EnhancementVideoPreviewSection: View {
     let preferredHeightIPad: CGFloat?
     let trimStart: Double?
     let trimEnd: Double?
+    let isProcessing: Bool
+    let isShowingPaywall: Bool
+    let processingState: EnhancementProcessingState
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var isMuted: Bool = true
@@ -324,7 +330,10 @@ struct EnhancementVideoPreviewSection: View {
                 playerViewModel: playerViewModel,
                 isMuted: $isMuted,
                 trimStart: trimStart,
-                trimEnd: trimEnd
+                trimEnd: trimEnd,
+                isProcessing: isProcessing,
+                isShowingPaywall: isShowingPaywall,
+                processingState: processingState
             )
                 .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 280 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
@@ -383,11 +392,28 @@ struct EnhancementVideoPlayerView: View {
     @Binding var isMuted: Bool
     let trimStart: Double?
     let trimEnd: Double?
+    let isProcessing: Bool
+    let isShowingPaywall: Bool
+    let processingState: EnhancementProcessingState
 
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
     @State private var viewAppearCount = 0
     @State private var viewDisappearCount = 0
+
+    // Check if any overlay is active
+    private var isAnyOverlayActive: Bool {
+        if isProcessing || isShowingPaywall {
+            return true
+        }
+
+        switch processingState {
+        case .preparing, .processing:
+            return true
+        default:
+            return false
+        }
+    }
 
     var body: some View {
         Group {
@@ -403,8 +429,16 @@ struct EnhancementVideoPlayerView: View {
                         viewAppearCount += 1
                         print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onAppear #\(viewAppearCount)")
                         print("  Player available: true")
-                        print("  Setting active...")
-                        playerViewModel.setActive(true)
+                        print("  Overlay active: \(isAnyOverlayActive)")
+
+                        if !isAnyOverlayActive {
+                            print("  Setting active...")
+                            playerViewModel.setActive(true)
+                        } else {
+                            print("  Overlay active - setting inactive and pausing...")
+                            playerViewModel.setActive(false)
+                            playerViewModel.pause()
+                        }
                         playerViewModel.setMuted(isMuted)
                     }
                     .onDisappear {
@@ -415,6 +449,27 @@ struct EnhancementVideoPlayerView: View {
                     }
                     .onChange(of: isMuted) { newValue in
                         playerViewModel.setMuted(newValue)
+                    }
+                    .onChange(of: isProcessing) { processing in
+                        if processing {
+                            print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Processing started, pausing player")
+                            playerViewModel.pause()
+                            playerViewModel.setActive(false)
+                        }
+                    }
+                    .onChange(of: isShowingPaywall) { showing in
+                        if showing {
+                            print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Paywall showing, pausing player")
+                            playerViewModel.pause()
+                            playerViewModel.setActive(false)
+                        }
+                    }
+                    .onChange(of: processingState) { state in
+                        if isAnyOverlayActive {
+                            print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - Processing state changed to \(state), overlay active, pausing player")
+                            playerViewModel.pause()
+                            playerViewModel.setActive(false)
+                        }
                     }
             } else if let error = playerViewModel.error {
                 EnhancementVideoErrorPlaceholder(error: error)

@@ -568,6 +568,7 @@ struct InlineUIKitVideoPicker: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
         picker.mediaTypes = ["public.movie"]
+        picker.videoQuality = .typeHigh
         picker.allowsEditing = false
         return picker
     }
