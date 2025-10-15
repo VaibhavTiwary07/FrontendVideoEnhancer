@@ -370,7 +370,7 @@ struct VideoPreviewSection: View {
     var body: some View {
         VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
             VideoPlayerView(playerViewModel: playerViewModel, isMuted: $isMuted)
-                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 190 : 340))
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 260 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)

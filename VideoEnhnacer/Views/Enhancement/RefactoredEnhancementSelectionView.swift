@@ -326,7 +326,7 @@ struct EnhancementVideoPreviewSection: View {
                 trimStart: trimStart,
                 trimEnd: trimEnd
             )
-                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))
+                .frame(height: isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 280 : 340))
                 .cornerRadius(DeviceSize.isSmallPhone ? 16 : 20)
                 .overlay(
                     RoundedRectangle(cornerRadius: DeviceSize.isSmallPhone ? 16 : 20)
@@ -340,7 +340,7 @@ struct EnhancementVideoPreviewSection: View {
             print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - onAppear #\(viewAppearCount)")
             print("  Enhancement: \(enhancementType.title)")
             print("  IsIPad: \(isIPad)")
-            print("  Frame height: \(isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 220 : 340))")
+            print("  Frame height: \(isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 280 : 340))")
             print("  PlayerViewModel available: \(playerViewModel != nil)")
             print("  Player state: \(playerViewModel.playerState)")
             print("  Player loading: \(playerViewModel.isLoading)")

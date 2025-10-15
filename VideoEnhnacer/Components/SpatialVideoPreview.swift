@@ -281,29 +281,30 @@ struct BackgroundDepthLayers: View {
 }
 
 struct VideoLoadingView: View {
-    @State private var rotationAngle: Double = 0
-    
+    @State private var isAnimating = false
+
     var body: some View {
         VStack(spacing: 16) {
             ZStack {
                 Circle()
                     .stroke(Color.accentWarm.opacity(0.2), lineWidth: 3)
                     .frame(width: 48, height: 48)
-                
+
                 Circle()
                     .trim(from: 0, to: 0.3)
                     .stroke(Color.accentWarm, lineWidth: 3)
                     .frame(width: 48, height: 48)
-                    .rotationEffect(.degrees(rotationAngle))
-                    .animation(.linear(duration: 1.0).repeatForever(autoreverses: false), value: rotationAngle)
+                    .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                    .onAppear {
+                        withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
+                            isAnimating = true
+                        }
+                    }
             }
-            
+
             Text("Preparing Preview...")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Color.accentWarm.opacity(0.8))
-        }
-        .onAppear {
-            rotationAngle = 360
         }
     }
 }

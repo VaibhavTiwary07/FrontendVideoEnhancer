@@ -87,7 +87,7 @@ struct VideoResultsView: View {
     var body: some View {
         GeometryReader { geo in
             let isSmall = DeviceSize.isSmallPhone
-            let playerHeight = isSmall ? max(260, geo.size.height * 0.55) : max(360, geo.size.height * 0.78)
+            let playerHeight = isSmall ? max(300, geo.size.height * 0.60) : max(360, geo.size.height * 0.78)
             VStack(spacing: DeviceSize.isSmallPhone ? 12 : 16) {
                 // Top bar
                 HStack {
@@ -157,19 +157,42 @@ struct VideoResultsView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal)
 
-                // Mode buttons - Center aligned
-                HStack(spacing: DeviceSize.isSmallPhone ? 10 : 16) {
+                // For small devices, add spacer to push content up (buttons will be fixed at bottom)
+                if isSmall {
                     Spacer()
-                    enhancementStyleModeButton(.original, title: "Original")
-                    enhancementStyleModeButton(.compare, title: "Compare")
-                    enhancementStyleModeButton(.output, title: "Enhanced")
-                    Spacer()
+                } else {
+                    // Mode buttons - Center aligned (regular devices and iPad)
+                    HStack(spacing: DeviceSize.isSmallPhone ? 10 : 16) {
+                        Spacer()
+                        enhancementStyleModeButton(.original, title: "Original")
+                        enhancementStyleModeButton(.compare, title: "Compare")
+                        enhancementStyleModeButton(.output, title: "Enhanced")
+                        Spacer()
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, DeviceSize.isSmallPhone ? 18 : 10)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, DeviceSize.isSmallPhone ? 18 : 10)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Color.black.ignoresSafeArea())
+            .safeAreaInset(edge: .bottom) {
+                // Fixed mode buttons at bottom for small devices only
+                if isSmall {
+                    HStack(spacing: 10) {
+                        Spacer()
+                        enhancementStyleModeButton(.original, title: "Original")
+                        enhancementStyleModeButton(.compare, title: "Compare")
+                        enhancementStyleModeButton(.output, title: "Enhanced")
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(
+                        Color.black.opacity(0.85)
+                            .background(.ultraThinMaterial)
+                    )
+                }
+            }
             .overlay {
                 if showingExportOptions {
                     ExportOptionsView(
