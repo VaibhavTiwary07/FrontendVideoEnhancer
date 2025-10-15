@@ -35,7 +35,11 @@ struct MyCreationsView: View {
                                 ForEach(recentItems) { item in
                                     HistoryCard(
                                         item: item,
-                                        onTap: { selectedItem = item },
+                                        onTap: {
+                                            print("DEBUG_HISTORYCARD: Card tapped - \(item.displayName)")
+                                            selectedItem = item
+                                            print("DEBUG_HISTORYCARD: selectedItem set to: \(selectedItem?.displayName ?? "nil")")
+                                        },
                                         cardWidth: contentWidth,
                                         showDelete: true,
                                         onDelete: {
@@ -54,7 +58,8 @@ struct MyCreationsView: View {
             }
         }
         .fullScreenCover(item: $selectedItem) { item in
-            HistoryVideoPlayerView(item: item)
+            print("DEBUG_HISTORYCARD: fullScreenCover presenting for item: \(item.displayName)")
+            return HistoryVideoPlayerView(item: item)
         }
     }
 }
