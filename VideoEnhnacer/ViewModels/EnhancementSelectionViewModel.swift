@@ -333,7 +333,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
         Task { [weak self] in
             await self?.enhancementService.cancelProcessing()
         }
-        cancellables.removeAll()
+        // NOTE: Don't remove cancellables here - subscriptions must persist across view lifecycle
+        // They will be cleaned up in deinit when the ViewModel is truly destroyed
     }
     
     // MARK: - Cleanup

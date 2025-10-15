@@ -42,22 +42,41 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     }
     
     func cancelProcessing() async {
-        await MainActor.run {
+        // Only attempt to cancel if we're actually processing
+        let (shouldCancel, taskId) = await MainActor.run { () -> (Bool, String) in
+            let shouldCancel: Bool = {
+                switch self.processingState {
+                case .preparing, .processing:
+                    return true
+                default:
+                    return false
+                }
+            }()
+            let taskId = self.currentTaskId
+
             self.pollTimer?.invalidate()
             self.pollTimer = nil
             self.processingState = .cancelled
             self.progress = 0.0
             self.showAlert = false
+
+            return (shouldCancel, taskId)
         }
-        
-        if !currentTaskId.isEmpty {
+
+        if shouldCancel && !taskId.isEmpty {
             do {
-                try await cancelTask(taskId: currentTaskId)
+                try await cancelTask(taskId: taskId)
                 await MainActor.run {
                     self.currentTaskId = ""
                 }
             } catch {
+                // Only show alert if user actively canceled (not during cleanup of completed task)
                 await showErrorAlert(title: "Cancel Failed", message: "Failed to cancel task: \(error.localizedDescription)")
+            }
+        } else if !taskId.isEmpty {
+            // Clear task ID even if not actively processing
+            await MainActor.run {
+                self.currentTaskId = ""
             }
         }
     }
@@ -109,7 +128,12 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                     )
                     await self.updateState(.completed(result), progress: 1.0)
 //                    await showSuccessAlert(title: "Processing Complete", message: "Your video has been processed successfully!")
-                    
+
+                    // Clear task ID after successful completion
+                    await MainActor.run {
+                        self.currentTaskId = ""
+                    }
+
                     // Call show rate us panel using configManager value for rate us panel
                     self.showRateUsPanel()
                     continuation.resume(returning: result)
