@@ -69,10 +69,7 @@ struct RefactoredVideoTrimmingView: View {
         let shouldShowLoading = viewModel.isLoadingVideo || viewModel.playerViewModel.isLoading
         print("🐞 WHITE_SCREEN_DEBUG: shouldShowLoading = \(shouldShowLoading) (isLoadingVideo: \(viewModel.isLoadingVideo), player.isLoading: \(viewModel.playerViewModel.isLoading))")
         
-        return ZStack {
-            Color.primarySoft
-                .ignoresSafeArea()
-            
+        return Group {
             if shouldShowLoading {
 //                print("🐞 WHITE_SCREEN_DEBUG: Showing VideoLoadingView")
                 VideoLoadingView()
@@ -92,6 +89,11 @@ struct RefactoredVideoTrimmingView: View {
                 contentView
             }
         }
+        .background(
+            Color.primarySoft
+                .ignoresSafeArea()
+                .transaction { $0.animation = nil }
+        )
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { navigationToolbar }

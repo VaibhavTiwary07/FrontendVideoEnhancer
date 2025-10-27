@@ -474,11 +474,53 @@ struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
             self.onVideoSelected = onVideoSelected
         }
         
+//        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+//            if let url = info[.mediaURL] as? URL {
+//                onVideoSelected(url)
+//            }
+//            picker.dismiss(animated: true)
+//        }
+        
+
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let url = info[.mediaURL] as? URL {
-                onVideoSelected(url)
+            print("did Finish Picking Media With Info")
+            // Verify the media is a video
+            guard let mediaType = info[.mediaType] as? String, mediaType == "public.movie" else {
+                picker.dismiss(animated: true, completion: nil)
+                return
             }
-            picker.dismiss(animated: true)
+            
+            // Use PHAsset to request the original video resolution (1920x1080)
+            if let asset = info[.phAsset] as? PHAsset {
+                let options = PHVideoRequestOptions()
+                options.version = .original // Request the original, full-resolution video
+                options.isNetworkAccessAllowed = true // Allow downloading from iCloud
+                options.deliveryMode = .highQualityFormat // Ensure highest quality
+                
+                PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { (avAsset, _, _) in
+                    if let urlAsset = avAsset as? AVURLAsset {
+                        // Verify resolution (optional, for debugging)
+                        if let track = urlAsset.tracks(withMediaType: .video).first {
+                            let size = track.naturalSize
+                            print("Retrieved video resolution: \(size.width)x\(size.height)")
+                        }
+                        
+                        DispatchQueue.main.async {
+                            self.onVideoSelected(urlAsset.url)
+                        }
+                    } else {
+                        print("Failed to retrieve original video")
+                    }
+                }
+            } else {
+                // Fallback for older iOS versions (pre-iOS 11) or if PHAsset is unavailable
+                if let videoURL = info[.mediaURL] as? URL {
+                    print("Warning: Using mediaURL, may not be original resolution")
+                    onVideoSelected(videoURL)
+                }
+            }
+            
+            picker.dismiss(animated: true, completion: nil)
         }
         
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

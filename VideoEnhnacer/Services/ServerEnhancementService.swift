@@ -236,10 +236,39 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         self.alertMessage = message
     }
     
+    func getVideoResolution(from url: URL, completion: @escaping (CGSize?) -> Void) {
+        let asset = AVAsset(url: url)
+        
+        // Asynchronously load the tracks
+        asset.loadTracks(withMediaType: .video) { tracks, error in
+            guard let videoTrack = tracks?.first else {
+                print("Error: No video tracks found or error: \(error?.localizedDescription ?? "Unknown")")
+                completion(nil)
+                return
+            }
+            
+            // Get the natural size of the video track
+            let resolution = videoTrack.naturalSize
+            completion(resolution)
+        }
+    }
+    
     private func uploadVideo(videoURL: URL, endpoint: String, includeLevel: Bool, level: String?) async throws {
-            guard let url = URL(string: baseURL + endpoint) else {
+        
+        getVideoResolution(from: videoURL) { resolution in
+            DispatchQueue.main.async {
+                if let resolution = resolution {
+                    print("Video Resolution: \(Int(resolution.width)) x \(Int(resolution.height))")
+                } else {
+                    print("Failed to retrieve resolution")
+                }
+            }
+        }
+        
+        guard let url = URL(string: baseURL + endpoint) else {
                 throw EnhancementError.processingFailed("Invalid URL")
             }
+        
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             
@@ -432,6 +461,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         }
     }
 }
+
 // MARK: - Download Progress Delegate
 class DownloadProgressDelegate: NSObject, URLSessionDownloadDelegate {
     private let progressHandler: (Double) -> Void

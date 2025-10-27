@@ -75,11 +75,7 @@ struct VideoTrimmingView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.primarySoft
-                .ignoresSafeArea()
-            
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 0) {
                 // Enhanced Video Preview Section
                 VStack(spacing: 16) {
@@ -281,8 +277,12 @@ struct VideoTrimmingView: View {
                 }
                 .padding(.bottom, adaptiveBottomPadding)
             }
-            }
         }
+        .background(
+            Color.primarySoft
+                .ignoresSafeArea()
+                .transaction { $0.animation = nil }
+        )
         .navigationBarBackButtonHidden()
         .onReceive(NotificationCenter.default.publisher(for: .resumeContentRequested)) { _ in
             if let player = playerManager.player {

@@ -14,6 +14,7 @@ struct HistoryVideoPlayerView: View {
     @State private var isSeeking: Bool = false
     @State private var timeObserver: Any?
     @State private var hideControlsTask: Task<Void, Never>?
+    @State private var hasEnded: Bool = false
 
     var body: some View {
         let _ = print("DEBUG_HISTORYCARD: HistoryVideoPlayerView body rendered - showControls: \(showControls), isPlaying: \(isPlaying)")
@@ -35,7 +36,7 @@ struct HistoryVideoPlayerView: View {
                     }
 
                 // Center Play/Pause Button
-                if showControls {
+                if showControls && !hasEnded {
                     let _ = print("DEBUG_HISTORYCARD: Rendering play/pause button - isPlaying: \(isPlaying)")
                     Button(action: togglePlayPause) {
                         ZStack {
@@ -47,6 +48,23 @@ struct HistoryVideoPlayerView: View {
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(.white)
                                 .offset(x: isPlaying ? 0 : 3)
+                        }
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
+
+                // Replay Button (when video ends)
+                if hasEnded {
+                    let _ = print("DEBUG_HISTORYCARD: Rendering replay button")
+                    Button(action: replayVideo) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 70, height: 70)
+
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
                         }
                     }
                     .transition(.scale.combined(with: .opacity))
@@ -209,6 +227,24 @@ struct HistoryVideoPlayerView: View {
             }
         }
         timeObserver = observer
+
+        // Observe video end
+        if let currentItem = player.currentItem {
+            NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: currentItem,
+                queue: .main
+            ) { _ in
+                print("DEBUG_HISTORYCARD: Video reached end - showing replay button")
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    hasEnded = true
+                    isPlaying = false
+                    showControls = true
+                }
+                hideControlsTask?.cancel()
+            }
+        }
+
         print("DEBUG_HISTORYCARD: setupPlayer() completed")
     }
 
@@ -227,6 +263,25 @@ struct HistoryVideoPlayerView: View {
             player.play()
             isPlaying = true
             print("DEBUG_HISTORYCARD: Playing")
+            scheduleHideControls()
+        }
+    }
+
+    private func replayVideo() {
+        print("DEBUG_HISTORYCARD: replayVideo() called")
+        guard let player = player else {
+            print("DEBUG_HISTORYCARD: replayVideo() - player is nil!")
+            return
+        }
+
+        // Reset to beginning
+        player.seek(to: .zero) { _ in
+            print("DEBUG_HISTORYCARD: Seeked to beginning, starting playback")
+            withAnimation(.easeInOut(duration: 0.3)) {
+                hasEnded = false
+                isPlaying = true
+            }
+            player.play()
             scheduleHideControls()
         }
     }
