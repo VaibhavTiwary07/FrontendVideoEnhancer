@@ -49,7 +49,7 @@ struct EnhancementSelectionView: View {
     }
     
     private var adaptiveTopPadding: CGFloat {
-        isSmallScreen ? 30 : 50
+        isSmallScreen ? 10 : 50
     }
     
     private var dynamicSubtitle: String {
@@ -137,6 +137,8 @@ struct EnhancementSelectionView: View {
                                 Color.clear
                                     .onAppear {
                                         print("📐 EnhancementSelectionView[\(debugId)] - HeaderSection frame: \(geo.size)")
+                                        print("DEBUG_PROCESSBUTTON: HeaderSection size - width: \(geo.size.width), height: \(geo.size.height)")
+                                        print("DEBUG_PROCESSBUTTON: HeaderSection padding.top: 20")
                                     }
                             }
                         )
@@ -161,12 +163,16 @@ struct EnhancementSelectionView: View {
                                     .onAppear {
                                         print("📐 EnhancementSelectionView[\(debugId)] - SpatialVideoPreview frame: \(geo.size)")
                                         print("  Expected height: \(adaptivePreviewHeight)")
+                                        print("DEBUG_PROCESSBUTTON: SpatialVideoPreview size - width: \(geo.size.width), height: \(geo.size.height)")
+                                        print("DEBUG_PROCESSBUTTON: SpatialVideoPreview expected height: \(adaptivePreviewHeight)")
+                                        print("DEBUG_PROCESSBUTTON: SpatialVideoPreview padding.top: 20")
                                     }
                                     .onChange(of: geo.size) { newSize in
                                         print("📐 EnhancementSelectionView[\(debugId)] - SpatialVideoPreview frame changed: \(newSize)")
                                         if newSize.height != adaptivePreviewHeight {
                                             print("  ⚠️ Height mismatch! Expected: \(adaptivePreviewHeight), Actual: \(newSize.height)")
                                         }
+                                        print("DEBUG_PROCESSBUTTON: SpatialVideoPreview size changed - width: \(newSize.width), height: \(newSize.height)")
                                     }
                             }
                         )
@@ -179,6 +185,15 @@ struct EnhancementSelectionView: View {
                             )
                             .padding(.horizontal, 20)
                             .padding(.top, adaptiveTopPadding)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            print("DEBUG_PROCESSBUTTON: SectionHeader size - width: \(geo.size.width), height: \(geo.size.height)")
+                                            print("DEBUG_PROCESSBUTTON: SectionHeader padding.top: \(adaptiveTopPadding)")
+                                        }
+                                }
+                            )
                             
                             // Enhancement options centered grid (handles single, partial, full rows)
                             Group {
@@ -233,25 +248,77 @@ struct EnhancementSelectionView: View {
                                 }
                             }
                             .padding(.horizontal, 20)
-                            
-                            
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            print("DEBUG_PROCESSBUTTON: OptionsGrid size - width: \(geo.size.width), height: \(geo.size.height)")
+                                            print("DEBUG_PROCESSBUTTON: OptionsGrid padding.horizontal: 20")
+                                        }
+                                }
+                            )
+
+
                             // Process button
                             ProcessButton(
                                 enhancementType: enhancementType,
                                 selectedOption: selectionState.selectedOption,
+                                isSmallScreen: isSmallScreen,
                                 onProcess: {
                                     processVideo()
                                 }
                             )
                             .padding(.horizontal, 20)
                             .padding(.top, 20)
-                            .padding(.bottom, isSmallScreen ? 80 : 30)
+                            .padding(.bottom, isSmallScreen ? 120 : 30)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear
+                                        .onAppear {
+                                            let bottomPadding = isSmallScreen ? 120 : 30
+                                            print("DEBUG_PROCESSBUTTON: ProcessButton with padding size - width: \(geo.size.width), height: \(geo.size.height)")
+                                            print("DEBUG_PROCESSBUTTON: ProcessButton padding - horizontal: 20, top: 20, bottom: \(bottomPadding)")
+                                        }
+                                }
+                            )
                         }
+                        .background(
+                            GeometryReader { geo in
+                                Color.clear
+                                    .onAppear {
+                                        print("DEBUG_PROCESSBUTTON: Entire options VStack size - width: \(geo.size.width), height: \(geo.size.height)")
+                                        print("DEBUG_PROCESSBUTTON: VStack spacing: 16")
+                                    }
+                            }
+                        )
                     }
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear {
+                                    print("DEBUG_PROCESSBUTTON: ========================")
+                                    print("DEBUG_PROCESSBUTTON: LazyVStack (all content) size - width: \(geo.size.width), height: \(geo.size.height)")
+                                    print("DEBUG_PROCESSBUTTON: LazyVStack spacing: 0")
+                                    print("DEBUG_PROCESSBUTTON: ========================")
+                                }
+                        }
+                    )
                 }
                 .background(
                     GeometryReader { geometry in
                         Color.clear
+                            .onAppear {
+                                let screenBounds = UIScreen.main.bounds
+                                let window = UIApplication.shared.connectedScenes
+                                    .compactMap { $0 as? UIWindowScene }
+                                    .flatMap { $0.windows }
+                                    .first { $0.isKeyWindow }
+                                let safeAreaInsets = window?.safeAreaInsets ?? .zero
+                                print("DEBUG_PROCESSBUTTON: ========================")
+                                print("DEBUG_PROCESSBUTTON: ScrollView viewport size - width: \(geometry.size.width), height: \(geometry.size.height)")
+                                print("DEBUG_PROCESSBUTTON: ScrollView visible height (excluding safe area): \(screenBounds.height - safeAreaInsets.top - safeAreaInsets.bottom)")
+                                print("DEBUG_PROCESSBUTTON: ========================")
+                            }
                             .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
                     }
                 )
@@ -391,7 +458,20 @@ struct EnhancementSelectionView: View {
             print("  IsIPad: \(isIPad)")
             print("  Adaptive height: \(adaptivePreviewHeight)")
             print("  Options count: \(enhancementOptions.count)")
-            
+
+            // DEBUG: Screen dimensions
+            let screenBounds = UIScreen.main.bounds
+            let window = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+            let safeAreaInsets = window?.safeAreaInsets ?? .zero
+            print("DEBUG_PROCESSBUTTON: Screen width: \(screenBounds.width), height: \(screenBounds.height)")
+            print("DEBUG_PROCESSBUTTON: isSmallScreen: \(isSmallScreen)")
+            print("DEBUG_PROCESSBUTTON: Safe area - top: \(safeAreaInsets.top), bottom: \(safeAreaInsets.bottom), left: \(safeAreaInsets.left), right: \(safeAreaInsets.right)")
+            print("DEBUG_PROCESSBUTTON: Adaptive preview height: \(adaptivePreviewHeight)")
+            print("DEBUG_PROCESSBUTTON: Adaptive top padding: \(adaptiveTopPadding)")
+
             SubscriptionManager.shared.checkSubscriptionExpiry()
             
             // Set default selection, respecting PRO gating for unsubscribed users
@@ -597,24 +677,41 @@ struct SectionHeader: View {
 struct ProcessButton: View {
     let enhancementType: String
     let selectedOption: String
+    let isSmallScreen: Bool
     let onProcess: () -> Void
-    
+
     var body: some View {
         Button(action: onProcess) {
             VStack(alignment: .center, spacing: 2) {
                 Text("Process")// with \(enhancementType)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
-                
-                if !selectedOption.isEmpty {
+
+                if !selectedOption.isEmpty && !isSmallScreen {
                     Text("Using \(selectedOption.capitalized) setting")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                 }
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 18)
-            .frame(width: UIScreen.main.bounds.width * 0.68)
+            .padding(.vertical, isSmallScreen ? 14 : 18)
+            .frame(width: UIScreen.main.bounds.width * (isSmallScreen ? 0.60 : 0.68))
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            let screenWidth = UIScreen.main.bounds.width
+                            let buttonWidthPercent = isSmallScreen ? 0.60 : 0.68
+                            let calculatedWidth = screenWidth * buttonWidthPercent
+                            let verticalPadding = isSmallScreen ? 14 : 18
+                            print("DEBUG_PROCESSBUTTON: ProcessButton size - width: \(geo.size.width), height: \(geo.size.height)")
+                            print("DEBUG_PROCESSBUTTON: ProcessButton isSmallScreen: \(isSmallScreen)")
+                            print("DEBUG_PROCESSBUTTON: ProcessButton calculated width: \(calculatedWidth) (\(buttonWidthPercent * 100)% of \(screenWidth))")
+                            print("DEBUG_PROCESSBUTTON: ProcessButton padding - horizontal: 24, vertical: \(verticalPadding)")
+                            print("DEBUG_PROCESSBUTTON: ProcessButton showing subtitle: \(!selectedOption.isEmpty && !isSmallScreen)")
+                        }
+                }
+            )
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(LinearGradient.primaryTheme)

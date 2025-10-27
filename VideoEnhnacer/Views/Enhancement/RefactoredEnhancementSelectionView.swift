@@ -59,8 +59,26 @@ struct RefactoredEnhancementSelectionView: View {
             ScrollView {
                 contentView
                     .frame(maxWidth: .infinity, alignment: .top)
-                    .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 40 : 24))
+                    .padding(.bottom, isIPad ? 120 : (DeviceSize.isSmallPhone ? 100 : 24))
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear {
+                                    let bottomPadding = isIPad ? 120 : (DeviceSize.isSmallPhone ? 100 : 24)
+                                    print("DEBUG_PROCESS_REFACT: ContentView size - width: \(geo.size.width), height: \(geo.size.height)")
+                                    print("DEBUG_PROCESS_REFACT: ContentView bottom padding: \(bottomPadding)")
+                                }
+                        }
+                    )
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            print("DEBUG_PROCESS_REFACT: ScrollView viewport size - width: \(geo.size.width), height: \(geo.size.height)")
+                        }
+                }
+            )
             .navigationBarBackButtonHidden()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { navigationToolbar }
@@ -89,6 +107,20 @@ struct RefactoredEnhancementSelectionView: View {
             }
         }
         .onAppear {
+            // DEBUG: Screen dimensions
+            let screenBounds = UIScreen.main.bounds
+            let window = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+            let safeAreaInsets = window?.safeAreaInsets ?? .zero
+            print("DEBUG_PROCESS_REFACT: ========================")
+            print("DEBUG_PROCESS_REFACT: Screen width: \(screenBounds.width), height: \(screenBounds.height)")
+            print("DEBUG_PROCESS_REFACT: isIPad: \(isIPad)")
+            print("DEBUG_PROCESS_REFACT: isSmallPhone: \(DeviceSize.isSmallPhone)")
+            print("DEBUG_PROCESS_REFACT: Safe area - top: \(safeAreaInsets.top), bottom: \(safeAreaInsets.bottom)")
+            print("DEBUG_PROCESS_REFACT: ========================")
+
             handleViewAppearance()
             SubscriptionManager.shared.checkSubscriptionExpiry()
             if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
@@ -343,7 +375,28 @@ struct EnhancementVideoPreviewSection: View {
                 )
                 .shadow(color: .black.opacity(0.4), radius: DeviceSize.isSmallPhone ? 10 : 15, x: 0, y: DeviceSize.isSmallPhone ? 6 : 8)
                 .padding(.horizontal, DeviceSize.isSmallPhone ? 12 : 20)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear {
+                                let frameHeight = isIPad ? (preferredHeightIPad ?? 560) : (DeviceSize.isSmallPhone ? 280 : 340)
+                                let horizontalPadding = DeviceSize.isSmallPhone ? 12 : 20
+                                print("DEBUG_PROCESS_REFACT: VideoPlayerView size - width: \(geo.size.width), height: \(geo.size.height)")
+                                print("DEBUG_PROCESS_REFACT: VideoPlayerView frame height: \(frameHeight)")
+                                print("DEBUG_PROCESS_REFACT: VideoPlayerView padding.horizontal: \(horizontalPadding)")
+                            }
+                    }
+                )
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        print("DEBUG_PROCESS_REFACT: VideoPreviewSection VStack size - width: \(geo.size.width), height: \(geo.size.height)")
+                        print("DEBUG_PROCESS_REFACT: VideoPreviewSection spacing: 16")
+                    }
+            }
+        )
         .onAppear {
             viewAppearCount += 1
             print("📺 EnhancementVideoPreviewSection[🆔 \(debugId)] - onAppear #\(viewAppearCount)")
@@ -741,7 +794,16 @@ struct EnhancementOptionsView: View {
                 subtitle: dynamicSubtitle
             )
             .padding(.top, 8)
-            
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            print("DEBUG_PROCESS_REFACT: SectionHeader size - width: \(geo.size.width), height: \(geo.size.height)")
+                            print("DEBUG_PROCESS_REFACT: SectionHeader padding.top: 8")
+                        }
+                }
+            )
+
             HStack {
                 Spacer()
                 EnhancementOptionGrid(
@@ -755,6 +817,16 @@ struct EnhancementOptionsView: View {
                 Spacer()
             }
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        let spacing = isIPad ? 20 : 16
+                        print("DEBUG_PROCESS_REFACT: OptionsView VStack size - width: \(geo.size.width), height: \(geo.size.height)")
+                        print("DEBUG_PROCESS_REFACT: OptionsView spacing: \(spacing)")
+                    }
+            }
+        )
     }
 }
 
@@ -851,6 +923,17 @@ struct EnhancementOptionGrid: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        print("DEBUG_PROCESS_REFACT: OptionGrid size - width: \(geo.size.width), height: \(geo.size.height)")
+                        print("DEBUG_PROCESS_REFACT: OptionGrid rowSpacing: \(rowSpacing), itemSpacing: \(itemSpacing)")
+                        print("DEBUG_PROCESS_REFACT: OptionGrid columnsCount: \(columnsCount)")
+                        print("DEBUG_PROCESS_REFACT: OptionGrid options count: \(options.count)")
+                    }
+            }
+        )
     }
 }
 
@@ -995,7 +1078,7 @@ struct EnhancementActionView: View {
     let selectedOption: String
     let canProcess: Bool
     let onProcess: () -> Void
-    
+
     var body: some View {
         EnhancementProcessButton(
             enhancementType: enhancementType.title,
@@ -1004,6 +1087,15 @@ struct EnhancementActionView: View {
             onProcess: onProcess
         )
         .padding(.top, 12)
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        print("DEBUG_PROCESS_REFACT: ActionView size - width: \(geo.size.width), height: \(geo.size.height)")
+                        print("DEBUG_PROCESS_REFACT: ActionView padding.top: 12")
+                    }
+            }
+        )
     }
 }
 
@@ -1025,15 +1117,30 @@ struct EnhancementProcessButton: View {
                 Text("Process") // with \(enhancementType)
                     .font(.system(size: isIPad ? 20 : 18, weight: .semibold))
                     .foregroundColor(.white)
-                
-                if !selectedOption.isEmpty {
+
+                if !selectedOption.isEmpty && !DeviceSize.isSmallPhone {
                     Text("Using \(selectedOption.capitalized) setting")
                         .font(.system(size: isIPad ? 16 : 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                 }
             }
             .padding(.horizontal, isIPad ? 28 : 24)
-            .padding(.vertical, isIPad ? 16 : 14)
+            .padding(.vertical, isIPad ? 16 : (DeviceSize.isSmallPhone ? 12 : 14))
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear {
+                            let horizontalPadding = isIPad ? 28 : 24
+                            let verticalPadding = isIPad ? 16 : (DeviceSize.isSmallPhone ? 12 : 14)
+                            let showingSubtitle = !selectedOption.isEmpty && !DeviceSize.isSmallPhone
+                            print("DEBUG_PROCESS_REFACT: ProcessButton size - width: \(geo.size.width), height: \(geo.size.height)")
+                            print("DEBUG_PROCESS_REFACT: ProcessButton isIPad: \(isIPad), isSmallPhone: \(DeviceSize.isSmallPhone)")
+                            print("DEBUG_PROCESS_REFACT: ProcessButton padding - horizontal: \(horizontalPadding), vertical: \(verticalPadding)")
+                            print("DEBUG_PROCESS_REFACT: ProcessButton showing subtitle: \(showingSubtitle)")
+                            print("DEBUG_PROCESS_REFACT: ProcessButton canProcess: \(canProcess)")
+                        }
+                }
+            )
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(LinearGradient.primaryTheme)
