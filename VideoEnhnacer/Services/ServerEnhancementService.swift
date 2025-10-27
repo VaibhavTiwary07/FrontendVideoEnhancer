@@ -386,6 +386,62 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         return try await downloadToDocuments(taskID: UUID().uuidString, prefix: prefix, baseURL: baseURL)
     }
     
+//    private func downloadToDocuments(taskID: String, prefix: String, baseURL: String) async throws -> URL {
+//        guard let url = URL(string: "\(baseURL)/download/processed/\(taskID)") else {
+//            throw EnhancementError.processingFailed("Invalid download URL for task ID: \(taskID)")
+//        }
+//
+//        return try await withCheckedThrowingContinuation { continuation in
+//            let sessionIdentifier = "com.example.download.\(UUID().uuidString)"
+//            let configuration = URLSessionConfiguration.default
+//            let delegateQueue = OperationQueue()
+//            delegateQueue.maxConcurrentOperationCount = 1
+//
+//            let progressDelegate = DownloadProgressDelegate(
+//                progressWeight: downloadProgressWeight / 2,
+//                progressOffset: enhancementProgressWeight,
+//                progressHandler: { [weak self] progress in
+//                    self?.progress = progress
+//                },
+//                completionHandler: { [weak self] location, error in
+//                    guard let self = self else { return }
+//                    if let error = error {
+//                        continuation.resume(throwing: error)
+//                        return
+//                    }
+//                    guard let location = location else {
+//                        continuation.resume(throwing: EnhancementError.processingFailed("Download failed: no location"))
+//                        return
+//                    }
+//
+//                    do {
+//                        let destURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//                            .appendingPathComponent("\(prefix)_\(UUID().uuidString).mp4")
+//                        try? FileManager.default.removeItem(at: destURL)
+//                        try FileManager.default.moveItem(at: location, to: destURL)
+//                        continuation.resume(returning: destURL)
+//                    } catch {
+//                        continuation.resume(throwing: error)
+//                    }
+//                }
+//            )
+//
+//            let session = URLSession(configuration: configuration, delegate: progressDelegate, delegateQueue: delegateQueue)
+//
+//            let downloadTask = session.downloadTask(with: url)
+//            downloadTask.resume()
+//
+//            Task {
+//                await withTaskCancellationHandler {
+//                    try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 60))
+//                    session.invalidateAndCancel()
+//                } onCancel: {
+//                    session.invalidateAndCancel()
+//                }
+//            }
+//        }
+//    }
+
     private func downloadToDocuments(taskID: String, prefix: String, baseURL: String) async throws -> URL {
         guard let url = URL(string: "\(baseURL)/download/processed/\(taskID)") else {
             throw EnhancementError.processingFailed("Invalid download URL for task ID: \(taskID)")
@@ -419,6 +475,26 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                             .appendingPathComponent("\(prefix)_\(UUID().uuidString).mp4")
                         try? FileManager.default.removeItem(at: destURL)
                         try FileManager.default.moveItem(at: location, to: destURL)
+                        
+                        // Call /confirm_download/<task_id> to signal download completion
+                        Task {
+                            do {
+                                guard let confirmURL = URL(string: "\(baseURL)/confirm_download/\(taskID)") else {
+                                    throw EnhancementError.processingFailed("Invalid confirm download URL")
+                                }
+                                var request = URLRequest(url: confirmURL)
+                                request.httpMethod = "POST"
+                                let (data, response) = try await URLSession.shared.data(for: request)
+                                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                                    throw EnhancementError.processingFailed("Confirm download failed with status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
+                                }
+                                print("Download confirmed for task ID: \(taskID)")
+                            } catch {
+                                print("Failed to confirm download for task ID: \(taskID), error: \(error.localizedDescription)")
+                                // Log the error but don't fail the download, as the file is already saved
+                            }
+                        }
+                        
                         continuation.resume(returning: destURL)
                     } catch {
                         continuation.resume(throwing: error)
