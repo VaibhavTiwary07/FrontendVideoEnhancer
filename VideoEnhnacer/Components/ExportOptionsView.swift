@@ -389,6 +389,7 @@ extension ExportOptionsView {
             HStack {
                 Button(action: {
                     withAnimation(.easeOut(duration: 0.3)) {
+                        isPresented = false
                         showFinalPage = false
                         exportProgress = 0.0
                         isExportComplete = false
