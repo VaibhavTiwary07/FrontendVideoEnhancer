@@ -148,7 +148,8 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                             appliedSettings: [
                                 "endpoint": endpoint,
                                 "level": self.mapLevel(for: request) ?? ""
-                            ]
+                            ],
+                            appliedEnhancement: request.selectedOption.id
                         )
                     )
                     await self.updateState(.completed(result), progress: 1.0)

@@ -14,9 +14,32 @@ struct ExportOptionsView: View {
     @Binding var selectedFormat: String
     let onExport: () -> Void
     let videoURL: URL
+    let appliedEnhancement: String?
     let onCompleted: (URL) -> Void
-    
-    private let resolutionOptions = ["original", "2x","4x"]
+
+    // Dynamically filter resolution options based on applied enhancement and device capability
+    private var resolutionOptions: [String] {
+        var options = ["original"]
+
+        // If already enhanced to 2K or 4K, cannot upscale further
+        if let enhancement = appliedEnhancement?.uppercased() {
+            if enhancement == "2K" || enhancement == "4K" {
+                // Already upscaled, return only original option
+                return options
+            }
+        }
+
+        // Add 2x option (always available for 1080p or lower)
+        options.append("2x")
+
+        // Only add 4x if device supports 4K processing
+        if DeviceSize.supports4K {
+            options.append("4x")
+        }
+
+        return options
+    }
+
     private let frameRateOptions = ["30fps", "60fps"]
     private let formatOptions = ["MP4", "MOV"]
 
@@ -753,15 +776,15 @@ extension ExportOptionsView {
     }
 }
 
-#Preview {
-    ExportOptionsView(
-        isPresented: .constant(true),
-        selectedResolution: .constant("original"),
-        selectedFrameRate: .constant("30fps"),
-        selectedFormat: .constant("MP4"),
-        onExport: { },
-        videoURL: Bundle.main.url(forResource: "enhanced", withExtension: "mp4") ?? URL(fileURLWithPath: "/tmp/dummy.mp4"),
-        onCompleted: { _ in }
-    )
-}
+//#Preview {
+//    ExportOptionsView(
+//        isPresented: .constant(true),
+//        selectedResolution: .constant("original"),
+//        selectedFrameRate: .constant("30fps"),
+//        selectedFormat: .constant("MP4"),
+//        onExport: { },
+//        videoURL: Bundle.main.url(forResource: "enhanced", withExtension: "mp4") ?? URL(fileURLWithPath: "/tmp/dummy.mp4"),
+//        onCompleted: { _ in }
+//    )
+//}
 

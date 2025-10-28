@@ -195,6 +195,7 @@ struct RefactoredEnhancementSelectionView: View {
             HStack {
                 EnhancementOptionsView(
                     enhancementType: viewModel.enhancementType,
+                    filteredOptions: filteredEnhancementOptions,
                     selectedOption: $viewModel.selectedOption,
                     isAnalyzing: viewModel.isAnalyzing,
                     onOptionSelected: viewModel.updateSelection,
@@ -226,8 +227,22 @@ struct RefactoredEnhancementSelectionView: View {
                 processedVideoURL: result.processedURL,
                 enhancementType: result.enhancementType.title,
                 enhancementIcon: result.enhancementType.icon,
-                gradientType: result.enhancementType.gradientType
+                gradientType: result.enhancementType.gradientType,
+                appliedEnhancement: result.metadata.appliedEnhancement
             )
+        }
+    }
+
+    // MARK: - Filtered Options
+    /// Filter enhancement options based on device capabilities
+    private var filteredEnhancementOptions: [EnhancementOption] {
+        viewModel.enhancementType.options.filter { option in
+            // Hide 4K option on unsupported devices (iPod, iPhone SE, iPhone 8 and older)
+            if option.id == "4K" && !DeviceSize.supports4K {
+                return false
+            }
+            // Add more device-specific filters here if needed
+            return true
         }
     }
     
@@ -766,6 +781,7 @@ struct EnhancementTitleSection: View {
 // MARK: - Enhancement Options View
 struct EnhancementOptionsView: View {
     let enhancementType: EnhancementType
+    let filteredOptions: [EnhancementOption]
     @Binding var selectedOption: String
     let isAnalyzing: Bool
     let onOptionSelected: (String) -> Void
@@ -811,7 +827,7 @@ struct EnhancementOptionsView: View {
             HStack {
                 Spacer()
                 EnhancementOptionGrid(
-                    options: enhancementType.options,
+                    options: filteredOptions,
                     selectedOption: selectedOption,
                     isAnalyzing: isAnalyzing,
                     onOptionSelected: onOptionSelected,

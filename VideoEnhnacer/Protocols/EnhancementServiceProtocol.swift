@@ -167,7 +167,8 @@ struct EnhancementMetadata: Equatable, Hashable {
     let appliedSettings: [String: String]
     let processingStartTime: Date?
     let processingEndTime: Date?
-    
+    let appliedEnhancement: String? // Stores enhancement option ID like "2K", "4K", "1080p", etc.
+
     init(
         processingTime: Double,
         enhancementStrength: Double,
@@ -175,7 +176,8 @@ struct EnhancementMetadata: Equatable, Hashable {
         fileSize: Int64,
         appliedSettings: [String: String] = [:],
         processingStartTime: Date? = nil,
-        processingEndTime: Date? = nil
+        processingEndTime: Date? = nil,
+        appliedEnhancement: String? = nil
     ) {
         self.processingTime = processingTime
         self.enhancementStrength = enhancementStrength
@@ -184,6 +186,7 @@ struct EnhancementMetadata: Equatable, Hashable {
         self.appliedSettings = appliedSettings
         self.processingStartTime = processingStartTime
         self.processingEndTime = processingEndTime
+        self.appliedEnhancement = appliedEnhancement
     }
 }
 

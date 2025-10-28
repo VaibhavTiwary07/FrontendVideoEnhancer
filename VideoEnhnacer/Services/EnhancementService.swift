@@ -124,7 +124,8 @@ final class EnhancementService: EnhancementServiceProtocol {
                     fileSize: 1024 * 1024 * 10, // 10MB mock size
                     appliedSettings: createAppliedSettings(from: request),
                     processingStartTime: Date().addingTimeInterval(-5.0),
-                    processingEndTime: Date()
+                    processingEndTime: Date(),
+                    appliedEnhancement: request.selectedOption.id
                 )
             )
             

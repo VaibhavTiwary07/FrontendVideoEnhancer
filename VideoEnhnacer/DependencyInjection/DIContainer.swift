@@ -301,7 +301,8 @@ final class MockEnhancementService: EnhancementServiceProtocol {
                 fileSize: 1024,
                 appliedSettings: [:],
                 processingStartTime: Date(),
-                processingEndTime: Date()
+                processingEndTime: Date(),
+                appliedEnhancement: request.selectedOption.id
             )
         )
         
