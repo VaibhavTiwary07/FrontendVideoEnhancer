@@ -15,6 +15,9 @@ final class ForegroundResumeController: ObservableObject {
     // Prevent multiple simultaneous ad requests
     private var isResumeAdInProgress: Bool = false
 
+    // Safety timer to prevent permanent stuck state
+    private var adSafetyTimer: Timer?
+
     // Overlay window
     private var overlayWindow: UIWindow?
     private var overlayHost: UIViewController?
@@ -80,6 +83,9 @@ final class ForegroundResumeController: ObservableObject {
         isResumeAdInProgress = true
         print("ad diagnose: proceeding with resume ad presentation")
 
+        // Start safety timer (30s timeout)
+        startAdSafetyTimer(videoPlayerManager: videoPlayerManager)
+
         // Clean up any existing observers first
         cleanupAdObservers()
 
@@ -88,6 +94,7 @@ final class ForegroundResumeController: ObservableObject {
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
             print("ad diagnose: resume ad dismissed")
+            self.cancelAdSafetyTimer()
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
@@ -103,6 +110,7 @@ final class ForegroundResumeController: ObservableObject {
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
             print("ad diagnose: resume ad failed to present")
+            self.cancelAdSafetyTimer()
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
@@ -119,6 +127,7 @@ final class ForegroundResumeController: ObservableObject {
             guard let self = self else { return }
             if let t = note.object as? AdType, t != .resumeButtonClick { return }
             print("ad diagnose: resume ad timeout")
+            self.cancelAdSafetyTimer()
             self.cleanupAdObservers()
             AdsManager.shared.suppressNonResumeAdPresentations = false
             AdsManager.shared.processPendingQueue()
@@ -142,6 +151,7 @@ final class ForegroundResumeController: ObservableObject {
             } else {
                 // If no presenter, just resume content
                 print("ad diagnose: no presenter available for resumeButtonClick; resuming content without ad")
+                self.cancelAdSafetyTimer()
                 AdsManager.shared.suppressNonResumeAdPresentations = false
                 AdsManager.shared.processPendingQueue()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -162,6 +172,7 @@ final class ForegroundResumeController: ObservableObject {
     }
 
     private func cleanupAdObservers() {
+        cancelAdSafetyTimer()
         if let ob = adDismissObserver {
             NotificationCenter.default.removeObserver(ob)
             adDismissObserver = nil
@@ -174,6 +185,26 @@ final class ForegroundResumeController: ObservableObject {
             NotificationCenter.default.removeObserver(ob)
             adTimeoutObserver = nil
         }
+    }
+
+    // MARK: - Safety Timer
+
+    private func startAdSafetyTimer(videoPlayerManager: VideoPlayerManager) {
+        cancelAdSafetyTimer() // Cancel any existing timer
+        adSafetyTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+            print("⚠️ ad diagnose: safety timer fired - force resetting isResumeAdInProgress")
+            self.isResumeAdInProgress = false
+            self.cleanupAdObservers()
+            AdsManager.shared.suppressNonResumeAdPresentations = false
+            AdsManager.shared.processPendingQueue()
+            self.resumeAll(videoPlayerManager: videoPlayerManager)
+        }
+    }
+
+    private func cancelAdSafetyTimer() {
+        adSafetyTimer?.invalidate()
+        adSafetyTimer = nil
     }
 
     // MARK: - Overlay Window Management

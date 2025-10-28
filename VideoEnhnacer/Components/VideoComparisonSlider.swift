@@ -449,6 +449,15 @@ final class PlayerContainerView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+
+        // Guard against invalid bounds during app transitions
+        guard bounds.width > 0, bounds.height > 0,
+              !bounds.width.isNaN, !bounds.height.isNaN,
+              !bounds.width.isInfinite, !bounds.height.isInfinite else {
+            print("🎥 PlayerContainerView.layoutSubviews skipped - invalid bounds=\(bounds)")
+            return
+        }
+
         playerLayer.frame = bounds
         print("🎥 PlayerContainerView.layoutSubviews bounds=\(bounds)")
     }
@@ -474,13 +483,14 @@ struct AVPlayerUIView: UIViewRepresentable {
     func updateUIView(_ uiView: PlayerContainerView, context: Context) {
         uiView.playerLayer.player = player
         uiView.playerLayer.videoGravity = videoGravity
-        
+
         // Disable AirPlay for all video players
         player.allowsExternalPlayback = false
-        
-        // Ensure layer uses latest bounds
-        uiView.setNeedsLayout()
-        uiView.layoutIfNeeded()
+
+        // Defer layout update to next run loop to avoid mid-transition calls
+        DispatchQueue.main.async {
+            uiView.setNeedsLayout()
+        }
         print("🎥 AVPlayerUIView.updateUIView applied player + gravity; bounds=\(uiView.bounds)")
     }
 }

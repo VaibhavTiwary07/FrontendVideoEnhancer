@@ -242,11 +242,31 @@ final class AdsManager: NSObject {
             return
         }
         
+        // Validate frame dimensions before presenting
+        let frame = viewController.view.frame
+        guard frame.width > 0 && frame.height > 0 && frame.width.isFinite && frame.height.isFinite else {
+            print("ad diagnose: invalid frame dimensions (w:\(frame.width), h:\(frame.height)); deferring presentation")
+            // Retry after view layout completes
+            if activeRetryTimers[adType] == true { return }
+            activeRetryTimers[adType] = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let self = self else { return }
+                self.activeRetryTimers[adType] = false
+                if let topVC = UIApplication.shared.connectedScenes
+                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController })
+                    .first {
+                    let properTopVC = self.findTopViewController(from: topVC)
+                    self.showInterstitialAd(for: adType, from: properTopVC, retryCount: retryCount + 1)
+                }
+            }
+            return
+        }
+
         // Present
         isPresenting = true
         lastAdPresentationTime[adType] = now
-        print("ad diagnose: presenting \(adType.rawValue)")
-        
+        print("ad diagnose: presenting \(adType.rawValue) with valid frame (w:\(frame.width), h:\(frame.height))")
+
         interstitial.paidEventHandler = { adValue in
             Analytics.logEvent("Ad_Impression", parameters: [
                 "adunitid": self.adUnitIDs[adType] ?? "none",
@@ -347,15 +367,18 @@ extension AdsManager: FullScreenContentDelegate {
               let adType = interstitials.first(where: { $0.value === interAd })?.key else { return }
         print("ad diagnose: dismissed \(adType.rawValue)")
         delegate?.adDidDismiss(for: adType)
-        
+
+        // Post notification for observers (e.g., ForegroundResumeController)
+        NotificationCenter.default.post(name: .adsManagerDidDismissAd, object: adType)
+
         interstitials.removeValue(forKey: adType)
         isLoading[adType] = false
         retryAttempts[adType] = 0
-        
+
         if shouldShowAd(for: adType) {
             loadInterstitialAd(for: adType)
         }
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isPresenting = false
             if adType == .resumeButtonClick { self.processPendingQueue() }
@@ -367,15 +390,18 @@ extension AdsManager: FullScreenContentDelegate {
               let adType = interstitials.first(where: { $0.value === interAd })?.key else { return }
         print("ad diagnose: fail \(adType.rawValue): \(error.localizedDescription)")
         delegate?.adDidFailToPresent(for: adType, error: error)
-        
+
+        // Post notification for observers (e.g., ForegroundResumeController)
+        NotificationCenter.default.post(name: .adsManagerDidFailToPresent, object: adType)
+
         interstitials.removeValue(forKey: adType)
         isLoading[adType] = false
         retryAttempts[adType] = 0
-        
+
         if shouldShowAd(for: adType) {
             loadInterstitialAd(for: adType)
         }
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isPresenting = false
             if adType == .resumeButtonClick { self.processPendingQueue() }
