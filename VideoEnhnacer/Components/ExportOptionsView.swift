@@ -634,8 +634,8 @@ extension ExportOptionsView {
         // Simulate progress updates
         let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
             DispatchQueue.main.async {
-                if self.exportProgress < 1.0 {
-                    self.exportProgress += 0.02 // Increment progress
+                if self.exportProgress < 0.95 {
+                    self.exportProgress = min(self.exportProgress + 0.02, 0.95) // Clamp to 95%
                 } else {
                     timer.invalidate()
                 }
