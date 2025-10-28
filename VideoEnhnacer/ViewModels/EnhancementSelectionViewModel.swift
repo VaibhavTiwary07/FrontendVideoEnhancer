@@ -154,7 +154,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func cancelProcessing() {
         currentTask?.cancel()
         currentTask = nil
-        
+        disableScreenWakeLock()
+
         Task { [weak self] in
             await self?.enhancementService.cancelProcessing()
         }
@@ -263,7 +264,18 @@ final class EnhancementSelectionViewModel: ObservableObject {
             break
         }
     }
-    
+
+    // MARK: - Screen Wake Lock Management
+    private func enableScreenWakeLock() {
+        UIApplication.shared.isIdleTimerDisabled = true
+        print("🔒 Screen wake lock ENABLED - screen will stay on during processing")
+    }
+
+    private func disableScreenWakeLock() {
+        UIApplication.shared.isIdleTimerDisabled = false
+        print("🔓 Screen wake lock DISABLED - screen auto-lock resumed")
+    }
+
     private func performVideoProcessing(with option: EnhancementOption) async {
         do {
             let request = EnhancementRequest(
@@ -279,32 +291,40 @@ final class EnhancementSelectionViewModel: ObservableObject {
             print("   Enhancement: \(enhancementType.title)")
             print("   Option: \(option.title)")
             print("   Trim: \(trimStartTime ?? -1) to \(trimEndTime ?? -1)")
-            
+
+            // Enable screen wake lock to prevent interruption during processing
+            enableScreenWakeLock()
+
             let result = try await enhancementService.processVideo(at: videoURL, with: request)
             
             await MainActor.run {
                 self.result = result
                 print("🎭 EnhancementSelectionViewModel - Processing completed successfully")
+                self.disableScreenWakeLock()
             }
         } catch let enhancementError as EnhancementError {
             if case .cancelled = enhancementError {
                 await MainActor.run {
                     print("🎭 EnhancementSelectionViewModel - Processing cancelled by user")
+                    self.disableScreenWakeLock()
                 }
             } else {
                 await MainActor.run {
                     self.error = enhancementError
                     print("🎭 EnhancementSelectionViewModel - Processing failed: \(enhancementError.localizedDescription)")
+                    self.disableScreenWakeLock()
                 }
             }
         } catch is CancellationError {
             await MainActor.run {
                 print("🎭 EnhancementSelectionViewModel - Processing cancelled (system cancellation)")
+                self.disableScreenWakeLock()
             }
         } catch {
             await MainActor.run {
                 self.error = .processingFailed(error.localizedDescription)
                 print("🎭 EnhancementSelectionViewModel - Processing failed: \(error.localizedDescription)")
+                self.disableScreenWakeLock()
             }
         }
     }
@@ -330,6 +350,7 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func cleanup() {
         currentTask?.cancel()
         currentTask = nil
+        disableScreenWakeLock()
         Task { [weak self] in
             await self?.enhancementService.cancelProcessing()
         }
@@ -341,6 +362,7 @@ final class EnhancementSelectionViewModel: ObservableObject {
     deinit {
         currentTask?.cancel()
         currentTask = nil
+        // Note: Wake lock is already disabled via completion paths and cleanup()
         cancellables.removeAll()
     }
 }
