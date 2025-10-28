@@ -14,8 +14,9 @@ struct RefactoredEnhancementSelectionView: View {
     
     // MARK: - State
     @State private var showingResults = false
+    @State private var hasCompletedOnce = false // Track if processing has completed to prevent auto-restart
     @EnvironmentObject private var historyManager: HistoryManager
-    
+
     private let onBack: (() -> Void)?
     private let onClose: (() -> Void)?
     private let onShowResults: ((EnhancementResult) -> Void)?
@@ -123,7 +124,8 @@ struct RefactoredEnhancementSelectionView: View {
 
             handleViewAppearance()
             SubscriptionManager.shared.checkSubscriptionExpiry()
-            if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil {
+            // Only auto-start processing for single-option enhancements if we haven't processed before
+            if viewModel.enhancementType.options.count == 1 && !viewModel.isProcessing && viewModel.result == nil && !hasCompletedOnce {
                 viewModel.checkAndProcessVideo()
             }
         }
@@ -279,6 +281,8 @@ struct RefactoredEnhancementSelectionView: View {
 
     private func handleResultChange(_ result: EnhancementResult?) {
         guard let result else { return }
+        // Mark that processing has completed once to prevent auto-restart
+        hasCompletedOnce = true
         if let onShowResults {
             onShowResults(result)
         } else {

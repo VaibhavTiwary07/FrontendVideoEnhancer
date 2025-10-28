@@ -245,9 +245,12 @@ struct VideoResultsView: View {
             historyManager.add(item)
         }
         .onDisappear {
+            print("DEBUG_PROCESSING_BACK: VideoResultsView.onDisappear - ENTERED")
             // Clean up video players to prevent state conflicts with other views
             isPreviewPlaybackActive = false
             videoPlayerManager.cleanupPlayersForKey(generateVideoKey())
+            print("DEBUG_PROCESSING_BACK: VideoResultsView.onDisappear - Cleaned up video players")
+            print("DEBUG_PROCESSING_BACK: VideoResultsView.onDisappear - COMPLETED")
         }
         .onChange(of: isMuted) { muted in
             videoPlayerManager.setMuted(muted, forKey: generateVideoKey())
@@ -359,12 +362,16 @@ struct VideoResultsView: View {
     }
 
     private func handleBackAction() {
+        print("DEBUG_PROCESSING_BACK: VideoResultsView.handleBackAction() - Back button tapped")
         HapticFeedbackManager.impact(.light)
         if let onBack {
+            print("DEBUG_PROCESSING_BACK: VideoResultsView.handleBackAction() - Calling onBack callback")
             onBack()
         } else {
+            print("DEBUG_PROCESSING_BACK: VideoResultsView.handleBackAction() - Calling dismiss()")
             dismiss()
         }
+        print("DEBUG_PROCESSING_BACK: VideoResultsView.handleBackAction() - Completed")
     }
 
     private func handleCloseAction() {

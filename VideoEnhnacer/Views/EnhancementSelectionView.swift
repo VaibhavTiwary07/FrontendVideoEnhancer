@@ -22,7 +22,8 @@ struct EnhancementSelectionView: View {
     @State private var processingError: String?
     @State private var showingError = false
     @State private var isShowingPaywall = false
-    
+    @State private var processingTask: Task<Void, Never>?
+
     // Debug tracking
     private let debugId = UUID().uuidString.prefix(8)
     @State private var viewAppearCount = 0
@@ -387,9 +388,13 @@ struct EnhancementSelectionView: View {
         .navigationBarBackButtonHidden()
         .navigationBarItems(
             leading: Button(action: {
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView - Back button tapped")
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView - isProcessing=\(isProcessing), processingTask=\(processingTask != nil ? "EXISTS" : "NIL")")
                 let impact = UIImpactFeedbackGenerator(style: .light)
                 impact.impactOccurred()
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView - Calling dismiss()")
                 dismiss()
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView - dismiss() returned")
             }) {
                 BackButtonIcon()
                     .foregroundColor(.white)
@@ -509,7 +514,39 @@ struct EnhancementSelectionView: View {
         }
         .onDisappear {
             viewDisappearCount += 1
-            print("🎭 EnhancementSelectionView[\(debugId)] - onDisappear #\(viewDisappearCount)")
+            print("DEBUG_PROCESSING_BACK: ========================================")
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - ENTERED #\(viewDisappearCount)")
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - isProcessing=\(isProcessing)")
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - processingProgress=\(processingProgress)")
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - processingTask=\(processingTask != nil ? "EXISTS" : "NIL")")
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - processedVideoURL=\(processedVideoURL != nil ? "EXISTS" : "NIL")")
+
+            // Cancel ongoing processing
+            if let task = processingTask {
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - Cancelling processingTask, isCancelled=\(task.isCancelled)")
+                task.cancel()
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - After cancel(), isCancelled=\(task.isCancelled)")
+                processingTask = nil
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - processingTask set to nil")
+            } else {
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - No processingTask to cancel")
+            }
+
+            // Cancel server service operations
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - Calling serverService.cancelProcessing()")
+            Task {
+                await serverService.cancelProcessing()
+                print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - serverService.cancelProcessing() completed")
+            }
+
+            // Reset state
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - Resetting state flags")
+            isProcessing = false
+            processingProgress = 0.0
+            processedVideoURL = nil
+
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.onDisappear - COMPLETED")
+            print("DEBUG_PROCESSING_BACK: ========================================")
         }
         .fullScreenCover(isPresented: $showingResults) {
             if let processedURL = processedVideoURL {
@@ -539,6 +576,7 @@ struct EnhancementSelectionView: View {
             }
         }
         .onReceive(serverService.progressPublisher) { prog in
+            print("DEBUG_PROCESSING_BACK: EnhancementSelectionView - Progress update received: \(prog)")
             processingProgress = prog
         }
     }
@@ -550,9 +588,30 @@ struct EnhancementSelectionView: View {
     private func getCurrentStatus() -> String { isProcessing ? "Processing Video..." : "" }
     
     private func cancelProcessing() {
-        Task { await serverService.cancelProcessing() }
+        print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.cancelProcessing() - CALLED")
+        print("DEBUG_PROCESSING_BACK: cancelProcessing() - isProcessing=\(isProcessing), processingTask=\(processingTask != nil ? "EXISTS" : "NIL")")
+
+        // Cancel the processing task
+        if let task = processingTask {
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - Cancelling processingTask")
+            task.cancel()
+            processingTask = nil
+        } else {
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - No processingTask to cancel")
+        }
+
+        // Cancel server service operations
+        print("DEBUG_PROCESSING_BACK: cancelProcessing() - Calling serverService.cancelProcessing()")
+        Task {
+            await serverService.cancelProcessing()
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - serverService.cancelProcessing() completed")
+        }
+
+        // Reset state
+        print("DEBUG_PROCESSING_BACK: cancelProcessing() - Resetting state")
         isProcessing = false
         processingProgress = 0.0
+        print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.cancelProcessing() - COMPLETED")
     }
     
     private func retryProcessing() {
@@ -578,8 +637,11 @@ struct EnhancementSelectionView: View {
         
         isProcessing = true
         processingProgress = 0.0
-        
-        Task {
+
+        print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.processVideo() - Creating Task")
+        // Store task reference for cancellation
+        processingTask = Task {
+            print("DEBUG_PROCESSING_BACK: processVideo() - Task STARTED")
             do {
                 let typeId: String
                 switch enhancementType {
@@ -607,20 +669,45 @@ struct EnhancementSelectionView: View {
                     trimStartTime: trimStartTime,
                     trimEndTime: trimEndTime
                 )
+                print("DEBUG_PROCESSING_BACK: processVideo() - Calling serverService.processVideo()")
                 let result = try await serverService.processVideo(at: videoURL, with: request)
+                print("DEBUG_PROCESSING_BACK: processVideo() - serverService.processVideo() returned")
+
+                // Check if task was cancelled before updating UI
+                guard !Task.isCancelled else {
+                    print("DEBUG_PROCESSING_BACK: processVideo() - Task.isCancelled=true, skipping result update")
+                    await MainActor.run {
+                        isProcessing = false
+                    }
+                    return
+                }
+
+                print("DEBUG_PROCESSING_BACK: processVideo() - Task not cancelled, updating UI with result")
                 await MainActor.run {
                     processedVideoURL = result.processedURL
                     isProcessing = false
                     showingResults = true
+                    print("DEBUG_PROCESSING_BACK: processVideo() - UI updated, showingResults=true")
+                }
+            } catch is CancellationError {
+                // Task was cancelled
+                print("DEBUG_PROCESSING_BACK: processVideo() - CancellationError caught")
+                await MainActor.run {
+                    isProcessing = false
+                    print("DEBUG_PROCESSING_BACK: processVideo() - isProcessing set to false after cancellation")
                 }
             } catch {
+                print("DEBUG_PROCESSING_BACK: processVideo() - Error caught: \(error.localizedDescription)")
                 await MainActor.run {
                     processingError = error.localizedDescription
                     showingError = true
                     isProcessing = false
+                    print("DEBUG_PROCESSING_BACK: processVideo() - Error state set")
                 }
             }
+            print("DEBUG_PROCESSING_BACK: processVideo() - Task COMPLETED/EXITED")
         }
+        print("DEBUG_PROCESSING_BACK: EnhancementSelectionView.processVideo() - Task created and stored")
     }
 }
 

@@ -42,8 +42,11 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     }
     
     func cancelProcessing() async {
+        print("DEBUG_PROCESSING_BACK: ========================================")
+        print("DEBUG_PROCESSING_BACK: ServerEnhancementService.cancelProcessing() - CALLED")
+
         // Only attempt to cancel if we're actually processing
-        let (shouldCancel, taskId) = await MainActor.run { () -> (Bool, String) in
+        let (shouldCancel, taskId, timerWasActive) = await MainActor.run { () -> (Bool, String, Bool) in
             let shouldCancel: Bool = {
                 switch self.processingState {
                 case .preparing, .processing:
@@ -53,32 +56,54 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                 }
             }()
             let taskId = self.currentTaskId
+            let timerWasActive = self.pollTimer != nil
 
-            self.pollTimer?.invalidate()
-            self.pollTimer = nil
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - processingState=\(self.processingState)")
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - shouldCancel=\(shouldCancel)")
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - taskId=\(taskId)")
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - pollTimer active=\(timerWasActive)")
+
+            if let timer = self.pollTimer {
+                print("DEBUG_PROCESSING_BACK: cancelProcessing() - Invalidating pollTimer")
+                timer.invalidate()
+                self.pollTimer = nil
+                print("DEBUG_PROCESSING_BACK: cancelProcessing() - pollTimer invalidated and set to nil")
+            } else {
+                print("DEBUG_PROCESSING_BACK: cancelProcessing() - No pollTimer to invalidate")
+            }
+
             self.processingState = .cancelled
             self.progress = 0.0
             self.showAlert = false
 
-            return (shouldCancel, taskId)
+            return (shouldCancel, taskId, timerWasActive)
         }
 
         if shouldCancel && !taskId.isEmpty {
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - Calling server cancelTask endpoint")
             do {
                 try await cancelTask(taskId: taskId)
+                print("DEBUG_PROCESSING_BACK: cancelProcessing() - Server cancelTask succeeded")
                 await MainActor.run {
                     self.currentTaskId = ""
                 }
             } catch {
+                print("DEBUG_PROCESSING_BACK: cancelProcessing() - Server cancelTask failed: \(error.localizedDescription)")
                 // Only show alert if user actively canceled (not during cleanup of completed task)
                 await showErrorAlert(title: "Cancel Failed", message: "Failed to cancel task: \(error.localizedDescription)")
             }
         } else if !taskId.isEmpty {
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - Clearing taskId (shouldCancel=false)")
             // Clear task ID even if not actively processing
             await MainActor.run {
                 self.currentTaskId = ""
             }
+        } else {
+            print("DEBUG_PROCESSING_BACK: cancelProcessing() - No taskId to cancel")
         }
+
+        print("DEBUG_PROCESSING_BACK: ServerEnhancementService.cancelProcessing() - COMPLETED")
+        print("DEBUG_PROCESSING_BACK: ========================================")
     }
     
     func processVideo(at url: URL, with request: EnhancementRequest) async throws -> EnhancementResult {
@@ -315,15 +340,25 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
         }
         
         private func pollUntilComplete(taskId: String) async throws {
+            print("DEBUG_PROCESSING_BACK: ServerEnhancementService.pollUntilComplete() - Starting for taskId=\(taskId)")
             try await withCheckedThrowingContinuation { continuation in
                 DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
+                    guard let self = self else {
+                        print("DEBUG_PROCESSING_BACK: pollUntilComplete() - self is nil, bailing")
+                        return
+                    }
                     self.processingState = .processing(phase: .enhancement)
                     self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
-                    
+
+                    print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Invalidating old pollTimer if exists")
                     self.pollTimer?.invalidate()
+                    print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Creating NEW pollTimer with 2s interval")
                     self.pollTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { timer in
-                        guard let url = URL(string: self.baseURL + "/progress/" + taskId) else { return }
+                        print("DEBUG_PROCESSING_BACK: pollTimer FIRED - Polling progress for taskId=\(taskId)")
+                        guard let url = URL(string: self.baseURL + "/progress/" + taskId) else {
+                            print("DEBUG_PROCESSING_BACK: pollTimer - Invalid URL")
+                            return
+                        }
                         URLSession.shared.dataTask(with: url) { data, response, _ in
                             DispatchQueue.main.async {
                                 guard let data = data,
@@ -333,17 +368,23 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                                 let serverProgress = json["progress"] as? Double ?? 0.0
                                 let scaledProgress = serverProgress * self.enhancementProgressWeight
                                 self.progress = max(scaledProgress, self.progress)
-                                
+
+                                print("DEBUG_PROCESSING_BACK: pollTimer - status=\(status), progress=\(serverProgress)")
+
                                 if status == "completed" {
+                                    print("DEBUG_PROCESSING_BACK: pollTimer - Task COMPLETED, invalidating timer")
                                     timer.invalidate()
                                     self.pollTimer = nil
+                                    print("DEBUG_PROCESSING_BACK: pollTimer - Resuming continuation")
                                     continuation.resume()
                                 } else if status == "failed" {
+                                    print("DEBUG_PROCESSING_BACK: pollTimer - Task FAILED, invalidating timer")
                                     timer.invalidate()
                                     self.pollTimer = nil
                                     let errorMsg = json["error"] as? String ?? "Unknown error"
                                     // Show "Server Busy" alert for all failures, including memory-related errors
                                     self.showErrorAlert(title: "Server Busy", message: "Server busy, please try again after some time")
+                                    print("DEBUG_PROCESSING_BACK: pollTimer - Resuming continuation with error")
                                     continuation.resume(throwing: EnhancementError.processingFailed(errorMsg))
                                 }
                             }
