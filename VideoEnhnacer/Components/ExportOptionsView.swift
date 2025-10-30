@@ -715,15 +715,32 @@ extension ExportOptionsView {
         exportError = nil
         exportProgress = 0.0
         isExportComplete = false
-        
-        // Simulate progress updates
-        let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+
+        // Simulate progress with exponential slowdown + random jitter for realistic feel
+        let progressTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { timer in
             DispatchQueue.main.async {
-                if self.exportProgress < 0.95 {
-                    self.exportProgress = min(self.exportProgress + 0.02, 0.95) // Clamp to 95%
-                } else {
+                guard self.exportProgress < 0.95 else {
                     timer.invalidate()
+                    return
                 }
+
+                // Calculate speed multiplier based on current progress (exponential slowdown)
+                let speedMultiplier: Double
+                switch self.exportProgress {
+                case 0..<0.30:    speedMultiplier = 0.5   // Slower start: 0-30% (~4s)
+                case 0.30..<0.60: speedMultiplier = 0.3   // Medium: 30-60% (~6s)
+                case 0.60..<0.80: speedMultiplier = 0.15  // Slow: 60-80% (~8s)
+                case 0.80..<0.90: speedMultiplier = 0.06  // Very slow: 80-90% (~10s)
+                default:          speedMultiplier = 0.02  // Crawl: 90-95% (~12s)
+                }
+
+                // Add random jitter to increment (±25% variation for organic feel)
+                let baseIncrement = 0.015 * speedMultiplier
+                let jitter = Double.random(in: -0.25...0.25)
+                let increment = baseIncrement * (1.0 + jitter)
+
+                // Update progress with calculated increment, clamped to 95%
+                self.exportProgress = min(self.exportProgress + increment, 0.95)
             }
         }
 
