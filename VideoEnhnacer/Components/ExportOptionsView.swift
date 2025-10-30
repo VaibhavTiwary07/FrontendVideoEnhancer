@@ -15,29 +15,43 @@ struct ExportOptionsView: View {
     let onExport: () -> Void
     let videoURL: URL
     let appliedEnhancement: String?
+    let enhancementTypeId: String?
     let onCompleted: (URL) -> Void
 
-    // Dynamically filter resolution options based on applied enhancement and device capability
+    // Dynamically filter resolution options to cap maximum output at 4K
     private var resolutionOptions: [String] {
         var options = ["original"]
 
-        // If already enhanced to 2K or 4K, cannot upscale further
-        if let enhancement = appliedEnhancement?.uppercased() {
-            if enhancement == "2K" || enhancement == "4K" {
-                // Already upscaled, return only original option
-                return options
+        // Determine base resolution
+        let baseResolution: String
+        if enhancementTypeId == "ai_upscale", let enhancement = appliedEnhancement?.uppercased() {
+            // For AI Upscaler: use the applied enhancement level
+            baseResolution = enhancement
+        } else {
+            // For all other enhancements: use detected video resolution
+            baseResolution = detectedResolution.uppercased()
+        }
+
+        // Calculate available options based on resolution (cap output at 4K)
+        if baseResolution == "4K" {
+            // Already at 4K maximum, no further upscaling allowed
+            return options
+        } else if baseResolution == "2K" {
+            // 2K can be upscaled 2x to reach ~4K (maximum allowed)
+            options.append("2x")
+            return options
+        } else {
+            // 1080p or lower: allow upscaling based on device capability
+            // 1080p × 2x = ~2K, 1080p × 4x = ~4K (maximum)
+            options.append("2x")
+
+            // Only add 4x if device supports 4K processing
+            if DeviceSize.supports4K {
+                options.append("4x")
             }
+
+            return options
         }
-
-        // Add 2x option (always available for 1080p or lower)
-        options.append("2x")
-
-        // Only add 4x if device supports 4K processing
-        if DeviceSize.supports4K {
-            options.append("4x")
-        }
-
-        return options
     }
 
     private let frameRateOptions = ["30fps", "60fps"]
@@ -55,6 +69,8 @@ struct ExportOptionsView: View {
     @State private var savedAlertMessage: String = ""
     // One-shot guard to prevent duplicate Home ad intents during navigation
     @State private var homeAdIntentPosted: Bool = false
+    // Detected video resolution for non-AI-upscaler enhancements
+    @State private var detectedResolution: String = "1080p"
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -107,11 +123,22 @@ struct ExportOptionsView: View {
                         }
                     }
                 }
-            
+
             if showFinalPage {
                 finalPage
             } else {
                 exportOptionsPage
+            }
+        }
+        .onAppear {
+            // Detect video resolution for non-AI-upscaler enhancements
+            Task {
+                detectedResolution = await detectVideoResolution(from: videoURL)
+                print("🎬 Export Options - Enhancement Type: \(enhancementTypeId ?? "none")")
+                print("🎬 Applied Enhancement: \(appliedEnhancement ?? "none")")
+                print("🎬 Detected Resolution: \(detectedResolution)")
+                print("🎬 Available Export Options: \(resolutionOptions)")
+                print("🎬 Device supports 4K: \(DeviceSize.supports4K)")
             }
         }
         .alert("Export Failed", isPresented: $showError) {
@@ -280,7 +307,29 @@ struct ExportOptionsView: View {
             }
         }
     }
-    
+
+    // MARK: - Video Resolution Detection
+    /// Detects the actual resolution of the video file
+    private func detectVideoResolution(from url: URL) async -> String {
+        let asset = AVAsset(url: url)
+
+        guard let track = try? await asset.loadTracks(withMediaType: AVMediaType.video).first else {
+            return "1080p"  // Default fallback
+        }
+
+        let size = track.naturalSize
+        let height = size.height
+
+        // Determine resolution based on video height
+        if height >= 2160 {
+            return "4K"
+        } else if height >= 1440 {
+            return "2K"
+        } else {
+            return "1080p"
+        }
+    }
+
     private func optionButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: {
             let impact = UIImpactFeedbackGenerator(style: .light)

@@ -228,7 +228,8 @@ struct RefactoredEnhancementSelectionView: View {
                 enhancementType: result.enhancementType.title,
                 enhancementIcon: result.enhancementType.icon,
                 gradientType: result.enhancementType.gradientType,
-                appliedEnhancement: result.metadata.appliedEnhancement
+                appliedEnhancement: result.metadata.appliedEnhancement,
+                enhancementTypeId: result.enhancementType.id
             )
         }
     }

@@ -11,6 +11,7 @@ struct VideoResultsView: View {
     let enhancementIcon: String
     let gradientType: GradientType
     let appliedEnhancement: String?
+    let enhancementTypeId: String?
 
     private let onBack: (() -> Void)?
     private let onClose: (() -> Void)?
@@ -22,6 +23,7 @@ struct VideoResultsView: View {
         enhancementIcon: String,
         gradientType: GradientType,
         appliedEnhancement: String? = nil,
+        enhancementTypeId: String? = nil,
         onBack: (() -> Void)? = nil,
         onClose: (() -> Void)? = nil
     ) {
@@ -31,6 +33,7 @@ struct VideoResultsView: View {
         self.enhancementIcon = enhancementIcon
         self.gradientType = gradientType
         self.appliedEnhancement = appliedEnhancement
+        self.enhancementTypeId = enhancementTypeId
         self.onBack = onBack
         self.onClose = onClose
     }
@@ -206,6 +209,7 @@ struct VideoResultsView: View {
                         onExport: { },
                         videoURL: processedVideoURL,
                         appliedEnhancement: appliedEnhancement,
+                        enhancementTypeId: enhancementTypeId,
                         onCompleted: { url in
                             self.exportedVideoURL = url
                         }
