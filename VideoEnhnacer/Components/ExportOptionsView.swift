@@ -71,6 +71,9 @@ struct ExportOptionsView: View {
     @State private var homeAdIntentPosted: Bool = false
     // Detected video resolution for non-AI-upscaler enhancements
     @State private var detectedResolution: String = "1080p"
+    // Files app fallback for incompatible Photos saves
+    @State private var showSaveToFilesAlert: Bool = false
+    @State private var pendingVideoForFiles: URL? = nil
     
     private var estimatedSize: String {
         let baseSize: Double
@@ -150,6 +153,16 @@ struct ExportOptionsView: View {
             Button("OK", role: .cancel) { }
         } message: {
             Text(savedAlertMessage)
+        }
+        .alert("Can't Save to Photos", isPresented: $showSaveToFilesAlert) {
+            Button("Save to Files") {
+                saveToFiles()
+            }
+            Button("Cancel", role: .cancel) {
+                pendingVideoForFiles = nil
+            }
+        } message: {
+            Text("This video resolution is not supported by your device's Photos library. Would you like to save it to Files instead?")
         }
     }
     
@@ -752,6 +765,12 @@ extension ExportOptionsView {
                         if success {
                             self.savedAlertMessage = "Video saved to your Photos."
                             self.showSavedAlert = true
+                        } else if let nsError = error as NSError?,
+                                  nsError.domain == "PHPhotosErrorDomain",
+                                  nsError.code == 3302 {
+                            // Error 3302: Incompatible resource - offer Files fallback
+                            self.pendingVideoForFiles = exportedVideoURL
+                            self.showSaveToFilesAlert = true
                         } else {
                             self.exportError = error?.localizedDescription ?? "Failed to save to Photos."
                             self.showError = true
@@ -766,7 +785,39 @@ extension ExportOptionsView {
             }
         }
     }
-    
+
+    private func saveToFiles() {
+        guard let videoURL = pendingVideoForFiles else { return }
+
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+
+        // Create document picker for exporting the video file
+        let picker = UIDocumentPickerViewController(
+            forExporting: [videoURL],
+            asCopy: true
+        )
+        picker.allowsMultipleSelection = false
+        picker.shouldShowFileExtensions = true
+
+        // Find the top-most view controller to present from
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootVC = window.rootViewController {
+
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
+            }
+
+            // Present Files picker directly
+            topVC.present(picker, animated: true) {
+                // Clear pending video after presenting picker
+                self.pendingVideoForFiles = nil
+            }
+        }
+    }
+
     private func shareVideo() {
         guard let exportedVideoURL = exportedVideoURL else {
             print("DEBUG: No exported video URL available for sharing")

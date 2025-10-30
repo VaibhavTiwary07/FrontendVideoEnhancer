@@ -21,6 +21,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
     private let baseURL = AppConfig.baseURL
     private let videoProcessingService: VideoProcessingProtocol
     private var pollTimer: Timer?
+    private var hasPollCompleted: Bool = false  // Track if continuation has been resumed
     private let enhancementRegistry: EnhancementTypeRegistry
     private let enhancementProgressWeight: Double = 0.8
     private let downloadProgressWeight: Double = 0.2
@@ -351,6 +352,8 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                     self.processingState = .processing(phase: .enhancement)
                     self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
 
+                    print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Resetting hasPollCompleted flag")
+                    self.hasPollCompleted = false
                     print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Invalidating old pollTimer if exists")
                     self.pollTimer?.invalidate()
                     print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Creating NEW pollTimer with 2s interval")
@@ -362,10 +365,16 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                         }
                         URLSession.shared.dataTask(with: url) { data, response, _ in
                             DispatchQueue.main.async {
+                                // Check if continuation was already resumed
+                                guard !self.hasPollCompleted else {
+                                    print("DEBUG_PROCESSING_BACK: pollTimer - Continuation already resumed, skipping")
+                                    return
+                                }
+
                                 guard let data = data,
                                       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                                       let status = json["status"] as? String else { return }
-                                
+
                                 let serverProgress = json["progress"] as? Double ?? 0.0
                                 let scaledProgress = serverProgress * self.enhancementProgressWeight
                                 self.progress = max(scaledProgress, self.progress)
@@ -374,12 +383,14 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
 
                                 if status == "completed" {
                                     print("DEBUG_PROCESSING_BACK: pollTimer - Task COMPLETED, invalidating timer")
+                                    self.hasPollCompleted = true
                                     timer.invalidate()
                                     self.pollTimer = nil
                                     print("DEBUG_PROCESSING_BACK: pollTimer - Resuming continuation")
                                     continuation.resume()
                                 } else if status == "failed" {
                                     print("DEBUG_PROCESSING_BACK: pollTimer - Task FAILED, invalidating timer")
+                                    self.hasPollCompleted = true
                                     timer.invalidate()
                                     self.pollTimer = nil
                                     let errorMsg = json["error"] as? String ?? "Unknown error"
