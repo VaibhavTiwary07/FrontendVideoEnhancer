@@ -281,38 +281,47 @@ struct VideoComparisonSlider: View {
             }
         }
         .onAppear {
-            print("🎯 VideoComparisonSlider onAppear")
-            print("🎯 normalVideoName: \(String(describing: normalVideoName))")
-            print("🎯 enhancedVideoName: \(String(describing: enhancedVideoName))")
-            print("🎯 originalURL: \(String(describing: originalURL))")
-            print("🎯 enhancedURL: \(String(describing: enhancedURL))")
-            print("🎯 videoKey: \(videoKey)")
-            print("🎯 Current player state: \(playerState)")
-            if let originalURL = originalURL { print("🎯 originalURL exists? \(FileManager.default.fileExists(atPath: originalURL.path)) path=\(originalURL.path)") }
-            if let enhancedURL = enhancedURL { print("🎯 enhancedURL exists? \(FileManager.default.fileExists(atPath: enhancedURL.path)) path=\(enhancedURL.path)") }
+            print("DEBUG_COMPARE: VideoComparisonSlider onAppear")
+            print("DEBUG_COMPARE: normalVideoName: \(String(describing: normalVideoName))")
+            print("DEBUG_COMPARE: enhancedVideoName: \(String(describing: enhancedVideoName))")
+            print("DEBUG_COMPARE: originalURL: \(String(describing: originalURL))")
+            print("DEBUG_COMPARE: enhancedURL: \(String(describing: enhancedURL))")
+            print("DEBUG_COMPARE: videoKey: \(videoKey)")
+            print("DEBUG_COMPARE: Current player state: \(playerState)")
+            if let originalURL = originalURL { print("DEBUG_COMPARE: originalURL exists? \(FileManager.default.fileExists(atPath: originalURL.path)) path=\(originalURL.path)") }
+            if let enhancedURL = enhancedURL { print("DEBUG_COMPARE: enhancedURL exists? \(FileManager.default.fileExists(atPath: enhancedURL.path)) path=\(enhancedURL.path)") }
             let hasNormal = videoPlayerManager.getNormalPlayer(forKey: videoKey) != nil
             let hasEnhanced = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) != nil
-            print("🎯 Pre-setup players exists? normal=\(hasNormal) enhanced=\(hasEnhanced)")
-            
+            print("DEBUG_COMPARE: Pre-setup players exists? normal=\(hasNormal) enhanced=\(hasEnhanced)")
+
+            if hasNormal, let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+                let normalTime = CMTimeGetSeconds(normalPlayer.currentTime())
+                print("DEBUG_COMPARE: Normal player current time: \(String(format: "%.3f", normalTime))s")
+            }
+            if hasEnhanced, let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
+                let enhancedTime = CMTimeGetSeconds(enhancedPlayer.currentTime())
+                print("DEBUG_COMPARE: Enhanced player current time: \(String(format: "%.3f", enhancedTime))s")
+            }
+
             isViewVisible = true
-            
+
             // Setup video players if not already done
             if let originalURL = originalURL, let enhancedURL = enhancedURL {
-                print("🎯 Setting up URL-based players")
+                print("DEBUG_COMPARE: Setting up URL-based players")
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, originalURL: originalURL, processedURL: enhancedURL)
             } else if let normalVideoName = normalVideoName, let enhancedVideoName = enhancedVideoName {
-                print("🎯 Setting up asset-based players")
+                print("DEBUG_COMPARE: Setting up asset-based players")
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
             } else {
-                print("🎯 ⚠️ No valid video sources provided!")
+                print("DEBUG_COMPARE: ⚠️ No valid video sources provided!")
             }
-            
+
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
             videoPlayerManager.debugStatus(forKey: videoKey, context: "onAppear after setViewActive")
 
             // If players are already ready, start playing immediately
             if playerState == .ready || playerState == .paused {
-                print("🎯 Players already ready on appear - auto-playing")
+                print("DEBUG_COMPARE: Players already ready on appear - auto-playing")
                 videoPlayerManager.resumePlayers(forKey: videoKey)
             }
 
@@ -320,7 +329,7 @@ struct VideoComparisonSlider: View {
         }
         // Re-activate after tab switches to ensure visibility of video and slider
         .onReceive(NotificationCenter.default.publisher(for: .homeTabBecameActive)) { _ in
-            print("🎯 VideoComparisonSlider received homeTabBecameActive for key: \(videoKey)")
+            print("DEBUG_COMPARE: VideoComparisonSlider received homeTabBecameActive for key: \(videoKey)")
             isViewVisible = true
             if let originalURL = originalURL, let enhancedURL = enhancedURL {
                 videoPlayerManager.setupVideoPlayers(forKey: videoKey, originalURL: originalURL, processedURL: enhancedURL)
@@ -331,12 +340,12 @@ struct VideoComparisonSlider: View {
 
             // Auto-play after tab switch if players are ready
             if playerState == .ready || playerState == .paused {
-                print("🎯 Auto-playing after tab switch")
+                print("DEBUG_COMPARE: Auto-playing after tab switch")
                 videoPlayerManager.resumePlayers(forKey: videoKey)
             }
         }
         .onDisappear {
-            print("🎯 VideoComparisonSlider onDisappear for key: \(videoKey)")
+            print("DEBUG_COMPARE: VideoComparisonSlider onDisappear for key: \(videoKey)")
             isViewVisible = false
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
             stopAutoSlide()
@@ -345,14 +354,23 @@ struct VideoComparisonSlider: View {
         }
         // iOS 15-compatible onChange signature
         .onChange(of: playerState) { state in
-            print("🎯 Player state changed for key '\(videoKey)': \(state)")
+            print("DEBUG_COMPARE: Player state changed for key '\(videoKey)': \(state)")
+
+            // Log player times when state changes
+            if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey),
+               let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
+                let normalTime = CMTimeGetSeconds(normalPlayer.currentTime())
+                let enhancedTime = CMTimeGetSeconds(enhancedPlayer.currentTime())
+                print("DEBUG_COMPARE: State change - normalTime=\(String(format: "%.3f", normalTime))s enhancedTime=\(String(format: "%.3f", enhancedTime))s")
+            }
+
             // Re-activate players when they become ready
             if state == .ready && isViewVisible {
-                print("🎯 Re-activating players after state change")
+                print("DEBUG_COMPARE: Re-activating players after state change")
                 videoPlayerManager.setViewActive(forKey: videoKey, isActive: true)
 
                 // AUTO-PLAY: Comparison mode needs videos to play immediately
-                print("🎯 Auto-playing comparison videos")
+                print("DEBUG_COMPARE: Auto-playing comparison videos")
                 videoPlayerManager.resumePlayers(forKey: videoKey)
 
                 videoPlayerManager.debugStatus(forKey: videoKey, context: "onChange -> ready, after setViewActive and play")

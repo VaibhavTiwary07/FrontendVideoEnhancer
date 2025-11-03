@@ -249,8 +249,8 @@ struct HomeView: View {
         if let stabOrig = Bundle.main.url(forResource: "StabilizationBefore", withExtension: "mp4"),
            let stabProc = Bundle.main.url(forResource: "StabilizationAfter", withExtension: "mp4") {
             let key = "Stabilizer"
-            print("🔄 Setting up players for \(key) from bundle URLs")
-            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc)
+            print("🔄 Setting up players for \(key) from bundle URLs with forceReload=true")
+            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: stabOrig, processedURL: stabProc, forceReload: true)
             videoPlayerManager.setViewActive(forKey: key, isActive: true)
             videoPlayerManager.debugStatus(forKey: key, context: context)
         }
@@ -259,8 +259,8 @@ struct HomeView: View {
         if let interpOrig = Bundle.main.url(forResource: "interpolation_Before", withExtension: "mp4"),
            let interpProc = Bundle.main.url(forResource: "interpolation_After", withExtension: "mp4") {
             let key = "Frame Interpolation"
-            print("🔄 Setting up players for \(key) from bundle URLs")
-            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: interpOrig, processedURL: interpProc)
+            print("🔄 Setting up players for \(key) from bundle URLs with forceReload=true")
+            videoPlayerManager.setupVideoPlayers(forKey: key, originalURL: interpOrig, processedURL: interpProc, forceReload: true)
             videoPlayerManager.setViewActive(forKey: key, isActive: true)
             videoPlayerManager.debugStatus(forKey: key, context: context)
         }

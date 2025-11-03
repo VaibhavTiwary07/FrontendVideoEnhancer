@@ -4,7 +4,8 @@ import AVFoundation
 class VideoPlayerManager: ObservableObject {
     private var playerPairs: [String: (normal: AVPlayer, enhanced: AVPlayer)] = [:]
     private var loopObservers: [String: [NSObjectProtocol]] = [:]
-    private var timeSyncObservers: [String: Any] = [:]
+    // Store both token and player reference to ensure cleanup removes from correct player instance
+    private var timeSyncObservers: [String: (token: Any, player: AVPlayer)] = [:]
     private var loadedKeys: Set<String> = []
     private var loadingKeys: Set<String> = []
     private var activeViewKeys: Set<String> = []
@@ -80,14 +81,20 @@ class VideoPlayerManager: ObservableObject {
     }
 
     // New: Setup players from file URLs (for server-processed results)
-    func setupVideoPlayers(forKey key: String, originalURL: URL, processedURL: URL) {
-        print("🎬 VideoPlayerManager: Setting up video players for key '\(key)'")
+    func setupVideoPlayers(forKey key: String, originalURL: URL, processedURL: URL, forceReload: Bool = false) {
+        print("🎬 VideoPlayerManager: Setting up video players for key '\(key)' (forceReload: \(forceReload))")
         print("🎬 Original URL: \(originalURL)")
         print("🎬 Processed URL: \(processedURL)")
-        
-        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else { 
+
+        // If forceReload is true, cleanup existing players first
+        if forceReload && (loadedKeys.contains(key) || loadingKeys.contains(key)) {
+            print("🎬 Force reload requested - cleaning up existing players for key '\(key)'")
+            cleanupPlayersForKey(key)
+        }
+
+        guard !loadedKeys.contains(key) && !loadingKeys.contains(key) else {
             print("🎬 Players already loaded/loading for key '\(key)'")
-            return 
+            return
         }
         
         loadingKeys.insert(key)
@@ -235,51 +242,70 @@ class VideoPlayerManager: ObservableObject {
     
     private func syncPlayers(forKey key: String) {
         guard let playerPair = playerPairs[key] else { return }
-        
+
+        print("DEBUG_COMPARE: syncPlayers() called for key '\(key)'")
+
         // Clean up existing observers for this key
         cleanupObservers(forKey: key)
         cleanupTimeObserver(forKey: key)
         
         var observers: [NSObjectProtocol] = []
-        
-        // Loop normal video
+
+        // Leader-Follower Loop Pattern: Only normal (leader) player controls looping for BOTH players
+        // This prevents desynchronization caused by videos having slightly different durations
         let normalObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime,
             object: playerPair.normal.currentItem,
             queue: .main
-        ) { _ in
+        ) { [weak self] _ in
+            let normalTime = CMTimeGetSeconds(playerPair.normal.currentTime())
+            let enhancedTime = CMTimeGetSeconds(playerPair.enhanced.currentTime())
+            print("DEBUG_COMPARE: Normal video (leader) reached end - normalTime=\(normalTime)s enhancedTime=\(enhancedTime)s")
+            print("DEBUG_COMPARE: Looping BOTH players to zero (leader-follower pattern)")
+
+            // Loop both players simultaneously to maintain sync
             playerPair.normal.seek(to: .zero)
-            // REMOVED AUTO-PLAY after loop: Let UI controls handle playback
-            // playerPair.normal.play()
+            playerPair.enhanced.seek(to: .zero)
+
+            // Resume playback immediately for continuous looping in comparison mode
+            // This ensures both players resume in sync (AVPlayer doesn't auto-resume after seek)
+            playerPair.normal.play()
+            playerPair.enhanced.play()
+
+            print("DEBUG_COMPARE: Resumed playback after loop - both players playing")
         }
         observers.append(normalObserver)
 
-        // Loop enhanced video
-        let enhancedObserver = NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: playerPair.enhanced.currentItem,
-            queue: .main
-        ) { _ in
-            playerPair.enhanced.seek(to: .zero)
-            // REMOVED AUTO-PLAY after loop: Let UI controls handle playback
-            // playerPair.enhanced.play()
-        }
-        observers.append(enhancedObserver)
-        
+        // Enhanced (follower) player does NOT have its own loop observer
+        // The leader controls looping for both to prevent desynchronization
+
         loopObservers[key] = observers
 
         // Periodically sync enhanced player's time to normal player's time
         let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
+        print("DEBUG_COMPARE: Setting up time sync observer for key '\(key)' - checking every 0.1s, threshold=0.15s")
         let token = playerPair.normal.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             guard let self = self else { return }
             let enhancedTime = playerPair.enhanced.currentTime()
-            let diff = abs(CMTimeGetSeconds(enhancedTime) - CMTimeGetSeconds(time))
+            let normalTimeSeconds = CMTimeGetSeconds(time)
+            let enhancedTimeSeconds = CMTimeGetSeconds(enhancedTime)
+            let diff = abs(enhancedTimeSeconds - normalTimeSeconds)
+
+            // Log time sync check (sample every 10th check to reduce console spam - roughly every 1 second)
+            let shouldLogThisCheck = Int(normalTimeSeconds * 10) % 10 == 0
+            if shouldLogThisCheck {
+                print("DEBUG_COMPARE: Time sync check - normalTime=\(String(format: "%.3f", normalTimeSeconds))s enhancedTime=\(String(format: "%.3f", enhancedTimeSeconds))s diff=\(String(format: "%.3f", diff))s")
+            }
+
             // Relaxed threshold from 0.05 to 0.15 seconds to reduce stuttering
             if diff > 0.15 {
+                print("DEBUG_COMPARE: ⚠️ DRIFT DETECTED - diff=\(String(format: "%.3f", diff))s exceeds threshold (0.15s) - seeking enhanced player from \(String(format: "%.3f", enhancedTimeSeconds))s to \(String(format: "%.3f", normalTimeSeconds))s")
                 playerPair.enhanced.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
             }
         }
-        timeSyncObservers[key] = token
+        // Store both token AND player reference to prevent "different instance" crash during cleanup
+        timeSyncObservers[key] = (token: token, player: playerPair.normal)
+        print("DEBUG_COMPARE: Time sync observer registered for key '\(key)'")
     }
     
     private func cleanupObservers(forKey key: String) {
@@ -292,11 +318,13 @@ class VideoPlayerManager: ObservableObject {
     }
 
     private func cleanupTimeObserver(forKey key: String) {
-        if let token = timeSyncObservers[key] {
-            if let pair = playerPairs[key] {
-                pair.normal.removeTimeObserver(token)
-            }
+        if let observerData = timeSyncObservers[key] {
+            print("DEBUG_COMPARE: Cleaning up time observer for key '\(key)'")
+            // Remove observer from the STORED player reference (not current playerPairs)
+            // This prevents "different instance" crash when players are recreated
+            observerData.player.removeTimeObserver(observerData.token)
             timeSyncObservers.removeValue(forKey: key)
+            print("DEBUG_COMPARE: Time observer removed successfully for key '\(key)'")
         }
     }
     
@@ -348,8 +376,17 @@ class VideoPlayerManager: ObservableObject {
     }
     
     func pausePlayers(forKey key: String) {
-        playerPairs[key]?.normal.pause()
-        playerPairs[key]?.enhanced.pause()
+        if let playerPair = playerPairs[key] {
+            let normalTime = CMTimeGetSeconds(playerPair.normal.currentTime())
+            let enhancedTime = CMTimeGetSeconds(playerPair.enhanced.currentTime())
+
+            print("DEBUG_COMPARE: pausePlayers() called for key '\(key)'")
+            print("DEBUG_COMPARE: Pausing at - normalTime=\(String(format: "%.3f", normalTime))s enhancedTime=\(String(format: "%.3f", enhancedTime))s")
+
+            playerPair.normal.pause()
+            playerPair.enhanced.pause()
+        }
+
         if playerStates[key] == .ready {
             playerStates[key] = .paused
         }
@@ -357,8 +394,23 @@ class VideoPlayerManager: ObservableObject {
     
     func resumePlayers(forKey key: String) {
         guard playerStates[key] == .ready || playerStates[key] == .paused else { return }
-        playerPairs[key]?.normal.play()
-        playerPairs[key]?.enhanced.play()
+
+        if let playerPair = playerPairs[key] {
+            let normalTime = CMTimeGetSeconds(playerPair.normal.currentTime())
+            let enhancedTime = CMTimeGetSeconds(playerPair.enhanced.currentTime())
+            let normalRate = playerPair.normal.rate
+            let enhancedRate = playerPair.enhanced.rate
+
+            print("DEBUG_COMPARE: resumePlayers() called for key '\(key)'")
+            print("DEBUG_COMPARE: Before resume - normalTime=\(String(format: "%.3f", normalTime))s normalRate=\(normalRate)")
+            print("DEBUG_COMPARE: Before resume - enhancedTime=\(String(format: "%.3f", enhancedTime))s enhancedRate=\(enhancedRate)")
+
+            playerPair.normal.play()
+            playerPair.enhanced.play()
+
+            print("DEBUG_COMPARE: After resume - both players .play() called")
+        }
+
         playerStates[key] = .ready
     }
     

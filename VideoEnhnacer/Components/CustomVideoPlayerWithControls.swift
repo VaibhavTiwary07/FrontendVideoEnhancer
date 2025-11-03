@@ -197,6 +197,7 @@ struct CustomVideoPlayerWithControls: View {
 
     // MARK: - Computed Properties
 
+    
     private var progress: Double {
         if let start = trimStart, let end = trimEnd {
             let trimDuration = end - start
