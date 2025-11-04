@@ -1,6 +1,7 @@
 import GoogleMobileAds
 import UIKit
 import FirebaseAnalytics
+import Combine
 
 enum AdType: String, CaseIterable {
     case launch
@@ -20,7 +21,10 @@ final class AdsManager: NSObject {
     var suppressNonResumeAdPresentations: Bool = false
     private var pendingPresentationQueue: [AdType] = []
     private var isLoading: [AdType: Bool] = [:]
-    
+
+    // Track if resume ad is loaded and ready to present
+    @Published var isResumeAdReady: Bool = false
+
     // ✅ New state protection variables
     private var isProcessingQueue = false
     private var activeRetryTimers: [AdType: Bool] = [:]
@@ -126,6 +130,13 @@ final class AdsManager: NSObject {
             
             if let error = error {
                 print("ad diagnose: load failed \(adType.rawValue): \(error.localizedDescription)")
+
+                // Mark resume ad as not ready on load failure
+                if adType == .resumeButtonClick {
+                    self.isResumeAdReady = false
+                    print("DEBUG_RESUME: Resume ad failed to load, marked as not ready")
+                }
+
                 self.delegate?.adDidFailToLoad(for: adType, error: error)
                 return
             }
@@ -133,6 +144,13 @@ final class AdsManager: NSObject {
             self.interstitials[adType] = ad
             ad?.fullScreenContentDelegate = self
             print("ad diagnose: loaded adType=\(adType.rawValue)")
+
+            // Mark resume ad as ready when loaded
+            if adType == .resumeButtonClick {
+                self.isResumeAdReady = true
+                print("DEBUG_RESUME: Resume ad loaded and ready to present")
+            }
+
             self.delegate?.adDidLoad(for: adType)
         }
     }
@@ -371,6 +389,12 @@ extension AdsManager: FullScreenContentDelegate {
         // Post notification for observers (e.g., ForegroundResumeController)
         NotificationCenter.default.post(name: .adsManagerDidDismissAd, object: adType)
 
+        // Mark resume ad as not ready after dismissal (needs reload)
+        if adType == .resumeButtonClick {
+            isResumeAdReady = false
+            print("DEBUG_RESUME: Resume ad dismissed, marked as not ready")
+        }
+
         interstitials.removeValue(forKey: adType)
         isLoading[adType] = false
         retryAttempts[adType] = 0
@@ -393,6 +417,12 @@ extension AdsManager: FullScreenContentDelegate {
 
         // Post notification for observers (e.g., ForegroundResumeController)
         NotificationCenter.default.post(name: .adsManagerDidFailToPresent, object: adType)
+
+        // Mark resume ad as not ready on presentation failure
+        if adType == .resumeButtonClick {
+            isResumeAdReady = false
+            print("DEBUG_RESUME: Resume ad failed to present, marked as not ready")
+        }
 
         interstitials.removeValue(forKey: adType)
         isLoading[adType] = false

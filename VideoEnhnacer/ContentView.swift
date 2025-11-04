@@ -243,7 +243,7 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
         }
         
         let parameters = RequestParameters()
-        #if DEBUG
+//        #if DEBUG
         let debugSettings = DebugSettings()
         if let deviceIdentifier = UIDevice.current.identifierForVendor?.uuidString {
             debugSettings.testDeviceIdentifiers = [deviceIdentifier]
@@ -251,7 +251,7 @@ struct ContentView: View, AdsManager.AdsManagerDelegate {
             print("🌍 Debug: Forcing EEA geography, Test Device ID: \(deviceIdentifier)")
         }
         parameters.debugSettings = debugSettings
-        #endif
+//        #endif
         parameters.isTaggedForUnderAgeOfConsent = false
         
         do {

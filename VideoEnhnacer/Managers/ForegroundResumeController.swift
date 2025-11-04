@@ -1,9 +1,10 @@
 import SwiftUI
 import UIKit
+import Combine
 
 final class ForegroundResumeController: ObservableObject {
     @Published var showResumeBanner: Bool = false
-    
+
     // Cold start + resume gating
     @Published private(set) var coldStart: Bool = true
     private var hasEverEnteredBackground: Bool = false
@@ -22,6 +23,10 @@ final class ForegroundResumeController: ObservableObject {
     private var overlayWindow: UIWindow?
     private var overlayHost: UIViewController?
 
+    // Combine cancellable for observing ad ready state
+    private var adReadyCancellable: AnyCancellable?
+    private var isPendingResumeOverlay: Bool = false
+
     deinit {
         cleanupAdObservers()
     }
@@ -37,27 +42,55 @@ final class ForegroundResumeController: ObservableObject {
         // Reset state
         showResumeBanner = false
         hideOverlayWindow()
-        print("ad diagnose: entered background; reset resume guards")
+        print("DEBUG_RESUME: entered background; reset resume guards")
         hasEverEnteredBackground = true
+
         // Reset ad state
         isResumeAdInProgress = false
+        isPendingResumeOverlay = false
+        adReadyCancellable?.cancel()
         cleanupAdObservers()
     }
 
     @MainActor func onEnterForeground() {
         // Notify observers
         NotificationCenter.default.post(name: .appReturnedToForeground, object: nil)
+
         // If cold start or we have not been backgrounded yet, do not show resume overlay
         guard !coldStart && hasEverEnteredBackground else {
-            print("ad diagnose: foreground on cold start or no background yet; skipping resume overlay")
+            print("DEBUG_RESUME: foreground on cold start or no background yet; skipping resume overlay")
             return
         }
-        // Show resume overlay and prepare resume ad
-        showResumeBanner = true
-        showOverlayWindow()
+
         AdsManager.shared.suppressNonResumeAdPresentations = true
-        AdsManager.shared.loadInterstitialAd(for: .resumeButtonClick)
-        print("ad diagnose: foreground; showing resume overlay")
+
+        // Check if resume ad is already loaded and ready
+        if AdsManager.shared.isResumeAdReady {
+            print("DEBUG_RESUME: Resume ad already ready, showing overlay immediately")
+            showResumeBanner = true
+            showOverlayWindow()
+        } else {
+            print("DEBUG_RESUME: Resume ad not ready, waiting for it to load...")
+            isPendingResumeOverlay = true
+
+            // Load the ad if not already loading
+            AdsManager.shared.loadInterstitialAd(for: .resumeButtonClick)
+
+            // Observe ad ready state - show overlay when ready
+            adReadyCancellable = AdsManager.shared.$isResumeAdReady
+                .sink { [weak self] isReady in
+                    guard let self = self else { return }
+                    if isReady && self.isPendingResumeOverlay {
+                        print("DEBUG_RESUME: Resume ad became ready, showing overlay now")
+                        Task { @MainActor in
+                            self.showResumeBanner = true
+                            self.showOverlayWindow()
+                            self.isPendingResumeOverlay = false
+                            self.adReadyCancellable?.cancel()
+                        }
+                    }
+                }
+        }
     }
 
     @MainActor func handleResumeTapped(videoPlayerManager: VideoPlayerManager) {
@@ -74,14 +107,21 @@ final class ForegroundResumeController: ObservableObject {
 
         // If subscribed, skip ad and resume immediately
         if SubscriptionManager.shared.isAppSubscribed() {
-            print("ad diagnose: user subscribed, skipping ad")
+            print("DEBUG_RESUME: user subscribed, skipping ad")
+            resumeAll(videoPlayerManager: videoPlayerManager)
+            return
+        }
+
+        // Safety check: Ensure ad is actually ready before trying to present
+        guard AdsManager.shared.isResumeAdReady else {
+            print("DEBUG_RESUME: ⚠️ Ad not ready when resume button tapped! Resuming without ad.")
             resumeAll(videoPlayerManager: videoPlayerManager)
             return
         }
 
         // MARK AD IN PROGRESS
         isResumeAdInProgress = true
-        print("ad diagnose: proceeding with resume ad presentation")
+        print("DEBUG_RESUME: proceeding with resume ad presentation")
 
         // Start safety timer (30s timeout)
         startAdSafetyTimer(videoPlayerManager: videoPlayerManager)
