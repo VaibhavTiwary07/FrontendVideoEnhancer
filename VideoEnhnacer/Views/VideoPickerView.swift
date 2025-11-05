@@ -295,29 +295,14 @@ struct VideoPickerView: View {
             Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
         }
         .fullScreenCover(isPresented: $navigateToTrimming) {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    if let videoURL = selectedVideoURL {
-                        VideoTrimmingView(
-                            videoURL: videoURL,
-                            enhancementType: enhancementType,
-                            enhancementIcon: enhancementIcon,
-                            gradientType: gradientType
-                        )
-                    }
-                }
-            } else {
-                NavigationView {
-                    if let videoURL = selectedVideoURL {
-                        VideoTrimmingView(
-                            videoURL: videoURL,
-                            enhancementType: enhancementType,
-                            enhancementIcon: enhancementIcon,
-                            gradientType: gradientType
-                        )
-                    }
-                }
-                .navigationViewStyle(StackNavigationViewStyle())
+            if let videoURL = selectedVideoURL {
+                let resolvedEnhancementType = getEnhancementType()
+                RefactoredVideoTrimmingView(
+                    videoURL: videoURL,
+                    enhancementType: resolvedEnhancementType,
+                    onBack: { navigateToTrimming = false },
+                    onClose: { navigateToTrimming = false }
+                )
             }
         }
     }
@@ -334,6 +319,40 @@ struct VideoPickerView: View {
             } catch {
                 print("Error loading original video: \(error)")
             }
+        }
+    }
+
+    // MARK: - Enhancement Type Resolution
+    private func getEnhancementType() -> EnhancementType {
+        let id = mapEnhancementTypeToId(enhancementType)
+        let registry = EnhancementTypeRegistry.shared
+
+        // Try to get from registry
+        if let found = registry.getEnhancementType(withId: id) {
+            return found
+        }
+
+        // Fallback: construct minimal type if registry unavailable
+        return EnhancementType(
+            id: id,
+            name: enhancementType,
+            description: "Video enhancement",
+            icon: enhancementIcon,
+            options: [],
+            gradientType: gradientType
+        )
+    }
+
+    private func mapEnhancementTypeToId(_ title: String) -> String {
+        switch title {
+        case "AI Upscale": return "ai_upscale"
+        case "Face & Object Enhancer": return "face_enhancer"
+        case "AI Denoise": return "ai_denoise"
+        case "AI Color": return "ai_color"
+        case "AI Auto Enhancement": return "ai_auto_enhancement"
+        case "Stabilizer": return "stabilizer"
+        case "Frame Interpolation": return "frame_interpolation"
+        default: return title.lowercased().replacingOccurrences(of: " ", with: "_")
         }
     }
 }

@@ -19,7 +19,8 @@ struct RefactoredVideoTrimmingView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.diContainer) private var container
     @StateObject private var viewModel: VideoTrimmingViewModel
-    
+    @StateObject private var loadingState: LoadingStateObserver
+
     // MARK: - State
     @State private var navigateToEnhancement = false
     @State private var isShowingPaywall = false
@@ -36,64 +37,68 @@ struct RefactoredVideoTrimmingView: View {
         onClose: (() -> Void)? = nil,
         onContinue: ((URL, Double, Double) -> Void)? = nil
     ) {
-        print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.init() - URL: \(videoURL.lastPathComponent), Type: \(enhancementType.name)")
         self.onBack = onBack
         self.onClose = onClose
         self.onContinue = onContinue
         let container = DIContainer.shared
-        print("🐞 WHITE_SCREEN_DEBUG: Creating VideoTrimmingViewModel via DIContainer")
         let trimmingViewModel = container.makeVideoTrimmingViewModel(
             videoURL: videoURL,
             enhancementType: enhancementType
         )
-        
-        // Initialize ViewModels with proper state management
-        print("🐞 WHITE_SCREEN_DEBUG: Initializing ViewModels with proper state coordination")
-        
+
         self._viewModel = StateObject(wrappedValue: trimmingViewModel)
-        print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.init() completed")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.isLoadingVideo: \(trimmingViewModel.isLoadingVideo)")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.playerViewModel.isLoading: \(trimmingViewModel.playerViewModel.isLoading)")
+        self._loadingState = StateObject(wrappedValue: LoadingStateObserver(viewModel: trimmingViewModel))
+
+        // Device tracking log
+        let deviceName = UIDevice.current.name
+        let osVersion = UIDevice.current.systemVersion
+        let model = UIDevice.current.model
+        TrimmingDiagnostics.log("📱 [RefactoredVideoTrimmingView] Initialized on device: \(model) (\(deviceName)), iOS \(osVersion)")
     }
-    
+
+    @ViewBuilder
+    private func buildErrorOrContent() -> some View {
+        if let error = viewModel.error {
+            VideoErrorView(error: error) {
+                viewModel.retryLoading()
+            }
+        } else if let playerError = viewModel.playerViewModel.error {
+            VideoErrorView(error: VideoProcessingError.processingFailed(playerError.localizedDescription)) {
+                viewModel.retryLoading()
+            }
+        } else {
+            contentView
+        }
+    }
+
     // MARK: - Body
     var body: some View {
-        print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.body - Rendering body")
-        print("🐞 WHITE_SCREEN_DEBUG: Current states:")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.isLoadingVideo: \(viewModel.isLoadingVideo)")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.playerViewModel.isLoading: \(viewModel.playerViewModel.isLoading)")
-        print("🐞 WHITE_SCREEN_DEBUG: - hasStartedLoading: \(hasStartedLoading)")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.error: \(String(describing: viewModel.error))")
-        print("🐞 WHITE_SCREEN_DEBUG: - viewModel.playerViewModel.error: \(String(describing: viewModel.playerViewModel.error))")
-        
-        let shouldShowLoading = viewModel.isLoadingVideo || viewModel.playerViewModel.isLoading
-        print("🐞 WHITE_SCREEN_DEBUG: shouldShowLoading = \(shouldShowLoading) (isLoadingVideo: \(viewModel.isLoadingVideo), player.isLoading: \(viewModel.playerViewModel.isLoading))")
-        
-        return Group {
-            if shouldShowLoading {
-//                print("🐞 WHITE_SCREEN_DEBUG: Showing VideoLoadingView")
+        // Use LoadingContainerView with Binding to prevent unnecessary re-renders
+        // The container only observes the boolean loading state, not other ViewModel properties
+        let isLoadingBinding = Binding(
+            get: { loadingState.isLoading },
+            set: { _ in }  // read-only binding
+        )
+
+        return LoadingContainerView(
+            isLoading: isLoadingBinding,
+            loadingView: {
                 VideoLoadingView()
-            } else if let error = viewModel.error {
-//                print("🐞 WHITE_SCREEN_DEBUG: Showing VideoErrorView for viewModel.error: \(error)")
-                VideoErrorView(error: error) {
-                    viewModel.retryLoading()
-                }
-            } else if let playerError = viewModel.playerViewModel.error {
-//                print("🐞 WHITE_SCREEN_DEBUG: Showing VideoErrorView for playerViewModel.error: \(playerError)")
-                VideoErrorView(error: VideoProcessingError.processingFailed(playerError.localizedDescription)) {
-                    viewModel.retryLoading()
-                }
-            } else {
-//                print("🐞 WHITE_SCREEN_DEBUG: Showing contentView")
-               
-                contentView
+            },
+            contentView: {
+                buildErrorOrContent()
+                    .task {
+                        // Minimum display time to prevent flashing on small devices
+                        let delay: UInt64 = DeviceSize.isSmallPhone ? 500_000_000 : 300_000_000
+                        try? await Task.sleep(nanoseconds: delay)
+                    }
             }
-        }
+        )
         .background(
             Color.primarySoft
                 .ignoresSafeArea()
-                .transaction { $0.animation = nil }
         )
+        .preferredColorScheme(.dark)
         .navigationBarBackButtonHidden()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { navigationToolbar }
@@ -107,13 +112,11 @@ struct RefactoredVideoTrimmingView: View {
             }
         }
         .onAppear {
-            print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.onAppear called")
             SubscriptionManager.shared.checkSubscriptionExpiry()
             handleViewAppearance()
         }
-        .onDisappear { 
-            print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.onDisappear called")
-            handleViewDisappearance() 
+        .onDisappear {
+            handleViewDisappearance()
         }
         .fullScreenCover(isPresented: $navigateToEnhancement) {
             NavigationView {
@@ -286,26 +289,22 @@ struct RefactoredVideoTrimmingView: View {
     private func handleContinueAction() {
         guard viewModel.canProceed else { return }
         HapticFeedbackManager.impact(.medium)
+        TrimmingDiagnostics.log("📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=\(viewModel.trimStartTime) trimEnd=\(viewModel.trimEndTime)")
         if let onContinue {
             onContinue(viewModel.videoURL, viewModel.trimStartTime, viewModel.trimEndTime)
         } else {
+            TrimmingDiagnostics.log("🚀 [RefactoredVideoTrimmingView] Navigating to enhancement: trimStart=\(viewModel.trimStartTime) trimEnd=\(viewModel.trimEndTime)")
             navigateToEnhancement = true
         }
     }
 
     private func handleViewAppearance() {
-        print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.handleViewAppearance() - START")
-        print("🐞 WHITE_SCREEN_DEBUG: Enhancement type: \(viewModel.enhancementType.title)")
-        
         hasStartedLoading = true
-        
+
         Task { @MainActor in
-            print("🐞 WHITE_SCREEN_DEBUG: Starting video loading sequence")
             viewModel.loadVideo()
             computeMetadata()
-            print("🐞 WHITE_SCREEN_DEBUG: Video loading sequence initiated")
         }
-        print("🐞 WHITE_SCREEN_DEBUG: RefactoredVideoTrimmingView.handleViewAppearance() - END")
     }
     
     private func handleViewDisappearance() {

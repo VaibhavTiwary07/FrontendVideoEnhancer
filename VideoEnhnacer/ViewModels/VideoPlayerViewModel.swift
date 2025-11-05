@@ -45,8 +45,6 @@ final class VideoPlayerViewModel: ObservableObject {
     ) {
         self.videoPlayerService = videoPlayerService
         self.key = key
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].init() - Key: \(key)")
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Initial state: isLoading = \(isLoading)")
         setupBindings()
     }
     
@@ -54,57 +52,39 @@ final class VideoPlayerViewModel: ObservableObject {
     // MARK: - Public Methods
     func setupPlayers(normalVideoName: String, enhancedVideoName: String) {
         setupCallCount += 1
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].setupPlayers(names) call #\(setupCallCount)")
-        print("🐞 WHITE_SCREEN_DEBUG: Normal video: \(normalVideoName), Enhanced video: \(enhancedVideoName)")
-        print("🐞 WHITE_SCREEN_DEBUG: Key: \(key), Current state: \(playerState), Current loading: \(isLoading)")
-        
+
         // Set loading state immediately to show loading UI
         isLoading = true
         error = nil
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = true immediately")
-        
+
         Task { @MainActor in
             do {
-                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Starting video service setup...")
                 try await videoPlayerService.setupPlayers(key: key, normalVideoName: normalVideoName, enhancedVideoName: enhancedVideoName)
-                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)] - Video service setup completed successfully")
-                print("🐞 WHITE_SCREEN_DEBUG: Normal player available: \(normalPlayer != nil), Enhanced player available: \(enhancedPlayer != nil)")
                 self.isLoading = false
-                print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = false (setup complete)")
             } catch {
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Video service setup failed: \(error)")
                 if let err = error as? VideoPlayerError {
                     self.error = err
-                    print("  VideoPlayerError: \(err)")
                 } else {
                     let playerError = VideoPlayerError.loadingFailed(error.localizedDescription)
                     self.error = playerError
-                    print("  Converted to VideoPlayerError: \(playerError)")
                 }
                 self.isLoading = false
-                print("  ❌ Loading state set to false - setup failed")
             }
         }
     }
 
     func setupPlayers(originalURL: URL, enhancedURL: URL) {
+        let startTime = Date().timeIntervalSince1970
         setupCallCount += 1
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel[🆔 \(debugId)].setupPlayers(URLs) call #\(setupCallCount)")
-        print("🐞 WHITE_SCREEN_DEBUG: Original URL: \(originalURL.lastPathComponent), Enhanced URL: \(enhancedURL.lastPathComponent)")
-        print("🐞 WHITE_SCREEN_DEBUG: Key: \(key), Current state: \(playerState), Current loading: \(isLoading)")
-        
+
         // Set loading state immediately to show loading UI
         isLoading = true
         error = nil
-        print("🐞 WHITE_SCREEN_DEBUG: VideoPlayerViewModel - Set isLoading = true immediately")
         
         // Validate URLs
         if originalURL.isFileURL {
             let exists = FileManager.default.fileExists(atPath: originalURL.path)
-            print("  Original file exists: \(exists)")
             if !exists {
-                let errorMsg = "Original video file not found: \(originalURL.path)"
-                print("  ❌ \(errorMsg)")
                 error = VideoPlayerError.fileNotFound(originalURL.lastPathComponent)
                 isLoading = false
                 return
@@ -112,10 +92,7 @@ final class VideoPlayerViewModel: ObservableObject {
         }
         if enhancedURL.isFileURL {
             let exists = FileManager.default.fileExists(atPath: enhancedURL.path)
-            print("  Enhanced file exists: \(exists)")
             if !exists {
-                let errorMsg = "Enhanced video file not found: \(enhancedURL.path)"
-                print("  ❌ \(errorMsg)")
                 error = VideoPlayerError.fileNotFound(enhancedURL.lastPathComponent)
                 isLoading = false
                 return
@@ -124,88 +101,59 @@ final class VideoPlayerViewModel: ObservableObject {
         
         Task { @MainActor in
             do {
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Starting video service setup...")
                 try await videoPlayerService.setupPlayers(key: key, originalURL: originalURL, enhancedURL: enhancedURL)
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Video service setup completed successfully")
-                print("  Normal player available: \(normalPlayer != nil)")
-                print("  Enhanced player available: \(enhancedPlayer != nil)")
+                let endTime = Date().timeIntervalSince1970
                 self.isLoading = false
-                print("  ✅ Loading state set to false - setup complete")
             } catch {
-                print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - Video service setup failed: \(error)")
                 if let err = error as? VideoPlayerError {
                     self.error = err
-                    print("  VideoPlayerError: \(err)")
                 } else {
                     let playerError = VideoPlayerError.loadingFailed(error.localizedDescription)
                     self.error = playerError
-                    print("  Converted to VideoPlayerError: \(playerError)")
                 }
                 self.isLoading = false
-                print("  ❌ Loading state set to false - setup failed")
             }
         }
     }
     
     func setActive(_ isActive: Bool) {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setActive(\(isActive))")
-        print("  Key: \(key)")
         videoPlayerService.setActiveView(forKey: key, isActive: isActive)
     }
     
     func play() {
         playCallCount += 1
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - play() call #\(playCallCount)")
-        print("  Key: \(key)")
-        print("  Normal player available: \(normalPlayer != nil)")
-        print("  Enhanced player available: \(enhancedPlayer != nil)")
-        print("  Current state: \(playerState)")
         Task {
             await videoPlayerService.play(forKey: key)
-            print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - play() completed")
         }
     }
     
     func pause() {
         pauseCallCount += 1
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - pause() call #\(pauseCallCount)")
-        print("  Key: \(key)")
         videoPlayerService.pause(forKey: key)
     }
     
     func seek(to time: Double) {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - seek(to: \(time))")
-        print("  Key: \(key)")
         Task {
             await videoPlayerService.seek(to: time, forKey: key)
-            print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - seek completed")
         }
     }
     
     func setPlaybackRange(start: Double, end: Double) {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setPlaybackRange(start: \(start), end: \(end))")
-        print("  Key: \(key)")
         videoPlayerService.setPlaybackRange(start: start, end: end, forKey: key)
     }
     
     func setMuted(_ muted: Bool) {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setMuted(\(muted))")
-        print("  Normal player available: \(normalPlayer != nil)")
-        print("  Enhanced player available: \(enhancedPlayer != nil)")
         normalPlayer?.isMuted = muted
         enhancedPlayer?.isMuted = muted
     }
     
     func cleanup() {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - cleanup()")
-        print("  Key: \(key)")
         videoPlayerService.cleanupPlayers(forKey: key)
         cancellables.removeAll()
     }
 
     // MARK: - Private Methods
     private func setupBindings() {
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - setupBindings()")
         
         // Bind to service state changes for this specific key
         videoPlayerService.getPlayerStatePublisher(forKey: key)
@@ -225,38 +173,26 @@ final class VideoPlayerViewModel: ObservableObject {
         let previousState = playerState
         playerState = state
         
-        print("🎮 VideoPlayerViewModel[🆔 \(debugId)] - handleStateChange")
-        print("  Previous state: \(previousState)")
-        print("  New state: \(state)")
-        print("  Key: \(key)")
         
         switch state {
         case .loading:
             isLoading = true
             error = nil
-            print("  -> Loading started")
         case .ready:
             isLoading = false
             error = nil
-            print("  -> Ready - players loaded successfully")
-            print("  Normal player available: \(normalPlayer != nil)")
-            print("  Enhanced player available: \(enhancedPlayer != nil)")
         case .playing:
             isLoading = false
             error = nil
-            print("  -> Playing")
         case .paused:
             isLoading = false
             error = nil
-            print("  -> Paused")
         case .error(let playerError):
             isLoading = false
             error = playerError
-            print("  -> Error: \(playerError)")
         case .idle:
             isLoading = false
             error = nil
-            print("  -> Idle")
         }
     }
     

@@ -208,7 +208,9 @@ final class VideoProcessingService: VideoProcessingProtocol {
         guard startTime < endTime else {
             throw VideoProcessingError.invalidTimeRange
         }
-        
+
+        TrimmingDiagnostics.log("🎬 [VideoProcessingService] trimVideo called: start=\(startTime)s end=\(endTime)s quality=\(quality)")
+
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
@@ -237,10 +239,18 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     }
                     exportSession.outputURL = outputURL
                     exportSession.outputFileType = .mp4
-                    
+
                     exportSession.exportAsynchronously {
                         switch exportSession.status {
                         case .completed:
+                            do {
+                                let attrs = try FileManager.default.attributesOfItem(atPath: outputURL.path)
+                                let fileSize = (attrs[.size] as? NSNumber)?.doubleValue ?? 0
+                                let fileSizeMB = fileSize / (1024.0 * 1024.0)
+                                TrimmingDiagnostics.log("✅ [VideoProcessingService] Trim completed: outputURL=\(outputURL.lastPathComponent) size=\(String(format: "%.1f", fileSizeMB))MB")
+                            } catch {
+                                TrimmingDiagnostics.log("✅ [VideoProcessingService] Trim completed: outputURL=\(outputURL.lastPathComponent)")
+                            }
                             continuation.resume(returning: outputURL)
                         case .failed:
                             let error = exportSession.error?.localizedDescription ?? "Unknown export error"

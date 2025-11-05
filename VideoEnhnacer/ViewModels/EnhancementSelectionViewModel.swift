@@ -97,6 +97,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
         self.videoProcessingService = videoProcessingService
         self.operationTracker = operationTracker
 
+        TrimmingDiagnostics.log("📥 [EnhancementSelectionViewModel] Initialized: trimStart=\(trimStartTime?.description ?? "nil") trimEnd=\(trimEndTime?.description ?? "nil")")
+
         setupBindings()
         setDefaultSelection()
     }
@@ -284,13 +286,10 @@ final class EnhancementSelectionViewModel: ObservableObject {
                 trimStartTime: trimStartTime,
                 trimEndTime: trimEndTime
             )
-            
+
             try enhancementService.validateEnhancement(request: request)
-            
-            print("🎭 EnhancementSelectionViewModel - Starting processing:")
-            print("   Enhancement: \(enhancementType.title)")
-            print("   Option: \(option.title)")
-            print("   Trim: \(trimStartTime ?? -1) to \(trimEndTime ?? -1)")
+
+            TrimmingDiagnostics.log("⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=\(trimStartTime?.description ?? "nil") trimEnd=\(trimEndTime?.description ?? "nil")")
 
             // Enable screen wake lock to prevent interruption during processing
             enableScreenWakeLock()

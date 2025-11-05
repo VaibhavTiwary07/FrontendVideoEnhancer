@@ -118,9 +118,11 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
 
                     let effectiveURL: URL
                     if let start = request.trimStartTime, let end = request.trimEndTime, end > start {
+                        TrimmingDiagnostics.log("✂️ [ServerEnhancementService] Will trim video: start=\(start)s end=\(end)s")
                         let quality = self.videoQualityFromOutputQuality(request.outputQuality)
                         effectiveURL = try await self.videoProcessingService.trimVideo(at: url, startTime: start, endTime: end, quality: quality)
                     } else {
+                        TrimmingDiagnostics.log("➡️ [ServerEnhancementService] Using original video (no trim)")
                         effectiveURL = url
                     }
 

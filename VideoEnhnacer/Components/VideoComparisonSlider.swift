@@ -185,6 +185,7 @@ struct VideoComparisonSlider: View {
                             .fill(Color.clear)
                             .contentShape(Rectangle())
                             .frame(height: videoHeight)
+                            .allowsHitTesting(false)  // Let touches pass through to parent Button
                             .gesture(
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { value in

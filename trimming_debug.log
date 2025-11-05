@@ -1,0 +1,14 @@
+[1762316986.6643639] ═══════════════════════════════════════════════════════════════
+[1762316986.6646218] TRIMMING DIAGNOSTICS LOG STARTED
+[1762316986.664659] ═══════════════════════════════════════════════════════════════
+[1762316987.1787] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762316995.289463] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=2.9010000000000002 trimEnd=3.901
+[1762316995.290434] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.9010000000000002 trimEnd=3.901
+[1762317182.9230552] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=2.9010000000000002 trimEnd=3.901
+[1762317182.924772] ✂️ [ServerEnhancementService] Will trim video: start=2.9010000000000002s end=3.901s
+[1762317182.9250479] 🎬 [VideoProcessingService] trimVideo called: start=2.9010000000000002s end=3.901s quality=high
+[1762317182.943465] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0025_trimmed.MP4 size=5.0MB
+[1762317316.905387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762317325.5216842] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=2.708060267857143 trimEnd=3.901
+[1762317325.522232] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.708060267857143 trimEnd=3.901
+[1762317331.7556338] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2

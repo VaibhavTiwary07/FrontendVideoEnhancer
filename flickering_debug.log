@@ -1,0 +1,56 @@
+[1762255643.311407] ═══════════════════════════════════════════════════════════════
+[1762255643.312357] FLICKERING DIAGNOSTICS LOG STARTED
+[1762255643.312399] ═══════════════════════════════════════════════════════════════
+[1762255643.3124518] 🔧 Task started - calling viewModel.loadVideo()
+[1762255643.3150449] 🔧 Task completed - loadVideo() and computeMetadata() called
+[1762255643.315281] 🎮 VideoPlayerViewModel[6F4481A2].isLoading changing: true → false [Thread: Main]
+[1762255643.3153281] 🎮 VideoPlayerViewModel[11711BAE].isLoading changing: true → false [Thread: Main]
+[1762255643.3170938] 🚀 performVideoLoading() STARTED
+[1762255643.317492] Setting initial loading states to TRUE
+[1762255643.320631] 📱 SMALL DEVICE - Sequential loading started
+[1762255643.320751] 🎬 setupVideoPlayers() STARTED
+[1762255643.320818] 🔄 BODY RENDER - LoadingView
+[1762255643.320895] 📺 Rendering VideoLoadingView (BLACK SCREEN)
+[1762255643.321031] 🔄 BODY RENDER - ContentView
+[1762255643.321443] 🎮 VideoPlayerViewModel.setupPlayers(URLs) STARTED - Call #1
+[1762255643.321804] 🎮 Setting VideoPlayerViewModel.isLoading = true
+[1762255643.3219938] 🎮 VideoPlayerViewModel[F4113046].isLoading changing: false → true [Thread: Main]
+[1762255643.322249] setupPlayers() call completed
+[1762255643.322299] 🎮 Calling videoPlayerService.setupPlayers...
+[1762255643.322336] 🎮 VideoPlayerViewModel[F4113046].isLoading changing: true → true [Thread: Main]
+[1762255643.340198] 🎮 VideoPlayerViewModel[F4113046].isLoading changing: true → false [Thread: Main]
+[1762255643.340425] 🎮 videoPlayerService.setupPlayers completed
+[1762255643.340497] 🎮 Setting VideoPlayerViewModel.isLoading = false (SUCCESS)
+[1762255643.340538] 🎮 VideoPlayerViewModel[F4113046].isLoading changing: false → false [Thread: Main]
+[1762255643.340589] 🎮 VideoPlayerViewModel.setupPlayers(URLs) COMPLETED - Duration: 18.78213882446289ms
+[1762255643.376264] 🎬 setupVideoPlayers() ENDED - Duration: 55.597782135009766ms
+[1762255643.376476] ✅ setupVideoPlayers() completed
+[1762255643.480025] ⏱️ 100ms delay completed
+[1762255643.480195] 🖼️ generateThumbnails() STARTED
+[1762255643.480242] isLoadingThumbnails changing: false → true [Thread: Main]
+[1762255643.480452] Generating 6 thumbnails at low quality
+[1762255643.480567] 🔄 BODY RENDER - LoadingView
+[1762255643.480619] 📺 Rendering VideoLoadingView (BLACK SCREEN)
+[1762255643.480686] 🔄 BODY RENDER - ContentView
+[1762255643.757164] Thumbnails generated successfully
+[1762255643.7573009] isLoadingThumbnails changing: true → false [Thread: Main]
+[1762255643.7573462] 🖼️ generateThumbnails() ENDED - Duration: 277.19593048095703ms
+[1762255643.757382] ✅ generateThumbnails() completed
+[1762255643.7574182] 🔄 BODY RENDER - LoadingView
+[1762255643.757453] 📺 Rendering VideoLoadingView (BLACK SCREEN)
+[1762255643.757487] 🔄 BODY RENDER - ContentView
+[1762255643.819166] 🔄 BODY RENDER - LoadingView
+[1762255643.819323] 📺 Rendering VideoLoadingView (BLACK SCREEN)
+[1762255643.819504] 🔄 BODY RENDER - ContentView
+[1762255643.82133] 🎮 VideoPlayerViewModel[FB8F7A16].isLoading changing: true → false [Thread: Main]
+[1762255643.9695659] ⏱️ 200ms stabilization delay completed
+[1762255643.9698381] 🏁 ALL LOADING COMPLETE - Setting states to FALSE
+[1762255643.9700909] isLoadingVideo changing: true → false [Thread: Main]
+[1762255643.970171] isLoading changing: true → false [Thread: Main]
+[1762255643.9702458] ⏱️ Total loading time: 652.5750160217285ms
+[1762255643.9703279] 🔄 BODY RENDER - LoadingView
+[1762255643.970396] 📺 Rendering VideoLoadingView (BLACK SCREEN)
+[1762255643.970484] 🔄 BODY RENDER - ContentView
+[1762255643.988924] ✅ Rendering contentView (ACTUAL CONTENT)
+[1762255644.000609] ⏱️ .task: Content loaded, sleeping for 500ms
+[1762255644.534141] ⏱️ .task: Sleep completed
