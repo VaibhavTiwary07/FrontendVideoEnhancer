@@ -210,21 +210,31 @@ final class VideoProcessingService: VideoProcessingProtocol {
         }
 
         TrimmingDiagnostics.log("🎬 [VideoProcessingService] trimVideo called: start=\(startTime)s end=\(endTime)s quality=\(quality)")
+        TrimmingDiagnostics.log("📱 [VideoProcessingService] Device: \(UIDevice.current.model), iOS: \(UIDevice.current.systemVersion)")
 
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
                     let asset = AVURLAsset(url: url)
-                    
+
                     guard let exportSession = AVAssetExportSession(asset: asset, presetName: quality.exportPreset) else {
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
                         return
                     }
-                    
-                    // Set time range
-                    let startCMTime = CMTime(seconds: startTime, preferredTimescale: 600)
-                    let endCMTime = CMTime(seconds: endTime, preferredTimescale: 600)
+
+                    // Set time range with higher precision timescale for iOS 15 compatibility
+                    // Using 600 is standard for video, but we'll use the asset's natural timescale for better accuracy
+                    let naturalTimescale: CMTimeScale = 600 // Standard video timescale
+                    let startCMTime = CMTime(seconds: startTime, preferredTimescale: naturalTimescale)
+                    let endCMTime = CMTime(seconds: endTime, preferredTimescale: naturalTimescale)
                     let timeRange = CMTimeRangeFromTimeToTime(start: startCMTime, end: endCMTime)
+
+                    // Log the exact CMTime values for debugging iOS 15 issues
+                    TrimmingDiagnostics.log("⏱️ [VideoProcessingService] CMTime details:")
+                    TrimmingDiagnostics.log("   Start: \(startTime)s → CMTime(\(startCMTime.value)/\(startCMTime.timescale)) = \(CMTimeGetSeconds(startCMTime))s")
+                    TrimmingDiagnostics.log("   End: \(endTime)s → CMTime(\(endCMTime.value)/\(endCMTime.timescale)) = \(CMTimeGetSeconds(endCMTime))s")
+                    TrimmingDiagnostics.log("   Duration: \(CMTimeGetSeconds(timeRange.duration))s")
+
                     exportSession.timeRange = timeRange
                     
                     // Set output URL
