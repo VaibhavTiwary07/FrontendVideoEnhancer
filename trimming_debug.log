@@ -1,14 +1,25 @@
-[1762316986.6643639] ═══════════════════════════════════════════════════════════════
-[1762316986.6646218] TRIMMING DIAGNOSTICS LOG STARTED
-[1762316986.664659] ═══════════════════════════════════════════════════════════════
-[1762316987.1787] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
-[1762316995.289463] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=2.9010000000000002 trimEnd=3.901
-[1762316995.290434] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.9010000000000002 trimEnd=3.901
-[1762317182.9230552] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=2.9010000000000002 trimEnd=3.901
-[1762317182.924772] ✂️ [ServerEnhancementService] Will trim video: start=2.9010000000000002s end=3.901s
-[1762317182.9250479] 🎬 [VideoProcessingService] trimVideo called: start=2.9010000000000002s end=3.901s quality=high
-[1762317182.943465] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0025_trimmed.MP4 size=5.0MB
-[1762317316.905387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
-[1762317325.5216842] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=2.708060267857143 trimEnd=3.901
-[1762317325.522232] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.708060267857143 trimEnd=3.901
-[1762317331.7556338] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762318884.852596] ═══════════════════════════════════════════════════════════════
+[1762318884.853133] TRIMMING DIAGNOSTICS LOG STARTED
+[1762318884.853234] ═══════════════════════════════════════════════════════════════
+[1762318884.866518] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318884.926327] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318884.973413] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.021915] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.072598] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.122387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.362572] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.424556] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.473716] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.522012] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.572915] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.622538] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.673047] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.751151] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.7673001] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318885.822114] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762318888.422535] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=1.879328798185941
+[1762318888.433797] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.879328798185941
+[1762318890.226352] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.879328798185941
+[1762318890.2290292] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.879328798185941s
+[1762318890.2319531] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.879328798185941s quality=high
+[1762318890.2988849] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0008_trimmed.MP4 size=1.3MB
