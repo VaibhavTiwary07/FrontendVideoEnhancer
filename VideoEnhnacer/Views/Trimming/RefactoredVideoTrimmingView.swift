@@ -22,7 +22,6 @@ struct RefactoredVideoTrimmingView: View {
     @StateObject private var loadingState: LoadingStateObserver
 
     // MARK: - State
-    @State private var navigateToEnhancement = false
     @State private var isShowingPaywall = false
     @State private var hasStartedLoading = false
     @Environment(\.horizontalSizeClass) private var hSize
@@ -117,17 +116,6 @@ struct RefactoredVideoTrimmingView: View {
         }
         .onDisappear {
             handleViewDisappearance()
-        }
-        .fullScreenCover(isPresented: $navigateToEnhancement) {
-            NavigationView {
-                RefactoredEnhancementSelectionView(
-                    videoURL: viewModel.videoURL,
-                    enhancementType: viewModel.enhancementType,
-                    trimStartTime: viewModel.trimStartTime,
-                    trimEndTime: viewModel.trimEndTime
-                )
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
         }
         .gesture(swipeToGoBackGesture)
         .sheet(isPresented: $showingVideoPicker) {
@@ -290,12 +278,14 @@ struct RefactoredVideoTrimmingView: View {
         guard viewModel.canProceed else { return }
         HapticFeedbackManager.impact(.medium)
         TrimmingDiagnostics.log("📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=\(viewModel.trimStartTime) trimEnd=\(viewModel.trimEndTime)")
-        if let onContinue {
-            onContinue(viewModel.videoURL, viewModel.trimStartTime, viewModel.trimEndTime)
-        } else {
-            TrimmingDiagnostics.log("🚀 [RefactoredVideoTrimmingView] Navigating to enhancement: trimStart=\(viewModel.trimStartTime) trimEnd=\(viewModel.trimEndTime)")
-            navigateToEnhancement = true
+
+        guard let onContinue else {
+            TrimmingDiagnostics.log("⚠️ [RefactoredVideoTrimmingView] No onContinue callback provided - cannot navigate to enhancement")
+            assertionFailure("RefactoredVideoTrimmingView requires onContinue callback for navigation")
+            return
         }
+
+        onContinue(viewModel.videoURL, viewModel.trimStartTime, viewModel.trimEndTime)
     }
 
     private func handleViewAppearance() {

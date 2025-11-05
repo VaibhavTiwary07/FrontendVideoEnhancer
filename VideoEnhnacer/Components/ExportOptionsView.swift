@@ -473,6 +473,7 @@ extension ExportOptionsView {
         .safeAreaInset(edge: .top) {
             HStack {
                 Button(action: {
+                    ExportDiagnostics.log("⚠️ BACK BUTTON TAPPED - isExporting=\(isExporting) - THIS SHOULD NOT HAPPEN IF DISABLED!")
                     withAnimation(.easeOut(duration: 0.3)) {
                         isPresented = false
                         showFinalPage = false
@@ -487,6 +488,8 @@ extension ExportOptionsView {
                         .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .disabled(isExporting)
+                .opacity(isExporting ? 0.5 : 1.0)
                 Spacer()
                 Text("Export Preview")
                     .font(.system(size: 18, weight: .semibold))
@@ -499,6 +502,8 @@ extension ExportOptionsView {
                         .padding(10)
                         .background(Circle().fill(Color.black.opacity(0.25)))
                 }
+                .disabled(isExporting)
+                .opacity(isExporting ? 0.5 : 1.0)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
@@ -552,11 +557,17 @@ extension ExportOptionsView {
             .padding(.top, 8)
             //.background(.ultraThinMaterial)
         }
-        .onAppear { startFinalPageExport() }
+        .interactiveDismissDisabled(isExporting)
+        .onAppear {
+            ExportDiagnostics.log("🎬 Export Preview (finalPage) appeared")
+            ExportDiagnostics.log("   Current state: isExporting=\(isExporting), isExportComplete=\(isExportComplete)")
+            startFinalPageExport()
+        }
     }
 
     // Centralized handler for going home from the FinalPage toolbar button
     private func goHomeFromFinalPage() {
+        ExportDiagnostics.log("⚠️ HOME BUTTON TAPPED - isExporting=\(isExporting) - THIS SHOULD NOT HAPPEN IF DISABLED!")
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         os_log("[ExportOptionsView] Home (toolbar) tapped → broadcast goHome, request Home ad", log: OSLog.default, type: .debug)
@@ -607,6 +618,7 @@ extension ExportOptionsView {
                     showError = true
                 }
                 isExporting = false
+                ExportDiagnostics.log("❌ isExporting set to FALSE (export task completed or failed) - Back and Home buttons should now be ENABLED")
             }
         }
     }
@@ -710,8 +722,13 @@ extension ExportOptionsView {
     }
     
     private func startFinalPageExport() {
-        guard !isExporting else { return }
+        ExportDiagnostics.log("📋 startFinalPageExport() called - isExporting was: \(isExporting)")
+        guard !isExporting else {
+            ExportDiagnostics.log("⚠️ Already exporting, returning early")
+            return
+        }
         isExporting = true
+        ExportDiagnostics.log("✅ isExporting set to TRUE - Back and Home buttons should now be DISABLED")
         exportError = nil
         exportProgress = 0.0
         isExportComplete = false
@@ -762,6 +779,7 @@ extension ExportOptionsView {
                     self.showFinalPage = false
                 }
                 self.isExporting = false
+                ExportDiagnostics.log("❌ isExporting set to FALSE (second export path completed or failed) - Back and Home buttons should now be ENABLED")
             }
         }
     }

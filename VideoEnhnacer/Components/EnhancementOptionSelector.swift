@@ -177,6 +177,120 @@ struct EnhancementOptionSelector: View {
     }
 }
 
+// MARK: - Option Card Component
+
+struct OptionCard: View {
+    let option: EnhancementOption
+    let isSelected: Bool
+    let showsProBadge: Bool
+    let onTap: () -> Void
+
+    private var titleColor: Color {
+        isSelected ? .white : Color.accentWarm
+    }
+
+    private var recommendedTextColor: Color {
+        isSelected ? .white.opacity(0.9) : Color.accentWarm.opacity(0.7)
+    }
+
+    private var recommendedBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient(colors: [Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing)
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.47, blue: 0.47).opacity(0.3),
+                    Color(red: 1.0, green: 0.596, blue: 0.329).opacity(0.3)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+
+    private var cardBackground: LinearGradient {
+        if isSelected {
+            return LinearGradient.primaryTheme
+        } else {
+            return LinearGradient(colors: [Color.cardSoft], startPoint: .leading, endPoint: .trailing)
+        }
+    }
+
+    private var strokeColor: Color {
+        isSelected ? Color.white.opacity(0.2) : Color.accentWarm.opacity(0.3)
+    }
+
+    var body: some View {
+        Button(action: {
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            onTap()
+        }) {
+            VStack(spacing: 6) {
+                Image(systemName: option.icon)
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(isSelected ? .white : Color.accentWarm)
+
+                Text(option.title)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundColor(titleColor)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+
+                if option.isRecommended {
+                    Text("RECOMMENDED")
+                        .font(.system(size: 7, weight: .bold))
+                        .foregroundColor(recommendedTextColor)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(
+                            Capsule()
+                                .fill(recommendedBackground)
+                        )
+                }
+            }
+            .frame(width: 70, height: 70)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(cardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(strokeColor, lineWidth: 1)
+                    )
+            )
+            .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0.1), radius: isSelected ? 6 : 3, x: 0, y: isSelected ? 3 : 2)
+            .scaleEffect(isSelected ? 1.05 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+            .overlay(alignment: .topTrailing) {
+                if showsProBadge {
+                    ProPill()
+                        .offset(x: 6, y: -6)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Pro Pill Component
+
+private struct ProPill: View {
+    var body: some View {
+        Text("PRO")
+            .font(.system(size: 10, weight: .bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(LinearGradient.primaryTheme)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+    }
+}
+
+// MARK: - Helper Functions
+
 private func isProOption(for enhancementType: String, optionId: String) -> Bool {
     switch enhancementType {
     case "AI Upscale":
@@ -187,7 +301,6 @@ private func isProOption(for enhancementType: String, optionId: String) -> Bool 
         return false
     }
 }
-
 
 // EnhancementOption is now defined in EnhancementServiceProtocol.swift to avoid conflicts
 

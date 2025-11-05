@@ -1,25 +1,22 @@
-[1762318884.852596] ═══════════════════════════════════════════════════════════════
-[1762318884.853133] TRIMMING DIAGNOSTICS LOG STARTED
-[1762318884.853234] ═══════════════════════════════════════════════════════════════
-[1762318884.866518] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318884.926327] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318884.973413] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.021915] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.072598] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.122387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.362572] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.424556] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.473716] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.522012] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.572915] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.622538] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.673047] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.751151] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.7673001] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318885.822114] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762318888.422535] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=1.879328798185941
-[1762318888.433797] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.879328798185941
-[1762318890.226352] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.879328798185941
-[1762318890.2290292] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.879328798185941s
-[1762318890.2319531] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.879328798185941s quality=high
-[1762318890.2988849] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0008_trimmed.MP4 size=1.3MB
+[1762322459.271694] ═══════════════════════════════════════════════════════════════
+[1762322459.27218] TRIMMING DIAGNOSTICS LOG STARTED
+[1762322459.2722569] ═══════════════════════════════════════════════════════════════
+[1762322459.2855859] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.3012981] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.351139] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.40044] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.450274] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.5002608] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.550098] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.60308] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.651198] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.870949] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.90025] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322459.949455] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322460.000171] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
+[1762322463.416189] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=1.879328798185941
+[1762322463.420454] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.879328798185941
+[1762322464.768151] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.879328798185941
+[1762322464.769957] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.879328798185941s
+[1762322464.772152] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.879328798185941s quality=high
+[1762322464.81054] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0009_trimmed.MP4 size=3.2MB
