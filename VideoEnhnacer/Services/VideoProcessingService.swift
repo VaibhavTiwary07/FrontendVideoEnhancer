@@ -125,7 +125,9 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    // Use preferPreciseDurationAndTiming for accurate video info on all devices
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     
                     // Load required properties
                     Task {
@@ -183,9 +185,10 @@ final class VideoProcessingService: VideoProcessingProtocol {
                         continuation.resume(returning: false)
                         return
                     }
-                    
+
                     // Check if it's a valid video file
-                    let asset = AVURLAsset(url: url)
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     Task {
                         do {
                             let isPlayable = try await self.loadAssetProperty(asset, property: .isPlayable)
@@ -215,25 +218,31 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    // CRITICAL FIX for iOS 15 / iPod Touch 7th gen:
+                    // Use preferPreciseDurationAndTiming for accurate start time on older devices
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
+
+                    TrimmingDiagnostics.log("✅ [VideoProcessingService] AVURLAsset created with preferPreciseDurationAndTiming=true")
 
                     guard let exportSession = AVAssetExportSession(asset: asset, presetName: quality.exportPreset) else {
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
                         return
                     }
 
-                    // Set time range with higher precision timescale for iOS 15 compatibility
-                    // Using 600 is standard for video, but we'll use the asset's natural timescale for better accuracy
-                    let naturalTimescale: CMTimeScale = 600 // Standard video timescale
-                    let startCMTime = CMTime(seconds: startTime, preferredTimescale: naturalTimescale)
-                    let endCMTime = CMTime(seconds: endTime, preferredTimescale: naturalTimescale)
-                    let timeRange = CMTimeRangeFromTimeToTime(start: startCMTime, end: endCMTime)
+                    // Set time range - Use CMTimeRangeMake with start + duration for better iOS 15 compatibility
+                    // iOS 15 on older devices (iPod Touch) has issues with CMTimeRangeFromTimeToTime
+                    let timescale: CMTimeScale = 600 // Standard for video (600 = multiple of 24, 25, 30 fps)
+                    let startCMTime = CMTime(seconds: startTime, preferredTimescale: timescale)
+                    let durationCMTime = CMTime(seconds: endTime - startTime, preferredTimescale: timescale)
+                    let timeRange = CMTimeRangeMake(start: startCMTime, duration: durationCMTime)
 
                     // Log the exact CMTime values for debugging iOS 15 issues
                     TrimmingDiagnostics.log("⏱️ [VideoProcessingService] CMTime details:")
                     TrimmingDiagnostics.log("   Start: \(startTime)s → CMTime(\(startCMTime.value)/\(startCMTime.timescale)) = \(CMTimeGetSeconds(startCMTime))s")
-                    TrimmingDiagnostics.log("   End: \(endTime)s → CMTime(\(endCMTime.value)/\(endCMTime.timescale)) = \(CMTimeGetSeconds(endCMTime))s")
-                    TrimmingDiagnostics.log("   Duration: \(CMTimeGetSeconds(timeRange.duration))s")
+                    TrimmingDiagnostics.log("   Duration: \(endTime - startTime)s → CMTime(\(durationCMTime.value)/\(durationCMTime.timescale)) = \(CMTimeGetSeconds(durationCMTime))s")
+                    TrimmingDiagnostics.log("   End (calculated): \(CMTimeGetSeconds(CMTimeAdd(startCMTime, durationCMTime)))s")
+                    TrimmingDiagnostics.log("   TimeRange valid: \(CMTIMERANGE_IS_VALID(timeRange)), empty: \(CMTIMERANGE_IS_EMPTY(timeRange))")
 
                     exportSession.timeRange = timeRange
                     
@@ -282,7 +291,8 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     let generator = AVAssetImageGenerator(asset: asset)
                     generator.appliesPreferredTrackTransform = true
                     generator.maximumSize = quality.size
@@ -330,7 +340,8 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     let generator = AVAssetImageGenerator(asset: asset)
                     generator.appliesPreferredTrackTransform = true
                     generator.maximumSize = quality.size
@@ -355,7 +366,8 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     
                     guard let exportSession = AVAssetExportSession(asset: asset, presetName: quality.exportPreset) else {
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
@@ -410,7 +422,8 @@ final class VideoProcessingService: VideoProcessingProtocol {
         return try await withCheckedThrowingContinuation { continuation in
             processingQueue.async {
                 do {
-                    let asset = AVURLAsset(url: url)
+                    let assetOptions = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
+                    let asset = AVURLAsset(url: url, options: assetOptions)
                     
                     guard let exportSession = AVAssetExportSession(asset: asset, presetName: quality.exportPreset) else {
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
