@@ -1,22 +1,31 @@
-[1762322459.271694] ═══════════════════════════════════════════════════════════════
-[1762322459.27218] TRIMMING DIAGNOSTICS LOG STARTED
-[1762322459.2722569] ═══════════════════════════════════════════════════════════════
-[1762322459.2855859] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.3012981] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.351139] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.40044] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.450274] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.5002608] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.550098] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.60308] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.651198] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.870949] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.90025] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322459.949455] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322460.000171] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPad (iPad Pro 13-inch (M4)), iOS 18.5
-[1762322463.416189] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=1.879328798185941
-[1762322463.420454] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.879328798185941
-[1762322464.768151] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.879328798185941
-[1762322464.769957] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.879328798185941s
-[1762322464.772152] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.879328798185941s quality=high
-[1762322464.81054] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0009_trimmed.MP4 size=3.2MB
+[1762323815.9540339] ═══════════════════════════════════════════════════════════════
+[1762323815.954397] TRIMMING DIAGNOSTICS LOG STARTED
+[1762323815.9544601] ═══════════════════════════════════════════════════════════════
+[1762323815.954718] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762323815.9547648] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762323815.956231] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
+[1762323815.957018] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
+[1762323815.959127] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762323815.9600902] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0017.MP4
+[1762323815.964855] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1071s
+[1762323815.964993] 📱 [VideoTrimmingViewModel] Large device detected - using parallel loading
+[1762323815.968267] 🖼️ [VideoTrimmingViewModel] Generating 10 thumbnails at medium quality
+[1762323815.968399] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762323815.974216] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iPhone 16e), iOS 26.0
+[1762323816.006645] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iPhone 16e), iOS 26.0
+[1762323816.020386] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762323816.0572] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iPhone 16e), iOS 26.0
+[1762323816.106649] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iPhone 16e), iOS 26.0
+[1762323816.140389] ✅ [VideoTrimmingViewModel] Generated 10 thumbnails
+[1762323816.140967] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762323817.179591] ◀️ [VideoTrimmingSlider] Started dragging start handle
+[1762323818.0558062] ◀️ [VideoTrimmingSlider] Finished dragging start handle - startTime: 4.837466666666666s (duration: 2.269633333333334s)
+[1762323819.605898] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=4.837466666666666 trimEnd=7.1071
+[1762323819.609892] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=4.837466666666666 trimEnd=7.1071
+[1762323820.1753411] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762323820.1757631] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762323820.175899] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762323824.161024] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=4.837466666666666 trimEnd=7.1071
+[1762323824.171011] ✂️ [ServerEnhancementService] Will trim video: start=4.837466666666666s end=7.1071s
+[1762323824.179703] 🎬 [VideoProcessingService] trimVideo called: start=4.837466666666666s end=7.1071s quality=high
+[1762323824.296194] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0017_trimmed.MP4 size=3.6MB

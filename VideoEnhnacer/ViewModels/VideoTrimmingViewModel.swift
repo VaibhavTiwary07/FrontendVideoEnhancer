@@ -90,12 +90,14 @@ final class VideoTrimmingViewModel: ObservableObject {
     
     // MARK: - Public Methods
     func loadVideo() {
+        TrimmingDiagnostics.log("🎬 [VideoTrimmingViewModel] loadVideo() called")
         loadingTask = Task {
             await performVideoLoading()
         }
     }
     
     func updateTrimForPreset(_ preset: TimePreset) {
+        TrimmingDiagnostics.log("⏱️ [VideoTrimmingViewModel] Preset selected: \(preset.title) (\(preset.duration)s)")
         selectedDuration = preset
         applyPresetDuration(preset)
     }
@@ -131,11 +133,13 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     func retryLoading() {
+        TrimmingDiagnostics.log("🔄 [VideoTrimmingViewModel] Retrying video load after error")
         error = nil
         loadVideo()
     }
     
     func replaceVideo(with newURL: URL) {
+        TrimmingDiagnostics.log("🔄 [VideoTrimmingViewModel] Replacing video with: \(newURL.lastPathComponent)")
         // Reset state and load new video
         trimmingReset()
         videoURL = newURL
@@ -143,6 +147,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
 
     func cleanup() {
+        TrimmingDiagnostics.log("🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)")
         loadingTask?.cancel()
         playerViewModel.cleanup()
         cancellables.removeAll()
@@ -168,6 +173,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     private func performVideoLoading() async {
+        TrimmingDiagnostics.log("⏳ [VideoTrimmingViewModel] performVideoLoading() started")
         // Set BOTH loading states at start - single source of truth
         await MainActor.run {
             // Only update if different - prevents redundant state changes
@@ -177,8 +183,10 @@ final class VideoTrimmingViewModel: ObservableObject {
         }
 
         do {
+            TrimmingDiagnostics.log("📹 [VideoTrimmingViewModel] Getting video info from: \(videoURL.lastPathComponent)")
             // Load video information
             let videoInfo = try await videoProcessingService.getVideoInfo(from: videoURL)
+            TrimmingDiagnostics.log("✅ [VideoTrimmingViewModel] Video info loaded - duration: \(videoInfo.duration)s")
 
             await MainActor.run {
                 self.videoDuration = videoInfo.duration
@@ -187,6 +195,7 @@ final class VideoTrimmingViewModel: ObservableObject {
 
             // Memory-aware loading: sequential for small devices, parallel for large devices
             if isSmallDevice {
+                TrimmingDiagnostics.log("📱 [VideoTrimmingViewModel] Small device detected - using sequential loading")
                 // Sequential loading reduces memory pressure on iPod/iPhone SE
                 await setupVideoPlayers()
 
@@ -198,6 +207,7 @@ final class VideoTrimmingViewModel: ObservableObject {
                 // Ensure minimum loading time to prevent flash on slow devices
                 try? await Task.sleep(nanoseconds: 200_000_000) // Additional 200ms
             } else {
+                TrimmingDiagnostics.log("📱 [VideoTrimmingViewModel] Large device detected - using parallel loading")
                 // Parallel loading for better performance on devices with adequate RAM
                 async let players = setupVideoPlayers()
                 async let thumbs = generateThumbnails()
@@ -206,6 +216,7 @@ final class VideoTrimmingViewModel: ObservableObject {
                 await thumbs
             }
 
+            TrimmingDiagnostics.log("✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false")
             // ALL async operations complete - now update state atomically
             await MainActor.run {
                 // Only update if different - prevents redundant state changes
@@ -214,12 +225,14 @@ final class VideoTrimmingViewModel: ObservableObject {
             }
 
         } catch let processingError as VideoProcessingError {
+            TrimmingDiagnostics.log("❌ [VideoTrimmingViewModel] Video processing error: \(processingError.localizedDescription)")
             await MainActor.run {
                 self.error = processingError
                 if self.isLoadingVideo != false { self.isLoadingVideo = false }
                 if self.isLoading != false { self.isLoading = false }
             }
         } catch {
+            TrimmingDiagnostics.log("❌ [VideoTrimmingViewModel] Unexpected error: \(error.localizedDescription)")
             await MainActor.run {
                 self.error = VideoProcessingError.processingFailed(error.localizedDescription)
                 if self.isLoadingVideo != false { self.isLoadingVideo = false }
@@ -229,6 +242,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     }
     
     private func setupVideoPlayers() async {
+        TrimmingDiagnostics.log("🎥 [VideoTrimmingViewModel] Setting up video players")
         // Use direct file URLs so trimming works with user-selected videos
         await MainActor.run {
             playerViewModel.setupPlayers(originalURL: videoURL, enhancedURL: videoURL)
@@ -236,6 +250,7 @@ final class VideoTrimmingViewModel: ObservableObject {
 
         // Wait a brief moment to allow player setup to initialize
         try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        TrimmingDiagnostics.log("✅ [VideoTrimmingViewModel] Video players setup complete")
     }
     
     private func generateThumbnails() async {
@@ -244,6 +259,8 @@ final class VideoTrimmingViewModel: ObservableObject {
         // Memory optimization: reduce thumbnail count and quality on small devices
         let thumbnailCount = isSmallDevice ? 6 : 10
         let thumbnailQuality: ThumbnailQuality = isSmallDevice ? .low : .medium
+
+        TrimmingDiagnostics.log("🖼️ [VideoTrimmingViewModel] Generating \(thumbnailCount) thumbnails at \(thumbnailQuality) quality")
 
         do {
             let generatedThumbnails = try await videoProcessingService.generateThumbnails(
@@ -257,7 +274,10 @@ final class VideoTrimmingViewModel: ObservableObject {
                 if self.isLoadingThumbnails != false { self.isLoadingThumbnails = false }
             }
 
+            TrimmingDiagnostics.log("✅ [VideoTrimmingViewModel] Generated \(generatedThumbnails.count) thumbnails")
+
         } catch {
+            TrimmingDiagnostics.log("⚠️ [VideoTrimmingViewModel] Thumbnail generation failed: \(error.localizedDescription)")
             await MainActor.run {
                 if self.isLoadingThumbnails != false { self.isLoadingThumbnails = false }
                 // Don't treat thumbnail failure as a critical error
@@ -267,7 +287,7 @@ final class VideoTrimmingViewModel: ObservableObject {
     
     private func applyPresetDuration(_ preset: TimePreset) {
         let newEndTime = min(trimStartTime + preset.duration, videoDuration)
-        
+
         // If preset would go beyond video end, adjust start time
         if newEndTime >= videoDuration {
             trimStartTime = max(0, videoDuration - preset.duration)
@@ -275,7 +295,9 @@ final class VideoTrimmingViewModel: ObservableObject {
         } else {
             trimEndTime = newEndTime
         }
-        
+
+        TrimmingDiagnostics.log("✂️ [VideoTrimmingViewModel] Applied preset - start: \(trimStartTime)s, end: \(trimEndTime)s")
+
         // Update player
         playerViewModel.setPlaybackRange(start: trimStartTime, end: trimEndTime)
         playerViewModel.seek(to: trimStartTime)

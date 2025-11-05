@@ -111,15 +111,18 @@ struct RefactoredVideoTrimmingView: View {
             }
         }
         .onAppear {
+            TrimmingDiagnostics.log("👁️ [RefactoredVideoTrimmingView] View appeared")
             SubscriptionManager.shared.checkSubscriptionExpiry()
             handleViewAppearance()
         }
         .onDisappear {
+            TrimmingDiagnostics.log("👋 [RefactoredVideoTrimmingView] View disappeared")
             handleViewDisappearance()
         }
         .gesture(swipeToGoBackGesture)
         .sheet(isPresented: $showingVideoPicker) {
             UIKitVideoPickerWrapper { newVideoURL in
+                TrimmingDiagnostics.log("🔄 [RefactoredVideoTrimmingView] User changed video to: \(newVideoURL.lastPathComponent)")
                 // Update video in-place and recompute metadata
                 viewModel.replaceVideo(with: newVideoURL)
                 computeMetadata()
@@ -256,6 +259,7 @@ struct RefactoredVideoTrimmingView: View {
     
     // MARK: - Event Handlers
     private func handleBackAction() {
+        TrimmingDiagnostics.log("⬅️ [RefactoredVideoTrimmingView] Back button tapped")
         if let onBack {
             HapticFeedbackManager.impact(.light)
             onBack()
@@ -266,6 +270,7 @@ struct RefactoredVideoTrimmingView: View {
     }
 
     private func handleCloseAction() {
+        TrimmingDiagnostics.log("❌ [RefactoredVideoTrimmingView] Close button tapped")
         if let onClose {
             HapticFeedbackManager.impact(.medium)
             onClose()
@@ -289,6 +294,7 @@ struct RefactoredVideoTrimmingView: View {
     }
 
     private func handleViewAppearance() {
+        TrimmingDiagnostics.log("🚀 [RefactoredVideoTrimmingView] Starting video loading for: \(viewModel.videoURL.lastPathComponent)")
         hasStartedLoading = true
 
         Task { @MainActor in
@@ -296,8 +302,9 @@ struct RefactoredVideoTrimmingView: View {
             computeMetadata()
         }
     }
-    
+
     private func handleViewDisappearance() {
+        TrimmingDiagnostics.log("🧹 [RefactoredVideoTrimmingView] Cleaning up resources")
         viewModel.cleanup()
     }
 
@@ -314,6 +321,7 @@ struct RefactoredVideoTrimmingView: View {
     }
 
     private func computeMetadata() {
+        TrimmingDiagnostics.log("📊 [RefactoredVideoTrimmingView] Computing video metadata")
         let url = viewModel.videoURL
         let asset = AVAsset(url: url)
         // Resolution
@@ -323,8 +331,10 @@ struct RefactoredVideoTrimmingView: View {
             let rotated = abs(transform.b) > 0.0001 && abs(transform.c) > 0.0001
             if rotated { size = CGSize(width: size.height, height: size.width) }
             resolutionText = "\(Int(size.width))×\(Int(size.height))"
+            TrimmingDiagnostics.log("📐 [RefactoredVideoTrimmingView] Video resolution: \(resolutionText)")
         } else {
             resolutionText = "—"
+            TrimmingDiagnostics.log("⚠️ [RefactoredVideoTrimmingView] Could not determine video resolution")
         }
         // File size (best effort)
         do {
@@ -332,11 +342,13 @@ struct RefactoredVideoTrimmingView: View {
             if let bytes = attrs[.size] as? NSNumber {
                 let mb = Double(truncating: bytes) / (1024.0 * 1024.0)
                 sizeText = String(format: "%.1f MB", mb)
+                TrimmingDiagnostics.log("💾 [RefactoredVideoTrimmingView] File size: \(sizeText)")
             } else {
                 sizeText = "—"
             }
         } catch {
             sizeText = "—"
+            TrimmingDiagnostics.log("⚠️ [RefactoredVideoTrimmingView] Could not determine file size: \(error.localizedDescription)")
         }
     }
 

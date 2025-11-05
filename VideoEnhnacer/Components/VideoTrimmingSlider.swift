@@ -95,6 +95,7 @@ struct VideoTrimmingSlider: View {
                                 if !isDraggingWindow {
                                     isDraggingWindow = true
                                     initialWindowPosition = startPosition // Store initial window position
+                                    TrimmingDiagnostics.log("↔️ [VideoTrimmingSlider] Started dragging trim window")
                                 }
                                 let newStart = max(0, min(trackWidth - windowWidth, initialWindowPosition + value.translation.width))
                                 let newTime = Double(newStart / trackWidth) * duration
@@ -103,9 +104,9 @@ struct VideoTrimmingSlider: View {
                                     startTime = newTime
                                     endTime = min(newTime + windowDuration, duration)
                                 }
-                                print("🎚️ VideoTrimmingSlider - Window drag: startTime = \(newTime), endTime = \(endTime)")
                             }
                             .onEnded { _ in
+                                TrimmingDiagnostics.log("↔️ [VideoTrimmingSlider] Finished dragging window - start: \(startTime)s, end: \(endTime)s, duration: \(endTime - startTime)s")
                                 isDraggingWindow = false
                             }
                     )
@@ -118,6 +119,7 @@ struct VideoTrimmingSlider: View {
                                     isDraggingStart = true
                                     initialStartPosition = startPosition // Store initial position
                                     startHapticFeedback()
+                                    TrimmingDiagnostics.log("◀️ [VideoTrimmingSlider] Started dragging start handle")
                                 }
                                 // Use initial position + translation to avoid circular reference
                                 let maxStart = CGFloat((endTime - minDuration) / duration) * trackWidth
@@ -126,9 +128,9 @@ struct VideoTrimmingSlider: View {
                                 withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.9)) {
                                     startTime = newTime
                                 }
-                                print("🎚️ VideoTrimmingSlider - Start handle drag: startTime = \(newTime) (from initial: \(initialStartPosition) + translation: \(value.translation.width))")
                             }
                             .onEnded { _ in
+                                TrimmingDiagnostics.log("◀️ [VideoTrimmingSlider] Finished dragging start handle - startTime: \(startTime)s (duration: \(endTime - startTime)s)")
                                 isDraggingStart = false
                                 endHapticFeedback()
                             }
@@ -143,6 +145,7 @@ struct VideoTrimmingSlider: View {
                                     isDraggingEnd = true
                                     initialEndPosition = endPosition // Store initial position
                                     startHapticFeedback()
+                                    TrimmingDiagnostics.log("▶️ [VideoTrimmingSlider] Started dragging end handle")
                                 }
                                 // Use initial position + translation to avoid circular reference
                                 let minEnd = CGFloat((startTime + minDuration) / duration) * trackWidth
@@ -151,9 +154,9 @@ struct VideoTrimmingSlider: View {
                                 withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.9)) {
                                     endTime = newTime
                                 }
-                                print("🎚️ VideoTrimmingSlider - End handle drag: endTime = \(newTime) (from initial: \(initialEndPosition) + translation: \(value.translation.width))")
                             }
                             .onEnded { _ in
+                                TrimmingDiagnostics.log("▶️ [VideoTrimmingSlider] Finished dragging end handle - endTime: \(endTime)s (duration: \(endTime - startTime)s)")
                                 isDraggingEnd = false
                                 endHapticFeedback()
                             }
