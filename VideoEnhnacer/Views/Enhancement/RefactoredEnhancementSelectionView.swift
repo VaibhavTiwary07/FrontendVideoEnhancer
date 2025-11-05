@@ -329,10 +329,32 @@ struct RefactoredEnhancementSelectionView: View {
         
         if let start = viewModel.trimStartTime, let end = viewModel.trimEndTime {
             print("  📐 Will apply trim range: \(start)s to \(end)s")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            Task { @MainActor in
+                print("  ⏳ Waiting for player setup to complete...")
+
+                // Wait for playerViewModel's setup to finish (ensures player pair is stored in service)
+                while self.playerViewModel.isLoading {
+                    try? await Task.sleep(nanoseconds: 50_000_000) // 0.05s
+                }
+
+                // Ensure player is ready with timeout to prevent infinite waiting
+                var retries = 0
+                while (self.playerViewModel.normalPlayer == nil ||
+                       self.playerViewModel.normalPlayer?.status != .readyToPlay) &&
+                       retries < 100 {
+                    try? await Task.sleep(nanoseconds: 50_000_000)
+                    retries += 1
+                }
+
+                guard self.playerViewModel.normalPlayer != nil else {
+                    print("  ❌ Player failed to load after timeout")
+                    return
+                }
+
+                print("  ✓ Player ready, applying trim and seeking to \(start)s")
                 self.playerViewModel.setPlaybackRange(start: start, end: end)
                 self.playerViewModel.seek(to: start)
-                print("  ✅ Trim range applied and seeked to start")
+                print("  ✅ Seeked to start at \(start)s")
             }
         } else {
             print("  ℹ️ No trim range to apply")

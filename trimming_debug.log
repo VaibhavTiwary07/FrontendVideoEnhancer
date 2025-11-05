@@ -1,28 +1,24 @@
-[1762327707.8948898] ═══════════════════════════════════════════════════════════════
-[1762327707.895395] TRIMMING DIAGNOSTICS LOG STARTED
-[1762327707.8954701] ═══════════════════════════════════════════════════════════════
-[1762327707.8955212] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762327707.895564] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762327707.896385] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
-[1762327707.897455] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
-[1762327707.899519] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762327707.899663] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0007.MP4
-[1762327707.902749] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1466666666666665s
-[1762327707.9028502] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762327707.902894] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762327707.954375] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762327708.0610828] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762327708.180026] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762327708.3880801] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
-[1762327708.411057] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762327711.6863] ◀️ [VideoTrimmingSlider] Started dragging start handle
-[1762327713.069048] ◀️ [VideoTrimmingSlider] Finished dragging start handle - startTime: 5.487619047619048s (duration: 1.6590476190476187s)
-[1762327719.6188889] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=5.487619047619048 trimEnd=7.1466666666666665
-[1762327719.619546] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=5.487619047619048 trimEnd=7.1466666666666665
-[1762327719.631919] 👋 [RefactoredVideoTrimmingView] View disappeared
-[1762327719.6322532] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
-[1762327719.632333] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
-[1762327762.7697558] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=5.487619047619048 trimEnd=7.1466666666666665
-[1762327762.770811] ✂️ [ServerEnhancementService] Will trim video: start=5.487619047619048s end=7.1466666666666665s
-[1762327762.771004] 🎬 [VideoProcessingService] trimVideo called: start=5.487619047619048s end=7.1466666666666665s quality=high
-[1762327762.791465] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0007_trimmed.MP4 size=2.5MB
+[1762329529.5755038] ═══════════════════════════════════════════════════════════════
+[1762329529.57584] TRIMMING DIAGNOSTICS LOG STARTED
+[1762329529.575892] ═══════════════════════════════════════════════════════════════
+[1762329529.575941] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762329529.575999] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762329529.576381] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
+[1762329529.5776] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
+[1762329529.578374] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762329529.578864] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0007.MP4
+[1762329529.582459] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1466666666666665s
+[1762329529.582552] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
+[1762329529.5825992] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762329529.636293] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762329529.745044] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
+[1762329529.860662] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
+[1762329530.077462] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
+[1762329530.0803761] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762329531.385923] ◀️ [VideoTrimmingSlider] Started dragging start handle
+[1762329532.200097] ◀️ [VideoTrimmingSlider] Finished dragging start handle - startTime: 4.881428571428572s (duration: 2.265238095238095s)
+[1762329536.5497952] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=4.881428571428572 trimEnd=7.1466666666666665
+[1762329536.55061] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=4.881428571428572 trimEnd=7.1466666666666665
+[1762329536.5663362] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762329536.566524] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762329536.566798] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
