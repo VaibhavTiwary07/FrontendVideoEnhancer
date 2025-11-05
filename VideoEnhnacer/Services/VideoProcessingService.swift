@@ -225,10 +225,23 @@ final class VideoProcessingService: VideoProcessingProtocol {
 
                     TrimmingDiagnostics.log("✅ [VideoProcessingService] AVURLAsset created with preferPreciseDurationAndTiming=true")
 
+                    // iOS 15 WORKAROUND: Ensure asset is loaded before using it
+                    // Some iOS 15 devices need the asset duration to be loaded explicitly
+                    let _ = asset.duration // Force load duration
+                    TrimmingDiagnostics.log("✅ [VideoProcessingService] Asset duration pre-loaded: \(CMTimeGetSeconds(asset.duration))s")
+
+                    // Log asset details for iOS 15 debugging
+                    TrimmingDiagnostics.log("📹 [VideoProcessingService] Asset URL: \(url.lastPathComponent)")
+                    TrimmingDiagnostics.log("📹 [VideoProcessingService] Asset duration: \(CMTimeGetSeconds(asset.duration))s")
+                    TrimmingDiagnostics.log("📹 [VideoProcessingService] Export quality preset: \(quality.exportPreset)")
+
                     guard let exportSession = AVAssetExportSession(asset: asset, presetName: quality.exportPreset) else {
+                        TrimmingDiagnostics.log("❌ [VideoProcessingService] Failed to create AVAssetExportSession with preset: \(quality.exportPreset)")
                         continuation.resume(throwing: VideoProcessingError.exportFailed("Could not create export session"))
                         return
                     }
+
+                    TrimmingDiagnostics.log("✅ [VideoProcessingService] AVAssetExportSession created successfully")
 
                     // Set time range - Use CMTimeRangeMake with start + duration for better iOS 15 compatibility
                     // iOS 15 on older devices (iPod Touch) has issues with CMTimeRangeFromTimeToTime
@@ -245,7 +258,14 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     TrimmingDiagnostics.log("   TimeRange valid: \(CMTIMERANGE_IS_VALID(timeRange)), empty: \(CMTIMERANGE_IS_EMPTY(timeRange))")
 
                     exportSession.timeRange = timeRange
-                    
+
+                    // CRITICAL iOS 15 DEBUG: Verify timeRange was set correctly
+                    let setTimeRange = exportSession.timeRange
+                    TrimmingDiagnostics.log("🔍 [VideoProcessingService] Verifying timeRange was set correctly:")
+                    TrimmingDiagnostics.log("   Exported start: \(CMTimeGetSeconds(setTimeRange.start))s")
+                    TrimmingDiagnostics.log("   Exported duration: \(CMTimeGetSeconds(setTimeRange.duration))s")
+                    TrimmingDiagnostics.log("   Exported end: \(CMTimeGetSeconds(CMTimeAdd(setTimeRange.start, setTimeRange.duration)))s")
+
                     // Set output URL
                     let outputURL = self.generateOutputURL(for: url, suffix: "_trimmed")
                     if self.fileManager.fileExists(atPath: outputURL.path) {
@@ -259,7 +279,17 @@ final class VideoProcessingService: VideoProcessingProtocol {
                     exportSession.outputURL = outputURL
                     exportSession.outputFileType = .mp4
 
+                    TrimmingDiagnostics.log("🚀 [VideoProcessingService] Starting export asynchronously...")
+                    TrimmingDiagnostics.log("📤 [VideoProcessingService] Output URL: \(outputURL.lastPathComponent)")
+
                     exportSession.exportAsynchronously {
+                        TrimmingDiagnostics.log("🎯 [VideoProcessingService] Export completed with status: \(exportSession.status.rawValue)")
+
+                        // Log any error details
+                        if let error = exportSession.error {
+                            TrimmingDiagnostics.log("⚠️ [VideoProcessingService] Export session error: \(error.localizedDescription)")
+                        }
+
                         switch exportSession.status {
                         case .completed:
                             do {
