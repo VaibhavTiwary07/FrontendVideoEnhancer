@@ -167,11 +167,19 @@ struct ImageComparisonCard: View {
             selectedPhotoItem: $selectedPhotoItem,
             onVideoSelected: { url in
                 print("🐞 WHITE_SCREEN_DEBUG: VideoPicker.onVideoSelected - URL: \(url.lastPathComponent)")
+                logImageComparisonToFile("🎯 [ImageComparisonCard] onVideoSelected callback triggered")
+                logImageComparisonToFile("🎯 [ImageComparisonCard] Selected video: \(url.lastPathComponent)")
+                logImageComparisonToFile("🎯 [ImageComparisonCard] Full path: \(url.path)")
+                logImageComparisonToFile("🎯 [ImageComparisonCard] Setting selectedVideoURL...")
                 selectedVideoURL = url
+                logImageComparisonToFile("🎯 [ImageComparisonCard] selectedVideoURL set successfully")
+                logImageComparisonToFile("🎯 [ImageComparisonCard] Closing picker (showingVideoPicker = false)")
                 showingVideoPicker = false
+                logImageComparisonToFile("🎯 [ImageComparisonCard] This should trigger .fullScreenCover with VideoEnhancementModalView")
             },
             onCancelled: {
                 print("🐞 WHITE_SCREEN_DEBUG: VideoPicker.onCancelled")
+                logImageComparisonToFile("❌ [ImageComparisonCard] Video selection cancelled by user")
                 showingVideoPicker = false
             }
         ))
@@ -184,9 +192,15 @@ struct ImageComparisonCard: View {
             .onAppear {
                 print("🐞 WHITE_SCREEN_DEBUG: ✅ SUPER SENIOR FIX - fullScreenCover using item binding with URL: \(videoURL.lastPathComponent)")
                 print("🐞 WHITE_SCREEN_DEBUG: Enhancement type: \(resolvedEnhancementType().name)")
+                logImageComparisonToFile("✅ [ImageComparisonCard] fullScreenCover appeared!")
+                logImageComparisonToFile("✅ [ImageComparisonCard] VideoEnhancementModalView presented")
+                logImageComparisonToFile("✅ [ImageComparisonCard] Video URL: \(videoURL.lastPathComponent)")
+                logImageComparisonToFile("✅ [ImageComparisonCard] Enhancement type: \(resolvedEnhancementType().name)")
+                logImageComparisonToFile("✅ [ImageComparisonCard] ==========================================")
             }
             .onDisappear {
                 print("🐞 WHITE_SCREEN_DEBUG: fullScreenCover with item binding disappeared")
+                logImageComparisonToFile("👋 [ImageComparisonCard] fullScreenCover dismissed")
                 flowState.reset()
             }
         }
@@ -202,32 +216,66 @@ struct ImageComparisonCard: View {
     
     // MARK: - Card Tap Handler
     private func handleCardTap() {
+        logImageComparisonToFile("🎴 [ImageComparisonCard] ==========================================")
+        logImageComparisonToFile("🎴 [ImageComparisonCard] Card tapped - Title: '\(title)'")
         print("🐞 WHITE_SCREEN_DEBUG: ImageComparisonCard.handleCardTap() - Card '\(title)' tapped")
         print("🐞 WHITE_SCREEN_DEBUG: Current states - selectedVideoURL: \(String(describing: selectedVideoURL)), showingVideoPicker: \(showingVideoPicker)")
-        
+
+        logImageComparisonToFile("🎴 [ImageComparisonCard] Current states:")
+        logImageComparisonToFile("🎴 [ImageComparisonCard]   - selectedVideoURL: \(selectedVideoURL?.lastPathComponent ?? "nil")")
+        logImageComparisonToFile("🎴 [ImageComparisonCard]   - showingVideoPicker: \(showingVideoPicker)")
+
         if permissionManager.canAccessPhotoLibrary {
             print("🐞 WHITE_SCREEN_DEBUG: Photo library access granted")
+            logImageComparisonToFile("🎴 [ImageComparisonCard] ✅ Photo library access granted")
             // Clear any stale selection so cancel does not reuse previous video
             selectedVideoURL = nil
+            logImageComparisonToFile("🎴 [ImageComparisonCard] Cleared selectedVideoURL")
             showingVideoPicker = true
+            logImageComparisonToFile("🎴 [ImageComparisonCard] Set showingVideoPicker = true (opening picker)")
             print("🐞 WHITE_SCREEN_DEBUG: Set showingVideoPicker = true")
         } else if permissionManager.needsPermissionRequest {
             print("🐞 WHITE_SCREEN_DEBUG: Requesting photo library permission")
+            logImageComparisonToFile("🎴 [ImageComparisonCard] ⚠️ Need to request photo library permission")
             Task {
                 await permissionManager.requestPhotoLibraryPermission()
                 if permissionManager.canAccessPhotoLibrary {
                     print("🐞 WHITE_SCREEN_DEBUG: Permission granted after request")
+                    logImageComparisonToFile("🎴 [ImageComparisonCard] ✅ Permission granted after request")
                     selectedVideoURL = nil
                     showingVideoPicker = true
+                    logImageComparisonToFile("🎴 [ImageComparisonCard] Opening picker after permission granted")
                 } else {
                     print("🐞 WHITE_SCREEN_DEBUG: Permission denied after request")
+                    logImageComparisonToFile("🎴 [ImageComparisonCard] ❌ Permission denied after request")
                     showingPermissionAlert = true
                 }
             }
         } else {
             // Permission was denied, show settings alert
             print("🐞 WHITE_SCREEN_DEBUG: Photo library permission denied, showing alert")
+            logImageComparisonToFile("🎴 [ImageComparisonCard] ❌ Photo library permission denied, showing alert")
             showingPermissionAlert = true
+        }
+    }
+
+    private func logImageComparisonToFile(_ message: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logMessage = "[\(timestamp)] \(message)"
+
+        print(logMessage)
+
+        let projectLogFile = URL(fileURLWithPath: "/home/user/FrontendVideoEnhancer/video_selection_debug.log")
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: projectLogFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: projectLogFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: projectLogFile)
+            }
         }
     }
     
@@ -695,27 +743,48 @@ fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
                 .photosPicker(
                     isPresented: $showingVideoPicker,
                     selection: Binding<PhotosPickerItem?>(
-                        get: { selectedPhotoItem as? PhotosPickerItem },
+                        get: {
+                            let item = selectedPhotoItem as? PhotosPickerItem
+                            logToFile("📸 [ComparisonCard] Binding getter called - current item: \(item != nil ? "exists" : "nil")")
+                            return item
+                        },
                         set: { newValue in
-                            selectedPhotoItem = newValue
+                            logToFile("📸 [ComparisonCard] ==========================================")
+                            logToFile("📸 [ComparisonCard] Binding setter called with item: \(newValue != nil ? "EXISTS" : "NIL")")
                             if let item = newValue {
+                                logToFile("📸 [ComparisonCard] Item identifier: \(item.itemIdentifier ?? "no identifier")")
+                            }
+
+                            selectedPhotoItem = newValue
+
+                            if let item = newValue {
+                                logToFile("📸 [ComparisonCard] Starting Task to load video...")
                                 Task {
+                                    logToFile("📸 [ComparisonCard] Task started - calling loadVideoModern...")
                                     await loadVideoModern(from: item)
                                 }
+                            } else {
+                                logToFile("📸 [ComparisonCard] No item selected (user cancelled?)")
+                                onCancelled()
                             }
                         }
                     ),
                     matching: .videos
                 )
+                .onChange(of: showingVideoPicker) { isShowing in
+                    logToFile("📸 [ComparisonCard] Picker presentation changed: \(isShowing ? "SHOWING" : "HIDDEN")")
+                }
         } else {
             // FALLBACK: UIKit picker for iOS 15
             content
                 .sheet(isPresented: $showingVideoPicker) {
                     InlineUIKitVideoPicker(
                         onVideoSelected: { url in
+                            logToFile("📸 [ComparisonCard] UIKit picker selected video: \(url.lastPathComponent)")
                             onVideoSelected(url)
                         },
                         onCancelled: {
+                            logToFile("📸 [ComparisonCard] UIKit picker cancelled")
                             onCancelled()
                         }
                     )
@@ -725,25 +794,61 @@ fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
 
     @available(iOS 16.0, *)
     private func loadVideoModern(from item: PhotosPickerItem) async {
+        let timestamp = Date()
+        logToFile("📸 [ComparisonCard] loadVideoModern() called at \(timestamp)")
+        logToFile("📸 [ComparisonCard] Item identifier: \(item.itemIdentifier ?? "unknown")")
         print("🐞 MODERN_PICKER_DEBUG: Loading video from PhotosPickerItem...")
 
         do {
+            logToFile("📸 [ComparisonCard] Calling item.loadOriginalVideoFromComparison()...")
             if let url = try await item.loadOriginalVideoFromComparison() {
+                let elapsed = Date().timeIntervalSince(timestamp)
+                logToFile("📸 [ComparisonCard] ✅ Successfully loaded video: \(url.lastPathComponent)")
+                logToFile("📸 [ComparisonCard] Video URL: \(url.path)")
+                logToFile("📸 [ComparisonCard] Load time: \(String(format: "%.2f", elapsed))s")
                 print("🐞 MODERN_PICKER_DEBUG: ✅ Successfully loaded video: \(url.lastPathComponent)")
+
                 await MainActor.run {
+                    logToFile("📸 [ComparisonCard] On MainActor - calling onVideoSelected callback...")
                     onVideoSelected(url)
+                    logToFile("📸 [ComparisonCard] onVideoSelected callback completed")
+                    logToFile("📸 [ComparisonCard] Clearing selectedPhotoItem...")
                     selectedPhotoItem = nil
+                    logToFile("📸 [ComparisonCard] ==========================================")
                 }
             } else {
+                logToFile("📸 [ComparisonCard] ❌ loadOriginalVideoFromComparison returned nil")
                 print("🐞 MODERN_PICKER_DEBUG: ❌ loadOriginalVideoFromComparison returned nil")
                 await MainActor.run {
                     onCancelled()
                 }
             }
         } catch {
+            logToFile("📸 [ComparisonCard] ❌ Error loading video: \(error.localizedDescription)")
+            logToFile("📸 [ComparisonCard] Error details: \(error)")
             print("🐞 MODERN_PICKER_DEBUG: ❌ Error loading video: \(error.localizedDescription)")
             await MainActor.run {
                 onCancelled()
+            }
+        }
+    }
+
+    private func logToFile(_ message: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logMessage = "[\(timestamp)] \(message)"
+
+        print(logMessage)
+
+        let projectLogFile = URL(fileURLWithPath: "/home/user/FrontendVideoEnhancer/video_selection_debug.log")
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: projectLogFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: projectLogFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: projectLogFile)
             }
         }
     }
