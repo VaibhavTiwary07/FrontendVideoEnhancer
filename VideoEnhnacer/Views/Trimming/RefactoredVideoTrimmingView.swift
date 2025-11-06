@@ -1081,16 +1081,14 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
         let timestamp = Date()
         logToFile("📸 [VideoSelection] loadVideoModern() called at \(timestamp)")
         logToFile("📸 [VideoSelection] Item identifier: \(item.itemIdentifier ?? "unknown")")
-        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Loading video from PhotosPickerItem...")
 
         do {
-            logToFile("📸 [VideoSelection] Calling item.loadOriginalVideoFromTrimming()...")
-            if let url = try await item.loadOriginalVideoFromTrimming() {
+            logToFile("📸 [VideoSelection] Calling item.loadVideoURL()...")
+            if let url = try await item.loadVideoURL(context: "TrimmingView") {
                 let elapsed = Date().timeIntervalSince(timestamp)
                 logToFile("📸 [VideoSelection] ✅ Successfully loaded video: \(url.lastPathComponent)")
                 logToFile("📸 [VideoSelection] Video URL: \(url.path)")
                 logToFile("📸 [VideoSelection] Load time: \(String(format: "%.2f", elapsed))s")
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully loaded video: \(url.lastPathComponent)")
 
                 await MainActor.run {
                     logToFile("📸 [VideoSelection] On MainActor - calling onVideoSelected callback...")
@@ -1101,13 +1099,11 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
                     logToFile("📸 [VideoSelection] ==========================================")
                 }
             } else {
-                logToFile("📸 [VideoSelection] ❌ loadOriginalVideoFromTrimming returned nil")
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ loadOriginalVideoFromTrimming returned nil")
+                logToFile("📸 [VideoSelection] ❌ loadVideoURL returned nil")
             }
         } catch {
             logToFile("📸 [VideoSelection] ❌ Error loading video: \(error.localizedDescription)")
             logToFile("📸 [VideoSelection] Error details: \(error)")
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ Error loading video: \(error.localizedDescription)")
         }
     }
 
@@ -1145,79 +1141,6 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
                 }
             } else {
                 try? data.write(to: projectLogFile)
-            }
-        }
-    }
-}
-
-// MARK: - PhotosPickerItem Extension for Original Video Loading (Trimming)
-@available(iOS 16.0, *)
-extension PhotosPickerItem {
-    func loadOriginalVideoFromTrimming() async throws -> URL? {
-        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Starting loadOriginalVideoFromTrimming")
-
-        // APPROACH 1: Try using itemIdentifier (works for most local videos)
-        if let identifier = self.itemIdentifier {
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Has itemIdentifier: \(identifier)")
-
-            let assets = PHAsset.fetchAssets(
-                withLocalIdentifiers: [identifier],
-                options: nil
-            )
-
-            if let asset = assets.firstObject {
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Found PHAsset, attempting to load video")
-                return try await loadVideoFromPHAssetForTrimming(asset)
-            } else {
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No PHAsset found for identifier")
-            }
-        } else {
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No itemIdentifier - trying loadTransferable fallback")
-        }
-
-        // APPROACH 2: Fallback to loadTransferable (works for iCloud, recent videos, etc.)
-        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Attempting loadTransferable approach...")
-
-        guard let movie = try await self.loadTransferable(type: MovieTransferable.self) else {
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: loadTransferable returned nil")
-            return nil
-        }
-
-        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully loaded video via loadTransferable: \(movie.url.lastPathComponent)")
-        return movie.url
-    }
-
-    private func loadVideoFromPHAssetForTrimming(_ asset: PHAsset) async throws -> URL? {
-        return try await withCheckedThrowingContinuation { continuation in
-            let resources = PHAssetResource.assetResources(for: asset)
-
-            guard let resource = resources.first(where: { $0.type == .video }) else {
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No video resource found in PHAsset")
-                continuation.resume(returning: nil)
-                return
-            }
-
-            // Use temporary directory for better iOS compatibility
-            let fileURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("video_\(UUID().uuidString).mov")
-
-            let options = PHAssetResourceRequestOptions()
-            options.isNetworkAccessAllowed = true
-
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Writing video data to temporary file...")
-
-            PHAssetResourceManager.default().writeData(
-                for: resource,
-                toFile: fileURL,
-                options: options
-            ) { error in
-                if let error = error {
-                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Error writing video data: \(error.localizedDescription)")
-                    continuation.resume(throwing: error)
-                } else {
-                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully wrote video to: \(fileURL.lastPathComponent)")
-                    continuation.resume(returning: fileURL)
-                }
             }
         }
     }
