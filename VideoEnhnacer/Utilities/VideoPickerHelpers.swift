@@ -47,13 +47,13 @@ extension PhotosPickerItem {
         let startTime = Date()
         print("⚡️ [\(context)] Starting optimized video load...")
 
-        // Try optimized loader first (uses strategies pattern)
+        // Use optimized loader with strategy pattern
         let loader = OptimizedVideoLoader()
         do {
-            let url = try await loader.loadVideoURLOptimized(context: context)
+            let result = try await loader.loadVideo(from: self, context: context)
             let elapsed = Date().timeIntervalSince(startTime)
             print("✅ [\(context)] Loaded in \(String(format: "%.2f", elapsed))s")
-            return url
+            return result.url
         } catch {
             print("❌ [\(context)] Optimized load failed: \(error.localizedDescription)")
             throw error

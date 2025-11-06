@@ -176,20 +176,6 @@ enum VideoLoadError: LocalizedError {
     }
 }
 
-// MARK: - PhotosPickerItem Extension (DRY)
-@available(iOS 16.0, *)
-extension PhotosPickerItem {
-
-    /// Load video URL with optimized strategy
-    /// - Parameter context: Context for logging (e.g., "ComparisonCard", "TrimmingView")
-    /// - Returns: Video URL
-    func loadVideoURLOptimized(context: String = "VideoSelection") async throws -> URL {
-        let loader = OptimizedVideoLoader()
-        let result = try await loader.loadVideo(from: self, context: context)
-        return result.url
-    }
-}
-
 // MARK: - Video Cache Manager (Performance Optimization)
 @available(iOS 16.0, *)
 final class VideoCacheManager {
