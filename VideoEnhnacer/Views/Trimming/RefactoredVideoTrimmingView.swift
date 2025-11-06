@@ -9,7 +9,7 @@ struct RefactoredVideoTrimmingView: View {
     @State private var resolutionText: String = "—"
     @State private var sizeText: String = "—"
     @State private var showingVideoPicker = false
-    @State private var selectedPhotoItem: AnyHashable? // Holds PhotosPickerItem for iOS 16+
+    @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
 
     // MARK: - Callbacks
     private let onBack: (() -> Void)?
@@ -1004,17 +1004,17 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
                     isPresented: $showingVideoPicker,
                     selection: Binding<PhotosPickerItem?>(
                         get: { selectedPhotoItem as? PhotosPickerItem },
-                        set: { selectedPhotoItem = $0 }
+                        set: { newValue in
+                            selectedPhotoItem = newValue
+                            if let item = newValue {
+                                Task {
+                                    await loadVideoModern(from: item)
+                                }
+                            }
+                        }
                     ),
                     matching: .videos
                 )
-                .onChange(of: selectedPhotoItem) { newValue in
-                    if #available(iOS 16.0, *), let item = newValue as? PhotosPickerItem {
-                        Task {
-                            await loadVideoModern(from: item)
-                        }
-                    }
-                }
         } else {
             // FALLBACK: UIKit picker for iOS 15
             content

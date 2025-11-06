@@ -696,17 +696,17 @@ fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
                     isPresented: $showingVideoPicker,
                     selection: Binding<PhotosPickerItem?>(
                         get: { selectedPhotoItem as? PhotosPickerItem },
-                        set: { selectedPhotoItem = $0 }
+                        set: { newValue in
+                            selectedPhotoItem = newValue
+                            if let item = newValue {
+                                Task {
+                                    await loadVideoModern(from: item)
+                                }
+                            }
+                        }
                     ),
                     matching: .videos
                 )
-                .onChange(of: selectedPhotoItem) { newValue in
-                    if #available(iOS 16.0, *), let item = newValue as? PhotosPickerItem {
-                        Task {
-                            await loadVideoModern(from: item)
-                        }
-                    }
-                }
         } else {
             // FALLBACK: UIKit picker for iOS 15
             content
