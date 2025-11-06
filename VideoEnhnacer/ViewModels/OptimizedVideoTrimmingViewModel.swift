@@ -70,12 +70,12 @@ final class OptimizedVideoTrimmingViewModel: ObservableObject {
     }
 
     private func performOptimizedLoading() async {
-        let metrics = performanceMonitor.startMeasurement(operation: "VideoLoading")
+        var metrics = performanceMonitor.startMeasurement(operation: "VideoLoading")
 
         do {
             // PHASE 1: Load metadata (fastest, needed for UI)
             loadingProgress = .loadingMetadata
-            let metadataMetrics = performanceMonitor.startMeasurement(operation: "Metadata")
+            var metadataMetrics = performanceMonitor.startMeasurement(operation: "Metadata")
 
             let videoInfo = try await videoProcessingService.getVideoInfo(from: videoURL)
 
@@ -106,7 +106,7 @@ final class OptimizedVideoTrimmingViewModel: ObservableObject {
     }
 
     private func setupPlayersOptimized() async throws {
-        let metrics = performanceMonitor.startMeasurement(operation: "PlayerSetup")
+        var metrics = performanceMonitor.startMeasurement(operation: "PlayerSetup")
 
         playerViewModel.setupPlayers(originalURL: videoURL, enhancedURL: videoURL)
 
@@ -115,15 +115,15 @@ final class OptimizedVideoTrimmingViewModel: ObservableObject {
 
     private func generateThumbnailsOptimized() async -> [UIImage] {
         loadingProgress = .loadingThumbnails
-        let metrics = performanceMonitor.startMeasurement(operation: "ThumbnailGeneration")
+        var metrics = performanceMonitor.startMeasurement(operation: "ThumbnailGeneration")
 
         // Generate thumbnails in parallel batches
         let count = DeviceSize.isSmallPhone ? 6 : 10
-        let generatedThumbnails = await videoProcessingService.generateThumbnails(
+        let generatedThumbnails = (try? await videoProcessingService.generateThumbnails(
             for: videoURL,
             count: count,
-            size: CGSize(width: 100, height: 100)
-        )
+            quality: .medium
+        )) ?? []
 
         thumbnails = generatedThumbnails
         metrics.end()
@@ -143,7 +143,7 @@ final class PerformanceMonitor {
 struct PerformanceMeasurement {
     let operation: String
     let startTime: Date
-    private var endTime: Date?
+    private var endTime: Date? = nil
 
     mutating func end() {
         endTime = Date()
