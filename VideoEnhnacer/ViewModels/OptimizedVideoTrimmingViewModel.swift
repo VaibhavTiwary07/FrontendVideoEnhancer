@@ -143,10 +143,18 @@ final class PerformanceMonitor {
 struct PerformanceMeasurement {
     let operation: String
     let startTime: Date
-    private var endTime: Date? = nil
+    private var endTime: Date?
 
-    mutating func end() {
+    init(operation: String, startTime: Date) {
+        self.operation = operation
+        self.startTime = startTime
+        self.endTime = nil
+    }
+
+    @discardableResult
+    mutating func end() -> Self {
         endTime = Date()
+        return self
     }
 
     var duration: TimeInterval {
@@ -157,6 +165,7 @@ struct PerformanceMeasurement {
         print("⚡️ [Performance] \(operation): \(String(format: "%.3f", duration))s")
     }
 }
+
 
 // MARK: - Concurrent Operation Manager
 /// Manages parallel operations with proper error handling

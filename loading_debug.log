@@ -1,84 +1,171 @@
 =====================================
 LOADING DEBUG LOG
-Started: 2025-11-06 09:51:29 +0000
-Device: iPad (A16) (18.5)
-Model: iPad
+Started: 2025-11-06 12:59:32 +0000
+Device: iphone se 2 (18.5)
+Model: iPhone
 =====================================
-[3:21:29 PM] EnhancementFlowStateManager.swift:18 createIfNeeded(url:type:)
-  → 🆕 CREATED in StateManager: VideoTrimmingViewModel for IMG_0032.MP4
+[6:29:32 PM] EnhancementFlowStateManager.swift:18 createIfNeeded(url:type:)
+  → 🆕 CREATED in StateManager: VideoTrimmingViewModel for imported_video_8660F13D-705B-402A-A7A0-D0E23D56C9D4.mov
 
-[3:21:29 PM] RefactoredVideoTrimmingView.swift:48 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+[6:29:32 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
   → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
 
-[3:21:29 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
+[6:29:32 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
   → ♻️ REUSING from StateManager: VideoTrimmingViewModel (duration:0.0s)
 
-[3:21:29 PM] RefactoredVideoTrimmingView.swift:48 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+[6:29:32 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
   → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:32 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:29 PM] SpatialVideoPreview.swift:305 body
+[6:29:32 PM] SpatialVideoPreview.swift:305 body
   → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
 
-[3:21:29 PM] RefactoredVideoTrimmingView.swift:325 handleViewAppearance()
+[6:29:32 PM] RefactoredVideoTrimmingView.swift:336 handleViewAppearance()
   → 🚀 TRIGGER RELOAD: Not loaded - duration:0.0s, thumbnails:0 - calling viewModel.loadVideo()
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:32 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:29 PM] SpatialVideoPreview.swift:305 body
+[6:29:32 PM] SpatialVideoPreview.swift:305 body
   → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
-  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+[6:29:32 PM] EnhancementFlowStateManager.swift:26 reset()
+  → 🧹 RESET: Clearing VideoTrimmingViewModel from StateManager
 
-[3:21:29 PM] SpatialVideoPreview.swift:305 body
-  → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
+[6:29:32 PM] EnhancementFlowStateManager.swift:18 createIfNeeded(url:type:)
+  → 🆕 CREATED in StateManager: VideoTrimmingViewModel for imported_video_8660F13D-705B-402A-A7A0-D0E23D56C9D4.mov
 
-[3:21:29 PM] SpatialVideoPreview.swift:305 body
-  → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
-
-[3:21:29 PM] LoadingContainerView.swift:11 body
-  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
-
-[3:21:29 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
-  → ♻️ REUSING from StateManager: VideoTrimmingViewModel (duration:0.0s)
-
-[3:21:29 PM] RefactoredVideoTrimmingView.swift:48 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+[6:29:32 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
   → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:32 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:33 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
+  → ♻️ REUSING from StateManager: VideoTrimmingViewModel (duration:0.0s)
+
+[6:29:33 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+  → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
+
+[6:29:33 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:29 PM] VideoTrimmingViewModel.swift:181 performVideoLoading()
+[6:29:33 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:29:33 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:29:33 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:29:33 PM] VideoTrimmingViewModel.swift:213 performVideoLoading()
   → 📹 START LOADING: Setting isLoading=true, isLoadingVideo=true - Reason: performVideoLoading() called
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:33 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:29 PM] LoadingContainerView.swift:11 body
+[6:29:33 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:30 PM] LoadingContainerView.swift:11 body
+[6:29:33 PM] LoadingContainerView.swift:11 body
   → 🔄 LOADING OVERLAY SHOWING - isLoading=true
 
-[3:21:30 PM] VideoTrimmingViewModel.swift:226 performVideoLoading()
-  → ✅ END LOADING: Setting isLoading=false, isLoadingVideo=false - Reason: All operations complete (duration:10.7s, thumbnails:10)
+[6:29:34 PM] VideoTrimmingViewModel.swift:258 performVideoLoading()
+  → ✅ END LOADING: Setting isLoading=false, isLoadingVideo=false - Reason: All operations complete (duration:2.234s, thumbnails:6)
 
-[3:21:30 PM] LoadingContainerView.swift:11 body
+[6:29:34 PM] LoadingContainerView.swift:11 body
   → ✅ CONTENT SHOWING - isLoading=false
 
-[3:21:31 PM] LoadingContainerView.swift:11 body
+[6:30:24 PM] LoadingContainerView.swift:11 body
   → ✅ CONTENT SHOWING - isLoading=false
 
-[3:21:31 PM] LoadingContainerView.swift:11 body
+[6:32:24 PM] RefactoredVideoTrimmingView.swift:322 handleViewAppearance()
+  → ⏭️ SKIP RELOAD: Already loaded - duration:2.234s, thumbnails:6, trimStart:0.0s, trimEnd:2.234s
+
+[6:32:27 PM] EnhancementFlowStateManager.swift:26 reset()
+  → 🧹 RESET: Clearing VideoTrimmingViewModel from StateManager
+
+[6:32:30 PM] EnhancementFlowStateManager.swift:18 createIfNeeded(url:type:)
+  → 🆕 CREATED in StateManager: VideoTrimmingViewModel for imported_video_CD422AE7-B658-455D-9B06-422A656C4E97.mov
+
+[6:32:30 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+  → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
+
+[6:32:30 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
+  → ♻️ REUSING from StateManager: VideoTrimmingViewModel (duration:0.0s)
+
+[6:32:30 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+  → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
+
+[6:32:30 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:30 PM] SpatialVideoPreview.swift:305 body
+  → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
+
+[6:32:30 PM] RefactoredVideoTrimmingView.swift:336 handleViewAppearance()
+  → 🚀 TRIGGER RELOAD: Not loaded - duration:0.0s, thumbnails:0 - calling viewModel.loadVideo()
+
+[6:32:30 PM] SpatialVideoPreview.swift:305 body
+  → 📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed
+
+[6:32:30 PM] EnhancementFlowStateManager.swift:26 reset()
+  → 🧹 RESET: Clearing VideoTrimmingViewModel from StateManager
+
+[6:32:30 PM] EnhancementFlowStateManager.swift:18 createIfNeeded(url:type:)
+  → 🆕 CREATED in StateManager: VideoTrimmingViewModel for imported_video_CD422AE7-B658-455D-9B06-422A656C4E97.mov
+
+[6:32:30 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+  → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
+
+[6:32:30 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:30 PM] EnhancementFlowStateManager.swift:20 createIfNeeded(url:type:)
+  → ♻️ REUSING from StateManager: VideoTrimmingViewModel (duration:0.0s)
+
+[6:32:30 PM] RefactoredVideoTrimmingView.swift:49 init(videoURL:enhancementType:injectedViewModel:onBack:onClose:onContinue:)
+  → ✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView
+
+[6:32:30 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] VideoTrimmingViewModel.swift:213 performVideoLoading()
+  → 📹 START LOADING: Setting isLoading=true, isLoadingVideo=true - Reason: performVideoLoading() called
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:31 PM] LoadingContainerView.swift:11 body
+  → 🔄 LOADING OVERLAY SHOWING - isLoading=true
+
+[6:32:32 PM] VideoTrimmingViewModel.swift:258 performVideoLoading()
+  → ✅ END LOADING: Setting isLoading=false, isLoadingVideo=false - Reason: All operations complete (duration:1.767s, thumbnails:6)
+
+[6:32:32 PM] LoadingContainerView.swift:11 body
   → ✅ CONTENT SHOWING - isLoading=false
 
-[3:21:31 PM] EnhancementFlowStateManager.swift:26 reset()
+[6:32:36 PM] RefactoredVideoTrimmingView.swift:322 handleViewAppearance()
+  → ⏭️ SKIP RELOAD: Already loaded - duration:1.767s, thumbnails:6, trimStart:0.0s, trimEnd:1.767s
+
+[6:32:38 PM] LoadingContainerView.swift:11 body
+  → ✅ CONTENT SHOWING - isLoading=false
+
+[6:32:38 PM] EnhancementFlowStateManager.swift:26 reset()
   → 🧹 RESET: Clearing VideoTrimmingViewModel from StateManager
 
