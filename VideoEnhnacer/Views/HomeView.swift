@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showVideoPropertyList = false
     @State private var selectedVideoURL: URL?
     @EnvironmentObject var videoPlayerManager: VideoPlayerManager
+    @StateObject private var enhancementFlowState = EnhancementFlowStateManager()
     @State private var isHomeViewActive = false
     @State private var selectedEnhancement: Enhancement?
     @Environment(\.scenePhase) private var scenePhase
@@ -206,6 +207,7 @@ struct HomeView: View {
         .sheet(isPresented: $showVideoPropertyList) {
             VideoPropertyListView()
         }
+        .environmentObject(enhancementFlowState)
         // Ensure stabilizer and interpolation cards reinitialize after tab switches
         .onReceive(NotificationCenter.default.publisher(for: .homeTabBecameActive)) { _ in
             print("📣 HomeView: Received homeTabBecameActive; reinitializing comparison players")

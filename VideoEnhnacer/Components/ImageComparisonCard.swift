@@ -25,8 +25,9 @@ struct ImageComparisonCard: View {
     @State private var selectedVideoURL: URL?
     @State private var showingPermissionAlert = false
     @StateObject private var permissionManager = PermissionManager()
+    @EnvironmentObject var flowState: EnhancementFlowStateManager
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    
+
     private var isIPad: Bool {
         horizontalSizeClass == .regular
     }
@@ -180,12 +181,14 @@ struct ImageComparisonCard: View {
                 videoURL: videoURL,
                 enhancementType: resolvedEnhancementType()
             )
+            .environmentObject(flowState)
             .onAppear {
                 print("🐞 WHITE_SCREEN_DEBUG: ✅ SUPER SENIOR FIX - fullScreenCover using item binding with URL: \(videoURL.lastPathComponent)")
                 print("🐞 WHITE_SCREEN_DEBUG: Enhancement type: \(resolvedEnhancementType().name)")
             }
             .onDisappear {
                 print("🐞 WHITE_SCREEN_DEBUG: fullScreenCover with item binding disappeared")
+                flowState.reset()
             }
         }
         .alert("Photos Access Required", isPresented: $showingPermissionAlert) {
