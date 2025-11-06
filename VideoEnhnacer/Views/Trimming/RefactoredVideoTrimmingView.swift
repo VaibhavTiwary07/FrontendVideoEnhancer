@@ -9,7 +9,7 @@ struct RefactoredVideoTrimmingView: View {
     @State private var resolutionText: String = "—"
     @State private var sizeText: String = "—"
     @State private var showingVideoPicker = false
-    @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
+    @State private var selectedPhotoItem: AnyHashable? // Holds PhotosPickerItem for iOS 16+
 
     // MARK: - Callbacks
     private let onBack: (() -> Void)?
