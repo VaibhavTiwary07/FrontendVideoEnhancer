@@ -21,7 +21,16 @@ struct VideoComparisonSlider: View {
     @State private var autoSlideTimer: Timer?
     @State private var resumeTimer: Timer?
     @State private var autoSlideDirection: Double = 1.0
-    
+
+    // Video playback controls
+    @State private var isPlaying: Bool = true
+    @State private var currentTime: Double = 0
+    @State private var duration: Double = 0
+    @State private var showVideoControls: Bool = true
+    @State private var isSeeking: Bool = false
+    @State private var timeObserver: Any?
+    @State private var hideControlsTask: Task<Void, Never>?
+
     private var videoKey: String {
         if let customKey = customKey, !customKey.isEmpty { return customKey }
         if let originalURL = originalURL, let enhancedURL = enhancedURL {
@@ -198,6 +207,22 @@ struct VideoComparisonSlider: View {
                                         scheduleAutoSlideResume()
                                     }
                             )
+
+                        // Video Playback Controls Overlay (only in non-compact mode)
+                        if !compact && showVideoControls && (playerState == .ready || playerState == .paused) {
+                            videoPlaybackControls(height: videoHeight)
+                        }
+                    }
+                    .onTapGesture {
+                        // Only toggle controls in non-compact mode (results page)
+                        if !compact {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showVideoControls.toggle()
+                            }
+                            if showVideoControls {
+                                scheduleHideControls()
+                            }
+                        }
                     }
                     
                     if !compact {
@@ -327,6 +352,11 @@ struct VideoComparisonSlider: View {
             }
 
             startAutoSlide()
+
+            // Only setup time observer for non-compact mode (results page)
+            if !compact {
+                setupTimeObserver()
+            }
         }
         // Re-activate after tab switches to ensure visibility of video and slider
         .onReceive(NotificationCenter.default.publisher(for: .homeTabBecameActive)) { _ in
@@ -351,6 +381,8 @@ struct VideoComparisonSlider: View {
             videoPlayerManager.setViewActive(forKey: videoKey, isActive: false)
             stopAutoSlide()
             stopResumeTimer()
+            cleanupTimeObserver()
+            hideControlsTask?.cancel()
             videoPlayerManager.debugStatus(forKey: videoKey, context: "onDisappear after deactivate")
         }
         // iOS 15-compatible onChange signature
@@ -460,6 +492,169 @@ struct VideoComparisonSlider: View {
                     }
                 }
             )
+    }
+
+    // MARK: - Video Playback Controls
+
+    @ViewBuilder
+    private func videoPlaybackControls(height: CGFloat) -> some View {
+        VStack {
+            Spacer()
+
+            // Center play/pause button
+            Button(action: togglePlayPause) {
+                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 54))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+            }
+
+            Spacer()
+
+            // Bottom seek bar and time display
+            VStack(spacing: 8) {
+                // Seek bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        // Track background
+                        Capsule()
+                            .fill(Color.white.opacity(0.3))
+                            .frame(height: 4)
+
+                        // Progress
+                        Capsule()
+                            .fill(Color.white)
+                            .frame(width: max(0, geo.size.width * (duration > 0 ? currentTime / duration : 0)), height: 4)
+
+                        // Draggable thumb
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 16, height: 16)
+                            .offset(x: max(0, geo.size.width * (duration > 0 ? currentTime / duration : 0)) - 8)
+                            .gesture(
+                                DragGesture(minimumDistance: 0)
+                                    .onChanged { value in
+                                        isSeeking = true
+                                        let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
+                                        currentTime = newTime
+                                    }
+                                    .onEnded { value in
+                                        let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
+                                        seekToTime(newTime)
+                                        isSeeking = false
+                                        scheduleHideControls()
+                                    }
+                            )
+                    }
+                }
+                .frame(height: 16)
+
+                // Time display
+                HStack {
+                    Text(formatTime(currentTime))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    Text(formatTime(duration))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .background(
+                LinearGradient(
+                    colors: [Color.clear, Color.black.opacity(0.6)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+        }
+        .frame(height: height)
+    }
+
+    private func setupTimeObserver() {
+        guard let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) else { return }
+
+        // Get duration
+        if let currentItem = normalPlayer.currentItem {
+            let durationValue = currentItem.duration
+            if durationValue.isNumeric && !durationValue.isIndefinite {
+                duration = CMTimeGetSeconds(durationValue)
+            }
+        }
+
+        // Add time observer
+        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        let observer = normalPlayer.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak normalPlayer] time in
+            guard !isSeeking, let player = normalPlayer else { return }
+            currentTime = CMTimeGetSeconds(time)
+
+            // Update duration if not set yet
+            if duration == 0, let currentItem = player.currentItem {
+                let durationValue = currentItem.duration
+                if durationValue.isNumeric && !durationValue.isIndefinite {
+                    duration = CMTimeGetSeconds(durationValue)
+                }
+            }
+
+            // Update playing state
+            isPlaying = player.rate > 0
+        }
+        timeObserver = observer
+    }
+
+    private func cleanupTimeObserver() {
+        if let observer = timeObserver,
+           let player = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+            player.removeTimeObserver(observer)
+            timeObserver = nil
+        }
+    }
+
+    private func togglePlayPause() {
+        if isPlaying {
+            videoPlayerManager.pausePlayers(forKey: videoKey)
+            isPlaying = false
+        } else {
+            videoPlayerManager.resumePlayers(forKey: videoKey)
+            isPlaying = true
+        }
+        scheduleHideControls()
+    }
+
+    private func seekToTime(_ time: Double) {
+        let cmTime = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+
+        // Seek both players simultaneously
+        if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+            normalPlayer.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
+        }
+        if let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
+            enhancedPlayer.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
+        }
+    }
+
+    private func formatTime(_ time: Double) -> String {
+        guard !time.isNaN && !time.isInfinite else { return "0:00" }
+        let totalSeconds = Int(time)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    private func scheduleHideControls() {
+        hideControlsTask?.cancel()
+        hideControlsTask = Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+            if !Task.isCancelled {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showVideoControls = false
+                }
+            }
+        }
     }
 }
 

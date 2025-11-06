@@ -132,7 +132,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                         includeLevel: includeLevel,
                         level: self.mapLevel(for: request)
                     )
-                    await self.updateState(.processing(phase: .analysis), progress: 0.3 * enhancementProgressWeight)
+                    await self.updateState(.processing(phase: .analysis), progress: 0.125 * enhancementProgressWeight)
                     
                     try await self.pollUntilComplete(taskId: self.currentTaskId)
                     
@@ -352,7 +352,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                         return
                     }
                     self.processingState = .processing(phase: .enhancement)
-                    self.progress = max(self.progress, 0.3 * self.enhancementProgressWeight)
+                    self.progress = max(self.progress, 0.125 * self.enhancementProgressWeight)
 
                     print("DEBUG_PROCESSING_BACK: pollUntilComplete() - Resetting hasPollCompleted flag")
                     self.hasPollCompleted = false
