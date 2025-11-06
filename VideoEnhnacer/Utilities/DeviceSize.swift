@@ -10,6 +10,12 @@ enum DeviceSize {
         return minSide <= 320 || maxSide <= 736
     }
 
+    /// Check if device is an iPod touch (all models)
+    static var isiPod: Bool {
+        let modelIdentifier = getDeviceModelIdentifier()
+        return modelIdentifier.contains("iPod")
+    }
+
     /// Check if device supports 4K video processing based on hardware capability
     static var supports4K: Bool {
         let modelIdentifier = getDeviceModelIdentifier()

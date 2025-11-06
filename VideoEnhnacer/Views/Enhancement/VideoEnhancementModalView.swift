@@ -25,6 +25,7 @@ struct VideoEnhancementModalView: View {
     @State private var path: [Route] = []
     @State private var legacyStep: LegacyStep = .trimming
     @State private var legacyTrimmedData: TrimmedVideoData?
+    @State private var persistedTrimmingViewModel: VideoTrimmingViewModel?
 
     init(videoURL: URL, enhancementType: EnhancementType) {
         //print("🐞 WHITE_SCREEN_DEBUG: VideoEnhancementModalView.init() - URL: \(videoURL.lastPathComponent), Type: \(enhancementType.name)")
@@ -138,9 +139,22 @@ struct VideoEnhancementModalView: View {
         onClose: @escaping () -> Void,
         onContinue: @escaping (TrimmedVideoData) -> Void
     ) -> some View {
-        RefactoredVideoTrimmingView(
+        // Create view model once and reuse it to persist state across navigation
+        if persistedTrimmingViewModel == nil {
+            let container = DIContainer.shared
+            persistedTrimmingViewModel = container.makeVideoTrimmingViewModel(
+                videoURL: initialVideoURL,
+                enhancementType: enhancementType
+            )
+            LoadingDebugLogger.shared.log("🆕 CREATED NEW: VideoTrimmingViewModel persisted in parent")
+        } else {
+            LoadingDebugLogger.shared.log("♻️ REUSING: Existing VideoTrimmingViewModel from parent")
+        }
+
+        return RefactoredVideoTrimmingView(
             videoURL: initialVideoURL,
             enhancementType: enhancementType,
+            injectedViewModel: persistedTrimmingViewModel,
             onBack: onBack,
             onClose: onClose,
             onContinue: { url, start, end in

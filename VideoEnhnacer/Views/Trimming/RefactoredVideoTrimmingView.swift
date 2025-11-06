@@ -32,6 +32,7 @@ struct RefactoredVideoTrimmingView: View {
     init(
         videoURL: URL,
         enhancementType: EnhancementType,
+        injectedViewModel: VideoTrimmingViewModel? = nil,
         onBack: (() -> Void)? = nil,
         onClose: (() -> Void)? = nil,
         onContinue: ((URL, Double, Double) -> Void)? = nil
@@ -39,11 +40,20 @@ struct RefactoredVideoTrimmingView: View {
         self.onBack = onBack
         self.onClose = onClose
         self.onContinue = onContinue
-        let container = DIContainer.shared
-        let trimmingViewModel = container.makeVideoTrimmingViewModel(
-            videoURL: videoURL,
-            enhancementType: enhancementType
-        )
+
+        // Use injected view model if provided, otherwise create new one
+        let trimmingViewModel: VideoTrimmingViewModel
+        if let injected = injectedViewModel {
+            trimmingViewModel = injected
+            LoadingDebugLogger.shared.log("✅ USING INJECTED: VideoTrimmingViewModel in RefactoredVideoTrimmingView")
+        } else {
+            let container = DIContainer.shared
+            trimmingViewModel = container.makeVideoTrimmingViewModel(
+                videoURL: videoURL,
+                enhancementType: enhancementType
+            )
+            LoadingDebugLogger.shared.log("🆕 CREATING NEW: VideoTrimmingViewModel in RefactoredVideoTrimmingView")
+        }
 
         self._viewModel = StateObject(wrappedValue: trimmingViewModel)
         self._loadingState = StateObject(wrappedValue: LoadingStateObserver(viewModel: trimmingViewModel))
@@ -294,7 +304,24 @@ struct RefactoredVideoTrimmingView: View {
     }
 
     private func handleViewAppearance() {
+        // Skip reload if video data is already loaded
+        if viewModel.isAlreadyLoaded {
+            TrimmingDiagnostics.log("✅ [RefactoredVideoTrimmingView] Data already loaded, skipping reload")
+            LoadingDebugLogger.shared.log("⏭️ SKIP RELOAD: Already loaded - duration:\(viewModel.videoDuration)s, thumbnails:\(viewModel.thumbnails.count), trimStart:\(viewModel.trimStartTime)s, trimEnd:\(viewModel.trimEndTime)s")
+
+            Task { @MainActor in
+                // Just setup player without full reload
+                viewModel.playerViewModel.setupPlayers(
+                    originalURL: viewModel.videoURL,
+                    enhancedURL: viewModel.videoURL
+                )
+                computeMetadata()
+            }
+            return
+        }
+
         TrimmingDiagnostics.log("🚀 [RefactoredVideoTrimmingView] Starting video loading for: \(viewModel.videoURL.lastPathComponent)")
+        LoadingDebugLogger.shared.log("🚀 TRIGGER RELOAD: Not loaded - duration:\(viewModel.videoDuration)s, thumbnails:\(viewModel.thumbnails.count) - calling viewModel.loadVideo()")
         hasStartedLoading = true
 
         Task { @MainActor in

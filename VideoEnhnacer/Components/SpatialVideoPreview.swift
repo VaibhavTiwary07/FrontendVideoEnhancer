@@ -302,6 +302,8 @@ struct VideoLoadingView: View {
                     }
             }
 
+            let _ = LoadingDebugLogger.shared.log("📺 SHOWING 'Preparing Preview...' MESSAGE - VideoLoadingView displayed")
+
             Text("Preparing Preview...")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Color.accentWarm.opacity(0.8))

@@ -1,24 +1,43 @@
-[1762329529.5755038] ═══════════════════════════════════════════════════════════════
-[1762329529.57584] TRIMMING DIAGNOSTICS LOG STARTED
-[1762329529.575892] ═══════════════════════════════════════════════════════════════
-[1762329529.575941] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762329529.575999] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762329529.576381] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
-[1762329529.5776] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
-[1762329529.578374] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762329529.578864] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0007.MP4
-[1762329529.582459] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1466666666666665s
-[1762329529.582552] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762329529.5825992] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762329529.636293] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762329529.745044] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762329529.860662] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762329530.077462] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762329530.0803761] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
-[1762329531.385923] ◀️ [VideoTrimmingSlider] Started dragging start handle
-[1762329532.200097] ◀️ [VideoTrimmingSlider] Finished dragging start handle - startTime: 4.881428571428572s (duration: 2.265238095238095s)
-[1762329536.5497952] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=4.881428571428572 trimEnd=7.1466666666666665
-[1762329536.55061] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=4.881428571428572 trimEnd=7.1466666666666665
-[1762329536.5663362] 👋 [RefactoredVideoTrimmingView] View disappeared
-[1762329536.566524] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
-[1762329536.566798] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762347908.606269] ═══════════════════════════════════════════════════════════════
+[1762347908.6065779] TRIMMING DIAGNOSTICS LOG STARTED
+[1762347908.606621] ═══════════════════════════════════════════════════════════════
+[1762347908.60666] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762347908.606714] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762347908.607732] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
+[1762347908.608716] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
+[1762347908.611206] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762347908.611551] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0007.MP4
+[1762347908.6146932] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1466666666666665s
+[1762347908.61478] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
+[1762347908.61482] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762347908.666307] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762347908.7667298] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
+[1762347908.885011] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
+[1762347909.087426] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762347913.6170468] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
+[1762347913.848314] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=7.1466666666666665
+[1762347913.8491812] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=7.1466666666666665
+[1762347913.864723] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762347913.8650641] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762347913.865185] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762347915.715167] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
+[1762347915.7190309] 👁️ [RefactoredVideoTrimmingView] View appeared
+[1762347915.719163] 🚀 [RefactoredVideoTrimmingView] Starting video loading for: IMG_0007.MP4
+[1762347915.725872] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762347915.7260098] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762347915.727032] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
+[1762347915.7275848] 💾 [RefactoredVideoTrimmingView] File size: 9.0 MB
+[1762347915.728421] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762347915.7289472] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0007.MP4
+[1762347915.731811] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 7.1466666666666665s
+[1762347915.731878] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
+[1762347915.7319221] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762347915.782728] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762347915.888206] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
+[1762347915.979115] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
+[1762347916.1827688] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762348099.3456159] ❌ [RefactoredVideoTrimmingView] Close button tapped
+[1762348099.348567] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
+[1762348104.368644] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762348104.369504] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762348104.369863] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)

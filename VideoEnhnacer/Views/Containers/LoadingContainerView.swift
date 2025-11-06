@@ -8,6 +8,8 @@ struct LoadingContainerView: View {
     let contentView: AnyView
 
     var body: some View {
+        let _ = isLoading ? LoadingDebugLogger.shared.log("🔄 LOADING OVERLAY SHOWING - isLoading=true") : LoadingDebugLogger.shared.log("✅ CONTENT SHOWING - isLoading=false")
+
         Group {
             if isLoading {
                 loadingView

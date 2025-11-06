@@ -242,7 +242,10 @@ struct RefactoredEnhancementSelectionView: View {
             if option.id == "4K" && !DeviceSize.supports4K {
                 return false
             }
-            // Add more device-specific filters here if needed
+            // Hide 2K option on iPod devices (cap at 1080p maximum)
+//            if option.id == "2K" && DeviceSize.isiPod {
+//                return false
+//            }
             return true
         }
     }

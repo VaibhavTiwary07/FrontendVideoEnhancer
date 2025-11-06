@@ -15,6 +15,7 @@ struct HistoryVideoPlayerView: View {
     @State private var timeObserver: Any?
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var hasEnded: Bool = false
+    @State private var notificationObserver: NSObjectProtocol?
 
     var body: some View {
         let _ = print("DEBUG_HISTORYCARD: HistoryVideoPlayerView body rendered - showControls: \(showControls), isPlaying: \(isPlaying)")
@@ -170,11 +171,7 @@ struct HistoryVideoPlayerView: View {
             scheduleHideControls()
         }
         .onDisappear {
-            hideControlsTask?.cancel()
-            if let observer = timeObserver {
-                player?.removeTimeObserver(observer)
-                timeObserver = nil
-            }
+            cleanupPlayer()
         }
     }
 
@@ -228,22 +225,8 @@ struct HistoryVideoPlayerView: View {
         }
         timeObserver = observer
 
-        // Observe video end
-        if let currentItem = player.currentItem {
-            NotificationCenter.default.addObserver(
-                forName: .AVPlayerItemDidPlayToEndTime,
-                object: currentItem,
-                queue: .main
-            ) { _ in
-                print("DEBUG_HISTORYCARD: Video reached end - showing replay button")
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    hasEnded = true
-                    isPlaying = false
-                    showControls = true
-                }
-                hideControlsTask?.cancel()
-            }
-        }
+        // Set up end-time observer using dedicated method
+        setupEndTimeObserver()
 
         print("DEBUG_HISTORYCARD: setupPlayer() completed")
     }
@@ -322,6 +305,56 @@ struct HistoryVideoPlayerView: View {
         guard let player = player else { return }
         isMuted.toggle()
         player.isMuted = isMuted
+    }
+
+    private func setupEndTimeObserver() {
+        // Remove existing observer first to prevent duplicates
+        if let observer = notificationObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+
+        // Set up new observer (structs don't need weak self)
+        notificationObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: player?.currentItem,
+            queue: .main
+        ) { _ in
+            print("DEBUG_HISTORYCARD: Video reached end - showing replay button")
+            withAnimation(.easeInOut(duration: 0.3)) {
+                hasEnded = true
+                isPlaying = false
+                showControls = true
+            }
+            hideControlsTask?.cancel()
+        }
+    }
+
+    private func cleanupPlayer() {
+        print("DEBUG_HISTORYCARD: cleanupPlayer() called")
+
+        // 1. Stop playback immediately
+        player?.pause()
+
+        // 2. Cancel any pending tasks
+        hideControlsTask?.cancel()
+
+        // 3. Remove time observer
+        if let observer = timeObserver {
+            player?.removeTimeObserver(observer)
+            timeObserver = nil
+        }
+
+        // 4. Remove NotificationCenter observer
+        if let observer = notificationObserver {
+            NotificationCenter.default.removeObserver(observer)
+            notificationObserver = nil
+        }
+
+        // 5. Release player resources
+        player?.replaceCurrentItem(with: nil)
+        player = nil
+
+        print("DEBUG_HISTORYCARD: Player cleaned up successfully")
     }
 }
 

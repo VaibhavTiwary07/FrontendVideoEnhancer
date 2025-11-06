@@ -95,7 +95,11 @@ final class VideoTrimmingViewModel: ObservableObject {
             await performVideoLoading()
         }
     }
-    
+
+    var isAlreadyLoaded: Bool {
+        videoDuration > 0 && !thumbnails.isEmpty && error == nil
+    }
+
     func updateTrimForPreset(_ preset: TimePreset) {
         TrimmingDiagnostics.log("⏱️ [VideoTrimmingViewModel] Preset selected: \(preset.title) (\(preset.duration)s)")
         selectedDuration = preset
@@ -174,6 +178,8 @@ final class VideoTrimmingViewModel: ObservableObject {
     
     private func performVideoLoading() async {
         TrimmingDiagnostics.log("⏳ [VideoTrimmingViewModel] performVideoLoading() started")
+        LoadingDebugLogger.shared.log("📹 START LOADING: Setting isLoading=true, isLoadingVideo=true - Reason: performVideoLoading() called")
+
         // Set BOTH loading states at start - single source of truth
         await MainActor.run {
             // Only update if different - prevents redundant state changes
@@ -217,6 +223,8 @@ final class VideoTrimmingViewModel: ObservableObject {
             }
 
             TrimmingDiagnostics.log("✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false")
+            LoadingDebugLogger.shared.log("✅ END LOADING: Setting isLoading=false, isLoadingVideo=false - Reason: All operations complete (duration:\(self.videoDuration)s, thumbnails:\(self.thumbnails.count))")
+
             // ALL async operations complete - now update state atomically
             await MainActor.run {
                 // Only update if different - prevents redundant state changes
