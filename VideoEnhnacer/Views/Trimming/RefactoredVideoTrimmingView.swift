@@ -136,9 +136,18 @@ struct RefactoredVideoTrimmingView: View {
             selectedPhotoItem: $selectedPhotoItem,
             onVideoSelected: { newVideoURL in
                 TrimmingDiagnostics.log("🔄 [RefactoredVideoTrimmingView] User changed video to: \(newVideoURL.lastPathComponent)")
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] onVideoSelected callback triggered")
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] New video URL: \(newVideoURL.path)")
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] Calling viewModel.replaceVideo...")
+
                 // Update video in-place and recompute metadata
                 viewModel.replaceVideo(with: newVideoURL)
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] viewModel.replaceVideo completed")
+
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] Calling computeMetadata...")
                 computeMetadata()
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] computeMetadata completed")
+                logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] onVideoSelected callback finished")
             }
         ))
         .fullScreenCover(isPresented: $isShowingPaywall) {
@@ -336,6 +345,28 @@ struct RefactoredVideoTrimmingView: View {
     private func handleViewDisappearance() {
         TrimmingDiagnostics.log("🧹 [RefactoredVideoTrimmingView] Cleaning up resources")
         viewModel.cleanup()
+    }
+
+    private func logVideoSelectionToFile(_ message: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logMessage = "[\(timestamp)] \(message)"
+
+        // Print to console
+        print(logMessage)
+
+        // Write to project directory
+        let projectLogFile = URL(fileURLWithPath: "/home/user/FrontendVideoEnhancer/video_selection_debug.log")
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: projectLogFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: projectLogFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: projectLogFile)
+            }
+        }
     }
 
     private func goHomeFromToolbar() {
@@ -1003,23 +1034,42 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
                 .photosPicker(
                     isPresented: $showingVideoPicker,
                     selection: Binding<PhotosPickerItem?>(
-                        get: { selectedPhotoItem as? PhotosPickerItem },
+                        get: {
+                            let item = selectedPhotoItem as? PhotosPickerItem
+                            logToFile("📸 [VideoSelection] Binding getter called - current item: \(item != nil ? "exists" : "nil")")
+                            return item
+                        },
                         set: { newValue in
-                            selectedPhotoItem = newValue
+                            logToFile("📸 [VideoSelection] ==========================================")
+                            logToFile("📸 [VideoSelection] Binding setter called with item: \(newValue != nil ? "EXISTS" : "NIL")")
                             if let item = newValue {
+                                logToFile("📸 [VideoSelection] Item identifier: \(item.itemIdentifier ?? "no identifier")")
+                            }
+
+                            selectedPhotoItem = newValue
+
+                            if let item = newValue {
+                                logToFile("📸 [VideoSelection] Starting Task to load video...")
                                 Task {
+                                    logToFile("📸 [VideoSelection] Task started - calling loadVideoModern...")
                                     await loadVideoModern(from: item)
                                 }
+                            } else {
+                                logToFile("📸 [VideoSelection] No item selected (user cancelled?)")
                             }
                         }
                     ),
                     matching: .videos
                 )
+                .onChange(of: showingVideoPicker) { isShowing in
+                    logToFile("📸 [VideoSelection] Picker presentation changed: \(isShowing ? "SHOWING" : "HIDDEN")")
+                }
         } else {
             // FALLBACK: UIKit picker for iOS 15
             content
                 .sheet(isPresented: $showingVideoPicker) {
                     UIKitVideoPickerWrapper { url in
+                        logToFile("📸 [VideoSelection] UIKit picker selected video: \(url.lastPathComponent)")
                         onVideoSelected(url)
                     }
                 }
@@ -1028,20 +1078,74 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
 
     @available(iOS 16.0, *)
     private func loadVideoModern(from item: PhotosPickerItem) async {
+        let timestamp = Date()
+        logToFile("📸 [VideoSelection] loadVideoModern() called at \(timestamp)")
+        logToFile("📸 [VideoSelection] Item identifier: \(item.itemIdentifier ?? "unknown")")
         print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Loading video from PhotosPickerItem...")
 
         do {
+            logToFile("📸 [VideoSelection] Calling item.loadOriginalVideoFromTrimming()...")
             if let url = try await item.loadOriginalVideoFromTrimming() {
+                let elapsed = Date().timeIntervalSince(timestamp)
+                logToFile("📸 [VideoSelection] ✅ Successfully loaded video: \(url.lastPathComponent)")
+                logToFile("📸 [VideoSelection] Video URL: \(url.path)")
+                logToFile("📸 [VideoSelection] Load time: \(String(format: "%.2f", elapsed))s")
                 print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully loaded video: \(url.lastPathComponent)")
+
                 await MainActor.run {
+                    logToFile("📸 [VideoSelection] On MainActor - calling onVideoSelected callback...")
                     onVideoSelected(url)
+                    logToFile("📸 [VideoSelection] onVideoSelected callback completed")
+                    logToFile("📸 [VideoSelection] Clearing selectedPhotoItem...")
                     selectedPhotoItem = nil
+                    logToFile("📸 [VideoSelection] ==========================================")
                 }
             } else {
+                logToFile("📸 [VideoSelection] ❌ loadOriginalVideoFromTrimming returned nil")
                 print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ loadOriginalVideoFromTrimming returned nil")
             }
         } catch {
+            logToFile("📸 [VideoSelection] ❌ Error loading video: \(error.localizedDescription)")
+            logToFile("📸 [VideoSelection] Error details: \(error)")
             print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ Error loading video: \(error.localizedDescription)")
+        }
+    }
+
+    private func logToFile(_ message: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logMessage = "[\(timestamp)] \(message)"
+
+        // Print to console
+        print(logMessage)
+
+        // Write to file
+        let logFile = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("video_selection_debug.log")
+
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: logFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: logFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: logFile)
+            }
+        }
+
+        // Also write to project directory for easy access
+        let projectLogFile = URL(fileURLWithPath: "/home/user/FrontendVideoEnhancer/video_selection_debug.log")
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: projectLogFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: projectLogFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: projectLogFile)
+            }
         }
     }
 }

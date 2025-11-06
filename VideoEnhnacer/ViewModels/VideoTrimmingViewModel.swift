@@ -144,10 +144,42 @@ final class VideoTrimmingViewModel: ObservableObject {
     
     func replaceVideo(with newURL: URL) {
         TrimmingDiagnostics.log("🔄 [VideoTrimmingViewModel] Replacing video with: \(newURL.lastPathComponent)")
+        logToFile("🔄 [VideoTrimmingViewModel] replaceVideo called")
+        logToFile("🔄 [VideoTrimmingViewModel] New URL: \(newURL.path)")
+        logToFile("🔄 [VideoTrimmingViewModel] Old URL: \(videoURL.path)")
+
         // Reset state and load new video
+        logToFile("🔄 [VideoTrimmingViewModel] Calling trimmingReset()...")
         trimmingReset()
+        logToFile("🔄 [VideoTrimmingViewModel] trimmingReset() completed")
+
+        logToFile("🔄 [VideoTrimmingViewModel] Setting videoURL to new URL...")
         videoURL = newURL
+        logToFile("🔄 [VideoTrimmingViewModel] videoURL updated")
+
+        logToFile("🔄 [VideoTrimmingViewModel] Calling loadVideo()...")
         loadVideo()
+        logToFile("🔄 [VideoTrimmingViewModel] loadVideo() called (async loading will continue)")
+    }
+
+    private func logToFile(_ message: String) {
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
+        let logMessage = "[\(timestamp)] \(message)"
+
+        print(logMessage)
+
+        let projectLogFile = URL(fileURLWithPath: "/home/user/FrontendVideoEnhancer/video_selection_debug.log")
+        if let data = (logMessage + "\n").data(using: .utf8) {
+            if FileManager.default.fileExists(atPath: projectLogFile.path) {
+                if let fileHandle = try? FileHandle(forWritingTo: projectLogFile) {
+                    fileHandle.seekToEndOfFile()
+                    fileHandle.write(data)
+                    fileHandle.closeFile()
+                }
+            } else {
+                try? data.write(to: projectLogFile)
+            }
+        }
     }
 
     func cleanup() {
