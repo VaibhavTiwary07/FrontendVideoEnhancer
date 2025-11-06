@@ -858,25 +858,45 @@ fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
 @available(iOS 16.0, *)
 extension PhotosPickerItem {
     func loadOriginalVideoFromComparison() async throws -> URL? {
-        guard let identifier = self.itemIdentifier else {
-            print("🐞 MODERN_PICKER_DEBUG: No itemIdentifier")
+        print("🐞 MODERN_PICKER_DEBUG: Starting loadOriginalVideoFromComparison")
+
+        // APPROACH 1: Try using itemIdentifier (works for most local videos)
+        if let identifier = self.itemIdentifier {
+            print("🐞 MODERN_PICKER_DEBUG: Has itemIdentifier: \(identifier)")
+
+            let assets = PHAsset.fetchAssets(
+                withLocalIdentifiers: [identifier],
+                options: nil
+            )
+
+            if let asset = assets.firstObject {
+                print("🐞 MODERN_PICKER_DEBUG: Found PHAsset, attempting to load video")
+                return try await loadVideoFromPHAsset(asset)
+            } else {
+                print("🐞 MODERN_PICKER_DEBUG: No PHAsset found for identifier")
+            }
+        } else {
+            print("🐞 MODERN_PICKER_DEBUG: No itemIdentifier - trying loadTransferable fallback")
+        }
+
+        // APPROACH 2: Fallback to loadTransferable (works for iCloud, recent videos, etc.)
+        print("🐞 MODERN_PICKER_DEBUG: Attempting loadTransferable approach...")
+
+        guard let movie = try await self.loadTransferable(type: MovieTransferable.self) else {
+            print("🐞 MODERN_PICKER_DEBUG: loadTransferable returned nil")
             return nil
         }
 
-        let assets = PHAsset.fetchAssets(
-            withLocalIdentifiers: [identifier],
-            options: nil
-        )
-        guard let asset = assets.firstObject else {
-            print("🐞 MODERN_PICKER_DEBUG: No PHAsset found")
-            return nil
-        }
+        print("🐞 MODERN_PICKER_DEBUG: ✅ Successfully loaded video via loadTransferable: \(movie.url.lastPathComponent)")
+        return movie.url
+    }
 
+    private func loadVideoFromPHAsset(_ asset: PHAsset) async throws -> URL? {
         return try await withCheckedThrowingContinuation { continuation in
             let resources = PHAssetResource.assetResources(for: asset)
 
             guard let resource = resources.first(where: { $0.type == .video }) else {
-                print("🐞 MODERN_PICKER_DEBUG: No video resource found")
+                print("🐞 MODERN_PICKER_DEBUG: No video resource found in PHAsset")
                 continuation.resume(returning: nil)
                 return
             }
@@ -888,6 +908,8 @@ extension PhotosPickerItem {
             let options = PHAssetResourceRequestOptions()
             options.isNetworkAccessAllowed = true
 
+            print("🐞 MODERN_PICKER_DEBUG: Writing video data to temporary file...")
+
             PHAssetResourceManager.default().writeData(
                 for: resource,
                 toFile: fileURL,
@@ -897,10 +919,34 @@ extension PhotosPickerItem {
                     print("🐞 MODERN_PICKER_DEBUG: Error writing video data: \(error.localizedDescription)")
                     continuation.resume(throwing: error)
                 } else {
-                    print("🐞 MODERN_PICKER_DEBUG: Successfully wrote video to: \(fileURL.lastPathComponent)")
+                    print("🐞 MODERN_PICKER_DEBUG: ✅ Successfully wrote video to: \(fileURL.lastPathComponent)")
                     continuation.resume(returning: fileURL)
                 }
             }
+        }
+    }
+}
+
+// MARK: - Movie Transferable for PhotosPicker
+@available(iOS 16.0, *)
+struct MovieTransferable: Transferable {
+    let url: URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(contentType: .movie) { movie in
+            SentTransferredFile(movie.url)
+        } importing: { received in
+            let originalFile = received.file
+
+            // Copy to temporary directory with unique name
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("imported_video_\(UUID().uuidString).mov")
+
+            try FileManager.default.copyItem(at: originalFile, to: tempURL)
+
+            print("🐞 MODERN_PICKER_DEBUG: Imported video to: \(tempURL.lastPathComponent)")
+
+            return Self(url: tempURL)
         }
     }
 }

@@ -1154,25 +1154,45 @@ fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
 @available(iOS 16.0, *)
 extension PhotosPickerItem {
     func loadOriginalVideoFromTrimming() async throws -> URL? {
-        guard let identifier = self.itemIdentifier else {
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No itemIdentifier")
+        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Starting loadOriginalVideoFromTrimming")
+
+        // APPROACH 1: Try using itemIdentifier (works for most local videos)
+        if let identifier = self.itemIdentifier {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Has itemIdentifier: \(identifier)")
+
+            let assets = PHAsset.fetchAssets(
+                withLocalIdentifiers: [identifier],
+                options: nil
+            )
+
+            if let asset = assets.firstObject {
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Found PHAsset, attempting to load video")
+                return try await loadVideoFromPHAssetForTrimming(asset)
+            } else {
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No PHAsset found for identifier")
+            }
+        } else {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No itemIdentifier - trying loadTransferable fallback")
+        }
+
+        // APPROACH 2: Fallback to loadTransferable (works for iCloud, recent videos, etc.)
+        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Attempting loadTransferable approach...")
+
+        guard let movie = try await self.loadTransferable(type: MovieTransferable.self) else {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: loadTransferable returned nil")
             return nil
         }
 
-        let assets = PHAsset.fetchAssets(
-            withLocalIdentifiers: [identifier],
-            options: nil
-        )
-        guard let asset = assets.firstObject else {
-            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No PHAsset found")
-            return nil
-        }
+        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully loaded video via loadTransferable: \(movie.url.lastPathComponent)")
+        return movie.url
+    }
 
+    private func loadVideoFromPHAssetForTrimming(_ asset: PHAsset) async throws -> URL? {
         return try await withCheckedThrowingContinuation { continuation in
             let resources = PHAssetResource.assetResources(for: asset)
 
             guard let resource = resources.first(where: { $0.type == .video }) else {
-                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No video resource found")
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No video resource found in PHAsset")
                 continuation.resume(returning: nil)
                 return
             }
@@ -1184,6 +1204,8 @@ extension PhotosPickerItem {
             let options = PHAssetResourceRequestOptions()
             options.isNetworkAccessAllowed = true
 
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Writing video data to temporary file...")
+
             PHAssetResourceManager.default().writeData(
                 for: resource,
                 toFile: fileURL,
@@ -1193,7 +1215,7 @@ extension PhotosPickerItem {
                     print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Error writing video data: \(error.localizedDescription)")
                     continuation.resume(throwing: error)
                 } else {
-                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Successfully wrote video to: \(fileURL.lastPathComponent)")
+                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully wrote video to: \(fileURL.lastPathComponent)")
                     continuation.resume(returning: fileURL)
                 }
             }
