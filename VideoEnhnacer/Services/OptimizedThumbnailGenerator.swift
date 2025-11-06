@@ -133,7 +133,24 @@ final class OptimizedThumbnailGenerator: ThumbnailGeneratorProtocol {
 
         // Generate new thumbnail
         do {
-            let cgImage = try await generator.image(at: time).image
+            let cgImage: CGImage
+            if #available(iOS 16.0, *) {
+                cgImage = try await generator.image(at: time).image
+            } else {
+                // iOS 15 fallback
+                cgImage = try await withCheckedThrowingContinuation { continuation in
+                    generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, result, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                        } else if let image = image {
+                            continuation.resume(returning: image)
+                        } else {
+                            continuation.resume(throwing: NSError(domain: "ThumbnailGenerator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to generate thumbnail"]))
+                        }
+                    }
+                }
+            }
+
             let image = UIImage(cgImage: cgImage)
 
             // Cache the result
@@ -192,7 +209,24 @@ final class ProgressiveThumbnailGenerator {
             )
 
             do {
-                let cgImage = try await imageGenerator.image(at: time).image
+                let cgImage: CGImage
+                if #available(iOS 16.0, *) {
+                    cgImage = try await imageGenerator.image(at: time).image
+                } else {
+                    // iOS 15 fallback
+                    cgImage = try await withCheckedThrowingContinuation { continuation in
+                        imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: time)]) { _, image, _, result, error in
+                            if let error = error {
+                                continuation.resume(throwing: error)
+                            } else if let image = image {
+                                continuation.resume(returning: image)
+                            } else {
+                                continuation.resume(throwing: NSError(domain: "ThumbnailGenerator", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to generate thumbnail"]))
+                            }
+                        }
+                    }
+                }
+
                 let image = UIImage(cgImage: cgImage)
 
                 // Deliver immediately
