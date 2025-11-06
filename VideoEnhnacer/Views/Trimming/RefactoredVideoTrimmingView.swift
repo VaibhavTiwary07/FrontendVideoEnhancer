@@ -9,7 +9,8 @@ struct RefactoredVideoTrimmingView: View {
     @State private var resolutionText: String = "—"
     @State private var sizeText: String = "—"
     @State private var showingVideoPicker = false
-    
+    @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
+
     // MARK: - Callbacks
     private let onBack: (() -> Void)?
     private let onClose: (() -> Void)?
@@ -130,14 +131,16 @@ struct RefactoredVideoTrimmingView: View {
             handleViewDisappearance()
         }
         .gesture(swipeToGoBackGesture)
-        .sheet(isPresented: $showingVideoPicker) {
-            UIKitVideoPickerWrapper { newVideoURL in
+        .modifier(TrimmingVideoPickerModifier(
+            showingVideoPicker: $showingVideoPicker,
+            selectedPhotoItem: $selectedPhotoItem,
+            onVideoSelected: { newVideoURL in
                 TrimmingDiagnostics.log("🔄 [RefactoredVideoTrimmingView] User changed video to: \(newVideoURL.lastPathComponent)")
                 // Update video in-place and recompute metadata
                 viewModel.replaceVideo(with: newVideoURL)
                 computeMetadata()
             }
-        }
+        ))
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
@@ -984,6 +987,113 @@ private struct ProPill: View {
                     .fill(LinearGradient.primaryTheme)
             )
             .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
+    }
+}
+
+// MARK: - Video Picker Modifier
+fileprivate struct TrimmingVideoPickerModifier: ViewModifier {
+    @Binding var showingVideoPicker: Bool
+    @Binding var selectedPhotoItem: Any?
+    let onVideoSelected: (URL) -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            // MODERN: Native SwiftUI PhotosPicker
+            content
+                .photosPicker(
+                    isPresented: $showingVideoPicker,
+                    selection: Binding<PhotosPickerItem?>(
+                        get: { selectedPhotoItem as? PhotosPickerItem },
+                        set: { selectedPhotoItem = $0 }
+                    ),
+                    matching: .videos
+                )
+                .onChange(of: selectedPhotoItem) { newValue in
+                    if #available(iOS 16.0, *), let item = newValue as? PhotosPickerItem {
+                        Task {
+                            await loadVideoModern(from: item)
+                        }
+                    }
+                }
+        } else {
+            // FALLBACK: UIKit picker for iOS 15
+            content
+                .sheet(isPresented: $showingVideoPicker) {
+                    UIKitVideoPickerWrapper { url in
+                        onVideoSelected(url)
+                    }
+                }
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private func loadVideoModern(from item: PhotosPickerItem) async {
+        print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Loading video from PhotosPickerItem...")
+
+        do {
+            if let url = try await item.loadOriginalVideoFromTrimming() {
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ✅ Successfully loaded video: \(url.lastPathComponent)")
+                await MainActor.run {
+                    onVideoSelected(url)
+                    selectedPhotoItem = nil
+                }
+            } else {
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ loadOriginalVideoFromTrimming returned nil")
+            }
+        } catch {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: ❌ Error loading video: \(error.localizedDescription)")
+        }
+    }
+}
+
+// MARK: - PhotosPickerItem Extension for Original Video Loading (Trimming)
+@available(iOS 16.0, *)
+extension PhotosPickerItem {
+    func loadOriginalVideoFromTrimming() async throws -> URL? {
+        guard let identifier = self.itemIdentifier else {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No itemIdentifier")
+            return nil
+        }
+
+        let assets = PHAsset.fetchAssets(
+            withLocalIdentifiers: [identifier],
+            options: nil
+        )
+        guard let asset = assets.firstObject else {
+            print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No PHAsset found")
+            return nil
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            let resources = PHAssetResource.assetResources(for: asset)
+
+            guard let resource = resources.first(where: { $0.type == .video }) else {
+                print("🐞 TRIMMING_MODERN_PICKER_DEBUG: No video resource found")
+                continuation.resume(returning: nil)
+                return
+            }
+
+            // Use temporary directory for better iOS compatibility
+            let fileURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("video_\(UUID().uuidString).mov")
+
+            let options = PHAssetResourceRequestOptions()
+            options.isNetworkAccessAllowed = true
+
+            PHAssetResourceManager.default().writeData(
+                for: resource,
+                toFile: fileURL,
+                options: options
+            ) { error in
+                if let error = error {
+                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Error writing video data: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
+                } else {
+                    print("🐞 TRIMMING_MODERN_PICKER_DEBUG: Successfully wrote video to: \(fileURL.lastPathComponent)")
+                    continuation.resume(returning: fileURL)
+                }
+            }
+        }
     }
 }
 

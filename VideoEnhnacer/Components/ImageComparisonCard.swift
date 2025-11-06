@@ -23,6 +23,7 @@ struct ImageComparisonCard: View {
     @State private var sliderValue: Double = 0.5
     @State private var showingVideoPicker = false
     @State private var selectedVideoURL: URL?
+    @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
     @State private var showingPermissionAlert = false
     @StateObject private var permissionManager = PermissionManager()
     @EnvironmentObject var flowState: EnhancementFlowStateManager
@@ -161,21 +162,19 @@ struct ImageComparisonCard: View {
         .onAppear {
             permissionManager.checkCurrentStatus()
         }
-        .sheet(isPresented: $showingVideoPicker) {
-            InlineUIKitVideoPicker(
-                onVideoSelected: { url in
-                    print("🐞 WHITE_SCREEN_DEBUG: InlineUIKitVideoPicker.onVideoSelected - URL: \(url.lastPathComponent)")
-                    showingVideoPicker = false
-                    selectedVideoURL = url // This directly triggers fullScreenCover with item binding
-                    print("🐞 WHITE_SCREEN_DEBUG: Set selectedVideoURL - SwiftUI item binding will handle the rest")
-                },
-                onCancelled: {
-                    print("🐞 WHITE_SCREEN_DEBUG: InlineUIKitVideoPicker.onCancelled")
-                    //        .toolbar { navigationToolbar } to .toolbar { navigationToolbar }                     selectedVideoURL = nil
-                    showingVideoPicker = false
-                }
-            )
-        }
+        .modifier(ComparisonCardVideoPickerModifier(
+            showingVideoPicker: $showingVideoPicker,
+            selectedPhotoItem: $selectedPhotoItem,
+            onVideoSelected: { url in
+                print("🐞 WHITE_SCREEN_DEBUG: VideoPicker.onVideoSelected - URL: \(url.lastPathComponent)")
+                selectedVideoURL = url
+                showingVideoPicker = false
+            },
+            onCancelled: {
+                print("🐞 WHITE_SCREEN_DEBUG: VideoPicker.onCancelled")
+                showingVideoPicker = false
+            }
+        ))
         .fullScreenCover(item: $selectedVideoURL) { videoURL in
             VideoEnhancementModalView(
                 videoURL: videoURL,
@@ -576,24 +575,14 @@ struct InlineUIKitVideoPicker: UIViewControllerRepresentable {
 
         // iPad-specific configuration to prevent white screen
         if UIDevice.current.userInterfaceIdiom == .pad {
-            picker.modalPresentationStyle = .popover
-            // Configure popover after presentation in updateUIViewController
+            picker.modalPresentationStyle = .overCurrentContext
         }
 
         return picker
     }
     
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
-        // Configure popover presentation for iPad
-        if UIDevice.current.userInterfaceIdiom == .pad,
-           let popover = uiViewController.popoverPresentationController {
-            // Find the presenting view controller's view to use as source
-            if let sourceView = uiViewController.presentingViewController?.view {
-                popover.sourceView = sourceView
-                popover.sourceRect = CGRect(x: sourceView.bounds.midX, y: sourceView.bounds.midY, width: 0, height: 0)
-                popover.permittedArrowDirections = .any
-            }
-        }
+        // No popover configuration needed for .overCurrentContext
     }
     
     func makeCoordinator() -> Coordinator {
@@ -692,6 +681,125 @@ private struct PressableCardButtonStyle: ButtonStyle {
     }
 }
 
+// MARK: - Video Picker Presentation Modifier
+fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
+    @Binding var showingVideoPicker: Bool
+    @Binding var selectedPhotoItem: Any?
+    let onVideoSelected: (URL) -> Void
+    let onCancelled: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            // MODERN: Native SwiftUI PhotosPicker
+            content
+                .photosPicker(
+                    isPresented: $showingVideoPicker,
+                    selection: Binding<PhotosPickerItem?>(
+                        get: { selectedPhotoItem as? PhotosPickerItem },
+                        set: { selectedPhotoItem = $0 }
+                    ),
+                    matching: .videos
+                )
+                .onChange(of: selectedPhotoItem) { newValue in
+                    if #available(iOS 16.0, *), let item = newValue as? PhotosPickerItem {
+                        Task {
+                            await loadVideoModern(from: item)
+                        }
+                    }
+                }
+        } else {
+            // FALLBACK: UIKit picker for iOS 15
+            content
+                .sheet(isPresented: $showingVideoPicker) {
+                    InlineUIKitVideoPicker(
+                        onVideoSelected: { url in
+                            onVideoSelected(url)
+                        },
+                        onCancelled: {
+                            onCancelled()
+                        }
+                    )
+                }
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private func loadVideoModern(from item: PhotosPickerItem) async {
+        print("🐞 MODERN_PICKER_DEBUG: Loading video from PhotosPickerItem...")
+
+        do {
+            if let url = try await item.loadOriginalVideoFromComparison() {
+                print("🐞 MODERN_PICKER_DEBUG: ✅ Successfully loaded video: \(url.lastPathComponent)")
+                await MainActor.run {
+                    onVideoSelected(url)
+                    selectedPhotoItem = nil
+                }
+            } else {
+                print("🐞 MODERN_PICKER_DEBUG: ❌ loadOriginalVideoFromComparison returned nil")
+                await MainActor.run {
+                    onCancelled()
+                }
+            }
+        } catch {
+            print("🐞 MODERN_PICKER_DEBUG: ❌ Error loading video: \(error.localizedDescription)")
+            await MainActor.run {
+                onCancelled()
+            }
+        }
+    }
+}
+
+// MARK: - PhotosPickerItem Extension for Original Video Loading (Comparison)
+@available(iOS 16.0, *)
+extension PhotosPickerItem {
+    func loadOriginalVideoFromComparison() async throws -> URL? {
+        guard let identifier = self.itemIdentifier else {
+            print("🐞 MODERN_PICKER_DEBUG: No itemIdentifier")
+            return nil
+        }
+
+        let assets = PHAsset.fetchAssets(
+            withLocalIdentifiers: [identifier],
+            options: nil
+        )
+        guard let asset = assets.firstObject else {
+            print("🐞 MODERN_PICKER_DEBUG: No PHAsset found")
+            return nil
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            let resources = PHAssetResource.assetResources(for: asset)
+
+            guard let resource = resources.first(where: { $0.type == .video }) else {
+                print("🐞 MODERN_PICKER_DEBUG: No video resource found")
+                continuation.resume(returning: nil)
+                return
+            }
+
+            // Use temporary directory for better iOS compatibility
+            let fileURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("video_\(UUID().uuidString).mov")
+
+            let options = PHAssetResourceRequestOptions()
+            options.isNetworkAccessAllowed = true
+
+            PHAssetResourceManager.default().writeData(
+                for: resource,
+                toFile: fileURL,
+                options: options
+            ) { error in
+                if let error = error {
+                    print("🐞 MODERN_PICKER_DEBUG: Error writing video data: \(error.localizedDescription)")
+                    continuation.resume(throwing: error)
+                } else {
+                    print("🐞 MODERN_PICKER_DEBUG: Successfully wrote video to: \(fileURL.lastPathComponent)")
+                    continuation.resume(returning: fileURL)
+                }
+            }
+        }
+    }
+}
+
 #Preview {
     VStack(spacing: 20) {
         ImageComparisonCard(
@@ -704,7 +812,7 @@ private struct PressableCardButtonStyle: ButtonStyle {
         ) {
             print("Tapped AI Upscale")
         }
-        
+
         ImageComparisonCard(
             icon: "DenoiseIcon",
             title: "AI Denoise",

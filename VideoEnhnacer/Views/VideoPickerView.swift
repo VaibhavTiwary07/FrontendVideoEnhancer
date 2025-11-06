@@ -480,24 +480,14 @@ struct UIKitVideoPickerWrapper: UIViewControllerRepresentable {
 
         // iPad-specific configuration to prevent white screen
         if UIDevice.current.userInterfaceIdiom == .pad {
-            picker.modalPresentationStyle = .popover
-            // Configure popover after presentation in updateUIViewController
+            picker.modalPresentationStyle = .overCurrentContext
         }
 
         return picker
     }
     
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {
-        // Configure popover presentation for iPad
-        if UIDevice.current.userInterfaceIdiom == .pad,
-           let popover = uiViewController.popoverPresentationController {
-            // Find the presenting view controller's view to use as source
-            if let sourceView = uiViewController.presentingViewController?.view {
-                popover.sourceView = sourceView
-                popover.sourceRect = CGRect(x: sourceView.bounds.midX, y: sourceView.bounds.midY, width: 0, height: 0)
-                popover.permittedArrowDirections = .any
-            }
-        }
+        // No popover configuration needed for .overCurrentContext
     }
     
     func makeCoordinator() -> Coordinator {
