@@ -25,6 +25,12 @@ struct VideoComparisonSlider: View {
     // Throttling for slider updates
     @State private var sliderUpdateWorkItem: DispatchWorkItem?
 
+    // Tap vs Drag detection
+    @State private var dragStartLocation: CGPoint?
+    @State private var dragStartTime: Date?
+    @State private var isDragging: Bool = false
+    let onTapDetected: (() -> Void)?
+
     // Video playback controls
     @State private var isPlaying: Bool = true
     @State private var currentTime: Double = 0
@@ -61,7 +67,8 @@ struct VideoComparisonSlider: View {
         videoPlayerManager: VideoPlayerManager,
         compact: Bool = false,
         customKey: String? = nil,
-        backgroundColor: Color? = nil
+        backgroundColor: Color? = nil,
+        onTapDetected: (() -> Void)? = nil
     ) {
         self.normalVideoName = normalVideoName
         self.enhancedVideoName = enhancedVideoName
@@ -71,6 +78,7 @@ struct VideoComparisonSlider: View {
         self.compact = compact
         self.customKey = customKey
         self.backgroundColor = backgroundColor
+        self.onTapDetected = onTapDetected
     }
     
     var body: some View {
@@ -198,29 +206,65 @@ struct VideoComparisonSlider: View {
                                     }
                             )
 
-                        // Make the whole video area draggable with minimum distance to allow taps
+                        // Make the whole video area draggable with tap detection
                         Rectangle()
                             .fill(Color.clear)
                             .contentShape(Rectangle())
                             .frame(height: videoHeight)
                             .gesture(
-                                DragGesture(minimumDistance: 15) // Require 15pt movement to activate drag
+                                DragGesture(minimumDistance: 0)
                                     .onChanged { value in
-                                        isUserInteracting = true
-                                        stopAutoSlide()
+                                        // Initialize tracking on first change
+                                        if dragStartLocation == nil {
+                                            dragStartLocation = value.startLocation
+                                            dragStartTime = Date()
+                                        }
 
-                                        // Throttle updates to reduce lag
-                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+                                        // Calculate distance from start
+                                        let distance = hypot(
+                                            value.location.x - value.startLocation.x,
+                                            value.location.y - value.startLocation.y
+                                        )
 
-                                        // Cancel previous update
-                                        sliderUpdateWorkItem?.cancel()
+                                        // Only treat as drag if movement exceeds threshold (10 points)
+                                        if distance > 10 {
+                                            isDragging = true
+                                            isUserInteracting = true
+                                            stopAutoSlide()
 
-                                        // Update immediately for visual feedback
-                                        sliderValue = newValue
+                                            // Throttle updates to reduce lag
+                                            let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+
+                                            // Cancel previous update
+                                            sliderUpdateWorkItem?.cancel()
+
+                                            // Update immediately for visual feedback
+                                            sliderValue = newValue
+                                        }
                                     }
-                                    .onEnded { _ in
+                                    .onEnded { value in
+                                        // Calculate final metrics
+                                        let distance = hypot(
+                                            value.location.x - value.startLocation.x,
+                                            value.location.y - value.startLocation.y
+                                        )
+                                        let duration = dragStartTime.map { Date().timeIntervalSince($0) } ?? 0
+
+                                        // Determine if it was a tap: < 10pt movement AND < 200ms duration
+                                        if !isDragging && distance < 10 && duration < 0.2 {
+                                            // TAP DETECTED - trigger callback to open video picker
+                                            onTapDetected?()
+                                        }
+
+                                        // Reset state
+                                        dragStartLocation = nil
+                                        dragStartTime = nil
+                                        isDragging = false
                                         sliderUpdateWorkItem?.cancel()
-                                        scheduleAutoSlideResume()
+
+                                        if isUserInteracting {
+                                            scheduleAutoSlideResume()
+                                        }
                                     }
                             )
 

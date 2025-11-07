@@ -376,7 +376,8 @@ struct ImageComparisonCard: View {
                     enhancedURL: processedURL,
                     videoPlayerManager: manager,
                     compact: true,
-                    customKey: title
+                    customKey: title,
+                    onTapDetected: handleCardTap
                 )
                 .onAppear {
                     print("🧩 ImageComparisonCard '\(title)' using URL videos; key='\(title)'\n     originalURL=\(originalURL)\n     processedURL=\(processedURL)")
@@ -392,7 +393,8 @@ struct ImageComparisonCard: View {
                     enhancedURL: nil,
                     videoPlayerManager: manager,
                     compact: true,
-                    customKey: title
+                    customKey: title,
+                    onTapDetected: handleCardTap
                 )
                 .onAppear {
                     print("🧩 ImageComparisonCard '\(title)' using asset videos; key='\(title)'\n     normal='\(normal)' enhanced='\(enhanced)'")
