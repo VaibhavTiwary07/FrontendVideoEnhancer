@@ -25,6 +25,7 @@ struct ImageComparisonCard: View {
     @State private var selectedVideoURL: URL?
     @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
     @State private var showingPermissionAlert = false
+    @State private var showingEnhancementInfo = false
     @StateObject private var permissionManager = PermissionManager()
     @EnvironmentObject var flowState: EnhancementFlowStateManager
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -153,6 +154,27 @@ struct ImageComparisonCard: View {
         .frame(minHeight: isIPad ? 180 : 130, maxHeight: isIPad ? 210 : 150)
         .contentShape(RoundedRectangle(cornerRadius: 22))
         .padding(.horizontal, 16)
+        .overlay(alignment: .topTrailing) {
+            Button(action: {
+                showingEnhancementInfo = true
+            }) {
+                ZStack {
+                    // Background circle with shadow
+                    Circle()
+                        .fill(Color.white.opacity(0.95))
+                        .frame(width: isIPad ? 36 : 32, height: isIPad ? 36 : 32)
+                        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 2)
+
+                    // Info icon
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: isIPad ? 24 : 20, weight: .medium))
+                        .foregroundColor(Color.secondary)
+                }
+                .padding(.top, isIPad ? 16 : 14)
+                .padding(.trailing, isIPad ? 18 : 16)
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
         .onAppear {
             // Auto-slide handled by slider itself
         }
@@ -211,6 +233,14 @@ struct ImageComparisonCard: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
+        }
+        .popover(isPresented: $showingEnhancementInfo) {
+            if #available(iOS 16.4, *) {
+                EnhancementInfoPopover(enhancementType: resolvedEnhancementType())
+                    .presentationCompactAdaptation(.popover)
+            } else {
+                EnhancementInfoPopover(enhancementType: resolvedEnhancementType())
+            }
         }
     }
     
@@ -847,6 +877,106 @@ fileprivate struct ComparisonCardVideoPickerModifier: ViewModifier {
                 try? data.write(to: projectLogFile)
             }
         }
+    }
+}
+
+// MARK: - Enhancement Info Popover
+struct EnhancementInfoPopover: View {
+    let enhancementType: EnhancementType
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
+    private var isIPad: Bool {
+        horizontalSizeClass == .regular
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: isIPad ? 20 : 16) {
+                // Header with icon and title
+                HStack(spacing: 12) {
+                    if let uiImage = UIImage(named: enhancementType.icon) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: isIPad ? 50 : 40, height: isIPad ? 50 : 40)
+                    } else {
+                        Image(systemName: enhancementType.icon)
+                            .font(.system(size: isIPad ? 36 : 28, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+
+                    Text(enhancementType.name)
+                        .font(.system(size: isIPad ? 24 : 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
+
+                Divider()
+                    .background(Color.white.opacity(0.3))
+
+                // Description
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Description")
+                        .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.8))
+
+                    Text(enhancementType.description)
+                        .font(.system(size: isIPad ? 15 : 13))
+                        .foregroundColor(.white.opacity(0.95))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                // Available Options
+                if !enhancementType.options.isEmpty {
+                    Divider()
+                        .background(Color.white.opacity(0.3))
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Available Options")
+                            .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.8))
+
+                        ForEach(enhancementType.options, id: \.id) { option in
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: option.icon)
+                                    .font(.system(size: isIPad ? 16 : 14))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .frame(width: isIPad ? 24 : 20)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack(spacing: 6) {
+                                        Text(option.title)
+                                            .font(.system(size: isIPad ? 15 : 13, weight: .semibold))
+                                            .foregroundColor(.white)
+
+                                        if option.isRecommended {
+                                            Text("RECOMMENDED")
+                                                .font(.system(size: isIPad ? 10 : 9, weight: .bold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(
+                                                    Capsule()
+                                                        .fill(Color.green.opacity(0.8))
+                                                )
+                                        }
+                                    }
+
+                                    Text(option.description)
+                                        .font(.system(size: isIPad ? 14 : 12))
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+            }
+            .padding(isIPad ? 24 : 20)
+        }
+        .frame(width: isIPad ? 400 : 320, height: isIPad ? 500 : 400)
+        .background(Color.black.opacity(0.92))
+        .cornerRadius(16)
     }
 }
 
