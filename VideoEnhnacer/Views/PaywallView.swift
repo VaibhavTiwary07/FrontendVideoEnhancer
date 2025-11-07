@@ -182,7 +182,7 @@ struct PaywallView: View {
                 }
                 .padding(20)
                 .frame(width: 300, height: 200)
-                .background(Color.black.opacity(0.9))
+                .background(Color.cardSoft)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .shadow(radius: 10)
                 .overlay(alignment: .topTrailing) {
