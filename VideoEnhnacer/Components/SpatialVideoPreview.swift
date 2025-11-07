@@ -168,6 +168,7 @@ struct SpatialVideoPreview: View {
                     trimStart: nil,
                     trimEnd: nil
                 )
+                .id(ObjectIdentifier(player)) // Force view recreation on player change
                 .aspectRatio(contentMode: .fit)
                 .cornerRadius(24)
             } else {

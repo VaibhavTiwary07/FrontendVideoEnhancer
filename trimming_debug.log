@@ -1,56 +1,26 @@
-[1762458256.755022] ═══════════════════════════════════════════════════════════════
-[1762458256.755302] TRIMMING DIAGNOSTICS LOG STARTED
-[1762458256.755354] ═══════════════════════════════════════════════════════════════
-[1762458256.977682] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762458256.977892] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762458256.979926] 📐 [RefactoredVideoTrimmingView] Video resolution: 272×480
-[1762458256.9807692] 💾 [RefactoredVideoTrimmingView] File size: 0.2 MB
-[1762458256.982346] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762458257.152534] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458257.313242] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458257.666249] 📹 [VideoTrimmingViewModel] Getting video info from: imported_video_3AFBFBD0-3ECB-44D4-AF1F-8C213FEF7EE2.mov
-[1762458257.782475] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 1.767s
-[1762458257.782731] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762458257.782934] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762458257.9922218] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762458258.1068912] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762458258.130694] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762458258.407098] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
-[1762458264.8706] 🔄 [RefactoredVideoTrimmingView] User changed video to: imported_video_BCF9062A-2A09-4E14-9755-3773FC9EAE44.mov
-[1762458264.942714] 🔄 [VideoTrimmingViewModel] Replacing video with: imported_video_BCF9062A-2A09-4E14-9755-3773FC9EAE44.mov
-[1762458265.127921] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762458265.197802] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762458265.199399] 📐 [RefactoredVideoTrimmingView] Video resolution: 1280×720
-[1762458265.200114] 💾 [RefactoredVideoTrimmingView] File size: 0.5 MB
-[1762458265.448378] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762458265.4536328] 📹 [VideoTrimmingViewModel] Getting video info from: imported_video_BCF9062A-2A09-4E14-9755-3773FC9EAE44.mov
-[1762458265.6023312] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 2.167s
-[1762458265.602552] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762458265.602641] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762458265.763057] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762458265.9382272] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762458266.0646129] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762458266.339719] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
-[1762458269.250464] ⬅️ [RefactoredVideoTrimmingView] Back button tapped
-[1762458270.167352] 👋 [RefactoredVideoTrimmingView] View disappeared
-[1762458270.167509] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
-[1762458270.167676] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
-[1762458276.396745] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458276.398141] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458276.538151] 👁️ [RefactoredVideoTrimmingView] View appeared
-[1762458276.539036] 🚀 [RefactoredVideoTrimmingView] Starting video loading for: imported_video_035FC16D-9C35-4956-9173-730008A65E46.mov
-[1762458276.711514] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762458276.71165] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762458276.712836] 📐 [RefactoredVideoTrimmingView] Video resolution: 1280×720
-[1762458276.713558] 💾 [RefactoredVideoTrimmingView] File size: 0.5 MB
-[1762458276.818098] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762458276.859599] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458277.016279] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (iphone se 2), iOS 18.5
-[1762458277.13292] 📹 [VideoTrimmingViewModel] Getting video info from: imported_video_035FC16D-9C35-4956-9173-730008A65E46.mov
-[1762458277.351327] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 2.167s
-[1762458277.35169] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762458277.3518372] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762458277.474828] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762458277.5807] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762458277.704582] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762458277.908438] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762459216.211917] ═══════════════════════════════════════════════════════════════
+[1762459216.212414] TRIMMING DIAGNOSTICS LOG STARTED
+[1762459216.212537] ═══════════════════════════════════════════════════════════════
+[1762459216.2134418] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762459216.213554] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762459216.217774] 📐 [RefactoredVideoTrimmingView] Video resolution: 568×320
+[1762459216.218971] 💾 [RefactoredVideoTrimmingView] File size: 1.6 MB
+[1762459216.428452] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762459216.4344] 📹 [VideoTrimmingViewModel] Getting video info from: imported_video_FF88F02F-A9F9-4B2E-9A2F-694DDE8491BA.mov
+[1762459216.585681] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 30.034s
+[1762459216.587502] 📱 [VideoTrimmingViewModel] Large device detected - using parallel loading
+[1762459216.772159] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762459216.774146] 🖼️ [VideoTrimmingViewModel] Generating 10 thumbnails at medium quality
+[1762459216.961081] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762459216.962967] ✅ [VideoTrimmingViewModel] Generated 10 thumbnails
+[1762459217.119977] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762459221.067426] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=30.0
+[1762459221.070796] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=30.0
+[1762459221.783144] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762459221.78365] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762459221.783895] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762459223.42255] 👁️ [RefactoredVideoTrimmingView] View appeared
+[1762459223.423089] ✅ [RefactoredVideoTrimmingView] Data already loaded, skipping reload
+[1762459223.429132] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762459223.431241] 📐 [RefactoredVideoTrimmingView] Video resolution: 568×320
+[1762459223.4320478] 💾 [RefactoredVideoTrimmingView] File size: 1.6 MB

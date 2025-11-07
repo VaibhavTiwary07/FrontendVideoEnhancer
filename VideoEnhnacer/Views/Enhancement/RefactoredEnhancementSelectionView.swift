@@ -523,6 +523,7 @@ struct EnhancementVideoPlayerView: View {
                     trimStart: trimStart,
                     trimEnd: trimEnd
                 )
+                    .id(ObjectIdentifier(player)) // Force view recreation on player change
                     .onAppear {
                         viewAppearCount += 1
                         print("🎥 EnhancementVideoPlayerView[🆔 \(debugId)] - VideoPlayer onAppear #\(viewAppearCount)")

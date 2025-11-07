@@ -367,6 +367,7 @@ struct VideoPlayerFullScreenView: View {
                     trimStart: nil,
                     trimEnd: nil
                 )
+                .id(ObjectIdentifier(player)) // Force view recreation on player change
             }
 
             VStack {

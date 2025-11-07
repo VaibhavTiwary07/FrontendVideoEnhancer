@@ -474,6 +474,7 @@ struct VideoPlayerView: View {
                     trimStart: nil,
                     trimEnd: nil
                 )
+                .id(ObjectIdentifier(player)) // Force view recreation on player change to prevent observer mismatch
                 .onAppear {
                     playerViewModel.setActive(true)
                     playerViewModel.setMuted(isMuted)

@@ -16,6 +16,7 @@ struct CustomVideoPlayerWithControls: View {
     @State private var isSeeking: Bool = false
     @State private var hideControlsTask: Task<Void, Never>?
     @State private var timeObserver: Any?
+    @State private var observedPlayerID: ObjectIdentifier?
     @State private var showCenterButton: Bool = true
 
     private let timeObserverInterval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
@@ -176,10 +177,19 @@ struct CustomVideoPlayerWithControls: View {
         .onDisappear {
             print("DEBUG_PAUSE: onDisappear - cleaning up")
             hideControlsTask?.cancel()
-            if let observer = timeObserver {
+
+            // Defensive cleanup: Only remove observer if it belongs to current player
+            if let observer = timeObserver,
+               let observedID = observedPlayerID,
+               ObjectIdentifier(player) == observedID {
+                print("DEBUG_PAUSE: Removing time observer from current player")
                 player.removeTimeObserver(observer)
-                timeObserver = nil
+            } else if timeObserver != nil {
+                print("DEBUG_PAUSE: ⚠️ Skipping observer removal - player instance mismatch")
             }
+
+            timeObserver = nil
+            observedPlayerID = nil
         }
         .onChange(of: isPlaying) { newValue in
             print("DEBUG_PAUSE: onChange(of: isPlaying) triggered")
@@ -192,6 +202,26 @@ struct CustomVideoPlayerWithControls: View {
                 print("DEBUG_PAUSE: Called player.pause()")
             }
             print("DEBUG_PAUSE: player.rate AFTER action: \(player.rate)")
+        }
+        .onChange(of: ObjectIdentifier(player)) { newPlayerID in
+            print("DEBUG_PAUSE: ⚠️ onChange(of: player) - Player instance changed!")
+            print("DEBUG_PAUSE: Old player ID: \(observedPlayerID?.debugDescription ?? "nil")")
+            print("DEBUG_PAUSE: New player ID: \(newPlayerID)")
+
+            // Clean up old observer state (can't remove from old player, just discard)
+            if timeObserver != nil {
+                print("DEBUG_PAUSE: Discarding old time observer - will create new one in setupPlayer")
+            }
+            timeObserver = nil
+            observedPlayerID = nil
+
+            // Reset state for new player
+            currentTime = 0
+            duration = 0
+            isPlaying = false
+
+            // Setup will be called by onAppear or can be called manually
+            setupPlayer()
         }
     }
 
@@ -214,6 +244,18 @@ struct CustomVideoPlayerWithControls: View {
     private func setupPlayer() {
         print("DEBUG_PAUSE: setupPlayer() called")
         print("DEBUG_PAUSE: Initial player.rate: \(player.rate)")
+
+        // Track current player identity for safe observer management
+        let currentPlayerID = ObjectIdentifier(player)
+
+        // Clean up old observer if it's from a different player
+        if let oldObserver = timeObserver,
+           let oldPlayerID = observedPlayerID,
+           oldPlayerID != currentPlayerID {
+            print("DEBUG_PAUSE: ⚠️ Player changed - discarding old observer (can't remove from old player)")
+            timeObserver = nil
+            observedPlayerID = nil
+        }
 
         // Get duration
         print("DEBUG_END_TIME: Attempting to get duration")
@@ -261,6 +303,8 @@ struct CustomVideoPlayerWithControls: View {
             }
         }
         timeObserver = observer
+        observedPlayerID = currentPlayerID
+        print("DEBUG_PAUSE: ✅ Time observer registered for player ID: \(currentPlayerID)")
 
         // Initial playing state
         isPlaying = player.rate > 0
