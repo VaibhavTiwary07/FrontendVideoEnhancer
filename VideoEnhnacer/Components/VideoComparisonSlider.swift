@@ -22,6 +22,9 @@ struct VideoComparisonSlider: View {
     @State private var resumeTimer: Timer?
     @State private var autoSlideDirection: Double = 1.0
 
+    // Throttling for slider updates
+    @State private var sliderUpdateWorkItem: DispatchWorkItem?
+
     // Video playback controls
     @State private var isPlaying: Bool = true
     @State private var currentTime: Double = 0
@@ -182,35 +185,51 @@ struct VideoComparisonSlider: View {
                                         isUserInteracting = true
                                         stopAutoSlide()
                                         let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+
+                                        // Cancel previous update
+                                        sliderUpdateWorkItem?.cancel()
+
+                                        // Update immediately for smooth feedback on handle
                                         sliderValue = newValue
                                     }
                                     .onEnded { _ in
+                                        sliderUpdateWorkItem?.cancel()
                                         scheduleAutoSlideResume()
                                     }
                             )
 
-                        // Make the whole video area draggable
+                        // Make the whole video area draggable with minimum distance to allow taps
                         Rectangle()
                             .fill(Color.clear)
                             .contentShape(Rectangle())
                             .frame(height: videoHeight)
-                            .allowsHitTesting(false)  // Let touches pass through to parent Button
                             .gesture(
-                                DragGesture(minimumDistance: 0)
+                                DragGesture(minimumDistance: 15) // Require 15pt movement to activate drag
                                     .onChanged { value in
                                         isUserInteracting = true
                                         stopAutoSlide()
+
+                                        // Throttle updates to reduce lag
                                         let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+
+                                        // Cancel previous update
+                                        sliderUpdateWorkItem?.cancel()
+
+                                        // Update immediately for visual feedback
                                         sliderValue = newValue
                                     }
                                     .onEnded { _ in
+                                        sliderUpdateWorkItem?.cancel()
                                         scheduleAutoSlideResume()
                                     }
                             )
 
                         // Video Playback Controls Overlay (only in non-compact mode)
+                        // Place controls ABOVE draggable area to ensure button receives touches
                         if !compact && showVideoControls && (playerState == .ready || playerState == .paused) {
                             videoPlaybackControls(height: videoHeight)
+                                .allowsHitTesting(true) // Ensure controls receive touches
+                                .zIndex(10) // Higher z-index to be on top
                         }
                     }
                     .onTapGesture {
@@ -292,9 +311,15 @@ struct VideoComparisonSlider: View {
                                             isUserInteracting = true
                                             stopAutoSlide()
                                             let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+
+                                            // Cancel previous update
+                                            sliderUpdateWorkItem?.cancel()
+
+                                            // Update immediately for smooth feedback
                                             sliderValue = newValue
                                         }
                                         .onEnded { _ in
+                                            sliderUpdateWorkItem?.cancel()
                                             scheduleAutoSlideResume()
                                         }
                                 )
@@ -414,9 +439,15 @@ struct VideoComparisonSlider: View {
     private func startAutoSlide() {
         stopAutoSlide()
         if compact {
-            autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+            // Reduced frequency from 50ms (20fps) to 100ms (10fps) for better performance
+            // Doubled speed to maintain same visual velocity
+            autoSlideTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 guard !isUserInteracting else { return }
-                let speed = 0.008
+
+                // Only update if controls are not showing to avoid interference
+                guard !showVideoControls else { return }
+
+                let speed = 0.016 // Doubled from 0.008 to compensate for 2x longer interval
                 sliderValue += speed * autoSlideDirection
                 if sliderValue >= 1.0 {
                     sliderValue = 1.0
@@ -508,6 +539,8 @@ struct VideoComparisonSlider: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
             }
+            .buttonStyle(PlainButtonStyle()) // Ensure button receives touches properly
+            .contentShape(Rectangle()) // Expand touch target
 
             Spacer()
 

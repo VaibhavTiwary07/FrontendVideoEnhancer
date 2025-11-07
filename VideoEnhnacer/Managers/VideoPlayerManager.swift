@@ -10,6 +10,13 @@ class VideoPlayerManager: ObservableObject {
     private var loadingKeys: Set<String> = []
     private var activeViewKeys: Set<String> = []
     private var playerMuteStates: [String: Bool] = [:]
+
+    // Asset caching to avoid reloading videos
+    private var assetCache: [URL: AVAsset] = [:]
+    private var assetCacheLock = NSLock() // Thread-safe access to cache
+
+    // Background queue for video synchronization calculations
+    private let syncQueue = DispatchQueue(label: "com.videoenhancer.sync", qos: .userInitiated)
     
     // Published states for UI updates
     @Published private var playerStates: [String: PlayerState] = [:]
@@ -35,6 +42,31 @@ class VideoPlayerManager: ObservableObject {
     
     func getPlayerState(forKey key: String) -> PlayerState {
         return playerStates[key] ?? .loading
+    }
+
+    // Helper method to get or create cached asset
+    private func getCachedAsset(for url: URL) -> AVAsset {
+        assetCacheLock.lock()
+        defer { assetCacheLock.unlock() }
+
+        if let cachedAsset = assetCache[url] {
+            print("🎬 Using cached asset for URL: \(url.lastPathComponent)")
+            return cachedAsset
+        }
+
+        print("🎬 Creating new asset for URL: \(url.lastPathComponent)")
+        let asset = AVAsset(url: url)
+        assetCache[url] = asset
+        return asset
+    }
+
+    // Clean up asset cache when memory pressure occurs
+    func clearAssetCache() {
+        assetCacheLock.lock()
+        defer { assetCacheLock.unlock() }
+
+        print("🎬 Clearing asset cache (\(assetCache.count) assets)")
+        assetCache.removeAll()
     }
     
     func setupVideoPlayers(forKey key: String, normalVideoName: String, enhancedVideoName: String) {
@@ -102,15 +134,23 @@ class VideoPlayerManager: ObservableObject {
         
         Task {
             do {
-                let normalPlayer = AVPlayer(url: originalURL)
-                let enhancedPlayer = AVPlayer(url: processedURL)
+                // Use cached assets for better performance
+                let normalAsset = getCachedAsset(for: originalURL)
+                let enhancedAsset = getCachedAsset(for: processedURL)
+
+                let normalItem = AVPlayerItem(asset: normalAsset)
+                let enhancedItem = AVPlayerItem(asset: enhancedAsset)
+
+                let normalPlayer = AVPlayer(playerItem: normalItem)
+                let enhancedPlayer = AVPlayer(playerItem: enhancedItem)
+
                 let muteState = self.playerMuteStates[key] ?? true
                 normalPlayer.isMuted = muteState
                 // Always mute enhanced player to prevent double audio in comparison mode
                 enhancedPlayer.isMuted = true
                 normalPlayer.allowsExternalPlayback = false
                 enhancedPlayer.allowsExternalPlayback = false
-                
+
                 // Preload by ensuring asset is playable
                 try await preload(player: normalPlayer)
                 try await preload(player: enhancedPlayer)
@@ -159,15 +199,27 @@ class VideoPlayerManager: ObservableObject {
     
     private func loadVideoPlayersAsync(normalVideoName: String, enhancedVideoName: String) async throws -> (normal: AVPlayer, enhanced: AVPlayer) {
         return try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else {
+                    continuation.resume(throwing: VideoLoadError.loadFailed)
+                    return
+                }
+
                 guard let normalURL = Bundle.main.url(forResource: normalVideoName, withExtension: "mp4"),
                       let enhancedURL = Bundle.main.url(forResource: enhancedVideoName, withExtension: "mp4") else {
                     continuation.resume(throwing: VideoLoadError.fileNotFound)
                     return
                 }
-                
-                let normalPlayer = AVPlayer(url: normalURL)
-                let enhancedPlayer = AVPlayer(url: enhancedURL)
+
+                // Use cached assets for better performance
+                let normalAsset = self.getCachedAsset(for: normalURL)
+                let enhancedAsset = self.getCachedAsset(for: enhancedURL)
+
+                let normalItem = AVPlayerItem(asset: normalAsset)
+                let enhancedItem = AVPlayerItem(asset: enhancedAsset)
+
+                let normalPlayer = AVPlayer(playerItem: normalItem)
+                let enhancedPlayer = AVPlayer(playerItem: enhancedItem)
                 normalPlayer.allowsExternalPlayback = false
                 enhancedPlayer.allowsExternalPlayback = false
                 
@@ -282,17 +334,20 @@ class VideoPlayerManager: ObservableObject {
         loopObservers[key] = observers
 
         // Periodically sync enhanced player's time to normal player's time
-        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
-        print("DEBUG_COMPARE: Setting up time sync observer for key '\(key)' - checking every 0.1s, threshold=0.15s")
-        let token = playerPair.normal.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+        // Increased interval from 0.1s to 0.2s to reduce overhead (5Hz instead of 10Hz)
+        let interval = CMTime(seconds: 0.2, preferredTimescale: 600)
+        print("DEBUG_COMPARE: Setting up time sync observer for key '\(key)' - checking every 0.2s, threshold=0.15s")
+
+        // Use background queue for sync calculations to offload work from main thread
+        let token = playerPair.normal.addPeriodicTimeObserver(forInterval: interval, queue: syncQueue) { [weak self] time in
             guard let self = self else { return }
             let enhancedTime = playerPair.enhanced.currentTime()
             let normalTimeSeconds = CMTimeGetSeconds(time)
             let enhancedTimeSeconds = CMTimeGetSeconds(enhancedTime)
             let diff = abs(enhancedTimeSeconds - normalTimeSeconds)
 
-            // Log time sync check (sample every 10th check to reduce console spam - roughly every 1 second)
-            let shouldLogThisCheck = Int(normalTimeSeconds * 10) % 10 == 0
+            // Log time sync check (sample every 5th check to reduce console spam - roughly every 1 second)
+            let shouldLogThisCheck = Int(normalTimeSeconds * 5) % 5 == 0
             if shouldLogThisCheck {
                 print("DEBUG_COMPARE: Time sync check - normalTime=\(String(format: "%.3f", normalTimeSeconds))s enhancedTime=\(String(format: "%.3f", enhancedTimeSeconds))s diff=\(String(format: "%.3f", diff))s")
             }
@@ -300,7 +355,11 @@ class VideoPlayerManager: ObservableObject {
             // Relaxed threshold from 0.05 to 0.15 seconds to reduce stuttering
             if diff > 0.15 {
                 print("DEBUG_COMPARE: ⚠️ DRIFT DETECTED - diff=\(String(format: "%.3f", diff))s exceeds threshold (0.15s) - seeking enhanced player from \(String(format: "%.3f", enhancedTimeSeconds))s to \(String(format: "%.3f", normalTimeSeconds))s")
-                playerPair.enhanced.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+
+                // Only dispatch seek operation to main thread when necessary
+                DispatchQueue.main.async {
+                    playerPair.enhanced.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                }
             }
         }
         // Store both token AND player reference to prevent "different instance" crash during cleanup
