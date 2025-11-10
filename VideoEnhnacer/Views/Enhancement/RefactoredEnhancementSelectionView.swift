@@ -251,9 +251,9 @@ struct RefactoredEnhancementSelectionView: View {
                 return false
             }
             // Hide 2K option on iPod devices (cap at 1080p maximum)
-//            if option.id == "2K" && DeviceSize.isiPod {
-//                return false
-//            }
+            if option.id == "2K" && DeviceSize.isiPod {
+                return false
+            }
             return true
         }
     }

@@ -38,12 +38,18 @@ struct ExportOptionsView: View {
             return options
         } else if baseResolution == "2K" {
             // 2K can be upscaled 2x to reach ~4K (maximum allowed)
-            options.append("2x")
+            // iPod Touch: cap at original resolution only
+            if !DeviceSize.isiPod {
+                options.append("2x")
+            }
             return options
         } else {
             // 1080p or lower: allow upscaling based on device capability
             // 1080p × 2x = ~2K, 1080p × 4x = ~4K (maximum)
-            options.append("2x")
+            // iPod Touch: cap at original resolution only
+            if !DeviceSize.isiPod {
+                options.append("2x")
+            }
 
             // Only add 4x if device supports 4K processing
             if DeviceSize.supports4K {
