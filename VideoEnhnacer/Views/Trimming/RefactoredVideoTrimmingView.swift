@@ -25,6 +25,7 @@ struct RefactoredVideoTrimmingView: View {
     // MARK: - State
     @State private var isShowingPaywall = false
     @State private var hasStartedLoading = false
+    @State private var showingEnhancementInfo = false
     @Environment(\.horizontalSizeClass) private var hSize
     private var isIPad: Bool { hSize == .regular }
     private var isSmallPhone: Bool { DeviceSize.isSmallPhone }
@@ -150,6 +151,10 @@ struct RefactoredVideoTrimmingView: View {
                 logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] onVideoSelected callback finished")
             }
         ))
+        .modifier(EnhancementInfoPresenter(
+            isPresented: $showingEnhancementInfo,
+            enhancementType: viewModel.enhancementType
+        ))
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
@@ -265,7 +270,23 @@ struct RefactoredVideoTrimmingView: View {
         }
 
         ToolbarItem(placement: .navigationBarTrailing) {
-            CloseButton { handleCloseAction() }
+            Button(action: {
+                showingEnhancementInfo = true
+            }) {
+                ZStack {
+                    // Background circle
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 32, height: 32)
+                        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 2)
+
+                    // Info icon
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(Color.secondary)
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     

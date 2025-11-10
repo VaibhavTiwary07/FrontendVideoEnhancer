@@ -25,7 +25,6 @@ struct ImageComparisonCard: View {
     @State private var selectedVideoURL: URL?
     @State private var selectedPhotoItem: Any? // Holds PhotosPickerItem for iOS 16+
     @State private var showingPermissionAlert = false
-    @State private var showingEnhancementInfo = false
     @StateObject private var permissionManager = PermissionManager()
     @EnvironmentObject var flowState: EnhancementFlowStateManager
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -154,27 +153,6 @@ struct ImageComparisonCard: View {
         .frame(minHeight: isIPad ? 180 : 130, maxHeight: isIPad ? 210 : 150)
         .contentShape(RoundedRectangle(cornerRadius: 22))
         .padding(.horizontal, 16)
-        .overlay(alignment: .topTrailing) {
-            Button(action: {
-                showingEnhancementInfo = true
-            }) {
-                ZStack {
-                    // Background circle with shadow
-                    Circle()
-                        .fill(Color.white.opacity(0.95))
-                        .frame(width: isIPad ? 36 : 32, height: isIPad ? 36 : 32)
-                        .shadow(color: .black.opacity(0.25), radius: 4, x: 0, y: 2)
-
-                    // Info icon
-                    Image(systemName: "info.circle.fill")
-                        .font(.system(size: isIPad ? 24 : 20, weight: .medium))
-                        .foregroundColor(Color.secondary)
-                }
-                .padding(.top, isIPad ? 16 : 14)
-                .padding(.trailing, isIPad ? 18 : 16)
-            }
-            .buttonStyle(PlainButtonStyle())
-        }
         .onAppear {
             // Auto-slide handled by slider itself
         }
@@ -234,10 +212,6 @@ struct ImageComparisonCard: View {
         } message: {
             Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
         }
-        .modifier(EnhancementInfoPresenter(
-            isPresented: $showingEnhancementInfo,
-            enhancementType: resolvedEnhancementType()
-        ))
     }
     
     // MARK: - Card Tap Handler
@@ -1015,7 +989,7 @@ struct EnhancementInfoPresenter: ViewModifier {
         if #available(iOS 16.4, *) {
             content.popover(isPresented: $isPresented) {
                 EnhancementInfoPopover(enhancementType: enhancementType)
-                    .presentationCompactAdaptation(.popover)
+                    .presentationCompactAdaptation(.sheet)
             }
         } else {
             content.alert(enhancementType.name, isPresented: $isPresented) {
