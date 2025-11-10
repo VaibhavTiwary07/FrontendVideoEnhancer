@@ -234,14 +234,10 @@ struct ImageComparisonCard: View {
         } message: {
             Text("To select videos for enhancement, please enable Photos access in Settings > Privacy & Security > Photos > VideoEnhancer.")
         }
-        .popover(isPresented: $showingEnhancementInfo) {
-            if #available(iOS 16.4, *) {
-                EnhancementInfoPopover(enhancementType: resolvedEnhancementType())
-                    .presentationCompactAdaptation(.popover)
-            } else {
-                EnhancementInfoPopover(enhancementType: resolvedEnhancementType())
-            }
-        }
+        .modifier(EnhancementInfoPresenter(
+            isPresented: $showingEnhancementInfo,
+            enhancementType: resolvedEnhancementType()
+        ))
     }
     
     // MARK: - Card Tap Handler
@@ -1008,4 +1004,25 @@ struct EnhancementInfoPopover: View {
     }
     .background(Color.appBackground)
     .padding()
+}
+
+// MARK: - Enhancement Info Presenter ViewModifier
+struct EnhancementInfoPresenter: ViewModifier {
+    @Binding var isPresented: Bool
+    let enhancementType: EnhancementType
+
+    func body(content: Content) -> some View {
+        if #available(iOS 16.4, *) {
+            content.popover(isPresented: $isPresented) {
+                EnhancementInfoPopover(enhancementType: enhancementType)
+                    .presentationCompactAdaptation(.popover)
+            }
+        } else {
+            content.alert(enhancementType.name, isPresented: $isPresented) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(enhancementType.description)
+            }
+        }
+    }
 }
