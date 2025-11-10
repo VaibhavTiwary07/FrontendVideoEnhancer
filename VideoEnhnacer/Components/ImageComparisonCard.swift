@@ -946,7 +946,8 @@ struct EnhancementInfoPopover: View {
             }
             .padding(isIPad ? 24 : 20)
         }
-        .frame(width: isIPad ? 400 : 320, height: isIPad ? 500 : 400)
+        .frame(width: isIPad ? 380 : 320)
+        .frame(maxHeight: isIPad ? 450 : 380)
         .background(Color.black.opacity(0.92))
         .cornerRadius(16)
     }
@@ -989,7 +990,7 @@ struct EnhancementInfoPresenter: ViewModifier {
         if #available(iOS 16.4, *) {
             content.popover(isPresented: $isPresented) {
                 EnhancementInfoPopover(enhancementType: enhancementType)
-                    .presentationCompactAdaptation(.sheet)
+                    .presentationCompactAdaptation(.popover)
             }
         } else {
             content.alert(enhancementType.name, isPresented: $isPresented) {

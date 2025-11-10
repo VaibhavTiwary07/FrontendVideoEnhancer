@@ -151,10 +151,6 @@ struct RefactoredVideoTrimmingView: View {
                 logVideoSelectionToFile("🎯 [RefactoredVideoTrimmingView] onVideoSelected callback finished")
             }
         ))
-        .modifier(EnhancementInfoPresenter(
-            isPresented: $showingEnhancementInfo,
-            enhancementType: viewModel.enhancementType
-        ))
         .fullScreenCover(isPresented: $isShowingPaywall) {
             PaywallView(isPresented: $isShowingPaywall)
         }
@@ -287,6 +283,10 @@ struct RefactoredVideoTrimmingView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
+            .popover(isPresented: $showingEnhancementInfo) {
+                EnhancementInfoPopover(enhancementType: viewModel.enhancementType)
+                    .presentationCompactAdaptation(.popover)
+            }
         }
     }
     
