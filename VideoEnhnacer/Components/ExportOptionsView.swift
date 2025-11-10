@@ -392,7 +392,7 @@ extension ExportOptionsView {
                 VStack(spacing: 16) {
                     let isSmall = DeviceSize.isSmallPhone
                     let playerHeight = isSmall ? max(300, geo.size.height * 0.60) : max(360, geo.size.height * 0.72)
-                    let gravity: AVLayerVideoGravity = isSmall ? .resizeAspectFill : .resizeAspect
+                    let gravity: AVLayerVideoGravity = .resizeAspect
 
                     ZStack {
                         if let exportedVideoURL = exportedVideoURL {

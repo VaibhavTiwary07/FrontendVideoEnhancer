@@ -166,6 +166,8 @@ final class EnhancementSelectionViewModel: ObservableObject {
     func retryProcessing() {
         error = nil
         showAlert = false
+        processingState = .idle
+        progress = 0.0
         processVideo()
     }
 
@@ -186,7 +188,28 @@ final class EnhancementSelectionViewModel: ObservableObject {
         selectedOption = ""
         setDefaultSelection()
     }
-    
+
+    func resetForReappearance() {
+        // Cancel any ongoing tasks
+        currentTask?.cancel()
+        currentTask = nil
+
+        // Stop service processing
+        Task { [weak self] in
+            await self?.enhancementService.cancelProcessing()
+        }
+
+        // Reset state but keep user's selected options
+        processingState = .idle
+        progress = 0.0
+        error = nil
+        result = nil
+        showAlert = false
+
+        // Disable screen wake lock
+        disableScreenWakeLock()
+    }
+
     // MARK: - Private Methods
     private func setupBindings() {
         enhancementService.processingStatePublisher

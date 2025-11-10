@@ -15,6 +15,7 @@ struct RefactoredEnhancementSelectionView: View {
     // MARK: - State
     @State private var showingResults = false
     @State private var hasCompletedOnce = false // Track if processing has completed to prevent auto-restart
+    @State private var returnedFromResults = false // Track if we've returned from results page
     @EnvironmentObject private var historyManager: HistoryManager
 
     private let onBack: (() -> Void)?
@@ -108,6 +109,13 @@ struct RefactoredEnhancementSelectionView: View {
             }
         }
         .onAppear {
+            // Reset state if returning from results page
+            if returnedFromResults {
+                print("DEBUG_PROCESS_REFACT: Detected return from results page - resetting state")
+                viewModel.resetForReappearance()
+                returnedFromResults = false
+            }
+
             // DEBUG: Screen dimensions
             let screenBounds = UIScreen.main.bounds
             let window = UIApplication.shared.connectedScenes
@@ -152,7 +160,7 @@ struct RefactoredEnhancementSelectionView: View {
             )
         }
         .processingOverlay(
-            isPresenting: viewModel.isProcessing,
+            isPresenting: viewModel.isProcessing && !viewModel.showAlert,
             progress: viewModel.progress,
             processingState: viewModel.processingState,
             onCancel: { viewModel.cancelProcessing() }
@@ -302,6 +310,8 @@ struct RefactoredEnhancementSelectionView: View {
         guard let result else { return }
         // Mark that processing has completed once to prevent auto-restart
         hasCompletedOnce = true
+        // Mark that we're navigating to results (for detecting back navigation later)
+        returnedFromResults = true
         if let onShowResults {
             onShowResults(result)
         } else {

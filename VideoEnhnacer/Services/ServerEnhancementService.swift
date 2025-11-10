@@ -90,6 +90,8 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                 }
             } catch {
                 print("DEBUG_PROCESSING_BACK: cancelProcessing() - Server cancelTask failed: \(error.localizedDescription)")
+                // Reset state so alert is interactive
+                processingState = .idle
                 // Only show alert if user actively canceled (not during cleanup of completed task)
                 await showErrorAlert(title: "Cancel Failed", message: "Failed to cancel task: \(error.localizedDescription)")
             }
@@ -330,6 +332,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                     throw EnhancementError.processingFailed("Invalid 503 response from server")
                 }
                 // Show "Server Busy" alert for both "busy" and "insufficient_memory" statuses
+                processingState = .idle
                 await showErrorAlert(title: "Server Busy", message: "Server busy, please try again after some time")
                 throw EnhancementError.processingFailed(error)
             }
@@ -397,6 +400,7 @@ final class ServerEnhancementService: ObservableObject, EnhancementServiceProtoc
                                     self.pollTimer = nil
                                     let errorMsg = json["error"] as? String ?? "Unknown error"
                                     // Show "Server Busy" alert for all failures, including memory-related errors
+                                    self.processingState = .idle
                                     self.showErrorAlert(title: "Server Busy", message: "Server busy, please try again after some time")
                                     print("DEBUG_PROCESSING_BACK: pollTimer - Resuming continuation with error")
                                     continuation.resume(throwing: EnhancementError.processingFailed(errorMsg))
