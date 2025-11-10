@@ -1,5 +1,5 @@
-[1762757498.856092] ═══════════════════════════════════════════════════════════════
-[1762757498.8564692] EXPORT DIAGNOSTICS LOG STARTED
-[1762757498.856529] ═══════════════════════════════════════════════════════════════
-[1762757499.510366] ❌ isExporting set to FALSE (second export path completed or failed) - Back and Home buttons should now be ENABLED
-[1762757507.679562] ⚠️ BACK BUTTON TAPPED - isExporting=false - THIS SHOULD NOT HAPPEN IF DISABLED!
+[1762758784.463906] ═══════════════════════════════════════════════════════════════
+[1762758784.464517] EXPORT DIAGNOSTICS LOG STARTED
+[1762758784.464579] ═══════════════════════════════════════════════════════════════
+[1762758784.949228] ❌ isExporting set to FALSE (second export path completed or failed) - Back and Home buttons should now be ENABLED
+[1762758787.567048] ⚠️ HOME BUTTON TAPPED - isExporting=false - THIS SHOULD NOT HAPPEN IF DISABLED!

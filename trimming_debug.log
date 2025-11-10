@@ -1,550 +1,534 @@
-[1762757487.153225] ═══════════════════════════════════════════════════════════════
-[1762757487.154109] TRIMMING DIAGNOSTICS LOG STARTED
-[1762757487.154314] ═══════════════════════════════════════════════════════════════
-[1762757487.154597] 🎬 [VideoTrimmingViewModel] loadVideo() called
-[1762757487.1546612] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762757487.156122] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
-[1762757487.15769] 💾 [RefactoredVideoTrimmingView] File size: 1.1 MB
-[1762757487.166473] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.170676] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
-[1762757487.171214] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0010.MP4
-[1762757487.175617] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 1.4s
-[1762757487.175966] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
-[1762757487.176269] 🎥 [VideoTrimmingViewModel] Setting up video players
-[1762757487.18631] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.194335] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.232219] ✅ [VideoTrimmingViewModel] Video players setup complete
-[1762757487.2352772] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.2384238] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.2857208] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.288439] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.334847] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.337655] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.340465] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
-[1762757487.385089] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.388514] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.415247] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
-[1762757487.436088] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.439156] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.485777] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.489089] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.535891] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.538441] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.5849252] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.587574] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.635654] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.636938] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
-[1762757487.638459] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.664207] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.684952] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.692093] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.736628] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.7411861] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.785973] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.7899408] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.8360739] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.8401098] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.885726] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.890849] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.9361892] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.940284] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.985951] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757487.989892] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.0359368] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.0406852] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.085824] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.0955439] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.136142] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.1397629] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.1859798] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.1899018] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.2347522] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.238877] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.285913] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.301631] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.336055] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.340672] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.385975] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.38995] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.4359841] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.439769] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.4858608] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.490291] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.536028] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.54043] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.586098] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.590084] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.6347342] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.638655] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.687943] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.6975079] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.7359471] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.7399201] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.7852] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.7895432] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.835994] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.839921] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.886454] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.896189] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.936047] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.9400558] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.985748] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757488.9894462] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.035846] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.039702] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.090915] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.109895] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.13623] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.1408691] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.185858] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.189755] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.235986] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.2402182] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.284881] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.2935119] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.3360991] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.339931] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.386107] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.390153] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.434953] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.439389] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.485924] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.495662] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.534858] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.539315] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.586173] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.5905461] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.63591] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.6397982] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.6858258] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.696619] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.73597] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.7399712] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.786123] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.790209] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.836094] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.8399858] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.88835] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.897155] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.936017] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.9400768] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.985961] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757489.989984] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.0361052] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.0400739] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.086554] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.094798] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.135997] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.14011] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.1860251] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.190257] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.234921] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.239131] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.286372] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.295137] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.336204] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.340069] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.385778] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.389533] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.434976] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.439344] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.499638] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.536034] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.540097] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.585165] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.589287] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.6358938] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.6400208] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.6850328] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.68955] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.734881] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.739284] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.785676] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.7895122] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.836124] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.840756] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.886615] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.892875] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.93605] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.93992] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.985781] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757490.990189] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.034946] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.038842] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.087251] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.0942059] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.136035] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.140002] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.185663] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.189153] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.2359319] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.2397099] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.2859921] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.290874] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.336083] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.339507] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757491.345428] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=0.0 trimEnd=1.4
-[1762757491.345896] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.358879] 👋 [RefactoredVideoTrimmingView] View disappeared
-[1762757491.359254] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
-[1762757491.359354] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
-[1762757491.394048] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.435758] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.4413118] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.485656] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.491308] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.535571] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.538916] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.585503] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.588968] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.63469] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.638747] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.68554] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.691028] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.735458] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.738843] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.784508] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.78811] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.8345242] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.8380241] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.88501] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.889297] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.93499] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.938606] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.985409] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757491.988882] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.035347] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.0384688] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.08567] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.0911] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.135587] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.138886] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.185601] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.189042] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.234476] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.237973] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.2854528] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.290155] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.335361] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.338536] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.3855019] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.388842] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.4355621] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.439324] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.485589] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.49093] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.535375] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.5386019] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.585573] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.588997] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.634635] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.638119] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.6854239] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.6891232] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.735187] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.7385201] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.785619] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.7890291] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.797402] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.4
-[1762757492.798893] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.4s
-[1762757492.7990742] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.4s quality=high
-[1762757492.812089] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0010_trimmed.MP4 size=1.1MB
-[1762757492.835567] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.8388638] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.8850288] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.888546] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.93582] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.939496] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.985501] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757492.989098] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.0344849] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.038126] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.0854878] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.0889769] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.135625] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.1388721] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.18567] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.1891088] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.237317] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.241926] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.285088] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.289083] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.335685] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.339816] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.385682] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.3886619] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.434484] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.437829] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.4854279] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.488611] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.5355759] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.538787] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.584814] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.5882158] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.634606] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.638074] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.685567] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.688991] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.734587] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.737922] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.785538] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.7887058] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.835665] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.839071] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.885436] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.888593] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.935622] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.9388242] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.98547] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757493.988534] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.0350099] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.038554] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.085463] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.088644] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.135579] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.138723] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.18462] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.1886048] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.235011] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.2386699] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.285469] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.288744] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.335573] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.338696] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.384945] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.388406] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.434935] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.4383059] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.4854279] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.4886599] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.535589] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.538845] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.584642] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.588324] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.6360269] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.6398048] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.6856642] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.689341] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.735606] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.73869] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.7856221] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.788794] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.835942] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.839737] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.8855782] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.888562] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.9353929] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.9381251] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.9849029] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757494.9882379] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757495.035526] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757495.039041] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.230935] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.250489] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.262611] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.289566] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.295495] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.3361158] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.340996] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.3858008] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.389697] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.435361] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.438694] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.485413] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.4889688] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.5359259] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.5404491] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.584714] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.588414] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.634314] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.6377091] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.687829] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.6953359] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.7363992] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.741606] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.786022] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.7908158] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.834167] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.8377728] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.8869982] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.894009] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.935503] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.9389138] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.985589] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757508.9897509] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.035383] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.038703] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.085294] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.088728] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.135493] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.1389298] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.1856961] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.189532] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.23474] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.2399402] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.285554] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.289157] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.33636] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.3437119] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.385603] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.389133] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.435581] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.438961] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.485239] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.488698] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.5355458] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.53924] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.562702] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=0.0 trimEnd=1.4
-[1762757509.5629148] ✂️ [ServerEnhancementService] Will trim video: start=0.0s end=1.4s
-[1762757509.563143] 🎬 [VideoProcessingService] trimVideo called: start=0.0s end=1.4s quality=high
-[1762757509.5726252] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0010_trimmed.MP4 size=1.1MB
-[1762757509.585192] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.5886579] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.635576] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.638997] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.685637] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.6890001] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.735501] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.738981] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.7856069] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.788775] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.837185] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.845893] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.885469] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.888797] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.937226] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.942504] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.987104] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757509.993126] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.0373049] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.042386] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.087122] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.0948482] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.136948] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.142473] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.185544] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.1887488] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.2358499] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.246924] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.285719] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.2927709] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.3355489] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.339099] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.3869982] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.393801] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.4368849] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.441908] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.48682] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.491537] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.537055] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.544143] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.587161] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.592953] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.636903] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.6429949] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.686839] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.693081] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.7372289] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.741946] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.786707] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.790724] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.836996] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.845515] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.88586] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.889905] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.9369578] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.944247] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.986553] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757510.990742] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.036847] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.042128] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.0868459] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.095289] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.136723] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.140682] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.186901] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.192227] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.23708] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.245348] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.286356] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.2898579] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.337669] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.343852] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.387302] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.392518] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.437234] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.441618] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.487207] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.492302] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.5374432] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.544653] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.586829] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.591161] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.637177] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.643952] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.685999] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.690331] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.737426] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.746248] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.787167] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.796495] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.835701] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.840936] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.8861089] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.894678] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.9372811] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.946899] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.986965] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757511.99206] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757512.037082] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757512.041294] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757512.086796] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757512.093102] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=0.0 trimEnd=1.4
-[1762757512.1130428] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.117957] 👁️ [RefactoredVideoTrimmingView] View appeared
-[1762757512.118104] ✅ [RefactoredVideoTrimmingView] Data already loaded, skipping reload
-[1762757512.1286259] 📊 [RefactoredVideoTrimmingView] Computing video metadata
-[1762757512.129589] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
-[1762757512.130117] 💾 [RefactoredVideoTrimmingView] File size: 1.1 MB
-[1762757512.136091] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.1407862] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.187849] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.234823] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.2392259] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.285656] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.2902899] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.3357658] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.3397021] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.385797] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.390586] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.43592] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.440017] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.4854488] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.491893] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.535903] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.539991] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.585299] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.590084] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.63588] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.639957] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.68614] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.690531] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.7348309] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.739204] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.784821] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.789054] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.834961] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.839407] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.8851972] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.889432] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.93686] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.9432259] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.98611] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757512.990211] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757513.035866] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757513.0399761] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757513.0618901] ❌ [RefactoredVideoTrimmingView] Close button tapped
-[1762757513.063754] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipod 7th gen touch), iOS 15.2
-[1762757513.621841] 👋 [RefactoredVideoTrimmingView] View disappeared
-[1762757513.622024] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
-[1762757513.622144] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762760333.716155] ═══════════════════════════════════════════════════════════════
+[1762760333.716393] TRIMMING DIAGNOSTICS LOG STARTED
+[1762760333.7164369] ═══════════════════════════════════════════════════════════════
+[1762760333.7164788] 🎬 [VideoTrimmingViewModel] loadVideo() called
+[1762760333.716518] 📊 [RefactoredVideoTrimmingView] Computing video metadata
+[1762760333.717423] 📐 [RefactoredVideoTrimmingView] Video resolution: 1920×1080
+[1762760333.718522] 💾 [RefactoredVideoTrimmingView] File size: 5.0 MB
+[1762760333.722628] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.72467] ⏳ [VideoTrimmingViewModel] performVideoLoading() started
+[1762760333.7251558] 📹 [VideoTrimmingViewModel] Getting video info from: IMG_0025.MP4
+[1762760333.7285619] ✅ [VideoTrimmingViewModel] Video info loaded - duration: 3.901s
+[1762760333.728643] 📱 [VideoTrimmingViewModel] Small device detected - using sequential loading
+[1762760333.728685] 🎥 [VideoTrimmingViewModel] Setting up video players
+[1762760333.740788] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.748168] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.783739] ✅ [VideoTrimmingViewModel] Video players setup complete
+[1762760333.785441] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.788042] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.790885] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.8357801] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.838139] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.84076] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.885476] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.888403] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.891179] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.892499] 🖼️ [VideoTrimmingViewModel] Generating 6 thumbnails at low quality
+[1762760333.936428] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.953625] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.956839] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.985357] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.987803] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.989952] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760333.992635] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.036191] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.03844] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.040762] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.085369] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.088074] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.090458] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.135941] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.138165] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.1402988] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.1696448] ✅ [VideoTrimmingViewModel] Generated 6 thumbnails
+[1762760334.18505] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.187192] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.189001] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.191117] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.227689] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.2354631] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.237957] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.2401528] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.285342] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.287761] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.289634] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.291356] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.336137] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.338378] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.3407469] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.385264] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.387505] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.389463] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.390516] ✅ [VideoTrimmingViewModel] All loading complete - setting isLoading=false
+[1762760334.39165] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.436318] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.441382] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.4864721] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.49044] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.536181] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.540524] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.5852861] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.5893369] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.592801] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.6362262] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.640944] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.685473] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.689533] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.692865] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.735398] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.739276] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.742803] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.7853432] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.7894669] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.792747] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.836049] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.8403502] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.84416] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.8853412] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.889441] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.893214] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.936122] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.939941] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.943006] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.985434] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.989408] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760334.9929419] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.03692] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.043981] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.085423] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.089397] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.0924559] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.136087] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.140139] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.143605] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.185446] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.189477] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.1933079] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.2367449] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.245352] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.285424] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.289524] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.2926779] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.336072] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.34029] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.344301] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.38525] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.389402] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.3933911] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.4361129] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.440218] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.4433641] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.4854941] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.489686] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.4931788] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.528528] ▶️ [VideoTrimmingSlider] Started dragging end handle
+[1762760335.535873] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.539845] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.544238] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.58531] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.5892391] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.5928988] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.63555] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.639493] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.6429691] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.6851559] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.689252] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.6928601] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.7354221] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.73974] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.7439132] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.7852678] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.7895489] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.793232] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.8355079] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.839926] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.8438249] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.886115] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.890387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.894023] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.935569] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.940429] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.9485369] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.9862108] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760335.9910321] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.03554] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.0398731] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.043604] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.0863972] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.0919418] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.136859] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.1445289] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.1862679] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.1908112] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.235807] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.24121] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.2859712] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.293865] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.311283] ▶️ [VideoTrimmingSlider] Finished dragging end handle - endTime: 1.6196116071428572s (duration: 1.6196116071428572s)
+[1762760336.33644] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.341505] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.385363] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.38943] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.392614] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.436411] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.441329] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.485467] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.489818] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.495395] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.5364761] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.541185] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.58539] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.58962] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.593021] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.636255] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.641348] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.68539] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.691702] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.696351] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.736319] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.7410278] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.7853851] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.7894769] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.7926521] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.836606] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.842102] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.885548] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.889526] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.892623] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.93606] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.940062] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.943562] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.9854012] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.9895191] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760336.9931269] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.03636] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.040978] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.085369] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.089405] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.0927749] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.1363158] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.1410398] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.185586] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.189718] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.1932158] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.236497] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.2422318] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.2612638] ↔️ [VideoTrimmingSlider] Started dragging trim window
+[1762760337.285318] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.289304] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.2928739] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.336296] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.3410258] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.3863668] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.390749] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.436212] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.4447] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.486067] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.491245] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.535176] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.544132] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.5859609] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.5908709] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.603218] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.63615] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.6431432] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.686841] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.692615] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.735911] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.7405782] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.744417] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.7872791] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.793058] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.836487] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.841315] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.885356] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.8897939] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.893835] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.936069] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.9407802] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.9491959] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.961509] ↔️ [VideoTrimmingSlider] Finished dragging window - start: 2.2813883928571426s, end: 3.901s, duration: 1.6196116071428572s
+[1762760337.985701] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760337.992024] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.036721] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.041551] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.0855498] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.090595] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.095553] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.13656] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.141716] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.185348] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.1896958] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.1945338] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.236387] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.2413712] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.285444] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.289651] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.294239] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.336426] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.3409119] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.3853269] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.389021] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.392245] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.435852] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.439505] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.442677] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.485279] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.489157] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.492368] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.536264] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.539773] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.542519] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.585254] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.588853] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.591665] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.636187] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.639792] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.642963] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.685355] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.68924] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.6929622] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.736203] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.7401109] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.743356] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.785277] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.78894] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.792091] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.83634] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.842834] 📱 [RefactoredVideoTrimmingView] Initialized on device: iPhone (ipphone se1), iOS 15.2
+[1762760338.860774] 📤 [RefactoredVideoTrimmingView] Continue clicked: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.861433] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.8748221] 👋 [RefactoredVideoTrimmingView] View disappeared
+[1762760338.875073] 🧹 [RefactoredVideoTrimmingView] Cleaning up resources
+[1762760338.875331] 🧹 [VideoTrimmingViewModel] Cleaning up (cancelling tasks, player, subscriptions)
+[1762760338.9010658] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.935916] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.939733] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.9426231] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.985076] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.98833] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760338.9916139] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.0357451] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.039274] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.0423741] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.08513] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.089816] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.093334] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.136176] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.140209] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.1441169] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.186863] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.1919188] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.235983] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.2399368] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.243897] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.285979] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.2899141] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.293437] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.336347] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.344805] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.384924] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.388277] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.391529] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.435889] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.4392471] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.442083] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.485934] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.48949] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.492543] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.536045] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.541003] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.585053] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.5883079] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.591397] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.6353931] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.639112] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.6423779] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.685045] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.6882281] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.691766] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.7359118] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.739472] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.742492] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.7850518] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.7882829] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.791744] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.835916] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.839458] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.842176] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.8864222] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.8923569] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.911552] ⚙️ [EnhancementSelectionViewModel] Starting processing: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.912055] ✂️ [ServerEnhancementService] Will trim video: start=2.2813883928571426s end=3.901s
+[1762760339.9122791] 🎬 [VideoProcessingService] trimVideo called: start=2.2813883928571426s end=3.901s quality=high
+[1762760339.9304929] ✅ [VideoProcessingService] Trim completed: outputURL=IMG_0025_trimmed.MP4 size=5.0MB
+[1762760339.9359798] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.939427] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.942069] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.985054] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.9880629] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760339.9909859] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.03568] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.039082] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.041702] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.085081] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.088259] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.091104] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.135813] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.138938] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.142033] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.1848412] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.187676] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.190346] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.235474] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.238947] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.2424479] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.285773] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.2890759] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.291873] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.335771] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.339181] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.341881] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.385668] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.3889341] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.391687] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.435862] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.439083] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.441711] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.485271] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.488234] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.4911199] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.536428] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.542488] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.58526] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.589055] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.5919251] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.634989] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.637906] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.640981] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.684917] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.687796] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.690685] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.735843] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.7396321] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.7438478] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.7849731] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.787942] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.7906199] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.835908] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.839227] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.842474] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.8849149] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.887816] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.890431] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.935647] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.9388242] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.941537] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.9850059] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.98793] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760340.9906101] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.0359259] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.039376] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.042632] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.084806] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.0876179] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.091459] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.135948] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.1392388] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.141978] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.185092] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.188364] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.191663] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.235842] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.238939] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.241509] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.2850552] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.288002] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.290868] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.335919] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.33923] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.341833] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.385113] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.388128] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.390897] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.435739] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.438809] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.441745] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.485069] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.488058] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.4909558] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.5358958] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.5391998] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.5422091] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.584924] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.5880098] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.591099] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.635995] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.639408] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.642339] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.68501] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.688004] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.6909242] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.735908] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.739176] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.74184] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.785033] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.788053] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.7908769] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.835839] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.838959] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.841866] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.885168] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.8884192] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.8915749] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.935878] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.939081] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.942062] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.985168] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.988203] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760341.990982] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.036053] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.040427] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.0436568] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.0849519] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.087837] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.0905051] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.135868] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.13933] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.141891] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.1850681] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.1881309] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.190936] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.2358708] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.2390342] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.241706] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.2849522] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.287658] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.290107] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.3358312] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.338777] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.341598] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.385097] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.387856] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.390841] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.436127] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.4394069] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.441811] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.48511] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.487942] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.490566] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.535221] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.537911] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.541156] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.5847611] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.587844] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.590811] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.635845] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.638711] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.64181] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.685382] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.688201] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.691495] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.736572] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.739818] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901
+[1762760342.742206] 📥 [EnhancementSelectionViewModel] Initialized: trimStart=2.2813883928571426 trimEnd=3.901

@@ -24,11 +24,6 @@ struct VideoComparisonSlider: View {
 
     // Throttling for slider updates
     @State private var sliderUpdateWorkItem: DispatchWorkItem?
-
-    // Tap vs Drag detection
-    @State private var dragStartLocation: CGPoint?
-    @State private var dragStartTime: Date?
-    @State private var isDragging: Bool = false
     let onTapDetected: (() -> Void)?
 
     // Video playback controls
@@ -206,87 +201,31 @@ struct VideoComparisonSlider: View {
                                     }
                             )
 
-                        // Make the whole video area draggable with tap detection
-                        Rectangle()
-                            .fill(Color.clear)
-                            .contentShape(Rectangle())
-                            .frame(height: videoHeight)
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        // Initialize tracking on first change
-                                        if dragStartLocation == nil {
-                                            dragStartLocation = value.startLocation
-                                            dragStartTime = Date()
-                                        }
-
-                                        // Calculate distance from start
-                                        let distance = hypot(
-                                            value.location.x - value.startLocation.x,
-                                            value.location.y - value.startLocation.y
-                                        )
-
-                                        // Only treat as drag if movement exceeds threshold (10 points)
-                                        if distance > 10 {
-                                            isDragging = true
-                                            isUserInteracting = true
-                                            stopAutoSlide()
-
-                                            // Throttle updates to reduce lag
-                                            let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
-
-                                            // Cancel previous update
-                                            sliderUpdateWorkItem?.cancel()
-
-                                            // Update immediately for visual feedback
-                                            sliderValue = newValue
-                                        }
-                                    }
-                                    .onEnded { value in
-                                        // Calculate final metrics
-                                        let distance = hypot(
-                                            value.location.x - value.startLocation.x,
-                                            value.location.y - value.startLocation.y
-                                        )
-                                        let duration = dragStartTime.map { Date().timeIntervalSince($0) } ?? 0
-
-                                        // Determine if it was a tap: < 10pt movement AND < 200ms duration
-                                        if !isDragging && distance < 10 && duration < 0.2 {
-                                            // TAP DETECTED - trigger callback to open video picker
-                                            onTapDetected?()
-                                        }
-
-                                        // Reset state
-                                        dragStartLocation = nil
-                                        dragStartTime = nil
-                                        isDragging = false
-                                        sliderUpdateWorkItem?.cancel()
-
-                                        if isUserInteracting {
-                                            scheduleAutoSlideResume()
-                                        }
-                                    }
-                            )
-
                         // Video Playback Controls Overlay (only in non-compact mode)
-                        // Place controls ABOVE draggable area to ensure button receives touches
+                        // Place controls LAST in ZStack to ensure they're on top
                         if !compact && showVideoControls && (playerState == .ready || playerState == .paused) {
                             videoPlaybackControls(height: videoHeight)
-                                .allowsHitTesting(true) // Ensure controls receive touches
-                                .zIndex(10) // Higher z-index to be on top
+                                .allowsHitTesting(true) // Blocks tap-through and ensures controls receive touches
+                                .zIndex(100) // Very high z-index to be on top
                         }
                     }
-                    .onTapGesture {
-                        // Only toggle controls in non-compact mode (results page)
-                        if !compact {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                showVideoControls.toggle()
+                    .contentShape(Rectangle()) // Make entire ZStack tappable
+                    .simultaneousGesture(
+                        TapGesture()
+                            .onEnded { _ in
+                                // Only toggle controls in non-compact mode if controls didn't capture tap
+                                if !compact {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        showVideoControls.toggle()
+                                    }
+                                    if showVideoControls {
+                                        scheduleHideControls()
+                                    }
+                                } else {
+                                    onTapDetected?()
+                                }
                             }
-                            if showVideoControls {
-                                scheduleHideControls()
-                            }
-                        }
-                    }
+                    )
                     
                     if !compact {
                         // Labels
@@ -458,6 +397,11 @@ struct VideoComparisonSlider: View {
         .onChange(of: playerState) { state in
             print("DEBUG_COMPARE: Player state changed for key '\(videoKey)': \(state)")
 
+            // Update isPlaying based on actual player state
+            if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+                isPlaying = normalPlayer.rate > 0
+            }
+
             // Log player times when state changes
             if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey),
                let enhancedPlayer = videoPlayerManager.getEnhancedPlayer(forKey: videoKey) {
@@ -582,9 +526,11 @@ struct VideoComparisonSlider: View {
                     .font(.system(size: 54))
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .frame(width: 80, height: 80) // Explicit large touch target
             }
             .buttonStyle(PlainButtonStyle()) // Ensure button receives touches properly
             .contentShape(Rectangle()) // Expand touch target
+            .allowsHitTesting(true) // Ensure button can receive touches
 
             Spacer()
 
@@ -608,23 +554,24 @@ struct VideoComparisonSlider: View {
                             .fill(Color.white)
                             .frame(width: 16, height: 16)
                             .offset(x: max(0, geo.size.width * (duration > 0 ? currentTime / duration : 0)) - 8)
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        isSeeking = true
-                                        let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
-                                        currentTime = newTime
-                                    }
-                                    .onEnded { value in
-                                        let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
-                                        seekToTime(newTime)
-                                        isSeeking = false
-                                        scheduleHideControls()
-                                    }
-                            )
                     }
+                    .contentShape(Rectangle()) // Make entire track tappable
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                isSeeking = true
+                                let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
+                                currentTime = newTime
+                            }
+                            .onEnded { value in
+                                let newTime = max(0, min(duration, (value.location.x / geo.size.width) * duration))
+                                seekToTime(newTime)
+                                isSeeking = false
+                                scheduleHideControls()
+                            }
+                    )
                 }
-                .frame(height: 16)
+                .frame(height: 44) // Larger touch target
 
                 // Time display
                 HStack {
@@ -642,11 +589,9 @@ struct VideoComparisonSlider: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 16)
             .background(
-                LinearGradient(
-                    colors: [Color.clear, Color.black.opacity(0.6)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                Rectangle()
+                    .fill(Color.black.opacity(0.75))
+                    .ignoresSafeArea(edges: .bottom)
             )
         }
         .frame(height: height)
@@ -723,6 +668,11 @@ struct VideoComparisonSlider: View {
     }
 
     private func scheduleHideControls() {
+        // Sync play state when showing controls
+        if let normalPlayer = videoPlayerManager.getNormalPlayer(forKey: videoKey) {
+            isPlaying = normalPlayer.rate > 0
+        }
+
         hideControlsTask?.cancel()
         hideControlsTask = Task {
             try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
