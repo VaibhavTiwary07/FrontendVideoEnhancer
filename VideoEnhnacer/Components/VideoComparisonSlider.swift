@@ -15,7 +15,8 @@ struct VideoComparisonSlider: View {
     let customKey: String?
     // Optional background color
     let backgroundColor: Color?
-    @State private var sliderValue: Double = 0.3
+    @State private var sliderValue: Double = 0.3 // Top divider position (controlled by bottom slider)
+    @State private var bottomSliderValue: Double = 0.3 // Bottom slider position (master control)
     @State private var isViewVisible: Bool = false
     @State private var isUserInteracting: Bool = false
     @State private var autoSlideTimer: Timer?
@@ -173,34 +174,6 @@ struct VideoComparisonSlider: View {
                                 y: max(1, videoHeight / 2)
                             )
 
-                        // Draggable handle aligned with divider
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 22, height: 22)
-                            .shadow(color: .black.opacity(0.25), radius: 3, x: 0, y: 2)
-                            .position(
-                                x: max(11, min(geometry.size.width - 11, geometry.size.width * sliderValue)),
-                                y: max(12, videoHeight / 2)
-                            )
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        isUserInteracting = true
-                                        stopAutoSlide()
-                                        let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
-
-                                        // Cancel previous update
-                                        sliderUpdateWorkItem?.cancel()
-
-                                        // Update immediately for smooth feedback on handle
-                                        sliderValue = newValue
-                                    }
-                                    .onEnded { _ in
-                                        sliderUpdateWorkItem?.cancel()
-                                        scheduleAutoSlideResume()
-                                    }
-                            )
-
                         // Video Playback Controls Overlay (only in non-compact mode)
                         // Place controls LAST in ZStack to ensure they're on top
                         if !compact && showVideoControls && (playerState == .ready || playerState == .paused) {
@@ -260,7 +233,7 @@ struct VideoComparisonSlider: View {
                                                 endPoint: .trailing
                                             )
                                         )
-                                        .frame(width: max(0, min(geometry.size.width, geometry.size.width * sliderValue)), height: 4)
+                                        .frame(width: max(0, min(geometry.size.width, geometry.size.width * bottomSliderValue)), height: 4)
                                         .clipShape(RoundedRectangle(cornerRadius: 2)),
                                     alignment: .leading
                                 )
@@ -285,25 +258,26 @@ struct VideoComparisonSlider: View {
                                 )
                                 .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 2)
                                 .position(
-                                    x: max(10, min(geometry.size.width - 10, geometry.size.width * sliderValue)),
+                                    x: max(10, min(geometry.size.width - 10, geometry.size.width * bottomSliderValue)),
                                     y: 10
                                 )
                                 .gesture(
                                     DragGesture(minimumDistance: 0)
                                         .onChanged { value in
                                             isUserInteracting = true
-                                            stopAutoSlide()
-                                            let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : sliderValue
+                                            let newValue = geometry.size.width > 0 ? min(max(value.location.x / geometry.size.width, 0), 1) : bottomSliderValue
 
                                             // Cancel previous update
                                             sliderUpdateWorkItem?.cancel()
 
-                                            // Update immediately for smooth feedback
+                                            // Update bottom slider (master)
+                                            bottomSliderValue = newValue
+                                            // Also update top divider (slave follows master)
                                             sliderValue = newValue
                                         }
                                         .onEnded { _ in
                                             sliderUpdateWorkItem?.cancel()
-                                            scheduleAutoSlideResume()
+                                            isUserInteracting = false
                                         }
                                 )
                         }
@@ -359,7 +333,8 @@ struct VideoComparisonSlider: View {
                 videoPlayerManager.resumePlayers(forKey: videoKey)
             }
 
-            startAutoSlide()
+            // Auto-slide disabled - slider controlled manually by bottom slider
+            // startAutoSlide()
 
             // Only setup time observer for non-compact mode (results page)
             if !compact {
@@ -468,10 +443,11 @@ struct VideoComparisonSlider: View {
     
     private func scheduleAutoSlideResume() {
         stopResumeTimer()
-        resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-            isUserInteracting = false
-            startAutoSlide()
-        }
+        // Auto-slide disabled
+        // resumeTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+        //     isUserInteracting = false
+        //     startAutoSlide()
+        // }
     }
     
     private func stopResumeTimer() {
